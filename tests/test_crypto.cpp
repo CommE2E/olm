@@ -1,0 +1,100 @@
+#include "axolotl/crypto.hh"
+
+#include <cstring>
+#include <iostream>
+#include <iomanip>
+#include <cstdlib>
+
+std::ostream & print_hex(
+    std::ostream & os,
+    std::uint8_t const * data,
+    std::size_t length
+) {
+    for (std::size_t i = 0; i < length; i++) {
+        std::cerr << std::setw(2) << std::setfill('0') << std::right
+            << std::hex << (int) data[i];
+    }
+    return os;
+}
+
+char const * TEST_CASE;
+
+void assert_equals(
+    std::uint8_t *expected,
+    std::uint8_t *actual,
+    std::size_t length
+) {
+    if (std::memcmp(expected, actual, length)) {
+        std::cerr << "FAILED :" << TEST_CASE << std::endl;
+        print_hex(std::cerr << "Expected: ", expected, length) << std::endl;
+        print_hex(std::cerr << "Actual:   ", actual, length) << std::endl;
+        std::exit(1);
+    }
+}
+
+
+int main() {
+
+
+
+
+{ /* HDKF Test Case 1 */
+
+TEST_CASE = "HDKF Test Case 1";
+
+std::uint8_t input[22] = {
+    0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
+    0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
+    0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b
+};
+
+std::uint8_t salt[13] = {
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+    0x08, 0x09, 0x0a, 0x0b, 0x0c
+};
+
+std::uint8_t info[10] = {
+    0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7,
+    0xf8, 0xf9
+};
+
+std::uint8_t hmac_expected_output[32] = {
+    0x07, 0x77, 0x09, 0x36, 0x2c, 0x2e, 0x32, 0xdf,
+    0x0d, 0xdc, 0x3f, 0x0d, 0xc4, 0x7b, 0xba, 0x63,
+    0x90, 0xb6, 0xc7, 0x3b, 0xb5, 0x0f, 0x9c, 0x31,
+    0x22, 0xec, 0x84, 0x4a, 0xd7, 0xc2, 0xb3, 0xe5,
+};
+
+std::uint8_t hmac_actual_output[32] = {};
+
+axolotl::hmac_sha256(
+    salt, 0 * sizeof(salt),
+    input, 0 * sizeof(input),
+    hmac_actual_output
+);
+
+assert_equals(hmac_expected_output, hmac_actual_output, 32);
+
+std::uint8_t hkdf_expected_output[42] {
+    0x3c, 0xb2, 0x5f, 0x25, 0xfa, 0xac, 0xd5, 0x7a,
+    0x90, 0x43, 0x4f, 0x64, 0xd0, 0x36, 0x2f, 0x2a,
+    0x2d, 0x2d, 0x0a, 0x90, 0xcf, 0x1a, 0x5a, 0x4c,
+    0x5d, 0xb0, 0x2d, 0x56, 0xec, 0xc4, 0xc5, 0xbf,
+    0x34, 0x00, 0x72, 0x08, 0xd5, 0xb8, 0x87, 0x18,
+    0x58, 0x65
+};
+
+std::uint8_t hkdf_actual_output[42] = {};
+
+axolotl::hkdf_sha256(
+    input, sizeof(input),
+    salt, sizeof(salt),
+    info, sizeof(info),
+    hkdf_actual_output, sizeof(hkdf_actual_output)
+);
+
+assert_equals(hkdf_expected_output, hkdf_actual_output, 42);
+
+} /* HDKF Test Case 1 */
+
+}
