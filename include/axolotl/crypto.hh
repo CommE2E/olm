@@ -19,7 +19,7 @@ Curve25519KeyPair generate_key(
 );
 
 
-const std::size_t CURVE25519_SHARED_SECRET_LENGTH = 16;
+const std::size_t CURVE25519_SHARED_SECRET_LENGTH = 32;
 
 
 void curve25519_shared_secret(
@@ -63,6 +63,12 @@ void aes_encrypt_cbc(
 void aes_decrypt_cbc(
     Aes256Key const & key,
     Aes256Iv const & iv,
+    std::uint8_t const * input, std::size_t input_length,
+    std::uint8_t * output
+);
+
+
+void sha256(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
 );

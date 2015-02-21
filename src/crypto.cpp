@@ -19,7 +19,8 @@ namespace {
 
 static const std::uint8_t CURVE25519_BASEPOINT[32] = {9};
 static const std::size_t AES_BLOCK_LENGTH = 16;
-static const std::size_t SHA256_BLOCK_LENGTH = 32;
+static const std::size_t SHA256_HASH_LENGTH = 32;
+static const std::size_t SHA256_BLOCK_LENGTH = 64;
 static const std::uint8_t HKDF_DEFAULT_SALT[32] = {};
 
 template<std::size_t block_size>
@@ -37,13 +38,13 @@ inline static void hmac_sha256_key(
     std::uint8_t const * input_key, std::size_t input_key_length,
     std::uint8_t * hmac_key
 ) {
+    std::memset(hmac_key, 0, SHA256_BLOCK_LENGTH);
     if (input_key_length > SHA256_BLOCK_LENGTH) {
         ::SHA256_CTX context;
         ::sha256_init(&context);
         ::sha256_update(&context, input_key, input_key_length);
         ::sha256_final(&context, hmac_key);
     } else {
-        std::memset(hmac_key, 0, SHA256_BLOCK_LENGTH);
         std::memcpy(hmac_key, input_key, input_key_length);
     }
 }
@@ -56,7 +57,7 @@ inline void hmac_sha256_init(
     std::uint8_t i_pad[SHA256_BLOCK_LENGTH];
     std::memcpy(i_pad, hmac_key, SHA256_BLOCK_LENGTH);
     for (std::size_t i = 0; i < SHA256_BLOCK_LENGTH; ++i) {
-        i_pad[i] ^= 0x5C;
+        i_pad[i] ^= 0x36;
     }
     ::sha256_init(context);
     ::sha256_update(context, i_pad, SHA256_BLOCK_LENGTH);
@@ -69,16 +70,15 @@ inline void hmac_sha256_final(
     std::uint8_t const * hmac_key,
     std::uint8_t * output
 ) {
-    std::uint8_t o_pad[SHA256_BLOCK_LENGTH];
+    std::uint8_t o_pad[SHA256_BLOCK_LENGTH + SHA256_HASH_LENGTH];
     std::memcpy(o_pad, hmac_key, SHA256_BLOCK_LENGTH);
     for (std::size_t i = 0; i < SHA256_BLOCK_LENGTH; ++i) {
-        o_pad[i] ^= 0x36;
+        o_pad[i] ^= 0x5C;
     }
+    ::sha256_final(context, o_pad + SHA256_BLOCK_LENGTH);
     ::SHA256_CTX final_context;
     ::sha256_init(&final_context);
-    ::sha256_update(&final_context, o_pad, SHA256_BLOCK_LENGTH);
-    ::sha256_final(context, o_pad);
-    ::sha256_update(&final_context, o_pad, SHA256_BLOCK_LENGTH);
+    ::sha256_update(&final_context, o_pad, sizeof(o_pad));
     ::sha256_final(&final_context, output);
     std::memset(o_pad, 0, sizeof(o_pad));
 }
@@ -167,6 +167,16 @@ void axolotl::aes_decrypt_cbc(
 }
 
 
+void axolotl::sha256(
+    std::uint8_t const * input, std::size_t input_length,
+    std::uint8_t * output
+) {
+    ::SHA256_CTX context;
+    ::sha256_init(&context);
+    ::sha256_update(&context, input, input_length);
+    ::sha256_final(&context, output);
+}
+
 void axolotl::hmac_sha256(
     std::uint8_t const * key, std::size_t key_length,
     std::uint8_t const * input, std::size_t input_length,
@@ -184,14 +194,13 @@ void axolotl::hmac_sha256(
 
 void axolotl::hkdf_sha256(
     std::uint8_t const * input, std::size_t input_length,
-    std::uint8_t const * info, std::size_t info_length,
     std::uint8_t const * salt, std::size_t salt_length,
+    std::uint8_t const * info, std::size_t info_length,
     std::uint8_t * output, std::size_t output_length
 ) {
     ::SHA256_CTX context;
-    std::uint8_t extract_key[SHA256_BLOCK_LENGTH];
-    std::uint8_t expand_key[SHA256_BLOCK_LENGTH];
-    std::uint8_t step_result[SHA256_BLOCK_LENGTH];
+    std::uint8_t hmac_key[SHA256_BLOCK_LENGTH];
+    std::uint8_t step_result[SHA256_HASH_LENGTH];
     std::size_t bytes_remaining = output_length;
     std::uint8_t iteration = 1;
     if (!salt) {
@@ -199,25 +208,27 @@ void axolotl::hkdf_sha256(
         salt_length = sizeof(HKDF_DEFAULT_SALT);
     }
     /* Expand */
-    hmac_sha256_key(salt, salt_length, extract_key);
-    hmac_sha256_init(&context, extract_key);
+    hmac_sha256_key(salt, salt_length, hmac_key);
+    hmac_sha256_init(&context, hmac_key);
     ::sha256_update(&context, input, input_length);
-    hmac_sha256_final(&context, extract_key, expand_key);
+    hmac_sha256_final(&context, hmac_key, step_result);
+    hmac_sha256_key(step_result, SHA256_HASH_LENGTH, hmac_key);
+
     /* Extract */
-    hmac_sha256_init(&context, expand_key);
+    hmac_sha256_init(&context, hmac_key);
     ::sha256_update(&context, info, info_length);
     ::sha256_update(&context, &iteration, 1);
-    hmac_sha256_final(&context, expand_key, step_result);
-    while (bytes_remaining > SHA256_BLOCK_LENGTH) {
-        std::memcpy(output, step_result, SHA256_BLOCK_LENGTH);
-        output += SHA256_BLOCK_LENGTH;
-        bytes_remaining -= SHA256_BLOCK_LENGTH;
+    hmac_sha256_final(&context, hmac_key, step_result);
+    while (bytes_remaining > SHA256_HASH_LENGTH) {
+        std::memcpy(output, step_result, SHA256_HASH_LENGTH);
+        output += SHA256_HASH_LENGTH;
+        bytes_remaining -= SHA256_HASH_LENGTH;
         iteration ++;
-        hmac_sha256_init(&context, expand_key);
-        ::sha256_update(&context, step_result, SHA256_BLOCK_LENGTH);
+        hmac_sha256_init(&context, hmac_key);
+        ::sha256_update(&context, step_result, SHA256_HASH_LENGTH);
         ::sha256_update(&context, info, info_length);
         ::sha256_update(&context, &iteration, 1);
-        hmac_sha256_final(&context, expand_key, step_result);
+        hmac_sha256_final(&context, hmac_key, step_result);
     }
     std::memcpy(output, step_result, bytes_remaining);
 }
