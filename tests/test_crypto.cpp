@@ -5,19 +5,22 @@
 #include <iomanip>
 #include <cstdlib>
 
+
 std::ostream & print_hex(
     std::ostream & os,
     std::uint8_t const * data,
     std::size_t length
 ) {
     for (std::size_t i = 0; i < length; i++) {
-        std::cerr << std::setw(2) << std::setfill('0') << std::right
+        os << std::setw(2) << std::setfill('0') << std::right
             << std::hex << (int) data[i];
     }
     return os;
 }
 
+
 char const * TEST_CASE;
+
 
 void assert_equals(
     std::uint8_t *expected,
@@ -25,11 +28,16 @@ void assert_equals(
     std::size_t length
 ) {
     if (std::memcmp(expected, actual, length)) {
-        std::cerr << "FAILED :" << TEST_CASE << std::endl;
-        print_hex(std::cerr << "Expected: ", expected, length) << std::endl;
-        print_hex(std::cerr << "Actual:   ", actual, length) << std::endl;
+        std::cout << "FAILED :" << TEST_CASE << std::endl;
+        print_hex(std::cout << "Expected: ", expected, length) << std::endl;
+        print_hex(std::cout << "Actual:   ", actual, length) << std::endl;
         std::exit(1);
     }
+}
+
+
+void pass() {
+    std::cout << "PASSED: " << TEST_CASE << std::endl;
 }
 
 
@@ -95,6 +103,8 @@ axolotl::curve25519_shared_secret(bob_pair, alice_pair, actual_agreement);
 
 assert_equals(expected_agreement, actual_agreement, 32);
 
+pass();
+
 } /* Curve25529 Test Case 1 */
 
 
@@ -123,6 +133,8 @@ axolotl::aes_decrypt_cbc(key, iv, expected, sizeof(expected), actual);
 
 assert_equals(input, actual, 32);
 
+pass();
+
 } /* AES Test Case 1 */
 
 
@@ -145,6 +157,8 @@ axolotl::sha256(input, sizeof(input), actual);
 
 assert_equals(expected, actual, 32);
 
+pass();
+
 } /* SHA 256 Test Case 1 */
 
 { /* HMAC Test Case 1 */
@@ -165,6 +179,8 @@ std::uint8_t actual[32];
 axolotl::hmac_sha256(input, sizeof(input), input, sizeof(input), actual);
 
 assert_equals(expected, actual, 32);
+
+pass();
 
 } /* HMAC Test Case 1 */
 
@@ -205,7 +221,7 @@ axolotl::hmac_sha256(
 
 assert_equals(hmac_expected_output, hmac_actual_output, 32);
 
-std::uint8_t hkdf_expected_output[42] {
+std::uint8_t hkdf_expected_output[42] = {
     0x3c, 0xb2, 0x5f, 0x25, 0xfa, 0xac, 0xd5, 0x7a,
     0x90, 0x43, 0x4f, 0x64, 0xd0, 0x36, 0x2f, 0x2a,
     0x2d, 0x2d, 0x0a, 0x90, 0xcf, 0x1a, 0x5a, 0x4c,
@@ -224,6 +240,8 @@ axolotl::hkdf_sha256(
 );
 
 assert_equals(hkdf_expected_output, hkdf_actual_output, 42);
+
+pass();
 
 } /* HDKF Test Case 1 */
 
