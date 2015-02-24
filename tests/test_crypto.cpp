@@ -1,52 +1,13 @@
 #include "axolotl/crypto.hh"
 
-#include <cstring>
-#include <iostream>
-#include <iomanip>
-#include <cstdlib>
-
-
-std::ostream & print_hex(
-    std::ostream & os,
-    std::uint8_t const * data,
-    std::size_t length
-) {
-    for (std::size_t i = 0; i < length; i++) {
-        os << std::setw(2) << std::setfill('0') << std::right
-            << std::hex << (int) data[i];
-    }
-    return os;
-}
-
-
-char const * TEST_CASE;
-
-
-void assert_equals(
-    std::uint8_t *expected,
-    std::uint8_t *actual,
-    std::size_t length
-) {
-    if (std::memcmp(expected, actual, length)) {
-        std::cout << "FAILED :" << TEST_CASE << std::endl;
-        print_hex(std::cout << "Expected: ", expected, length) << std::endl;
-        print_hex(std::cout << "Actual:   ", actual, length) << std::endl;
-        std::exit(1);
-    }
-}
-
-
-void pass() {
-    std::cout << "PASSED: " << TEST_CASE << std::endl;
-}
-
+#include "unittest.hh"
 
 int main() {
 
 
 { /* Curve25529 Test Case 1 */
 
-TEST_CASE = "Curve25529 Test Case 1";
+TestCase test_case("Curve25529 Test Case 1");
 
 std::uint8_t alice_private[32] = {
     0x77, 0x07, 0x6D, 0x0A, 0x73, 0x18, 0xA5, 0x7D,
@@ -103,14 +64,12 @@ axolotl::curve25519_shared_secret(bob_pair, alice_pair, actual_agreement);
 
 assert_equals(expected_agreement, actual_agreement, 32);
 
-pass();
-
 } /* Curve25529 Test Case 1 */
 
 
 { /* AES Test Case 1 */
 
-TEST_CASE = "AES Test Case 1";
+TestCase test_case("AES Test Case 1");
 
 axolotl::Aes256Key key = {};
 axolotl::Aes256Iv iv = {};
@@ -133,14 +92,12 @@ axolotl::aes_decrypt_cbc(key, iv, expected, sizeof(expected), actual);
 
 assert_equals(input, actual, 32);
 
-pass();
-
 } /* AES Test Case 1 */
 
 
 { /* SHA 256 Test Case 1 */
 
-TEST_CASE = "SHA 256 Test Case 1";
+TestCase test_case("SHA 256 Test Case 1");
 
 std::uint8_t input[0] = {};
 
@@ -157,13 +114,11 @@ axolotl::sha256(input, sizeof(input), actual);
 
 assert_equals(expected, actual, 32);
 
-pass();
-
 } /* SHA 256 Test Case 1 */
 
 { /* HMAC Test Case 1 */
 
-TEST_CASE = "HMAC Test Case 1";
+TestCase test_case("HMAC Test Case 1");
 
 std::uint8_t input[0] = {};
 
@@ -180,13 +135,11 @@ axolotl::hmac_sha256(input, sizeof(input), input, sizeof(input), actual);
 
 assert_equals(expected, actual, 32);
 
-pass();
-
 } /* HMAC Test Case 1 */
 
 { /* HDKF Test Case 1 */
 
-TEST_CASE = "HDKF Test Case 1";
+TestCase test_case("HDKF Test Case 1");
 
 std::uint8_t input[22] = {
     0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
@@ -240,8 +193,6 @@ axolotl::hkdf_sha256(
 );
 
 assert_equals(hkdf_expected_output, hkdf_actual_output, 42);
-
-pass();
 
 } /* HDKF Test Case 1 */
 
