@@ -42,14 +42,8 @@ struct Aes256Iv {
 };
 
 
-std::size_t aes_pkcs_7_padded_length(
+std::size_t aes_encrypt_cbc_length(
     std::size_t input_length
-);
-
-
-void aes_pkcs_7_padding(
-    std::uint8_t const * input, std::size_t input_length,
-    std::uint8_t * output
 );
 
 
@@ -61,7 +55,7 @@ void aes_encrypt_cbc(
 );
 
 
-void aes_decrypt_cbc(
+std::size_t aes_decrypt_cbc(
     Aes256Key const & key,
     Aes256Iv const & iv,
     std::uint8_t const * input, std::size_t input_length,

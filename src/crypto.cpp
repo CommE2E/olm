@@ -107,23 +107,10 @@ void axolotl::curve25519_shared_secret(
 }
 
 
-std::size_t axolotl::aes_pkcs_7_padded_length(
+std::size_t axolotl::aes_encrypt_cbc_length(
     std::size_t input_length
 ) {
     return input_length + AES_BLOCK_LENGTH - input_length % AES_BLOCK_LENGTH;
-}
-
-
-void axolotl::aes_pkcs_7_padding(
-    std::uint8_t const * input, std::size_t input_length,
-    std::uint8_t * output
-) {
-    std::memcpy(output, input, input_length);
-    std::size_t padded_length = axolotl::aes_pkcs_7_padded_length(input_length);
-    std::uint8_t padding = padded_length - input_length;
-    for (std::size_t i = input_length; i < padded_length; ++i) {
-        output[i] = padding;
-    }
 }
 
 
@@ -137,17 +124,28 @@ void axolotl::aes_encrypt_cbc(
     ::aes_key_setup(key.key, key_schedule, 256);
     std::uint8_t input_block[AES_BLOCK_LENGTH];
     std::memcpy(input_block, iv.iv, AES_BLOCK_LENGTH);
-    for (std::size_t i = 0; i < input_length; i += AES_BLOCK_LENGTH) {
-        xor_block<AES_BLOCK_LENGTH>(input_block, &input[i]);
-        ::aes_encrypt(input_block, &output[i], key_schedule, 256);
-        std::memcpy(input_block, &output[i], AES_BLOCK_LENGTH);
+    while (input_length >= AES_BLOCK_LENGTH) {
+        xor_block<AES_BLOCK_LENGTH>(input_block, input);
+        ::aes_encrypt(input_block, output, key_schedule, 256);
+        std::memcpy(input_block, output, AES_BLOCK_LENGTH);
+        input += AES_BLOCK_LENGTH;
+        output += AES_BLOCK_LENGTH;
+        input_length -= AES_BLOCK_LENGTH;
     }
+    std::size_t i = 0;
+    for (; i < input_length; ++i) {
+        input_block[i] ^= input[i];
+    }
+    for (; i < AES_BLOCK_LENGTH; ++i) {
+        input_block[i] ^= AES_BLOCK_LENGTH - input_length;
+    }
+    ::aes_encrypt(input_block, output, key_schedule, 256);
     std::memset(key_schedule, 0, sizeof(key_schedule));
     std::memset(input_block, 0, sizeof(AES_BLOCK_LENGTH));
 }
 
 
-void axolotl::aes_decrypt_cbc(
+std::size_t axolotl::aes_decrypt_cbc(
     axolotl::Aes256Key const & key,
     axolotl::Aes256Iv const & iv,
     std::uint8_t const * input, std::size_t input_length,
@@ -164,6 +162,8 @@ void axolotl::aes_decrypt_cbc(
         }
     }
     std::memset(key_schedule, 0, sizeof(key_schedule));
+    std::size_t padding = output[input_length - 1];
+    return (padding > input_length) ? std::size_t(-1) : (input_length - padding);
 }
 
 

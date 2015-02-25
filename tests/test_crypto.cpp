@@ -73,24 +73,27 @@ TestCase test_case("AES Test Case 1");
 
 axolotl::Aes256Key key = {};
 axolotl::Aes256Iv iv = {};
-std::uint8_t input[32] = {};
+std::uint8_t input[16] = {};
 
 std::uint8_t expected[32] = {
     0xDC, 0x95, 0xC0, 0x78, 0xA2, 0x40, 0x89, 0x89,
     0xAD, 0x48, 0xA2, 0x14, 0x92, 0x84, 0x20, 0x87,
-    0x08, 0xC3, 0x74, 0x84, 0x8C, 0x22, 0x82, 0x33,
-    0xC2, 0xB3, 0x4F, 0x33, 0x2B, 0xD2, 0xE9, 0xD3
+    0xF3, 0xC0, 0x03, 0xDD, 0xC4, 0xA7, 0xB8, 0xA9,
+    0x4B, 0xAE, 0xDF, 0xFC, 0x3D, 0x21, 0x4C, 0x38
 };
+
+std::size_t length = axolotl::aes_encrypt_cbc_length(sizeof(input));
+assert_equals(std::size_t(32), length);
+
 
 std::uint8_t actual[32] = {};
 
 axolotl::aes_encrypt_cbc(key, iv, input, sizeof(input), actual);
-
 assert_equals(expected, actual, 32);
 
-axolotl::aes_decrypt_cbc(key, iv, expected, sizeof(expected), actual);
-
-assert_equals(input, actual, 32);
+length = axolotl::aes_decrypt_cbc(key, iv, expected, sizeof(expected), actual);
+assert_equals(std::size_t(16), length);
+assert_equals(input, actual, length);
 
 } /* AES Test Case 1 */
 

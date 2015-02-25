@@ -16,6 +16,11 @@ public:
     T const * end() const { return _end; }
 
     /**
+     * Is the list empty?
+     */
+    bool empty() { return _end == _data; }
+
+    /**
      * The number of items in the list.
      */
     std::size_t size() { return _end - _data; }
