@@ -22,8 +22,8 @@ char const * TEST_CASE;
 
 template<typename T>
 void assert_equals(
-    const T & expected,
-    const T & actual
+    T const & expected,
+    T const & actual
 ) {
     if (expected != actual) {
         std::cout << "FAILED: " << TEST_CASE << std::endl;
@@ -35,8 +35,8 @@ void assert_equals(
 
 
 void assert_equals(
-    std::uint8_t *expected,
-    std::uint8_t *actual,
+    std::uint8_t const * expected,
+    std::uint8_t const * actual,
     std::size_t length
 ) {
     if (std::memcmp(expected, actual, length)) {
