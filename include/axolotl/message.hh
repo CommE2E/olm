@@ -29,7 +29,6 @@ struct MessageReader {
     std::uint32_t counter;
     std::size_t ratchet_key_length;
     std::size_t ciphertext_length;
-    std::size_t mac_length;
     std::uint8_t const * ratchet_key;
     std::uint8_t const * ciphertext;
     std::uint8_t const * mac;

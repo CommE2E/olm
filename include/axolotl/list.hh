@@ -18,12 +18,12 @@ public:
     /**
      * Is the list empty?
      */
-    bool empty() { return _end == _data; }
+    bool empty() const { return _end == _data; }
 
     /**
      * The number of items in the list.
      */
-    std::size_t size() { return _end - _data; }
+    std::size_t size() const { return _end - _data; }
 
     T & operator[](std::size_t index) { return _data[index]; }
 

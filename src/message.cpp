@@ -120,7 +120,6 @@ axolotl::MessageReader axolotl::decode_message(
     std::uint8_t const * end = input + input_length - mac_length;
     std::uint8_t flags = 0;
     result.mac = end;
-    result.mac_length = mac_length;
     if (pos == end) return result;
     result.version = *(pos++);
     while (pos != end) {

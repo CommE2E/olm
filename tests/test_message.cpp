@@ -20,7 +20,6 @@ assert_equals(std::uint8_t(3), reader.version);
 assert_equals(std::uint32_t(1), reader.counter);
 assert_equals(std::size_t(10), reader.ratchet_key_length);
 assert_equals(std::size_t(10), reader.ciphertext_length);
-assert_equals(std::size_t(8), reader.mac_length);
 
 assert_equals(ratchetkey, reader.ratchet_key, 10);
 assert_equals(ciphertext, reader.ciphertext, 10);
@@ -46,7 +45,6 @@ std::memcpy(writer.ciphertext, ciphertext, 10);
 std::memcpy(writer.mac, hmacsha2, 8);
 
 assert_equals(message2, output, 35);
-
 
 } /* Message encode test */
 
