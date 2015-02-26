@@ -1,3 +1,4 @@
+#! /usr/bin/python
 import subprocess
 import glob
 import os
