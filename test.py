@@ -1,3 +1,4 @@
+#! /usr/bin/python
 # Copyright 2015 OpenMarket Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#! /usr/bin/python
 import subprocess
 import glob
 import os
