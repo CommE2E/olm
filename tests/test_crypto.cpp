@@ -44,12 +44,14 @@ std::uint8_t expected_agreement[32] = {
     0x76, 0xF0, 0x9B, 0x3C, 0x1E, 0x16, 0x17, 0x42
 };
 
-axolotl::Curve25519KeyPair alice_pair = axolotl::generate_key(alice_private);
+axolotl::Curve25519KeyPair alice_pair;
+axolotl::generate_key(alice_private, alice_pair);
 
 assert_equals(alice_private, alice_pair.private_key, 32);
 assert_equals(alice_public, alice_pair.public_key, 32);
 
-axolotl::Curve25519KeyPair bob_pair = axolotl::generate_key(bob_private);
+axolotl::Curve25519KeyPair bob_pair;
+axolotl::generate_key(bob_private, bob_pair);
 
 assert_equals(bob_private, bob_pair.private_key, 32);
 assert_equals(bob_public, bob_pair.public_key, 32);

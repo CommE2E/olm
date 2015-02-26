@@ -61,6 +61,11 @@ public:
     }
 
     /**
+     * Make space for an item in the list at the start of the list
+     */
+    T * insert() { return insert(begin()); }
+
+    /**
      * Insert an item into the list at a given position.
      * If inserting the item makes the list longer than max_size then
      * the end of the list is discarded.

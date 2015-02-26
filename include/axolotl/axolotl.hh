@@ -1,6 +1,6 @@
 
-#include "axololt/crypto.hh"
-#include "axololt/list.hh"
+#include "axolotl/crypto.hh"
+#include "axolotl/list.hh"
 
 namespace axolotl {
 
@@ -52,7 +52,10 @@ enum struct ErrorCode {
 static std::size_t const MAX_RECEIVER_CHAINS = 5;
 static std::size_t const MAX_SKIPPED_MESSAGE_KEYS = 40;
 
+
 struct KdfInfo {
+    std::uint8_t const * root_info;
+    std::size_t root_info_length;
     std::uint8_t const * ratchet_info;
     std::size_t ratchet_info_length;
     std::uint8_t const * message_info;
@@ -61,14 +64,29 @@ struct KdfInfo {
 
 
 struct Session {
+
+    Session(
+        KdfInfo const & kdf_info
+    );
+
     /** A pair of string to feed into the KDF identifing the application */
     KdfInfo kdf_info;
     /** The last error that happened encypting or decrypting a message */
     ErrorCode last_error;
     SharedKey root_key;
     List<SenderChain, 1> sender_chain;
-    List<ReceiverChain, MAX_RECEIVER_CHAINS> reciever_chains;
+    List<ReceiverChain, MAX_RECEIVER_CHAINS> receiver_chains;
     List<SkippedMessageKey, MAX_SKIPPED_MESSAGE_KEYS> skipped_message_keys;
+
+    void initialise_as_bob(
+        std::uint8_t const * shared_secret, std::size_t shared_secret_length,
+        Curve25519PublicKey const & their_ratchet_key
+    );
+
+    void initialise_as_alice(
+        std::uint8_t const * shared_secret, std::size_t shared_secret_length,
+        Curve25519KeyPair const & our_ratchet_key
+    );
 
     std::size_t encrypt_max_output_length(
         std::size_t plaintext_length

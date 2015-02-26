@@ -23,6 +23,7 @@ static const std::size_t SHA256_HASH_LENGTH = 32;
 static const std::size_t SHA256_BLOCK_LENGTH = 64;
 static const std::uint8_t HKDF_DEFAULT_SALT[32] = {};
 
+
 template<std::size_t block_size>
 inline static void xor_block(
     std::uint8_t * block,
@@ -86,15 +87,14 @@ inline void hmac_sha256_final(
 } // namespace
 
 
-axolotl::Curve25519KeyPair axolotl::generate_key(
-    std::uint8_t const * random_32_bytes
+void axolotl::generate_key(
+    std::uint8_t const * random_32_bytes,
+    axolotl::Curve25519KeyPair & key_pair
 ) {
-    axolotl::Curve25519KeyPair key_pair;
     std::memcpy(key_pair.private_key, random_32_bytes, 32);
     ::curve25519_donna(
         key_pair.public_key, key_pair.private_key, CURVE25519_BASEPOINT
     );
-    return key_pair;
 }
 
 
