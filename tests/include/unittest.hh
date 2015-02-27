@@ -36,11 +36,17 @@ char const * TEST_CASE;
 
 template<typename T>
 void assert_equals(
+    const char *file,
+    unsigned line,
+    const char *expected_expr,
+    const char *actual_expr,
     T const & expected,
     T const & actual
 ) {
     if (expected != actual) {
         std::cout << "FAILED: " << TEST_CASE << std::endl;
+        std::cout << file << ":" << line << std::endl;
+        std::cout << expected_expr << " == " << actual_expr << std::endl;
         std::cout << "Expected: " << expected << std::endl;
         std::cout << "Actual:   " << actual << std::endl;
         std::exit(1);
@@ -49,18 +55,27 @@ void assert_equals(
 
 
 void assert_equals(
+    const char *file,
+    unsigned line,
+    const char *expected_expr,
+    const char *actual_expr,
     std::uint8_t const * expected,
     std::uint8_t const * actual,
     std::size_t length
 ) {
     if (std::memcmp(expected, actual, length)) {
         std::cout << "FAILED: " << TEST_CASE << std::endl;
+        std::cout << file << ":" << line << std::endl;
+        std::cout << expected_expr << " == " << actual_expr << std::endl;
         print_hex(std::cout << "Expected: ", expected, length) << std::endl;
         print_hex(std::cout << "Actual:   ", actual, length) << std::endl;
         std::exit(1);
     }
 }
 
+#define assert_equals(expected, actual, ...) assert_equals( \
+    __FILE__, __LINE__, #expected, #actual, expected, actual, ##__VA_ARGS__ \
+)
 
 class TestCase  {
 public:
