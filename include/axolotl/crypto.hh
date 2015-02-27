@@ -28,7 +28,7 @@ struct Curve25519KeyPair : public Curve25519PublicKey {
     std::uint8_t private_key[32];
 };
 
-
+/** Generate a curve25519 key pair from 32 random bytes. */
 void generate_key(
     std::uint8_t const * random_32_bytes,
     Curve25519KeyPair & key_pair
@@ -37,7 +37,8 @@ void generate_key(
 
 const std::size_t CURVE25519_SHARED_SECRET_LENGTH = 32;
 
-
+/** Create a shared secret using our private key and their public key.
+ * The output buffer must be at least 32 bytes long. */
 void curve25519_shared_secret(
     Curve25519KeyPair const & our_key,
     Curve25519PublicKey const & their_key,
@@ -57,11 +58,14 @@ struct Aes256Iv {
 };
 
 
+/** The length of output the aes_encrypt_cbc function will write */
 std::size_t aes_encrypt_cbc_length(
     std::size_t input_length
 );
 
 
+/** Encrypts the input using AES256 in CBC mode with PKCS#7 padding.
+ * The output buffer must be big enough to hold the output including padding */
 void aes_encrypt_cbc(
     Aes256Key const & key,
     Aes256Iv const & iv,
@@ -70,6 +74,10 @@ void aes_encrypt_cbc(
 );
 
 
+/** Decrypts the input using AES256 in CBC mode. The output buffer must be at
+ * least the same size as the input buffer. Returns the length of the plaintext
+ * without padding on success or std::size_t(-1) if the padding is invalid.
+ */
 std::size_t aes_decrypt_cbc(
     Aes256Key const & key,
     Aes256Iv const & iv,
@@ -78,6 +86,8 @@ std::size_t aes_decrypt_cbc(
 );
 
 
+/** Computes SHA-256 of the input. The output buffer must be a least 32
+ * bytes long. */
 void sha256(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
@@ -87,6 +97,10 @@ void sha256(
 const std::size_t HMAC_SHA256_OUTPUT_LENGTH = 32;
 
 
+/** HMAC: Keyed-Hashing for Message Authentication
+ * http://tools.ietf.org/html/rfc2104
+ * Computes HMAC-SHA-256 of the input for the key. The output buffer must
+ * be at least 32 bytes long. */
 void hmac_sha256(
     std::uint8_t const * key, std::size_t key_length,
     std::uint8_t const * input, std::size_t input_length,
@@ -94,6 +108,9 @@ void hmac_sha256(
 );
 
 
+/** HMAC-based Key Derivation Function (HKDF)
+ * https://tools.ietf.org/html/rfc5869
+ * Derives key material from the input bytes. */
 void hkdf_sha256(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t const * info, std::size_t info_length,

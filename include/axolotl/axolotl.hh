@@ -83,41 +83,80 @@ struct Session {
         KdfInfo const & kdf_info
     );
 
-    /** A pair of string to feed into the KDF identifing the application */
+    /** A some strings identifing the application to feed into the KDF. */
     KdfInfo kdf_info;
-    /** The last error that happened encypting or decrypting a message */
+
+    /** The last error that happened encypting or decrypting a message. */
     ErrorCode last_error;
+
+    /** The root key is used to generate chain keys from the ephemeral keys.
+     * A new root_key derived each time a chain key is derived. */
     SharedKey root_key;
+
+    /** The sender chain is used to send messages. Each time a new ephemeral
+     * key is received from the remote server we generate a new sender chain
+     * with a new empheral key when we next send a message. */
     List<SenderChain, 1> sender_chain;
+
+    /** The receiver chain is used to decrypt recieved messages. We store the
+     * last few chains so we can decrypt any out of order messages we haven't
+     * received yet. */
     List<ReceiverChain, MAX_RECEIVER_CHAINS> receiver_chains;
+
+    /** List of message keys we've skipped over when advancing the receiver
+     * chain. */
     List<SkippedMessageKey, MAX_SKIPPED_MESSAGE_KEYS> skipped_message_keys;
 
+    /** Initialise the session using a shared secret and the public part of the
+     * remote's first ratchet key */
     void initialise_as_bob(
         std::uint8_t const * shared_secret, std::size_t shared_secret_length,
         Curve25519PublicKey const & their_ratchet_key
     );
 
+    /** Intialise the session using a shared secret and the public/private key
+     * pair for the first ratchet key */
     void initialise_as_alice(
         std::uint8_t const * shared_secret, std::size_t shared_secret_length,
         Curve25519KeyPair const & our_ratchet_key
     );
 
+    /** The maximum number of bytes of output the encrypt method will write for
+     * a given message length. */
     std::size_t encrypt_max_output_length(
         std::size_t plaintext_length
     );
 
+    /** The number of bytes of random data the encrypt method will need to
+     * encrypt a message. This will be 32 bytes if the session needs to
+     * generate a new ephemeral key, or will be 0 bytes otherwise.*/
     std::size_t encrypt_random_length();
 
+    /** Encrypt some plaintext. Returns the length of the encrypted message
+     * or std::size_t(-1) on failure. On failure last_error will be set with
+     * an error code. The last_error will be NOT_ENOUGH_RANDOM if the number
+     * of random bytes is too small. The last_error will be
+     * OUTPUT_BUFFER_TOO_SMALL if the output buffer is too small. */
     std::size_t encrypt(
         std::uint8_t const * plaintext, std::size_t plaintext_length,
         std::uint8_t const * random, std::size_t random_length,
         std::uint8_t * output, std::size_t max_output_length
     );
 
+    /** An upper bound on the number of bytes of plaintext the decrypt method
+     * will write for a given input message length. */
     std::size_t decrypt_max_plaintext_length(
         std::size_t input_length
     );
 
+    /** Decrypt a message. Returns the length of the decrypted plaintext or
+     * std::size_t(-1) on failure. On failure last_error will be set with an
+     * error code. The last_error will be OUTPUT_BUFFER_TOO_SMALL if the
+     * plaintext buffer is too small. The last_error will be
+     * BAD_MESSAGE_VERSION if the message was encrypted with an unsupported
+     * version of the protocol. The last_error will be BAD_MESSAGE_FORMAT if
+     * the message headers could not be decoded. The last_error will be
+     * BAD_MESSAGE_MAC if the message could not be verified */
     std::size_t decrypt(
         std::uint8_t const * input, std::size_t input_length,
         std::uint8_t * plaintext, std::size_t max_plaintext_length
