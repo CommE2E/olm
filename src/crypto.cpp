@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 #include "axolotl/crypto.hh"
+#include "axolotl/memory.hh"
+
 #include <cstring>
 
 extern "C" {
@@ -76,7 +78,7 @@ inline void hmac_sha256_init(
     }
     ::sha256_init(context);
     ::sha256_update(context, i_pad, SHA256_BLOCK_LENGTH);
-    std::memset(i_pad, 0, sizeof(i_pad));
+    axolotl::unset(i_pad);
 }
 
 
@@ -95,7 +97,8 @@ inline void hmac_sha256_final(
     ::sha256_init(&final_context);
     ::sha256_update(&final_context, o_pad, sizeof(o_pad));
     ::sha256_final(&final_context, output);
-    std::memset(o_pad, 0, sizeof(o_pad));
+    axolotl::unset(final_context);
+    axolotl::unset(o_pad);
 }
 
 } // namespace
@@ -154,8 +157,8 @@ void axolotl::aes_encrypt_cbc(
         input_block[i] ^= AES_BLOCK_LENGTH - input_length;
     }
     ::aes_encrypt(input_block, output, key_schedule, 256);
-    std::memset(key_schedule, 0, sizeof(key_schedule));
-    std::memset(input_block, 0, sizeof(AES_BLOCK_LENGTH));
+    axolotl::unset(key_schedule);
+    axolotl::unset(input_block);
 }
 
 
@@ -175,7 +178,7 @@ std::size_t axolotl::aes_decrypt_cbc(
             xor_block<AES_BLOCK_LENGTH>(&output[i], &input[i - AES_BLOCK_LENGTH]);
         }
     }
-    std::memset(key_schedule, 0, sizeof(key_schedule));
+    axolotl::unset(key_schedule);
     std::size_t padding = output[input_length - 1];
     return (padding > input_length) ? std::size_t(-1) : (input_length - padding);
 }
@@ -189,6 +192,7 @@ void axolotl::sha256(
     ::sha256_init(&context);
     ::sha256_update(&context, input, input_length);
     ::sha256_final(&context, output);
+    axolotl::unset(context);
 }
 
 void axolotl::hmac_sha256(
@@ -202,7 +206,8 @@ void axolotl::hmac_sha256(
     hmac_sha256_init(&context, hmac_key);
     ::sha256_update(&context, input, input_length);
     hmac_sha256_final(&context, hmac_key, output);
-    std::memset(hmac_key, 0, sizeof(hmac_key));
+    axolotl::unset(hmac_key);
+    axolotl::unset(context);
 }
 
 
@@ -245,4 +250,7 @@ void axolotl::hkdf_sha256(
         hmac_sha256_final(&context, hmac_key, step_result);
     }
     std::memcpy(output, step_result, bytes_remaining);
+    axolotl::unset(context);
+    axolotl::unset(hmac_key);
+    axolotl::unset(step_result);
 }

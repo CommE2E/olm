@@ -14,6 +14,7 @@
  */
 #include "axolotl/axolotl.hh"
 #include "axolotl/message.hh"
+#include "axolotl/memory.hh"
 
 #include <cstring>
 
@@ -25,14 +26,6 @@ std::size_t KEY_LENGTH = axolotl::Curve25519PublicKey::LENGTH;
 std::uint8_t MESSAGE_KEY_SEED[1] = {0x01};
 std::uint8_t CHAIN_KEY_SEED[1] = {0x02};
 std::size_t MAX_MESSAGE_GAP = 2000;
-
-template<typename T>
-void unset(
-    T & value
-) {
-    std::memset(&value, 0, sizeof(T));
-}
-
 
 void create_chain_key(
     axolotl::SharedKey const & root_key,
@@ -54,8 +47,8 @@ void create_chain_key(
     std::memcpy(new_root_key, derived_secrets, 32);
     std::memcpy(new_chain_key.key, derived_secrets + 32, 32);
     new_chain_key.index = 0;
-    unset(derived_secrets);
-    unset(secret);
+    axolotl::unset(derived_secrets);
+    axolotl::unset(secret);
 }
 
 
@@ -94,8 +87,8 @@ void create_message_keys(
     std::memcpy(message_key.mac_key, derived_secrets + 32, 32);
     std::memcpy(message_key.iv.iv, derived_secrets + 64, 16);
     message_key.index = chain_key.index;
-    unset(derived_secrets);
-    unset(secret);
+    axolotl::unset(derived_secrets);
+    axolotl::unset(secret);
 }
 
 
@@ -112,7 +105,7 @@ bool verify_mac(
     );
 
     bool result = std::memcmp(mac, reader.mac, MAC_LENGTH) == 0;
-    unset(mac);
+    axolotl::unset(mac);
     return result;
 }
 
@@ -142,7 +135,7 @@ bool verify_mac_for_existing_chain(
     create_message_keys(new_chain, session.kdf_info, message_key);
 
     bool result = verify_mac(message_key, input, reader);
-    unset(new_chain);
+    axolotl::unset(new_chain);
     return result;
 }
 
@@ -178,8 +171,8 @@ bool verify_mac_for_new_chain(
     bool result = verify_mac_for_existing_chain(
         session, new_chain.chain_key, input, reader
     );
-    unset(new_root_key);
-    unset(new_chain);
+    axolotl::unset(new_root_key);
+    axolotl::unset(new_chain);
     return result;
 }
 
@@ -207,7 +200,7 @@ void axolotl::Session::initialise_as_bob(
     std::memcpy(root_key, derived_secrets, 32);
     std::memcpy(receiver_chains[0].chain_key.key, derived_secrets + 32, 32);
     receiver_chains[0].ratchet_key = their_ratchet_key;
-    unset(derived_secrets);
+    axolotl::unset(derived_secrets);
 }
 
 
@@ -226,7 +219,7 @@ void axolotl::Session::initialise_as_alice(
     std::memcpy(root_key, derived_secrets, 32);
     std::memcpy(sender_chain[0].chain_key.key, derived_secrets + 32, 32);
     sender_chain[0].ratchet_key = our_ratchet_key;
-    unset(derived_secrets);
+    axolotl::unset(derived_secrets);
 }
 
 
@@ -303,7 +296,7 @@ std::size_t axolotl::Session::encrypt(
     );
     std::memcpy(writer.mac, mac, MAC_LENGTH);
 
-    unset(keys);
+    axolotl::unset(keys);
     return writer.body_length + MAC_LENGTH;
 }
 
@@ -385,7 +378,7 @@ std::size_t axolotl::Session::decrypt(
 
                     /* Remove the key from the skipped keys now that we've
                      * decoded the message it corresponds to. */
-                    unset(skipped);
+                    axolotl::unset(skipped);
                     skipped_message_keys.erase(&skipped);
                     return result;
                 }
@@ -414,7 +407,7 @@ std::size_t axolotl::Session::decrypt(
             root_key, sender_chain[0].ratchet_key, chain->ratchet_key,
             kdf_info, root_key, chain->chain_key
         );
-        unset(sender_chain[0]);
+        axolotl::unset(sender_chain[0]);
         sender_chain.erase(sender_chain.begin());
     }
 
@@ -433,7 +426,7 @@ std::size_t axolotl::Session::decrypt(
         reader.ciphertext, reader.ciphertext_length,
         plaintext
     );
-    unset(message_key);
+    axolotl::unset(message_key);
 
     advance_chain_key(chain->chain_key, chain->chain_key);
 

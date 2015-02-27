@@ -28,6 +28,7 @@ struct Curve25519KeyPair : public Curve25519PublicKey {
     std::uint8_t private_key[32];
 };
 
+
 /** Generate a curve25519 key pair from 32 random bytes. */
 void generate_key(
     std::uint8_t const * random_32_bytes,
@@ -36,6 +37,7 @@ void generate_key(
 
 
 const std::size_t CURVE25519_SHARED_SECRET_LENGTH = 32;
+
 
 /** Create a shared secret using our private key and their public key.
  * The output buffer must be at least 32 bytes long. */
