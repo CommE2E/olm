@@ -274,7 +274,7 @@ std::size_t axolotl::Session::encrypt(
 
     std::size_t padded = axolotl::aes_encrypt_cbc_length(plaintext_length);
     std::uint32_t counter = keys.index;
-    const Curve25519PublicKey &ratchet_key = sender_chain[0].ratchet_key;
+    Curve25519PublicKey const & ratchet_key = sender_chain[0].ratchet_key;
 
     axolotl::MessageWriter writer(axolotl::encode_message(
         PROTOCOL_VERSION, counter, KEY_LENGTH, padded, output
