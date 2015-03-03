@@ -1,6 +1,9 @@
 #include "fixedint.h"
 #include "sc.h"
 
+#ifndef ED25519_LOAD_BYTES
+#define ED25519_LOAD_BYTES
+
 static uint64_t load_3(const unsigned char *in) {
     uint64_t result;
 
@@ -21,6 +24,8 @@ static uint64_t load_4(const unsigned char *in) {
     
     return result;
 }
+
+#endif
 
 /*
 Input:

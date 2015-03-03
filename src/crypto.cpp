@@ -28,6 +28,38 @@ int curve25519_donna(
 #include "crypto-algorithms/aes.h"
 #include "crypto-algorithms/sha256.h"
 
+int ed25519_sign(
+    unsigned char *signature,
+    const unsigned char *message, size_t message_len,
+    const unsigned char *public_key,
+    const unsigned char *private_key
+);
+
+
+int ed25519_verify(
+    const unsigned char *signature,
+    const unsigned char *message, size_t message_len,
+    const unsigned char *public_key
+);
+
+
+void convert_curve25519_to_ed25519(
+    unsigned char * public_key,
+    unsigned char * signature
+);
+
+
+void convert_ed25519_to_curve25519(
+    unsigned char const * public_key,
+    unsigned char * signature
+);
+
+
+void ed25519_keypair(
+    unsigned char * private_key,
+    unsigned char * public_key
+);
+
 }
 
 
@@ -123,6 +155,41 @@ void axolotl::curve25519_shared_secret(
     ::curve25519_donna(output, our_key.private_key, their_key.public_key);
 }
 
+
+void axolotl::curve25519_sign(
+    axolotl::Curve25519KeyPair const & our_key,
+    std::uint8_t const * message, std::size_t message_length,
+    std::uint8_t * output
+) {
+    std::uint8_t private_key[32];
+    std::uint8_t public_key[32];
+    std::memcpy(private_key, our_key.private_key, 32);
+    ::ed25519_keypair(private_key, public_key);
+    ::ed25519_sign(
+        output,
+        message, message_length,
+        public_key, private_key
+    );
+    ::convert_ed25519_to_curve25519(public_key, output);
+}
+
+
+bool axolotl::curve25519_verify(
+    axolotl::Curve25519PublicKey const & their_key,
+    std::uint8_t const * message, std::size_t message_length,
+    std::uint8_t const * signature
+) {
+    std::uint8_t public_key[32];
+    std::uint8_t signature_buffer[64];
+    std::memcpy(public_key, their_key.public_key, 32);
+    std::memcpy(signature_buffer, signature, 64);
+    ::convert_curve25519_to_ed25519(public_key, signature_buffer);
+    return 0 != ::ed25519_verify(
+        signature,
+        message, message_length,
+        public_key
+    );
+}
 
 std::size_t axolotl::aes_encrypt_cbc_length(
     std::size_t input_length

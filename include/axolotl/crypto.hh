@@ -48,6 +48,25 @@ void curve25519_shared_secret(
 );
 
 
+/** Signs the message using our private key.
+ * The output buffer must be at least 64 bytes long. */
+void curve25519_sign(
+    Curve25519KeyPair const & our_key,
+    std::uint8_t const * message, std::size_t message_length,
+    std::uint8_t * output
+);
+
+
+/** Verify thei message using their public key.
+ * The signature input buffer must be 64 bytes long.
+ * Returns true if the signature is valid. */
+bool curve25519_verify(
+    Curve25519PublicKey const & their_key,
+    std::uint8_t const * message, std::size_t message_length,
+    std::uint8_t const * signature
+);
+
+
 struct Aes256Key {
     static const int LENGTH = 32;
     std::uint8_t key[32];

@@ -16,4 +16,12 @@ extern "C" {
 #include "crypto-algorithms/sha256.c"
 #include "crypto-algorithms/aes.c"
 #include "curve25519-donna/curve25519-donna.c"
+#define select ed25519_select
+#include "ed25519/src/fe.c"
+#include "ed25519/src/sc.c"
+#include "ed25519/src/ge.c"
+#include "ed25519/src/sha512.c"
+#include "ed25519/src/verify.c"
+#include "ed25519/src/sign.c"
+#include "ed25519_additions.c"
 }

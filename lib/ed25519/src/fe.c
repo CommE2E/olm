@@ -1,6 +1,8 @@
 #include "fixedint.h"
 #include "fe.h"
 
+#ifndef ED25519_LOAD_BYTES
+#define ED25519_LOAD_BYTES
 
 /*
     helper functions
@@ -26,7 +28,7 @@ static uint64_t load_4(const unsigned char *in) {
     return result;
 }
 
-
+#endif
 
 /*
     h = 0
