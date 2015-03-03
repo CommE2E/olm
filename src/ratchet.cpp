@@ -104,7 +104,7 @@ bool verify_mac(
         mac
     );
 
-    bool result = std::memcmp(mac, reader.mac, MAC_LENGTH) == 0;
+    bool result = axolotl::is_equal(mac, reader.mac, MAC_LENGTH);
     axolotl::unset(mac);
     return result;
 }
