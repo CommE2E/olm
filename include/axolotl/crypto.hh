@@ -25,6 +25,7 @@ struct Curve25519PublicKey {
 
 
 struct Curve25519KeyPair : public Curve25519PublicKey {
+    static const int LENGTH = 64;
     std::uint8_t private_key[32];
 };
 

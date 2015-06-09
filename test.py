@@ -26,7 +26,11 @@ source_files = glob.glob("src/*.cpp")
 compile_args = "g++ -g -O0 -Itests/include -Iinclude -Ilib --std=c++11".split()
 compile_args += source_files
 
+def run(args):
+    print " ".join(args)
+    subprocess.check_call(args)
+
 for test_file in test_files:
     exe_file = "build/" + test_file[5:-4]
-    subprocess.check_call(compile_args + [test_file, "-o", exe_file])
-    subprocess.check_call([exe_file])
+    run(compile_args + [test_file, "-o", exe_file])
+    run([exe_file])

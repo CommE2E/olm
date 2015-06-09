@@ -84,7 +84,7 @@ struct Session {
     );
 
     /** A some strings identifing the application to feed into the KDF. */
-    KdfInfo kdf_info;
+    const KdfInfo &kdf_info;
 
     /** The last error that happened encypting or decrypting a message. */
     ErrorCode last_error;
@@ -119,6 +119,24 @@ struct Session {
     void initialise_as_alice(
         std::uint8_t const * shared_secret, std::size_t shared_secret_length,
         Curve25519KeyPair const & our_ratchet_key
+    );
+
+    /** The number of bytes needed to persist the current session. */
+    std::size_t pickle_max_output_length();
+
+    /** Persists a session as a sequence of bytes, encrypting using a key
+     * Returns the number of output bytes used. */
+    std::size_t pickle(
+        std::uint8_t const * key, std::size_t key_length,
+        std::uint8_t * output, std::size_t max_output_length
+    );
+
+    /** Loads a session from a sequence of bytes, decrypting using a key.
+     * Returns 0 on success, or std::size_t(-1) on failure. The last_error
+     * will be BAD_SESSION_KEY if the supplied key is incorrect. */
+    std::size_t unpickle(
+        std::uint8_t const * key, std::size_t key_length,
+        std::uint8_t * input, std::size_t input_length
     );
 
     /** The maximum number of bytes of output the encrypt method will write for
