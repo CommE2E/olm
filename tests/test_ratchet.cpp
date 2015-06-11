@@ -41,8 +41,8 @@ std::uint8_t shared_secret[] = "A secret";
 { /* Send/Receive test case */
 TestCase test_case("Axolotl Send/Receive");
 
-axolotl::Session alice(kdf_info, cipher);
-axolotl::Session bob(kdf_info, cipher);
+axolotl::Ratchet alice(kdf_info, cipher);
+axolotl::Ratchet bob(kdf_info, cipher);
 
 alice.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, bob_key);
 bob.initialise_as_alice(shared_secret, sizeof(shared_secret) - 1, bob_key);
@@ -110,8 +110,8 @@ std::size_t encrypt_length, decrypt_length;
 
 TestCase test_case("Axolotl Out of Order");
 
-axolotl::Session alice(kdf_info, cipher);
-axolotl::Session bob(kdf_info, cipher);
+axolotl::Ratchet alice(kdf_info, cipher);
+axolotl::Ratchet bob(kdf_info, cipher);
 
 alice.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, bob_key);
 bob.initialise_as_alice(shared_secret, sizeof(shared_secret) - 1, bob_key);

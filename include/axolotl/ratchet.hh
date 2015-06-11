@@ -75,9 +75,9 @@ struct KdfInfo {
 };
 
 
-struct Session {
+struct Ratchet {
 
-    Session(
+    Ratchet(
         KdfInfo const & kdf_info,
         Cipher const & ratchet_cipher
     );
@@ -126,18 +126,15 @@ struct Session {
     /** The number of bytes needed to persist the current session. */
     std::size_t pickle_max_output_length();
 
-    /** Persists a session as a sequence of bytes, encrypting using a key
+    /** Persists a session as a sequence of bytes
      * Returns the number of output bytes used. */
     std::size_t pickle(
-        std::uint8_t const * key, std::size_t key_length,
         std::uint8_t * output, std::size_t max_output_length
     );
 
-    /** Loads a session from a sequence of bytes, decrypting using a key.
-     * Returns 0 on success, or std::size_t(-1) on failure. The last_error
-     * will be BAD_SESSION_KEY if the supplied key is incorrect. */
+    /** Loads a session from a sequence of bytes.
+     * Returns 0 on success, or std::size_t(-1) on failure. */
     std::size_t unpickle(
-        std::uint8_t const * key, std::size_t key_length,
         std::uint8_t * input, std::size_t input_length
     );
 

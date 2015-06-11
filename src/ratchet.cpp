@@ -95,7 +95,7 @@ std::size_t verify_mac_and_decrypt(
 
 
 std::size_t verify_mac_and_decrypt_for_existing_chain(
-    axolotl::Session const & session,
+    axolotl::Ratchet const & session,
     axolotl::ChainKey const & chain,
     axolotl::MessageReader const & reader,
     std::uint8_t * plaintext, std::size_t max_plaintext_length
@@ -129,7 +129,7 @@ std::size_t verify_mac_and_decrypt_for_existing_chain(
 
 
 std::size_t verify_mac_and_decrypt_for_new_chain(
-    axolotl::Session const & session,
+    axolotl::Ratchet const & session,
     axolotl::MessageReader const & reader,
     std::uint8_t * plaintext, std::size_t max_plaintext_length
 ) {
@@ -168,7 +168,7 @@ std::size_t verify_mac_and_decrypt_for_new_chain(
 } // namespace
 
 
-axolotl::Session::Session(
+axolotl::Ratchet::Ratchet(
     axolotl::KdfInfo const & kdf_info,
     Cipher const & ratchet_cipher
 ) : kdf_info(kdf_info),
@@ -177,7 +177,7 @@ axolotl::Session::Session(
 }
 
 
-void axolotl::Session::initialise_as_bob(
+void axolotl::Ratchet::initialise_as_bob(
     std::uint8_t const * shared_secret, std::size_t shared_secret_length,
     axolotl::Curve25519PublicKey const & their_ratchet_key
 ) {
@@ -196,7 +196,7 @@ void axolotl::Session::initialise_as_bob(
 }
 
 
-void axolotl::Session::initialise_as_alice(
+void axolotl::Ratchet::initialise_as_alice(
     std::uint8_t const * shared_secret, std::size_t shared_secret_length,
     axolotl::Curve25519KeyPair const & our_ratchet_key
 ) {
@@ -215,7 +215,7 @@ void axolotl::Session::initialise_as_alice(
 }
 
 
-std::size_t axolotl::Session::pickle_max_output_length() {
+std::size_t axolotl::Ratchet::pickle_max_output_length() {
     std::size_t counter_length = 4;
     std::size_t send_chain_length = counter_length + 64 + 32;
     std::size_t recv_chain_length = counter_length + 32 + 32;
@@ -264,8 +264,7 @@ std::uint8_t * unpickle_bytes(
 } // namespace
 
 
-std::size_t axolotl::Session::pickle(
-    std::uint8_t const * key, std::size_t key_length,
+std::size_t axolotl::Ratchet::pickle(
     std::uint8_t * output, std::size_t max_output_length
 ) {
     std::uint8_t * pos = output;
@@ -297,8 +296,7 @@ std::size_t axolotl::Session::pickle(
     return pos - output;
 }
 
-std::size_t axolotl::Session::unpickle(
-    std::uint8_t const * key, std::size_t key_length,
+std::size_t axolotl::Ratchet::unpickle(
     std::uint8_t * input, std::size_t input_length
 ) {
 
@@ -350,26 +348,28 @@ std::size_t axolotl::Session::unpickle(
 }
 
 
-std::size_t axolotl::Session::encrypt_max_output_length(
+std::size_t axolotl::Ratchet::encrypt_max_output_length(
     std::size_t plaintext_length
 ) {
     std::size_t counter = 0;
     if (!sender_chain.empty()) {
         counter = sender_chain[0].chain_key.index;
     }
-    std::size_t padded = axolotl::aes_encrypt_cbc_length(plaintext_length);
+    std::size_t padded = ratchet_cipher.encrypt_ciphertext_length(
+        plaintext_length
+    );
     return axolotl::encode_message_length(
         counter, KEY_LENGTH, padded, ratchet_cipher.mac_length()
     );
 }
 
 
-std::size_t axolotl::Session::encrypt_random_length() {
+std::size_t axolotl::Ratchet::encrypt_random_length() {
     return sender_chain.empty() ? KEY_LENGTH : 0;
 }
 
 
-std::size_t axolotl::Session::encrypt(
+std::size_t axolotl::Ratchet::encrypt(
     std::uint8_t const * plaintext, std::size_t plaintext_length,
     std::uint8_t const * random, std::size_t random_length,
     std::uint8_t * output, std::size_t max_output_length
@@ -427,14 +427,14 @@ std::size_t axolotl::Session::encrypt(
 }
 
 
-std::size_t axolotl::Session::decrypt_max_plaintext_length(
+std::size_t axolotl::Ratchet::decrypt_max_plaintext_length(
     std::size_t input_length
 ) {
     return input_length;
 }
 
 
-std::size_t axolotl::Session::decrypt(
+std::size_t axolotl::Ratchet::decrypt(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * plaintext, std::size_t max_plaintext_length
 ) {
