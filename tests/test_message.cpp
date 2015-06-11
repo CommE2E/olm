@@ -17,8 +17,8 @@
 
 int main() {
 
-std::uint8_t message1[36] = "\x03\n\nratchetkey\x10\x01\"\nciphertexthmacsha2";
-std::uint8_t message2[36] = "\x03\x10\x01\n\nratchetkey\"\nciphertexthmacsha2";
+std::uint8_t message1[36] = "\x03\x10\x01\n\nratchetkey\"\nciphertexthmacsha2";
+std::uint8_t message2[36] = "\x03\n\nratchetkey\x10\x01\"\nciphertexthmacsha2";
 std::uint8_t ratchetkey[11] = "ratchetkey";
 std::uint8_t ciphertext[11] = "ciphertext";
 std::uint8_t hmacsha2[9] = "hmacsha2";
@@ -31,6 +31,7 @@ axolotl::MessageReader reader;
 axolotl::decode_message(reader, message1, 35, 8);
 
 assert_equals(std::uint8_t(3), reader.version);
+assert_equals(true, reader.has_counter);
 assert_equals(std::uint32_t(1), reader.counter);
 assert_equals(std::size_t(10), reader.ratchet_key_length);
 assert_equals(std::size_t(10), reader.ciphertext_length);

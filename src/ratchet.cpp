@@ -444,7 +444,7 @@ std::size_t axolotl::Session::decrypt(
     }
 
     axolotl::MessageReader reader;
-    std::size_t body_length = axolotl::decode_message(
+    axolotl::decode_message(
         reader, input, input_length, ratchet_cipher.mac_length()
     );
 
@@ -453,7 +453,12 @@ std::size_t axolotl::Session::decrypt(
         return std::size_t(-1);
     }
 
-    if (body_length == size_t(-1) || reader.ratchet_key_length != KEY_LENGTH) {
+    if (!reader.has_counter || !reader.ratchet_key || !reader.ciphertext) {
+        last_error = axolotl::ErrorCode::BAD_MESSAGE_FORMAT;
+        return std::size_t(-1);
+    }
+
+    if (reader.ratchet_key_length != KEY_LENGTH) {
         last_error = axolotl::ErrorCode::BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }

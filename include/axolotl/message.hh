@@ -37,6 +37,7 @@ struct MessageWriter {
 
 struct MessageReader {
     std::uint8_t version;
+    bool has_counter;
     std::uint32_t counter;
     std::uint8_t const * input; std::size_t input_length;
     std::uint8_t const * ratchet_key; std::size_t ratchet_key_length;
@@ -46,9 +47,8 @@ struct MessageReader {
 
 /**
  * Writes the message headers into the output buffer.
- * Returns a writer struct populated with pointers into the output buffer.
+ * Populates the writer struct with pointers into the output buffer.
  */
-
 void encode_message(
     MessageWriter & writer,
     std::uint8_t version,
@@ -62,12 +62,66 @@ void encode_message(
 /**
  * Reads the message headers from the input buffer.
  * Populates the reader struct with pointers into the input buffer.
- * On failure returns std::size_t(-1).
  */
-std::size_t decode_message(
+void decode_message(
     MessageReader & reader,
     std::uint8_t const * input, std::size_t input_length,
     std::size_t mac_length
+);
+
+
+struct PreKeyMessageWriter {
+    std::uint8_t * identity_key;
+    std::uint8_t * base_key;
+    std::uint8_t * message;
+};
+
+
+struct PreKeyMessageReader {
+    std::uint8_t version;
+    bool has_registration_id;
+    bool has_one_time_key_id;
+    std::uint32_t registration_id;
+    std::uint32_t one_time_key_id;
+    std::uint8_t const * identity_key; std::size_t identity_key_length;
+    std::uint8_t const * base_key; std::size_t base_key_length;
+    std::uint8_t const * message; std::size_t message_length;
+};
+
+/**
+ * The length of the buffer needed to hold a message.
+ */
+std::size_t encode_one_time_key_message_length(
+    std::uint32_t registration_id,
+    std::uint32_t one_time_key_id,
+    std::size_t identity_key_length,
+    std::size_t base_key_length,
+    std::size_t message_length
+);
+
+/**
+ * Writes the message headers into the output buffer.
+ * Populates the writer struct with pointers into the output buffer.
+ */
+void encode_one_time_key_message(
+    PreKeyMessageWriter & writer,
+    std::uint8_t version,
+    std::uint32_t registration_id,
+    std::uint32_t one_time_key_id,
+    std::size_t identity_key_length,
+    std::size_t base_key_length,
+    std::size_t message_length,
+    std::uint8_t * output
+);
+
+
+/**
+ * Reads the message headers from the input buffer.
+ * Populates the reader struct with pointers into the input buffer.
+ */
+void decode_one_time_key_message(
+    PreKeyMessageReader & reader,
+    std::uint8_t const * input, std::size_t input_length
 );
 
 
