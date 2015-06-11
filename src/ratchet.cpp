@@ -215,11 +215,11 @@ void axolotl::Ratchet::initialise_as_alice(
 }
 
 
-std::size_t axolotl::Ratchet::pickle_max_output_length() {
+std::size_t axolotl::Ratchet::pickle_length() {
     std::size_t counter_length = 4;
     std::size_t send_chain_length = counter_length + 64 + 32;
     std::size_t recv_chain_length = counter_length + 32 + 32;
-    std::size_t skip_key_length = counter_length + 32 + 32 + 32 + 16;
+    std::size_t skip_key_length = counter_length + 32 + 32;
     std::size_t pickle_length = 3 * counter_length + 32;
     pickle_length += sender_chain.size() * send_chain_length;
     pickle_length += receiver_chains.size() * recv_chain_length;
@@ -265,10 +265,10 @@ std::uint8_t * unpickle_bytes(
 
 
 std::size_t axolotl::Ratchet::pickle(
-    std::uint8_t * output, std::size_t max_output_length
+    std::uint8_t * output, std::size_t output_length
 ) {
     std::uint8_t * pos = output;
-    if (max_output_length < pickle_max_output_length()) {
+    if (output_length < pickle_length()) {
         last_error = axolotl::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }

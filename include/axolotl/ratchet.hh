@@ -15,6 +15,7 @@
 
 #include "axolotl/crypto.hh"
 #include "axolotl/list.hh"
+#include "axolotl/error.hh"
 
 namespace axolotl {
 
@@ -50,16 +51,6 @@ struct ReceiverChain {
 struct SkippedMessageKey {
     Curve25519PublicKey ratchet_key;
     MessageKey message_key;
-};
-
-
-enum struct ErrorCode {
-    SUCCESS = 0, /*!< There wasn't an error */
-    NOT_ENOUGH_RANDOM = 1,  /*!< Not enough entropy was supplied */
-    OUTPUT_BUFFER_TOO_SMALL = 2, /*!< Supplied output buffer is too small */
-    BAD_MESSAGE_VERSION = 3,  /*!< The message version is unsupported */
-    BAD_MESSAGE_FORMAT = 4, /*!< The message couldn't be decoded */
-    BAD_MESSAGE_MAC = 5, /*!< The message couldn't be decrypted */
 };
 
 
@@ -124,12 +115,12 @@ struct Ratchet {
     );
 
     /** The number of bytes needed to persist the current session. */
-    std::size_t pickle_max_output_length();
+    std::size_t pickle_length();
 
     /** Persists a session as a sequence of bytes
      * Returns the number of output bytes used. */
     std::size_t pickle(
-        std::uint8_t * output, std::size_t max_output_length
+        std::uint8_t * output, std::size_t output_length
     );
 
     /** Loads a session from a sequence of bytes.
