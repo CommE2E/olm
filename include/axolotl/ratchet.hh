@@ -18,6 +18,8 @@
 
 namespace axolotl {
 
+class Cipher;
+
 typedef std::uint8_t SharedKey[32];
 
 
@@ -29,9 +31,7 @@ struct ChainKey {
 
 struct MessageKey {
     std::uint32_t index;
-    Aes256Key cipher_key;
-    SharedKey mac_key;
-    Aes256Iv iv;
+    SharedKey key;
 };
 
 
@@ -72,21 +72,23 @@ struct KdfInfo {
     std::size_t root_info_length;
     std::uint8_t const * ratchet_info;
     std::size_t ratchet_info_length;
-    std::uint8_t const * message_info;
-    std::size_t message_info_length;
 };
 
 
 struct Session {
 
     Session(
-        KdfInfo const & kdf_info
+        KdfInfo const & kdf_info,
+        Cipher const & ratchet_cipher
     );
 
-    /** A some strings identifing the application to feed into the KDF. */
-    const KdfInfo &kdf_info;
+    /** A some strings identifying the application to feed into the KDF. */
+    KdfInfo const & kdf_info;
 
-    /** The last error that happened encypting or decrypting a message. */
+    /** The AEAD cipher to use for encrypting messages. */
+    Cipher const & ratchet_cipher;
+
+    /** The last error that happened encrypting or decrypting a message. */
     ErrorCode last_error;
 
     /** The root key is used to generate chain keys from the ephemeral keys.
@@ -98,7 +100,7 @@ struct Session {
      * with a new empheral key when we next send a message. */
     List<SenderChain, 1> sender_chain;
 
-    /** The receiver chain is used to decrypt recieved messages. We store the
+    /** The receiver chain is used to decrypt received messages. We store the
      * last few chains so we can decrypt any out of order messages we haven't
      * received yet. */
     List<ReceiverChain, MAX_RECEIVER_CHAINS> receiver_chains;
@@ -114,7 +116,7 @@ struct Session {
         Curve25519PublicKey const & their_ratchet_key
     );
 
-    /** Intialise the session using a shared secret and the public/private key
+    /** Initialise the session using a shared secret and the public/private key
      * pair for the first ratchet key */
     void initialise_as_alice(
         std::uint8_t const * shared_secret, std::size_t shared_secret_length,
@@ -150,7 +152,7 @@ struct Session {
      * generate a new ephemeral key, or will be 0 bytes otherwise.*/
     std::size_t encrypt_random_length();
 
-    /** Encrypt some plaintext. Returns the length of the encrypted message
+    /** Encrypt some plain-text. Returns the length of the encrypted message
      * or std::size_t(-1) on failure. On failure last_error will be set with
      * an error code. The last_error will be NOT_ENOUGH_RANDOM if the number
      * of random bytes is too small. The last_error will be
@@ -161,16 +163,16 @@ struct Session {
         std::uint8_t * output, std::size_t max_output_length
     );
 
-    /** An upper bound on the number of bytes of plaintext the decrypt method
+    /** An upper bound on the number of bytes of plain-text the decrypt method
      * will write for a given input message length. */
     std::size_t decrypt_max_plaintext_length(
         std::size_t input_length
     );
 
-    /** Decrypt a message. Returns the length of the decrypted plaintext or
+    /** Decrypt a message. Returns the length of the decrypted plain-text or
      * std::size_t(-1) on failure. On failure last_error will be set with an
      * error code. The last_error will be OUTPUT_BUFFER_TOO_SMALL if the
-     * plaintext buffer is too small. The last_error will be
+     * plain-text buffer is too small. The last_error will be
      * BAD_MESSAGE_VERSION if the message was encrypted with an unsupported
      * version of the protocol. The last_error will be BAD_MESSAGE_FORMAT if
      * the message headers could not be decoded. The last_error will be

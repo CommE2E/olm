@@ -15,13 +15,13 @@
 #include "axolotl/ratchet.hh"
 #include "axolotl/message.hh"
 #include "axolotl/memory.hh"
+#include "axolotl/cipher.hh"
 
 #include <cstring>
 
 namespace {
 
 std::uint8_t PROTOCOL_VERSION = 3;
-std::size_t MAC_LENGTH = 8;
 std::size_t KEY_LENGTH = axolotl::Curve25519PublicKey::LENGTH;
 std::uint8_t MESSAGE_KEY_SEED[1] = {0x01};
 std::uint8_t CHAIN_KEY_SEED[1] = {0x02};
@@ -70,59 +70,43 @@ void create_message_keys(
     axolotl::KdfInfo const & info,
     axolotl::MessageKey & message_key
 ) {
-    axolotl::SharedKey secret;
     axolotl::hmac_sha256(
         chain_key.key, sizeof(chain_key.key),
         MESSAGE_KEY_SEED, sizeof(MESSAGE_KEY_SEED),
-        secret
+        message_key.key
     );
-    std::uint8_t derived_secrets[80];
-    axolotl::hkdf_sha256(
-        secret, sizeof(secret),
-        NULL, 0,
-        info.message_info, info.message_info_length,
-        derived_secrets, sizeof(derived_secrets)
-    );
-    std::memcpy(message_key.cipher_key.key, derived_secrets, 32);
-    std::memcpy(message_key.mac_key, derived_secrets + 32, 32);
-    std::memcpy(message_key.iv.iv, derived_secrets + 64, 16);
     message_key.index = chain_key.index;
-    axolotl::unset(derived_secrets);
-    axolotl::unset(secret);
 }
 
 
-bool verify_mac(
+std::size_t verify_mac_and_decrypt(
+    axolotl::Cipher const & cipher,
     axolotl::MessageKey const & message_key,
-    std::uint8_t const * input,
-    axolotl::MessageReader const & reader
+    axolotl::MessageReader const & reader,
+    std::uint8_t * plaintext, std::size_t max_plaintext_length
 ) {
-    std::uint8_t mac[axolotl::HMAC_SHA256_OUTPUT_LENGTH];
-    axolotl::hmac_sha256(
-        message_key.mac_key, sizeof(message_key.mac_key),
-        input, reader.body_length,
-        mac
+    return cipher.decrypt(
+        message_key.key, sizeof(message_key.key),
+        reader.input, reader.input_length,
+        reader.ciphertext, reader.ciphertext_length,
+        plaintext, max_plaintext_length
     );
-
-    bool result = axolotl::is_equal(mac, reader.mac, MAC_LENGTH);
-    axolotl::unset(mac);
-    return result;
 }
 
 
-bool verify_mac_for_existing_chain(
+std::size_t verify_mac_and_decrypt_for_existing_chain(
     axolotl::Session const & session,
     axolotl::ChainKey const & chain,
-    std::uint8_t const * input,
-    axolotl::MessageReader const & reader
+    axolotl::MessageReader const & reader,
+    std::uint8_t * plaintext, std::size_t max_plaintext_length
 ) {
     if (reader.counter < chain.index) {
-        return false;
+        return std::size_t(-1);
     }
 
     /* Limit the number of hashes we're prepared to compute */
     if (reader.counter - chain.index > MAX_MESSAGE_GAP) {
-        return false;
+        return std::size_t(-1);
     }
 
     axolotl::ChainKey new_chain = chain;
@@ -134,16 +118,20 @@ bool verify_mac_for_existing_chain(
     axolotl::MessageKey message_key;
     create_message_keys(new_chain, session.kdf_info, message_key);
 
-    bool result = verify_mac(message_key, input, reader);
+    std::size_t result = verify_mac_and_decrypt(
+        session.ratchet_cipher, message_key, reader,
+        plaintext, max_plaintext_length
+    );
+
     axolotl::unset(new_chain);
     return result;
 }
 
 
-bool verify_mac_for_new_chain(
+std::size_t verify_mac_and_decrypt_for_new_chain(
     axolotl::Session const & session,
-    std::uint8_t const * input,
-    axolotl::MessageReader const & reader
+    axolotl::MessageReader const & reader,
+    std::uint8_t * plaintext, std::size_t max_plaintext_length
 ) {
     axolotl::SharedKey new_root_key;
     axolotl::ReceiverChain new_chain;
@@ -168,8 +156,9 @@ bool verify_mac_for_new_chain(
         new_root_key, new_chain.chain_key
     );
 
-    bool result = verify_mac_for_existing_chain(
-        session, new_chain.chain_key, input, reader
+    std::size_t result = verify_mac_and_decrypt_for_existing_chain(
+        session, new_chain.chain_key, reader,
+        plaintext, max_plaintext_length
     );
     axolotl::unset(new_root_key);
     axolotl::unset(new_chain);
@@ -180,8 +169,11 @@ bool verify_mac_for_new_chain(
 
 
 axolotl::Session::Session(
-    axolotl::KdfInfo const & kdf_info
-) : kdf_info(kdf_info), last_error(axolotl::ErrorCode::SUCCESS) {
+    axolotl::KdfInfo const & kdf_info,
+    Cipher const & ratchet_cipher
+) : kdf_info(kdf_info),
+    ratchet_cipher(ratchet_cipher),
+    last_error(axolotl::ErrorCode::SUCCESS) {
 }
 
 
@@ -232,7 +224,7 @@ std::size_t axolotl::Session::pickle_max_output_length() {
     pickle_length += sender_chain.size() * send_chain_length;
     pickle_length += receiver_chains.size() * recv_chain_length;
     pickle_length += skipped_message_keys.size() * skip_key_length;
-    return axolotl::aes_encrypt_cbc_length(pickle_length) + MAC_LENGTH;
+    return pickle_length;
 }
 
 namespace {
@@ -299,11 +291,10 @@ std::size_t axolotl::Session::pickle(
     }
     for (const axolotl::SkippedMessageKey &key : skipped_message_keys) {
         pos = pickle_counter(pos, key.message_key.index);
-        pos = pickle_bytes(pos, 32, key.message_key.cipher_key.key);
-        pos = pickle_bytes(pos, 32, key.message_key.mac_key);
-        pos = pickle_bytes(pos, 16, key.message_key.iv.iv);
+        pos = pickle_bytes(pos, 32, key.message_key.key);
         pos = pickle_bytes(pos, 32, key.ratchet_key.public_key);
     }
+    return pos - output;
 }
 
 std::size_t axolotl::Session::unpickle(
@@ -352,11 +343,10 @@ std::size_t axolotl::Session::unpickle(
             skipped_message_keys.end()
         );
         pos = unpickle_counter(pos, key.message_key.index);
-        pos = unpickle_bytes(pos, 32, key.message_key.cipher_key.key);
-        pos = unpickle_bytes(pos, 32, key.message_key.mac_key);
-        pos = unpickle_bytes(pos, 16, key.message_key.iv.iv);
+        pos = unpickle_bytes(pos, 32, key.message_key.key);
         pos = unpickle_bytes(pos, 32, key.ratchet_key.public_key);
     }
+    return pos - input;
 }
 
 
@@ -369,7 +359,7 @@ std::size_t axolotl::Session::encrypt_max_output_length(
     }
     std::size_t padded = axolotl::aes_encrypt_cbc_length(plaintext_length);
     return axolotl::encode_message_length(
-        counter, KEY_LENGTH, padded, MAC_LENGTH
+        counter, KEY_LENGTH, padded, ratchet_cipher.mac_length()
     );
 }
 
@@ -384,11 +374,13 @@ std::size_t axolotl::Session::encrypt(
     std::uint8_t const * random, std::size_t random_length,
     std::uint8_t * output, std::size_t max_output_length
 ) {
+    std::size_t output_length = encrypt_max_output_length(plaintext_length);
+
     if (random_length < encrypt_random_length()) {
         last_error = axolotl::ErrorCode::NOT_ENOUGH_RANDOM;
         return std::size_t(-1);
     }
-    if (max_output_length < encrypt_max_output_length(plaintext_length)) {
+    if (max_output_length < output_length) {
         last_error = axolotl::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
@@ -409,32 +401,29 @@ std::size_t axolotl::Session::encrypt(
     create_message_keys(sender_chain[0].chain_key, kdf_info, keys);
     advance_chain_key(sender_chain[0].chain_key, sender_chain[0].chain_key);
 
-    std::size_t padded = axolotl::aes_encrypt_cbc_length(plaintext_length);
+    std::size_t ciphertext_length = ratchet_cipher.encrypt_ciphertext_length(
+        plaintext_length
+    );
     std::uint32_t counter = keys.index;
     Curve25519PublicKey const & ratchet_key = sender_chain[0].ratchet_key;
 
-    axolotl::MessageWriter writer(axolotl::encode_message(
-        PROTOCOL_VERSION, counter, KEY_LENGTH, padded, output
-    ));
+    axolotl::MessageWriter writer;
+
+    axolotl::encode_message(
+        writer, PROTOCOL_VERSION, counter, KEY_LENGTH, ciphertext_length, output
+    );
 
     std::memcpy(writer.ratchet_key, ratchet_key.public_key, KEY_LENGTH);
 
-    axolotl::aes_encrypt_cbc(
-        keys.cipher_key, keys.iv,
+    ratchet_cipher.encrypt(
+        keys.key, sizeof(keys.key),
         plaintext, plaintext_length,
-        writer.ciphertext
+        writer.ciphertext, ciphertext_length,
+        output, output_length
     );
-
-    std::uint8_t mac[axolotl::HMAC_SHA256_OUTPUT_LENGTH];
-    axolotl::hmac_sha256(
-        keys.mac_key, sizeof(keys.mac_key),
-        output, writer.body_length,
-        mac
-    );
-    std::memcpy(writer.mac, mac, MAC_LENGTH);
 
     axolotl::unset(keys);
-    return writer.body_length + MAC_LENGTH;
+    return output_length;
 }
 
 
@@ -454,16 +443,17 @@ std::size_t axolotl::Session::decrypt(
         return std::size_t(-1);
     }
 
-    axolotl::MessageReader reader(axolotl::decode_message(
-        input, input_length, MAC_LENGTH
-    ));
+    axolotl::MessageReader reader;
+    std::size_t body_length = axolotl::decode_message(
+        reader, input, input_length, ratchet_cipher.mac_length()
+    );
 
     if (reader.version != PROTOCOL_VERSION) {
         last_error = axolotl::ErrorCode::BAD_MESSAGE_VERSION;
         return std::size_t(-1);
     }
 
-    if (reader.body_length == 0 || reader.ratchet_key_length != KEY_LENGTH) {
+    if (body_length == size_t(-1) || reader.ratchet_key_length != KEY_LENGTH) {
         last_error = axolotl::ErrorCode::BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }
@@ -479,40 +469,30 @@ std::size_t axolotl::Session::decrypt(
         }
     }
 
+    std::size_t result = std::size_t(-1);
+
     if (!chain) {
-        if (!verify_mac_for_new_chain(*this, input, reader)) {
-            last_error = axolotl::ErrorCode::BAD_MESSAGE_MAC;
-            return std::size_t(-1);
-        }
-    } else {
-        if (chain->chain_key.index > reader.counter) {
-            /* Chain already advanced beyond the key for this message
-             * Check if the message keys are in the skipped key list. */
-            for (axolotl::SkippedMessageKey & skipped : skipped_message_keys) {
-                if (reader.counter == skipped.message_key.index
-                        && 0 == std::memcmp(
-                            skipped.ratchet_key.public_key, reader.ratchet_key,
-                            KEY_LENGTH
-                        )
-                ) {
-                    /* Found the key for this message. Check the MAC. */
-                    if (!verify_mac(skipped.message_key, input, reader)) {
-                        last_error = axolotl::ErrorCode::BAD_MESSAGE_MAC;
-                        return std::size_t(-1);
-                    }
+        result = verify_mac_and_decrypt_for_new_chain(
+            *this, reader, plaintext, max_plaintext_length
+        );
+    } else if (chain->chain_key.index > reader.counter) {
+        /* Chain already advanced beyond the key for this message
+         * Check if the message keys are in the skipped key list. */
+        for (axolotl::SkippedMessageKey & skipped : skipped_message_keys) {
+            if (reader.counter == skipped.message_key.index
+                    && 0 == std::memcmp(
+                        skipped.ratchet_key.public_key, reader.ratchet_key,
+                        KEY_LENGTH
+                    )
+            ) {
+                /* Found the key for this message. Check the MAC. */
 
-                    std::size_t result = axolotl::aes_decrypt_cbc(
-                        skipped.message_key.cipher_key,
-                        skipped.message_key.iv,
-                        reader.ciphertext, reader.ciphertext_length,
-                        plaintext
-                    );
+                result = verify_mac_and_decrypt(
+                    ratchet_cipher, skipped.message_key, reader,
+                    plaintext, max_plaintext_length
+                );
 
-                    if (result == std::size_t(-1)) {
-                        last_error = axolotl::ErrorCode::BAD_MESSAGE_MAC;
-                        return result;
-                    }
-
+                if (result != std::size_t(-1)) {
                     /* Remove the key from the skipped keys now that we've
                      * decoded the message it corresponds to. */
                     axolotl::unset(skipped);
@@ -520,15 +500,16 @@ std::size_t axolotl::Session::decrypt(
                     return result;
                 }
             }
-            /* No matching keys for the message, fail with bad mac */
-            last_error = axolotl::ErrorCode::BAD_MESSAGE_MAC;
-            return std::size_t(-1);
-        } else if (!verify_mac_for_existing_chain(
-               *this, chain->chain_key, input, reader
-        )) {
-            last_error = axolotl::ErrorCode::BAD_MESSAGE_MAC;
-            return std::size_t(-1);
         }
+    } else {
+        result = verify_mac_and_decrypt_for_existing_chain(
+            *this, chain->chain_key, reader, plaintext, max_plaintext_length
+        );
+    }
+
+    if (result == std::size_t(-1)) {
+        last_error = axolotl::ErrorCode::BAD_MESSAGE_MAC;
+        return std::size_t(-1);
     }
 
     if (!chain) {
@@ -555,22 +536,7 @@ std::size_t axolotl::Session::decrypt(
         advance_chain_key(chain->chain_key, chain->chain_key);
     }
 
-    axolotl::MessageKey message_key;
-    create_message_keys(chain->chain_key, kdf_info, message_key);
-    std::size_t result = axolotl::aes_decrypt_cbc(
-        message_key.cipher_key,
-        message_key.iv,
-        reader.ciphertext, reader.ciphertext_length,
-        plaintext
-    );
-    axolotl::unset(message_key);
-
     advance_chain_key(chain->chain_key, chain->chain_key);
 
-    if (result == std::size_t(-1)) {
-        last_error = axolotl::ErrorCode::BAD_MESSAGE_MAC;
-        return std::size_t(-1);
-    } else {
-        return result;
-    }
+    return result;
 }

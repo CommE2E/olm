@@ -30,22 +30,17 @@ std::size_t encode_message_length(
 
 
 struct MessageWriter {
-    std::size_t body_length;
     std::uint8_t * ratchet_key;
     std::uint8_t * ciphertext;
-    std::uint8_t * mac;
 };
 
 
 struct MessageReader {
-    std::size_t body_length;
     std::uint8_t version;
     std::uint32_t counter;
-    std::size_t ratchet_key_length;
-    std::size_t ciphertext_length;
-    std::uint8_t const * ratchet_key;
-    std::uint8_t const * ciphertext;
-    std::uint8_t const * mac;
+    std::uint8_t const * input; std::size_t input_length;
+    std::uint8_t const * ratchet_key; std::size_t ratchet_key_length;
+    std::uint8_t const * ciphertext; std::size_t ciphertext_length;
 };
 
 
@@ -53,7 +48,9 @@ struct MessageReader {
  * Writes the message headers into the output buffer.
  * Returns a writer struct populated with pointers into the output buffer.
  */
-MessageWriter encode_message(
+
+void encode_message(
+    MessageWriter & writer,
     std::uint8_t version,
     std::uint32_t counter,
     std::size_t ratchet_key_length,
@@ -64,10 +61,11 @@ MessageWriter encode_message(
 
 /**
  * Reads the message headers from the input buffer.
- * Returns a reader struct populated with pointers into the input buffer.
- * On failure the returned body_length will be 0.
+ * Populates the reader struct with pointers into the input buffer.
+ * On failure returns std::size_t(-1).
  */
-MessageReader decode_message(
+std::size_t decode_message(
+    MessageReader & reader,
     std::uint8_t const * input, std::size_t input_length,
     std::size_t mac_length
 );

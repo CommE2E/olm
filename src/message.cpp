@@ -94,55 +94,52 @@ std::size_t axolotl::encode_message_length(
     length += 1 + varstring_length(ratchet_key_length);
     length += 1 + varint_length(counter);
     length += 1 + varstring_length(ciphertext_length);
-    return length + mac_length;
+    length += mac_length;
+    return length;
 }
 
 
-axolotl::MessageWriter axolotl::encode_message(
+void axolotl::encode_message(
+    axolotl::MessageWriter & writer,
     std::uint8_t version,
     std::uint32_t counter,
     std::size_t ratchet_key_length,
     std::size_t ciphertext_length,
     std::uint8_t * output
 ) {
-    axolotl::MessageWriter result;
     std::uint8_t * pos = output;
     *(pos++) = version;
     *(pos++) = COUNTER_TAG;
     pos = varint_encode(pos, counter);
     *(pos++) = RATCHET_KEY_TAG;
     pos = varint_encode(pos, ratchet_key_length);
-    result.ratchet_key = pos;
+    writer.ratchet_key = pos;
     pos += ratchet_key_length;
     *(pos++) = CIPHERTEXT_TAG;
     pos = varint_encode(pos, ciphertext_length);
-    result.ciphertext = pos;
+    writer.ciphertext = pos;
     pos += ciphertext_length;
-    result.body_length = pos - output;
-    result.mac = pos;
-    return result;
 }
 
 
-axolotl::MessageReader axolotl::decode_message(
+std::size_t axolotl::decode_message(
+    axolotl::MessageReader & reader,
     std::uint8_t const * input, std::size_t input_length,
     std::size_t mac_length
 ) {
-    axolotl::MessageReader result;
-    result.body_length = 0;
     std::uint8_t const * pos = input;
     std::uint8_t const * end = input + input_length - mac_length;
     std::uint8_t flags = 0;
-    result.mac = end;
+    std::size_t result = std::size_t(-1);
     if (pos == end) return result;
-    result.version = *(pos++);
+    reader.version = *(pos++);
     while (pos != end) {
         uint8_t tag = *(pos);
         if (tag == COUNTER_TAG) {
             ++pos;
             std::uint8_t const * counter_start = pos;
             pos = varint_skip(pos, end);
-            result.counter = varint_decode<std::uint32_t>(counter_start, pos);
+            reader.counter = varint_decode<std::uint32_t>(counter_start, pos);
             flags |= 1;
         } else if (tag == RATCHET_KEY_TAG) {
             ++pos;
@@ -150,8 +147,8 @@ axolotl::MessageReader axolotl::decode_message(
             pos = varint_skip(pos, end);
             std::size_t len = varint_decode<std::size_t>(len_start, pos);
             if (len > end - pos) return result;
-            result.ratchet_key_length = len;
-            result.ratchet_key = pos;
+            reader.ratchet_key_length = len;
+            reader.ratchet_key = pos;
             pos += len;
             flags |= 2;
         } else if (tag == CIPHERTEXT_TAG) {
@@ -160,8 +157,8 @@ axolotl::MessageReader axolotl::decode_message(
             pos = varint_skip(pos, end);
             std::size_t len = varint_decode<std::size_t>(len_start, pos);
             if (len > end - pos) return result;
-            result.ciphertext_length = len;
-            result.ciphertext = pos;
+            reader.ciphertext_length = len;
+            reader.ciphertext = pos;
             pos += len;
             flags |= 4;
         } else if (tag & 0x7 == 0) {
@@ -174,11 +171,13 @@ axolotl::MessageReader axolotl::decode_message(
             if (len > end - pos) return result;
             pos += len;
         } else {
-            return result;
+            return std::size_t(-1);
         }
     }
     if (flags == 0x7) {
-        result.body_length = end - input;
+        reader.input = input;
+        reader.input_length = input_length;
+        return std::size_t(pos - input);
     }
     return result;
 }

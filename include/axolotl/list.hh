@@ -92,7 +92,7 @@ public:
     }
 
     List<T, max_size> & operator=(List<T, max_size> const & other) {
-        if (this = &other) {
+        if (this == &other) {
             return *this;
         }
         T * this_pos = _data;

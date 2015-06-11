@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "axolotl/ratchet.hh"
+#include "axolotl/cipher.hh"
 #include "unittest.hh"
 
 
@@ -24,9 +25,12 @@ std::uint8_t message_info[] = "AxolotlMessageKeys";
 
 axolotl::KdfInfo kdf_info = {
     root_info, sizeof(root_info) - 1,
-    ratchet_info, sizeof(ratchet_info - 1),
-    message_info, sizeof(ratchet_info - 1)
+    ratchet_info, sizeof(ratchet_info) - 1
 };
+
+axolotl::CipherAesSha256 cipher(
+    message_info, sizeof(message_info) - 1
+);
 
 std::uint8_t random_bytes[] = "0123456789ABDEF0123456789ABCDEF";
 axolotl::Curve25519KeyPair bob_key;
@@ -37,8 +41,8 @@ std::uint8_t shared_secret[] = "A secret";
 { /* Send/Receive test case */
 TestCase test_case("Axolotl Send/Receive");
 
-axolotl::Session alice(kdf_info);
-axolotl::Session bob(kdf_info);
+axolotl::Session alice(kdf_info, cipher);
+axolotl::Session bob(kdf_info, cipher);
 
 alice.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, bob_key);
 bob.initialise_as_alice(shared_secret, sizeof(shared_secret) - 1, bob_key);
@@ -106,8 +110,8 @@ std::size_t encrypt_length, decrypt_length;
 
 TestCase test_case("Axolotl Out of Order");
 
-axolotl::Session alice(kdf_info);
-axolotl::Session bob(kdf_info);
+axolotl::Session alice(kdf_info, cipher);
+axolotl::Session bob(kdf_info, cipher);
 
 alice.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, bob_key);
 bob.initialise_as_alice(shared_secret, sizeof(shared_secret) - 1, bob_key);
