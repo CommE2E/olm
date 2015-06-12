@@ -4,6 +4,7 @@
 #include "axolotl/account.hh"
 #include "axolotl/memory.hh"
 #include "axolotl/message.hh"
+#include "axolotl/pickle.hh"
 
 #include <cstring>
 
@@ -334,3 +335,46 @@ std::size_t axolotl::Session::decrypt(
     }
     return result;
 }
+
+
+std::size_t axolotl::pickle_length(
+    Session const & value
+) {
+    std::size_t length = 0;
+    length += axolotl::pickle_length(value.received_message);
+    length += axolotl::pickle_length(value.alice_identity_key.id);
+    length += axolotl::pickle_length(value.alice_identity_key.key);
+    length += axolotl::pickle_length(value.alice_base_key);
+    length += axolotl::pickle_length(value.bob_one_time_key_id);
+    length += axolotl::pickle_length(value.ratchet);
+    return length;
+}
+
+
+std::uint8_t * axolotl::pickle(
+    std::uint8_t * pos,
+    Session const & value
+) {
+    pos = axolotl::pickle(pos, value.received_message);
+    pos = axolotl::pickle(pos, value.alice_identity_key.id);
+    pos = axolotl::pickle(pos, value.alice_identity_key.key);
+    pos = axolotl::pickle(pos, value.alice_base_key);
+    pos = axolotl::pickle(pos, value.bob_one_time_key_id);
+    pos = axolotl::pickle(pos, value.ratchet);
+    return pos;
+}
+
+
+std::uint8_t const * axolotl::unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    Session & value
+) {
+    pos = axolotl::unpickle(pos, end, value.received_message);
+    pos = axolotl::unpickle(pos, end, value.alice_identity_key.id);
+    pos = axolotl::unpickle(pos, end, value.alice_identity_key.key);
+    pos = axolotl::unpickle(pos, end, value.alice_base_key);
+    pos = axolotl::unpickle(pos, end, value.bob_one_time_key_id);
+    pos = axolotl::unpickle(pos, end, value.ratchet);
+    return pos;
+}
+

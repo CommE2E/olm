@@ -41,22 +41,24 @@ struct Account {
     LocalKey const * lookup_key(
         std::uint32_t id
     );
-
-    /** The number of bytes needed to persist this account. */
-    std::size_t pickle_length();
-
-    /** Persists an account as a sequence of bytes
-     * Returns the number of output bytes used. */
-    std::size_t pickle(
-        std::uint8_t * output, std::size_t output_length
-    );
-
-    /** Loads an account from a sequence of bytes.
-     * Returns 0 on success, or std::size_t(-1) on failure. */
-    std::size_t unpickle(
-        std::uint8_t * input, std::size_t input_length
-    );
 };
+
+
+std::size_t pickle_length(
+    Account const & value
+);
+
+
+std::uint8_t * pickle(
+    std::uint8_t * pos,
+    Account const & value
+);
+
+
+std::uint8_t const * unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    Account & value
+);
 
 
 } // namespace axolotl

@@ -16,6 +16,8 @@
 #include "axolotl/message.hh"
 #include "axolotl/memory.hh"
 #include "axolotl/cipher.hh"
+#include "axolotl/pickle.hh"
+
 
 #include <cstring>
 
@@ -214,137 +216,165 @@ void axolotl::Ratchet::initialise_as_alice(
     axolotl::unset(derived_secrets);
 }
 
+namespace axolotl {
 
-std::size_t axolotl::Ratchet::pickle_length() {
-    std::size_t counter_length = 4;
-    std::size_t send_chain_length = counter_length + 64 + 32;
-    std::size_t recv_chain_length = counter_length + 32 + 32;
-    std::size_t skip_key_length = counter_length + 32 + 32;
-    std::size_t pickle_length = 3 * counter_length + 32;
-    pickle_length += sender_chain.size() * send_chain_length;
-    pickle_length += receiver_chains.size() * recv_chain_length;
-    pickle_length += skipped_message_keys.size() * skip_key_length;
-    return pickle_length;
+
+static std::size_t pickle_length(
+    const axolotl::SharedKey & value
+) {
+    return KEY_LENGTH;
 }
 
-namespace {
 
-std::uint8_t * pickle_counter(
-    std::uint8_t * output, std::uint32_t value
+static std::uint8_t * pickle(
+    std::uint8_t * pos,
+    const axolotl::SharedKey & value
 ) {
-    unsigned i = 4;
-    output += 4;
-    while (i--) { *(--output) = value; value >>= 8; }
-    return output + 4;
+    return axolotl::pickle_bytes(pos, value, KEY_LENGTH);
 }
 
-std::uint8_t * unpickle_counter(
-    std::uint8_t *input, std::uint32_t &value
+
+static std::uint8_t const * unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    axolotl::SharedKey & value
 ) {
-    unsigned i = 4;
-    value = 0;
-    while (i--) { value <<= 8; value |= *(input++); }
-    return input;
+    return axolotl::unpickle_bytes(pos, end, value, KEY_LENGTH);
 }
 
-std::uint8_t * pickle_bytes(
-    std::uint8_t * output, std::size_t count, std::uint8_t const * bytes
+
+static std::size_t pickle_length(
+    const axolotl::SenderChain & value
 ) {
-    std::memcpy(output, bytes, count);
-    return output + count;
+    std::size_t length = 0;
+    length += axolotl::pickle_length(value.ratchet_key);
+    length += axolotl::pickle_length(value.chain_key.key);
+    length += axolotl::pickle_length(value.chain_key.index);
+    return length;
 }
 
-std::uint8_t * unpickle_bytes(
-    std::uint8_t * input, std::size_t count, std::uint8_t * bytes
+
+static std::uint8_t * pickle(
+    std::uint8_t * pos,
+    const axolotl::SenderChain & value
 ) {
-    std::memcpy(bytes, input, count);
-    return input + count;
+    pos = axolotl::pickle(pos, value.ratchet_key);
+    pos = axolotl::pickle(pos, value.chain_key.key);
+    pos = axolotl::pickle(pos, value.chain_key.index);
+    return pos;
 }
 
-} // namespace
 
-
-std::size_t axolotl::Ratchet::pickle(
-    std::uint8_t * output, std::size_t output_length
+static std::uint8_t const * unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    axolotl::SenderChain & value
 ) {
-    std::uint8_t * pos = output;
-    if (output_length < pickle_length()) {
-        last_error = axolotl::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
-        return std::size_t(-1);
-    }
-
-    pos = pickle_counter(pos, sender_chain.size());
-    pos = pickle_counter(pos, receiver_chains.size());
-    pos = pickle_counter(pos, skipped_message_keys.size());
-    pos = pickle_bytes(pos, 32, root_key);
-    for (const axolotl::SenderChain &chain : sender_chain) {
-        pos = pickle_counter(pos, chain.chain_key.index);
-        pos = pickle_bytes(pos, 32, chain.chain_key.key);
-        pos = pickle_bytes(pos, 32, chain.ratchet_key.public_key);
-        pos = pickle_bytes(pos, 32, chain.ratchet_key.private_key);
-    }
-    for (const axolotl::ReceiverChain &chain : receiver_chains) {
-        pos = pickle_counter(pos, chain.chain_key.index);
-        pos = pickle_bytes(pos, 32, chain.chain_key.key);
-        pos = pickle_bytes(pos, 32, chain.ratchet_key.public_key);
-    }
-    for (const axolotl::SkippedMessageKey &key : skipped_message_keys) {
-        pos = pickle_counter(pos, key.message_key.index);
-        pos = pickle_bytes(pos, 32, key.message_key.key);
-        pos = pickle_bytes(pos, 32, key.ratchet_key.public_key);
-    }
-    return pos - output;
+    pos = axolotl::unpickle(pos, end, value.ratchet_key);
+    pos = axolotl::unpickle(pos, end, value.chain_key.key);
+    pos = axolotl::unpickle(pos, end, value.chain_key.index);
+    return pos;
 }
 
-std::size_t axolotl::Ratchet::unpickle(
-    std::uint8_t * input, std::size_t input_length
+static std::size_t pickle_length(
+    const axolotl::ReceiverChain & value
 ) {
+    std::size_t length = 0;
+    length += axolotl::pickle_length(value.ratchet_key);
+    length += axolotl::pickle_length(value.chain_key.key);
+    length += axolotl::pickle_length(value.chain_key.index);
+    return length;
+}
 
-    std::uint8_t * pos = input;
-    std::uint8_t * end = input + input_length;
-    std::uint32_t send_chain_num, recv_chain_num, skipped_num;
 
-    if (end - pos < 4 * 3 + 32) {} // input too small.
+static std::uint8_t * pickle(
+    std::uint8_t * pos,
+    const axolotl::ReceiverChain & value
+) {
+    pos = axolotl::pickle(pos, value.ratchet_key);
+    pos = axolotl::pickle(pos, value.chain_key.key);
+    pos = axolotl::pickle(pos, value.chain_key.index);
+    return pos;
+}
 
-    pos = unpickle_counter(pos, send_chain_num);
-    pos = unpickle_counter(pos, recv_chain_num);
-    pos = unpickle_counter(pos, skipped_num);
-    pos = unpickle_bytes(pos, 32, root_key);
 
-    if (end - pos < send_chain_num * (32 * 3 + 4)) {} // input too small.
+static std::uint8_t const * unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    axolotl::ReceiverChain & value
+) {
+    pos = axolotl::unpickle(pos, end, value.ratchet_key);
+    pos = axolotl::unpickle(pos, end, value.chain_key.key);
+    pos = axolotl::unpickle(pos, end, value.chain_key.index);
+    return pos;
+}
 
-    while (send_chain_num--) {
-        axolotl::SenderChain & chain = *sender_chain.insert(
-            sender_chain.end()
-        );
-        pos = unpickle_counter(pos, chain.chain_key.index);
-        pos = unpickle_bytes(pos, 32, chain.chain_key.key);
-        pos = unpickle_bytes(pos, 32, chain.ratchet_key.public_key);
-        pos = unpickle_bytes(pos, 32, chain.ratchet_key.private_key);
-    }
 
-    if (end - pos < recv_chain_num * (32 * 2 + 4)) {} // input too small.
+static std::size_t pickle_length(
+    const axolotl::SkippedMessageKey & value
+) {
+    std::size_t length = 0;
+    length += axolotl::pickle_length(value.ratchet_key);
+    length += axolotl::pickle_length(value.message_key.key);
+    length += axolotl::pickle_length(value.message_key.index);
+    return length;
+}
 
-    while (recv_chain_num--) {
-        axolotl::ReceiverChain & chain = *receiver_chains.insert(
-            receiver_chains.end()
-        );
-        pos = unpickle_counter(pos, chain.chain_key.index);
-        pos = unpickle_bytes(pos, 32, chain.chain_key.key);
-        pos = unpickle_bytes(pos, 32, chain.ratchet_key.public_key);
-    }
 
-    if (end - pos < skipped_num * (32 * 3 + 16 + 4)) {} // input too small.
+static std::uint8_t * pickle(
+    std::uint8_t * pos,
+    const axolotl::SkippedMessageKey & value
+) {
+    pos = axolotl::pickle(pos, value.ratchet_key);
+    pos = axolotl::pickle(pos, value.message_key.key);
+    pos = axolotl::pickle(pos, value.message_key.index);
+    return pos;
+}
 
-    while (skipped_num--) {
-        axolotl::SkippedMessageKey &key = *skipped_message_keys.insert(
-            skipped_message_keys.end()
-        );
-        pos = unpickle_counter(pos, key.message_key.index);
-        pos = unpickle_bytes(pos, 32, key.message_key.key);
-        pos = unpickle_bytes(pos, 32, key.ratchet_key.public_key);
-    }
-    return pos - input;
+
+static std::uint8_t const * unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    axolotl::SkippedMessageKey & value
+) {
+    pos = axolotl::unpickle(pos, end, value.ratchet_key);
+    pos = axolotl::unpickle(pos, end, value.message_key.key);
+    pos = axolotl::unpickle(pos, end, value.message_key.index);
+    return pos;
+}
+
+
+} // namespace axolotl
+
+
+std::size_t axolotl::pickle_length(
+    axolotl::Ratchet const & value
+) {
+    std::size_t length = 0;
+    length += KEY_LENGTH;
+    length += axolotl::pickle_length(value.sender_chain);
+    length += axolotl::pickle_length(value.receiver_chains);
+    length += axolotl::pickle_length(value.skipped_message_keys);
+    return length;
+}
+
+std::uint8_t * axolotl::pickle(
+    std::uint8_t * pos,
+    axolotl::Ratchet const & value
+) {
+    pos = pickle(pos, value.root_key);
+    pos = pickle(pos, value.sender_chain);
+    pos = pickle(pos, value.receiver_chains);
+    pos = pickle(pos, value.skipped_message_keys);
+    return pos;
+}
+
+
+std::uint8_t const * axolotl::unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    axolotl::Ratchet & value
+) {
+    pos = unpickle(pos, end, value.root_key);
+    pos = unpickle(pos, end, value.sender_chain);
+    pos = unpickle(pos, end, value.receiver_chains);
+    pos = unpickle(pos, end, value.skipped_message_keys);
+    return pos;
 }
 
 

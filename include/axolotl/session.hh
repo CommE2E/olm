@@ -78,6 +78,23 @@ struct Session {
 };
 
 
+std::size_t pickle_length(
+    Session const & value
+);
+
+
+std::uint8_t * pickle(
+    std::uint8_t * pos,
+    Session const & value
+);
+
+
+std::uint8_t const * unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    Session & value
+);
+
+
 } // namespace axolotl
 
 #endif /* AXOLOTL_SESSION_HH_ */

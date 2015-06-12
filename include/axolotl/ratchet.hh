@@ -114,21 +114,6 @@ struct Ratchet {
         Curve25519KeyPair const & our_ratchet_key
     );
 
-    /** The number of bytes needed to persist the current session. */
-    std::size_t pickle_length();
-
-    /** Persists a session as a sequence of bytes
-     * Returns the number of output bytes used. */
-    std::size_t pickle(
-        std::uint8_t * output, std::size_t output_length
-    );
-
-    /** Loads a session from a sequence of bytes.
-     * Returns 0 on success, or std::size_t(-1) on failure. */
-    std::size_t unpickle(
-        std::uint8_t * input, std::size_t input_length
-    );
-
     /** The number of bytes of output the encrypt method will write for
      * a given message length. */
     std::size_t encrypt_output_length(
@@ -170,6 +155,23 @@ struct Ratchet {
         std::uint8_t * plaintext, std::size_t max_plaintext_length
     );
 };
+
+
+std::size_t pickle_length(
+    Ratchet const & value
+);
+
+
+std::uint8_t * pickle(
+    std::uint8_t * pos,
+    Ratchet const & value
+);
+
+
+std::uint8_t const * unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    Ratchet & value
+);
 
 
 } // namespace axolotl
