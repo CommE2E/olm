@@ -198,15 +198,15 @@ void axolotl::decode_message(
 ) {
     std::uint8_t const * pos = input;
     std::uint8_t const * end = input + input_length - mac_length;
-    std::uint8_t const * unknown = NULL;
+    std::uint8_t const * unknown = nullptr;
 
     if (pos == end) return;
     reader.version = *(pos++);
     reader.input = input;
     reader.input_length = input_length;
     reader.has_counter = false;
-    reader.ratchet_key = NULL;
-    reader.ciphertext = NULL;
+    reader.ratchet_key = nullptr;
+    reader.ciphertext = nullptr;
 
     while (pos != end) {
         pos = decode(
@@ -283,15 +283,15 @@ void axolotl::decode_one_time_key_message(
 ) {
     std::uint8_t const * pos = input;
     std::uint8_t const * end = input + input_length;
-    std::uint8_t const * unknown = NULL;
+    std::uint8_t const * unknown = nullptr;
 
     if (pos == end) return;
     reader.version = *(pos++);
     reader.has_registration_id = false;
     reader.has_one_time_key_id = false;
-    reader.identity_key = NULL;
-    reader.base_key = NULL;
-    reader.message = NULL;
+    reader.identity_key = nullptr;
+    reader.base_key = nullptr;
+    reader.message = nullptr;
 
     while (pos != end) {
         pos = decode(

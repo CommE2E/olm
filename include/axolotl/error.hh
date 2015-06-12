@@ -10,6 +10,7 @@ enum struct ErrorCode {
     BAD_MESSAGE_VERSION = 3,  /*!< The message version is unsupported */
     BAD_MESSAGE_FORMAT = 4, /*!< The message couldn't be decoded */
     BAD_MESSAGE_MAC = 5, /*!< The message couldn't be decrypted */
+    BAD_MESSAGE_KEY_ID = 6, /*!< The message references an unknown key id */
 };
 
 } // namespace axolotl

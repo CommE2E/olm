@@ -88,6 +88,7 @@ struct PreKeyMessageReader {
     std::uint8_t const * message; std::size_t message_length;
 };
 
+
 /**
  * The length of the buffer needed to hold a message.
  */
@@ -98,6 +99,7 @@ std::size_t encode_one_time_key_message_length(
     std::size_t base_key_length,
     std::size_t message_length
 );
+
 
 /**
  * Writes the message headers into the output buffer.

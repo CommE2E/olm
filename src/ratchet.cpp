@@ -184,7 +184,7 @@ void axolotl::Ratchet::initialise_as_bob(
     std::uint8_t derived_secrets[64];
     axolotl::hkdf_sha256(
         shared_secret, shared_secret_length,
-        NULL, 0,
+        nullptr, 0,
         kdf_info.root_info, kdf_info.root_info_length,
         derived_secrets, sizeof(derived_secrets)
     );
@@ -203,7 +203,7 @@ void axolotl::Ratchet::initialise_as_alice(
     std::uint8_t derived_secrets[64];
     axolotl::hkdf_sha256(
         shared_secret, shared_secret_length,
-        NULL, 0,
+        nullptr, 0,
         kdf_info.root_info, kdf_info.root_info_length,
         derived_secrets, sizeof(derived_secrets)
     );
@@ -477,7 +477,7 @@ std::size_t axolotl::Ratchet::decrypt(
         return std::size_t(-1);
     }
 
-    ReceiverChain * chain = NULL;
+    ReceiverChain * chain = nullptr;
     for (axolotl::ReceiverChain & receiver_chain : receiver_chains) {
         if (0 == std::memcmp(
                 receiver_chain.ratchet_key.public_key, reader.ratchet_key,

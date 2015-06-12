@@ -12,6 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef AXOLOTL_CRYPTO_HH_
+#define AXOLOTL_CRYPTO_HH_
+
 #include <cstdint>
 #include <cstddef>
 
@@ -141,3 +144,5 @@ void hkdf_sha256(
 );
 
 } // namespace axolotl
+
+#endif /* AXOLOTL_CRYPTO_HH_ */

@@ -26,7 +26,7 @@ static void derive_keys(
     std::uint8_t derived_secrets[80];
     axolotl::hkdf_sha256(
         key, key_length,
-        NULL, 0,
+        nullptr, 0,
         kdf_info, kdf_info_length,
         derived_secrets, sizeof(derived_secrets)
     );

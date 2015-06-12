@@ -12,6 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef AXOLOTL_LIST_HH_
+#define AXOLOTL_LIST_HH_
+
 #include <cstddef>
 
 namespace axolotl {
@@ -112,3 +115,5 @@ private:
 };
 
 } // namespace axolotl
+
+#endif /* AXOLOTL_LIST_HH_ */

@@ -5,12 +5,11 @@
 
 namespace axolotl {
 
+class Account;
+
 struct RemoteKey {
     std::uint32_t id;
     Curve25519PublicKey key;
-};
-
-struct RemoteKeys {
 };
 
 
@@ -21,28 +20,34 @@ enum struct MessageType {
 
 
 struct Session {
-    bool received_message;
-    RemoteKey alice_identity_key;
-    RemoteKey alice_base_key;
-    RemoteKey bob_identity_key;
-    RemoteKey bob_one_time_key;
+
+    Session();
+
     Ratchet ratchet;
+    ErrorCode last_error;
 
-    void initialise_outbound_session_random_length();
+    bool received_message;
 
-    void initialise_outbound_session(
+    RemoteKey alice_identity_key;
+    Curve25519PublicKey alice_base_key;
+    std::uint32_t bob_one_time_key_id;
+
+
+    std::size_t new_outbound_session_random_length();
+
+    std::size_t new_outbound_session(
         Account const & local_account,
-        RemoteKey const & identity_key,
+        Curve25519PublicKey const & identity_key,
         RemoteKey const & one_time_key,
         std::uint8_t const * random, std::size_t random_length
     );
 
-    void initialise_inbound_session(
+    std::size_t new_inbound_session(
         Account & local_account,
         std::uint8_t const * one_time_key_message, std::size_t message_length
     );
 
-    void matches_inbound_session(
+    bool matches_inbound_session(
         std::uint8_t const * one_time_key_message, std::size_t message_length
     );
 
