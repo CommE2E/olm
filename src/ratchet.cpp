@@ -348,7 +348,7 @@ std::size_t axolotl::Ratchet::unpickle(
 }
 
 
-std::size_t axolotl::Ratchet::encrypt_max_output_length(
+std::size_t axolotl::Ratchet::encrypt_output_length(
     std::size_t plaintext_length
 ) {
     std::size_t counter = 0;
@@ -374,7 +374,7 @@ std::size_t axolotl::Ratchet::encrypt(
     std::uint8_t const * random, std::size_t random_length,
     std::uint8_t * output, std::size_t max_output_length
 ) {
-    std::size_t output_length = encrypt_max_output_length(plaintext_length);
+    std::size_t output_length = encrypt_output_length(plaintext_length);
 
     if (random_length < encrypt_random_length()) {
         last_error = axolotl::ErrorCode::NOT_ENOUGH_RANDOM;
@@ -428,9 +428,19 @@ std::size_t axolotl::Ratchet::encrypt(
 
 
 std::size_t axolotl::Ratchet::decrypt_max_plaintext_length(
-    std::size_t input_length
+    std::uint8_t const * input, std::size_t input_length
 ) {
-    return input_length;
+    axolotl::MessageReader reader;
+    axolotl::decode_message(
+        reader, input, input_length, ratchet_cipher.mac_length()
+    );
+
+    if (!reader.ciphertext) {
+        last_error = axolotl::ErrorCode::BAD_MESSAGE_FORMAT;
+        return std::size_t(-1);
+    }
+
+    return ratchet_cipher.decrypt_max_plaintext_length(reader.ciphertext_length);
 }
 
 
@@ -438,11 +448,6 @@ std::size_t axolotl::Ratchet::decrypt(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * plaintext, std::size_t max_plaintext_length
 ) {
-    if (max_plaintext_length < decrypt_max_plaintext_length(input_length)) {
-        last_error = axolotl::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
-        return std::size_t(-1);
-    }
-
     axolotl::MessageReader reader;
     axolotl::decode_message(
         reader, input, input_length, ratchet_cipher.mac_length()
@@ -455,6 +460,15 @@ std::size_t axolotl::Ratchet::decrypt(
 
     if (!reader.has_counter || !reader.ratchet_key || !reader.ciphertext) {
         last_error = axolotl::ErrorCode::BAD_MESSAGE_FORMAT;
+        return std::size_t(-1);
+    }
+
+    std::size_t max_length = ratchet_cipher.decrypt_max_plaintext_length(
+        reader.ciphertext_length
+    );
+
+    if (max_plaintext_length < max_length) {
+        last_error = axolotl::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
 

@@ -129,9 +129,9 @@ struct Ratchet {
         std::uint8_t * input, std::size_t input_length
     );
 
-    /** The maximum number of bytes of output the encrypt method will write for
+    /** The number of bytes of output the encrypt method will write for
      * a given message length. */
-    std::size_t encrypt_max_output_length(
+    std::size_t encrypt_output_length(
         std::size_t plaintext_length
     );
 
@@ -154,7 +154,7 @@ struct Ratchet {
     /** An upper bound on the number of bytes of plain-text the decrypt method
      * will write for a given input message length. */
     std::size_t decrypt_max_plaintext_length(
-        std::size_t input_length
+        std::uint8_t const * input, std::size_t input_length
     );
 
     /** Decrypt a message. Returns the length of the decrypted plain-text or
