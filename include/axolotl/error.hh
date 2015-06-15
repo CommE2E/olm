@@ -11,6 +11,8 @@ enum struct ErrorCode {
     BAD_MESSAGE_FORMAT = 4, /*!< The message couldn't be decoded */
     BAD_MESSAGE_MAC = 5, /*!< The message couldn't be decrypted */
     BAD_MESSAGE_KEY_ID = 6, /*!< The message references an unknown key id */
+    INVALID_BASE64 = 7, /*!< The input base64 was invalid */
+    BAD_ACCOUNT_KEY = 8, /*!< The supplied account key is invalid */
 };
 
 } // namespace axolotl

@@ -190,7 +190,7 @@ axolotl::MessageType axolotl::Session::encrypt_message_type() {
     if (received_message) {
         return axolotl::MessageType::MESSAGE;
     } else {
-        return axolotl::MessageType::PRE_KEY_MESSAGE;
+        return axolotl::MessageType::PRE_KEY;
     }
 }
 

@@ -2,7 +2,6 @@
 #include "axolotl/pickle.hh"
 
 
-
 axolotl::LocalKey const * axolotl::Account::lookup_key(
     std::uint32_t id
 ) {
@@ -11,6 +10,43 @@ axolotl::LocalKey const * axolotl::Account::lookup_key(
     }
     return 0;
 }
+
+
+std::size_t axolotl::Account::new_account_random_length() {
+    return 103 * 32;
+}
+
+std::size_t axolotl::Account::new_account(
+    uint8_t const * random, std::size_t random_length
+) {
+    if (random_length < new_account_random_length()) {
+        last_error = axolotl::ErrorCode::NOT_ENOUGH_RANDOM;
+    }
+
+    unsigned id = 0;
+
+    identity_key.id = ++id;
+    axolotl::generate_key(random, identity_key.key);
+    random += 32;
+
+    random += 32;
+
+    last_resort_one_time_key.id = ++id;
+    axolotl::generate_key(random, last_resort_one_time_key.key);
+    random += 32;
+
+    for (unsigned i = 0; i < 100; ++i) {
+        LocalKey & key = *one_time_keys.insert(one_time_keys.end());
+        key.id = ++id;
+        axolotl::generate_key(random, key.key);
+        random += 32;
+    }
+
+    return 0;
+}
+
+
+
 
 namespace axolotl {
 
@@ -72,7 +108,7 @@ static std::uint8_t const * unpickle(
 } // namespace axolotl
 
 
-std::size_t pickle_length(
+std::size_t axolotl::pickle_length(
     axolotl::Account const & value
 ) {
     std::size_t length = 0;
@@ -83,7 +119,7 @@ std::size_t pickle_length(
 }
 
 
-std::uint8_t * pickle(
+std::uint8_t * axolotl::pickle(
     std::uint8_t * pos,
     axolotl::Account const & value
 ) {
@@ -94,7 +130,7 @@ std::uint8_t * pickle(
 }
 
 
-std::uint8_t const * unpickle(
+std::uint8_t const * axolotl::unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
     axolotl::Account & value
 ) {

@@ -14,7 +14,7 @@ struct RemoteKey {
 
 
 enum struct MessageType {
-    PRE_KEY_MESSAGE = 0,
+    PRE_KEY = 0,
     MESSAGE = 1,
 };
 
