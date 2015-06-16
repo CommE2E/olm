@@ -67,7 +67,6 @@ std::size_t enc_output(
     std::size_t length = ciphertext_length + PICKLE_CIPHER.mac_length();
     std::size_t base64_length = axolotl::encode_base64_length(length);
     std::uint8_t * raw_output = output + base64_length - length;
-    length -= PICKLE_CIPHER.mac_length();
     PICKLE_CIPHER.encrypt(
         key, key_length,
         raw_output, raw_length,
@@ -394,6 +393,12 @@ size_t axolotl_account_one_time_keys(
     return length;
 }
 
+
+size_t axolotl_create_outbound_session_random_length(
+    AxolotlSession * session
+) {
+    return from_c(session)->new_outbound_session_random_length();
+}
 
 size_t axolotl_create_outbound_session(
     AxolotlSession * session,

@@ -141,12 +141,12 @@ std::size_t verify_mac_and_decrypt_for_new_chain(
     /* They shouldn't move to a new chain until we've sent them a message
      * acknowledging the last one */
     if (session.sender_chain.empty()) {
-        return false;
+        return std::size_t(-1);
     }
 
     /* Limit the number of hashes we're prepared to compute */
     if (reader.counter > MAX_MESSAGE_GAP) {
-        return false;
+        return std::size_t(-1);
     }
     std::memcpy(
         new_chain.ratchet_key.public_key, reader.ratchet_key, KEY_LENGTH
@@ -191,6 +191,7 @@ void axolotl::Ratchet::initialise_as_bob(
         derived_secrets, sizeof(derived_secrets)
     );
     receiver_chains.insert();
+    receiver_chains[0].chain_key.index = 0;
     std::memcpy(root_key, derived_secrets, 32);
     std::memcpy(receiver_chains[0].chain_key.key, derived_secrets + 32, 32);
     receiver_chains[0].ratchet_key = their_ratchet_key;
@@ -210,6 +211,7 @@ void axolotl::Ratchet::initialise_as_alice(
         derived_secrets, sizeof(derived_secrets)
     );
     sender_chain.insert();
+    sender_chain[0].chain_key.index = 0;
     std::memcpy(root_key, derived_secrets, 32);
     std::memcpy(sender_chain[0].chain_key.key, derived_secrets + 32, 32);
     sender_chain[0].ratchet_key = our_ratchet_key;

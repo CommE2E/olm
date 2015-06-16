@@ -332,6 +332,8 @@ std::size_t axolotl::Session::decrypt(
     if (result == std::size_t(-1)) {
         last_error = ratchet.last_error;
         ratchet.last_error = axolotl::ErrorCode::SUCCESS;
+    } else {
+        received_message = true;
     }
     return result;
 }

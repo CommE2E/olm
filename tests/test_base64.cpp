@@ -1,4 +1,3 @@
-
 #include "axolotl/base64.hh"
 #include "unittest.hh"
 

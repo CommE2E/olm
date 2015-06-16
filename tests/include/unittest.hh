@@ -53,6 +53,25 @@ void assert_equals(
     }
 }
 
+template<typename T>
+void assert_not_equals(
+    const char *file,
+    unsigned line,
+    const char *expected_expr,
+    const char *actual_expr,
+    T const & expected,
+    T const & actual
+) {
+    if (expected == actual) {
+        std::cout << "FAILED: " << TEST_CASE << std::endl;
+        std::cout << file << ":" << line << std::endl;
+        std::cout << expected_expr << " == " << actual_expr << std::endl;
+        std::cout << "Unexpected: " << expected << std::endl;
+        std::cout << "Actual:   " << actual << std::endl;
+        std::exit(1);
+    }
+}
+
 
 void assert_equals(
     const char *file,
@@ -74,6 +93,10 @@ void assert_equals(
 }
 
 #define assert_equals(expected, actual, ...) assert_equals( \
+    __FILE__, __LINE__, #expected, #actual, expected, actual, ##__VA_ARGS__ \
+)
+
+#define assert_not_equals(expected, actual, ...) assert_not_equals( \
     __FILE__, __LINE__, #expected, #actual, expected, actual, ##__VA_ARGS__ \
 )
 

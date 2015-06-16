@@ -237,15 +237,18 @@ std::size_t axolotl::aes_decrypt_cbc(
 ) {
     std::uint32_t key_schedule[60];
     ::aes_key_setup(key.key, key_schedule, 256);
+    std::uint8_t block1[AES_BLOCK_LENGTH];
+    std::uint8_t block2[AES_BLOCK_LENGTH];
+    std::memcpy(block1, iv.iv, AES_BLOCK_LENGTH);
     for (std::size_t i = 0; i < input_length; i += AES_BLOCK_LENGTH) {
+        std::memcpy(block2, &input[i], AES_BLOCK_LENGTH);
         ::aes_decrypt(&input[i], &output[i], key_schedule, 256);
-        if (i == 0) {
-            xor_block<AES_BLOCK_LENGTH>(&output[i], iv.iv);
-        } else {
-            xor_block<AES_BLOCK_LENGTH>(&output[i], &input[i - AES_BLOCK_LENGTH]);
-        }
+        xor_block<AES_BLOCK_LENGTH>(&output[i], block1);
+        std::memcpy(block1, block2, AES_BLOCK_LENGTH);
     }
     axolotl::unset(key_schedule);
+    axolotl::unset(block1);
+    axolotl::unset(block2);
     std::size_t padding = output[input_length - 1];
     return (padding > input_length) ? std::size_t(-1) : (input_length - padding);
 }
