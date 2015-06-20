@@ -57,7 +57,7 @@ std::uint8_t b_ot_keys[::axolotl_account_one_time_keys_length(b_account)];
 std::uint8_t a_session_buffer[::axolotl_session_size()];
 ::AxolotlSession *a_session = ::axolotl_session(a_session_buffer);
 std::uint8_t a_rand[::axolotl_create_outbound_session_random_length(a_session)];
-std::memset(b_random, 6, sizeof(a_rand)); /* http://xkcd.com/221/ */
+std::memset(a_rand, 6, sizeof(a_rand)); /* http://xkcd.com/221/ */
 assert_not_equals(std::size_t(-1), ::axolotl_create_outbound_session(
     a_session, a_account,
     b_id_keys + 14, 43,
@@ -68,6 +68,7 @@ assert_not_equals(std::size_t(-1), ::axolotl_create_outbound_session(
 std::uint8_t plaintext[] = "Hello, World";
 std::uint8_t message_1[::axolotl_encrypt_message_length(a_session, 12)];
 std::uint8_t a_message_random[::axolotl_encrypt_random_length(a_session)];
+std::memset(a_message_random, 1, sizeof(a_message_random)); /* http://xkcd.com/221/ */
 assert_equals(std::size_t(0), ::axolotl_encrypt_message_type(a_session));
 assert_not_equals(std::size_t(-1), ::axolotl_encrypt(
     a_session,
@@ -100,6 +101,7 @@ assert_equals(plaintext, plaintext_1, 12);
 
 std::uint8_t message_2[::axolotl_encrypt_message_length(b_session, 12)];
 std::uint8_t b_message_random[::axolotl_encrypt_random_length(b_session)];
+std::memset(b_message_random, 2, sizeof(b_message_random)); /* http://xkcd.com/221/ */
 assert_equals(std::size_t(1), ::axolotl_encrypt_message_type(b_session));
 assert_not_equals(std::size_t(-1), ::axolotl_encrypt(
     b_session,
