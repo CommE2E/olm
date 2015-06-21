@@ -5,18 +5,42 @@
 #include <cstdint>
 #include <cstring>
 
+struct MockRandom {
+    MockRandom(std::uint8_t tag, std::uint8_t offset = 0)
+        : tag(tag), current(offset) {}
+    void operator()(
+        std::uint8_t * bytes, std::size_t length
+    ) {
+        while (length > 32) {
+            bytes[0] = tag;
+            std::memset(bytes + 1, current, 31);
+            length -= 32;
+            bytes += 32;
+            current += 1;
+        }
+        if (length) {
+            bytes[0] = tag;
+            std::memset(bytes + 1, current, length - 1);
+            current += 1;
+        }
+    }
+    std::uint8_t tag;
+    std::uint8_t current;
+};
+
 int main() {
 
 { /** Pickle account test */
 
 TestCase test_case("Pickle account test");
+MockRandom mock_random('P');
+
 
 std::uint8_t account_buffer[::axolotl_account_size()];
 ::AxolotlAccount *account = ::axolotl_account(account_buffer);
-std::size_t random_length = ::axolotl_create_account_random_length(account);
-std::uint8_t random[random_length];
-std::memset(random, 4, random_length); /* http://xkcd.com/221/ */
-::axolotl_create_account(account, random, random_length);
+std::uint8_t random[::axolotl_create_account_random_length(account)];
+mock_random(random, sizeof(random));
+::axolotl_create_account(account, random, sizeof(random));
 std::size_t pickle_length = ::axolotl_pickle_account_length(account);
 std::uint8_t pickle1[pickle_length];
 ::axolotl_pickle_account(account, "secret_key", 10, pickle1, pickle_length);
@@ -36,17 +60,19 @@ assert_equals(pickle1, pickle2, pickle_length);
 { /** Loopback test */
 
 TestCase test_case("Loopback test");
+MockRandom mock_random_a('A', 0x00);
+MockRandom mock_random_b('B', 0x80);
 
 std::uint8_t a_account_buffer[::axolotl_account_size()];
 ::AxolotlAccount *a_account = ::axolotl_account(a_account_buffer);
 std::uint8_t a_random[::axolotl_create_account_random_length(a_account)];
-std::memset(a_random, 4, sizeof(a_random)); /* http://xkcd.com/221/ */
+mock_random_a(a_random, sizeof(a_random));
 ::axolotl_create_account(a_account, a_random, sizeof(a_random));
 
 std::uint8_t b_account_buffer[::axolotl_account_size()];
 ::AxolotlAccount *b_account = ::axolotl_account(b_account_buffer);
 std::uint8_t b_random[::axolotl_create_account_random_length(b_account)];
-std::memset(b_random, 5, sizeof(b_random)); /* http://xkcd.com/221/ */
+mock_random_b(b_random, sizeof(b_random));
 ::axolotl_create_account(b_account, b_random, sizeof(b_random));
 
 std::uint8_t b_id_keys[::axolotl_account_identity_keys_length(b_account)];
@@ -57,7 +83,7 @@ std::uint8_t b_ot_keys[::axolotl_account_one_time_keys_length(b_account)];
 std::uint8_t a_session_buffer[::axolotl_session_size()];
 ::AxolotlSession *a_session = ::axolotl_session(a_session_buffer);
 std::uint8_t a_rand[::axolotl_create_outbound_session_random_length(a_session)];
-std::memset(a_rand, 6, sizeof(a_rand)); /* http://xkcd.com/221/ */
+mock_random_a(a_rand, sizeof(a_rand));
 assert_not_equals(std::size_t(-1), ::axolotl_create_outbound_session(
     a_session, a_account,
     b_id_keys + 14, 43,
@@ -68,7 +94,7 @@ assert_not_equals(std::size_t(-1), ::axolotl_create_outbound_session(
 std::uint8_t plaintext[] = "Hello, World";
 std::uint8_t message_1[::axolotl_encrypt_message_length(a_session, 12)];
 std::uint8_t a_message_random[::axolotl_encrypt_random_length(a_session)];
-std::memset(a_message_random, 1, sizeof(a_message_random)); /* http://xkcd.com/221/ */
+mock_random_a(a_message_random, sizeof(a_message_random));
 assert_equals(std::size_t(0), ::axolotl_encrypt_message_type(a_session));
 assert_not_equals(std::size_t(-1), ::axolotl_encrypt(
     a_session,
@@ -101,7 +127,7 @@ assert_equals(plaintext, plaintext_1, 12);
 
 std::uint8_t message_2[::axolotl_encrypt_message_length(b_session, 12)];
 std::uint8_t b_message_random[::axolotl_encrypt_random_length(b_session)];
-std::memset(b_message_random, 2, sizeof(b_message_random)); /* http://xkcd.com/221/ */
+mock_random_b(b_message_random, sizeof(b_message_random));
 assert_equals(std::size_t(1), ::axolotl_encrypt_message_type(b_session));
 assert_not_equals(std::size_t(-1), ::axolotl_encrypt(
     b_session,
