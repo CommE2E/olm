@@ -468,6 +468,20 @@ size_t axolotl_matches_inbound_session(
 }
 
 
+size_t axolotl_remove_one_time_keys(
+    AxolotlAccount * account,
+    AxolotlSession * session
+) {
+    size_t result = from_c(account)->remove_key(
+        from_c(session)->bob_one_time_key_id
+    );
+    if (result == std::size_t(-1)) {
+        from_c(account)->last_error = axolotl::ErrorCode::BAD_MESSAGE_KEY_ID;
+    }
+    return result;
+}
+
+
 size_t axolotl_encrypt_message_type(
     AxolotlSession * session
 ) {

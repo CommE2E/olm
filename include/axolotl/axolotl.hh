@@ -121,6 +121,11 @@ size_t axolotl_matches_inbound_session(
     void * one_time_key_message, size_t message_length
 );
 
+size_t axolotl_remove_one_time_keys(
+    AxolotlAccount * account,
+    AxolotlSession * session
+);
+
 size_t axolotl_encrypt_message_type(
     AxolotlSession * session
 );

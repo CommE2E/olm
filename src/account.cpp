@@ -11,6 +11,18 @@ axolotl::LocalKey const * axolotl::Account::lookup_key(
     return 0;
 }
 
+std::size_t axolotl::Account::remove_key(
+    std::uint32_t id
+) {
+    LocalKey * i;
+    for (i = one_time_keys.begin(); i != one_time_keys.end(); ++i) {
+        if (i->id == id) {
+            one_time_keys.erase(i);
+            return id;
+        }
+    }
+    return std::size_t(-1);
+}
 
 std::size_t axolotl::Account::new_account_random_length() {
     return 103 * 32;
@@ -21,6 +33,7 @@ std::size_t axolotl::Account::new_account(
 ) {
     if (random_length < new_account_random_length()) {
         last_error = axolotl::ErrorCode::NOT_ENOUGH_RANDOM;
+        return std::size_t(-1);
     }
 
     unsigned id = 0;
@@ -44,8 +57,6 @@ std::size_t axolotl::Account::new_account(
 
     return 0;
 }
-
-
 
 
 namespace axolotl {

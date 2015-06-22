@@ -41,6 +41,10 @@ struct Account {
     LocalKey const * lookup_key(
         std::uint32_t id
     );
+
+    std::size_t remove_key(
+        std::uint32_t id
+    );
 };
 
 
