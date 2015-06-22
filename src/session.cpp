@@ -37,7 +37,7 @@ axolotl::Session::Session(
 
 
 std::size_t axolotl::Session::new_outbound_session_random_length() {
-    return KEY_LENGTH;
+    return KEY_LENGTH * 2;
 }
 
 
@@ -55,27 +55,31 @@ std::size_t axolotl::Session::new_outbound_session(
     Curve25519KeyPair base_key;
     axolotl::generate_key(random, base_key);
 
+    Curve25519KeyPair ratchet_key;
+    axolotl::generate_key(random + 32, ratchet_key);
+
     received_message = false;
     alice_identity_key.id = local_account.identity_key.id;
     alice_identity_key.key = local_account.identity_key.key;
     alice_base_key = base_key;
     bob_one_time_key_id = one_time_key.id;
 
-    std::uint8_t shared_secret[160];
-    std::memset(shared_secret, 0xFF, 32);
+    std::uint8_t shared_secret[96];
 
     axolotl::curve25519_shared_secret(
+        local_account.identity_key.key, one_time_key.key, shared_secret
     );
     axolotl::curve25519_shared_secret(
-         base_key, identity_key, shared_secret + 64
+         base_key, identity_key, shared_secret + 32
     );
     axolotl::curve25519_shared_secret(
+         base_key, one_time_key.key, shared_secret + 64
     );
-    axolotl::curve25519_shared_secret(
-         base_key, one_time_key.key, shared_secret + 128
-    );
+
+    ratchet.initialise_as_alice(shared_secret, 96, ratchet_key);
 
     axolotl::unset(base_key);
+    axolotl::unset(ratchet_key);
     axolotl::unset(shared_secret);
 
     return std::size_t(0);
@@ -112,34 +116,47 @@ std::size_t axolotl::Session::new_inbound_session(
         return std::size_t(-1);
     }
 
+    axolotl::MessageReader message_reader;
+    decode_message(
+        message_reader, reader.message, reader.message_length,
+        ratchet.ratchet_cipher.mac_length()
+    );
+
+    if (!message_reader.ratchet_key
+            || message_reader.ratchet_key_length != KEY_LENGTH) {
+        last_error = axolotl::ErrorCode::BAD_MESSAGE_FORMAT;
+        return std::size_t(-1);
+    }
+
     alice_identity_key.id = reader.registration_id;
     std::memcpy(alice_identity_key.key.public_key, reader.identity_key, 32);
     std::memcpy(alice_base_key.public_key, reader.base_key, 32);
     bob_one_time_key_id = reader.one_time_key_id;
-
+    axolotl::Curve25519PublicKey ratchet_key;
+    std::memcpy(ratchet_key.public_key, message_reader.ratchet_key, 32);
 
     axolotl::LocalKey const * bob_one_time_key = local_account.lookup_key(
         bob_one_time_key_id
     );
 
+    if (!bob_one_time_key) {
         last_error = axolotl::ErrorCode::BAD_MESSAGE_KEY_ID;
         return std::size_t(-1);
     }
 
-    std::uint8_t shared_secret[160];
-    std::memset(shared_secret, 0xFF, 32);
+    std::uint8_t shared_secret[96];
 
     axolotl::curve25519_shared_secret(
+        bob_one_time_key->key, alice_identity_key.key, shared_secret
     );
     axolotl::curve25519_shared_secret(
-        local_account.identity_key.key, alice_base_key, shared_secret + 64
+        local_account.identity_key.key, alice_base_key, shared_secret + 32
     );
     axolotl::curve25519_shared_secret(
-    );
-    axolotl::curve25519_shared_secret(
-        bob_one_time_key->key, alice_base_key, shared_secret + 128
+        bob_one_time_key->key, alice_base_key, shared_secret + 64
     );
 
+    ratchet.initialise_as_bob(shared_secret, 96, ratchet_key);
 
     return std::size_t(0);
 }
