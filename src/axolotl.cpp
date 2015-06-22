@@ -341,7 +341,7 @@ void output_key(
 size_t axolotl_account_identity_keys_length(
     AxolotlAccount * account
 ) {
-    return OUTPUT_KEY_LENGTH * 2 + 1;
+    return OUTPUT_KEY_LENGTH + 1;
 }
 
 
@@ -357,7 +357,6 @@ size_t axolotl_account_identity_keys(
     }
     std::uint8_t * output = from_c(identity_keys);
     output_key(from_c(account)->identity_key, '[', output);
-    output += OUTPUT_KEY_LENGTH;
     output += OUTPUT_KEY_LENGTH;
     output[0] = ']';
     return length;
