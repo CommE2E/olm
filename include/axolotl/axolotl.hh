@@ -96,7 +96,8 @@ size_t axolotl_pickle_session(
  * the supplied key. Returns axolotl_error() on failure. If the key doesn't
  * match the one used to encrypt the account then axolotl_account_last_error()
  * will be "BAD_ACCOUNT_KEY". If the base64 couldn't be decoded then
- * axolotl_account_last_error() will be "INVALID_BASE64". */
+ * axolotl_account_last_error() will be "INVALID_BASE64". The input pickled
+ * buffer is destroyed */
 size_t axolotl_unpickle_account(
     AxolotlAccount * account,
     void const * key, size_t key_length,
@@ -107,7 +108,8 @@ size_t axolotl_unpickle_account(
  * the supplied key. Returns axolotl_error() on failure. If the key doesn't
  * match the one used to encrypt the account then axolotl_session_last_error()
  * will be "BAD_ACCOUNT_KEY". If the base64 couldn't be decoded then
- * axolotl_session_last_error() will be "INVALID_BASE64". */
+ * axolotl_session_last_error() will be "INVALID_BASE64". The input pickled
+ * buffer is destroyed */
 size_t axolotl_unpickle_session(
     AxolotlSession * session,
     void const * key, size_t key_length,
@@ -253,12 +255,12 @@ size_t axolotl_encrypt(
 );
 
 /** The maximum number of bytes of plain-text a given message could decode to.
- * The actual size could be different due to padding. Returns axolotl_error()
- * on failures. If the message base64 couldn't be decoded then
- * axolotl_session_last_error() will be "INVALID_BASE64". If the message
- * is for an unsupported version of the protocol then
- * axolotl_session_last_error() will be "BAD_MESSAGE_VERSION". If the message
+ * The actual size could be different due to padding. The input message buffer
+ * is destroyed. Returns axolotl_error() on failure. If the message base64
  * couldn't be decoded then axolotl_session_last_error() will be
+ * "INVALID_BASE64". If the message is for an unsupported version of the
+ * protocol then axolotl_session_last_error() will be "BAD_MESSAGE_VERSION".
+ * If the message couldn't be decoded then axolotl_session_last_error() will be
  * "BAD_MESSAGE_FORMAT". */
 size_t axolotl_decrypt_max_plaintext_length(
     AxolotlSession * session,
@@ -266,16 +268,17 @@ size_t axolotl_decrypt_max_plaintext_length(
     void * message, size_t message_length
 );
 
-/** Decrypts a message using the session. Returns the length of the plain-text
- * on success. Returns axolotl_error() on failure. If the plain-text buffer
- * is smaller than axolotl_decrypt_max_plaintext_length() then
- * axolotl_session_last_error() will be "OUTPUT_BUFFER_TOO_SMALL". If the
- * base64 couldn't be decoded then axolotl_session_last_error() will be
- * "INVALID_BASE64". If the message is for an unsupported version of the
- * protocol then axolotl_session_last_error() will be "BAD_MESSAGE_VERSION".
- * If the message couldn't be decoded then axolotl_session_last_error() will be
- * "BAD_MESSAGE_FORMAT". If the MAC on the message was invalid then
- * axolotl_session_last_error() will be "BAD_MESSAGE_MAC". */
+/** Decrypts a message using the session. The input message buffer is destroyed.
+ * Returns the length of the plain-text on success. Returns axolotl_error() on
+ * failure. If the plain-text buffer is smaller than
+ * axolotl_decrypt_max_plaintext_length() then axolotl_session_last_error()
+ * will be "OUTPUT_BUFFER_TOO_SMALL". If the base64 couldn't be decoded then
+ * axolotl_session_last_error() will be "INVALID_BASE64". If the message is for
+ * an unsupported version of the protocol then axolotl_session_last_error() will
+ *  be "BAD_MESSAGE_VERSION". If the message couldn't be decoded then
+ *  axolotl_session_last_error() will be BAD_MESSAGE_FORMAT".
+ *  If the MAC on the message was invalid then axolotl_session_last_error() will
+ *  be "BAD_MESSAGE_MAC". */
 size_t axolotl_decrypt(
     AxolotlSession * session,
     size_t message_type,
