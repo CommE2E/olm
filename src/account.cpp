@@ -62,7 +62,7 @@ std::size_t axolotl::Account::new_account(
     axolotl::generate_key(random, last_resort_one_time_key.key);
     random += 32;
 
-    for (unsigned i = 0; i < 100; ++i) {
+    for (unsigned i = 0; i < 10; ++i) {
         LocalKey & key = *one_time_keys.insert(one_time_keys.end());
         key.id = ++id;
         axolotl::generate_key(random, key.key);
