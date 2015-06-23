@@ -79,9 +79,7 @@ struct PreKeyMessageWriter {
 
 struct PreKeyMessageReader {
     std::uint8_t version;
-    bool has_registration_id;
     bool has_one_time_key_id;
-    std::uint32_t registration_id;
     std::uint32_t one_time_key_id;
     std::uint8_t const * identity_key; std::size_t identity_key_length;
     std::uint8_t const * base_key; std::size_t base_key_length;
@@ -93,7 +91,6 @@ struct PreKeyMessageReader {
  * The length of the buffer needed to hold a message.
  */
 std::size_t encode_one_time_key_message_length(
-    std::uint32_t registration_id,
     std::uint32_t one_time_key_id,
     std::size_t identity_key_length,
     std::size_t base_key_length,
@@ -108,7 +105,6 @@ std::size_t encode_one_time_key_message_length(
 void encode_one_time_key_message(
     PreKeyMessageWriter & writer,
     std::uint8_t version,
-    std::uint32_t registration_id,
     std::uint32_t one_time_key_id,
     std::size_t identity_key_length,
     std::size_t base_key_length,

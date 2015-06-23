@@ -231,7 +231,6 @@ void axolotl::decode_message(
 
 namespace {
 
-static std::uint8_t const REGISTRATION_ID_TAG = 050;
 static std::uint8_t const ONE_TIME_KEY_ID_TAG = 010;
 static std::uint8_t const BASE_KEY_TAG = 022;
 static std::uint8_t const IDENTITY_KEY_TAG = 032;
@@ -241,14 +240,12 @@ static std::uint8_t const MESSAGE_TAG = 042;
 
 
 std::size_t axolotl::encode_one_time_key_message_length(
-    std::uint32_t registration_id,
     std::uint32_t one_time_key_id,
     std::size_t identity_key_length,
     std::size_t base_key_length,
     std::size_t message_length
 ) {
     std::size_t length = VERSION_LENGTH;
-    length += 1 + varint_length(registration_id);
     length += 1 + varint_length(one_time_key_id);
     length += 1 + varstring_length(identity_key_length);
     length += 1 + varstring_length(base_key_length);
@@ -260,7 +257,6 @@ std::size_t axolotl::encode_one_time_key_message_length(
 void axolotl::encode_one_time_key_message(
     axolotl::PreKeyMessageWriter & writer,
     std::uint8_t version,
-    std::uint32_t registration_id,
     std::uint32_t one_time_key_id,
     std::size_t identity_key_length,
     std::size_t base_key_length,
@@ -269,7 +265,6 @@ void axolotl::encode_one_time_key_message(
 ) {
     std::uint8_t * pos = output;
     *(pos++) = version;
-    pos = encode(pos, REGISTRATION_ID_TAG, registration_id);
     pos = encode(pos, ONE_TIME_KEY_ID_TAG, one_time_key_id);
     pos = encode(pos, BASE_KEY_TAG, writer.base_key, base_key_length);
     pos = encode(pos, IDENTITY_KEY_TAG, writer.identity_key, identity_key_length);
@@ -287,17 +282,12 @@ void axolotl::decode_one_time_key_message(
 
     if (pos == end) return;
     reader.version = *(pos++);
-    reader.has_registration_id = false;
     reader.has_one_time_key_id = false;
     reader.identity_key = nullptr;
     reader.base_key = nullptr;
     reader.message = nullptr;
 
     while (pos != end) {
-        pos = decode(
-            pos, end, REGISTRATION_ID_TAG,
-            reader.registration_id, reader.has_registration_id
-        );
         pos = decode(
             pos, end, ONE_TIME_KEY_ID_TAG,
             reader.one_time_key_id, reader.has_one_time_key_id

@@ -112,7 +112,6 @@ bool check_message_fields(
     ok = ok && reader.base_key;
     ok = ok && reader.base_key_length == KEY_LENGTH;
     ok = ok && reader.has_one_time_key_id;
-    ok = ok && reader.has_registration_id;
     return ok;
 }
 
@@ -143,7 +142,6 @@ std::size_t axolotl::Session::new_inbound_session(
         return std::size_t(-1);
     }
 
-    alice_identity_key.id = reader.registration_id;
     std::memcpy(alice_identity_key.key.public_key, reader.identity_key, 32);
     std::memcpy(alice_base_key.public_key, reader.base_key, 32);
     bob_one_time_key_id = reader.one_time_key_id;
@@ -195,7 +193,6 @@ bool axolotl::Session::matches_inbound_session(
         reader.base_key, alice_base_key.public_key, KEY_LENGTH
     );
     same = same && reader.one_time_key_id == bob_one_time_key_id;
-    same = same && reader.registration_id == alice_identity_key.id;
     return same;
 }
 
@@ -221,7 +218,6 @@ std::size_t axolotl::Session::encrypt_message_length(
     }
 
     return encode_one_time_key_message_length(
-        alice_identity_key.id,
         bob_one_time_key_id,
         KEY_LENGTH,
         KEY_LENGTH,
@@ -256,7 +252,6 @@ std::size_t axolotl::Session::encrypt(
         encode_one_time_key_message(
             writer,
             PROTOCOL_VERSION,
-            alice_identity_key.id,
             bob_one_time_key_id,
             KEY_LENGTH,
             KEY_LENGTH,
