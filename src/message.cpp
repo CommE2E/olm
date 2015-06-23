@@ -140,10 +140,10 @@ std::uint8_t const * skip_unknown(
 ) {
     if (pos != end) {
         uint8_t tag = *pos;
-        if (tag & 0x7 == 0) {
+        if ((tag & 0x7) == 0) {
             pos = varint_skip(pos, end);
             pos = varint_skip(pos, end);
-        } else if (tag & 0x7 == 2) {
+        } else if ((tag & 0x7) == 2) {
             pos = varint_skip(pos, end);
             std::uint8_t const * len_start = pos;
             pos = varint_skip(pos, end);
@@ -222,7 +222,7 @@ void axolotl::decode_message(
             reader.ciphertext, reader.ciphertext_length
         );
         if (unknown == pos) {
-            pos == skip_unknown(pos, end);
+            pos = skip_unknown(pos, end);
         }
         unknown = pos;
     }
@@ -305,7 +305,7 @@ void axolotl::decode_one_time_key_message(
             reader.message, reader.message_length
         );
         if (unknown == pos) {
-            pos == skip_unknown(pos, end);
+            pos = skip_unknown(pos, end);
         }
         unknown = pos;
     }

@@ -17,6 +17,7 @@
 #define AXOLOTL_CIPHER_HH_
 
 #include <cstdint>
+#include <cstddef>
 
 namespace axolotl {
 
