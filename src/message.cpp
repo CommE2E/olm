@@ -21,7 +21,7 @@ std::size_t varint_length(
     T value
 ) {
     std::size_t result = 1;
-    while (value > 128U) {
+    while (value >= 128U) {
         ++result;
         value >>= 7;
     }
@@ -34,8 +34,9 @@ std::uint8_t * varint_encode(
     std::uint8_t * output,
     T value
 ) {
-    while (value > 128U) {
+    while (value >= 128U) {
         *(output++) = (0x7F & value) | 0x80;
+        value >>= 7;
     }
     (*output++) = value;
     return output;
