@@ -42,7 +42,7 @@ function account_method(wrapped) {
             var message = Pointer_stringify(
                 Module['_axolotl_account_last_error'](arguments[0])
             );
-            throw "AXOLOTL." + message;
+            throw new Error("AXOLOTL." + message);
         }
         return result;
     }
@@ -121,7 +121,7 @@ function session_method(wrapped) {
             var message = Pointer_stringify(
                 Module['_axolotl_session_last_error'](arguments[0])
             );
-            throw "AXOLOTL." + message;
+            throw new Error("AXOLOTL." + message);
         }
         return result;
     }
