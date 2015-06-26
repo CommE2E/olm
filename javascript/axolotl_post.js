@@ -16,6 +16,7 @@ function random_stack(size) {
     var ptr = stack(size);
     var array = new Uint8Array(Module['HEAPU8'].buffer, ptr, size);
     window.crypto.getRandomValues(array);
+    return ptr;
 }
 
 function restore_stack(wrapped) {
