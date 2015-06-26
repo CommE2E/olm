@@ -24,6 +24,8 @@ source_files = glob.glob("src/*.cpp")
 pre_js, = glob.glob("javascript/*pre.js")
 post_js, = glob.glob("javascript/*post.js")
 
+if not os.path.exists("build"):
+    os.mkdir("build")
 
 functions = set()
 RE_FUNCTION=re.compile("(axolotl_[^( ]*)\\(")
