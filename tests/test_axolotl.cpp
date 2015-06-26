@@ -157,7 +157,113 @@ assert_equals(std::size_t(-1), ::axolotl_decrypt(
     plaintext_2, sizeof(plaintext_2)
 ));
 
+}
 
+{ /** More messages test */
+
+TestCase test_case("More messages test");
+MockRandom mock_random_a('A', 0x00);
+MockRandom mock_random_b('B', 0x80);
+
+std::uint8_t a_account_buffer[::axolotl_account_size()];
+::AxolotlAccount *a_account = ::axolotl_account(a_account_buffer);
+std::uint8_t a_random[::axolotl_create_account_random_length(a_account)];
+mock_random_a(a_random, sizeof(a_random));
+::axolotl_create_account(a_account, a_random, sizeof(a_random));
+
+std::uint8_t b_account_buffer[::axolotl_account_size()];
+::AxolotlAccount *b_account = ::axolotl_account(b_account_buffer);
+std::uint8_t b_random[::axolotl_create_account_random_length(b_account)];
+mock_random_b(b_random, sizeof(b_random));
+::axolotl_create_account(b_account, b_random, sizeof(b_random));
+
+std::uint8_t b_id_keys[::axolotl_account_identity_keys_length(b_account)];
+std::uint8_t b_ot_keys[::axolotl_account_one_time_keys_length(b_account)];
+::axolotl_account_identity_keys(b_account, b_id_keys, sizeof(b_id_keys));
+::axolotl_account_one_time_keys(b_account, b_ot_keys, sizeof(b_ot_keys));
+
+std::uint8_t a_session_buffer[::axolotl_session_size()];
+::AxolotlSession *a_session = ::axolotl_session(a_session_buffer);
+std::uint8_t a_rand[::axolotl_create_outbound_session_random_length(a_session)];
+mock_random_a(a_rand, sizeof(a_rand));
+assert_not_equals(std::size_t(-1), ::axolotl_create_outbound_session(
+    a_session, a_account,
+    b_id_keys + 14, 43,
+    ::atol((char *)(b_ot_keys + 62)), b_ot_keys + 74, 43,
+    a_rand, sizeof(a_rand)
+));
+
+std::uint8_t plaintext[] = "Hello, World";
+std::uint8_t message_1[::axolotl_encrypt_message_length(a_session, 12)];
+std::uint8_t a_message_random[::axolotl_encrypt_random_length(a_session)];
+mock_random_a(a_message_random, sizeof(a_message_random));
+assert_equals(std::size_t(0), ::axolotl_encrypt_message_type(a_session));
+assert_not_equals(std::size_t(-1), ::axolotl_encrypt(
+    a_session,
+    plaintext, 12,
+    a_message_random, sizeof(a_message_random),
+    message_1, sizeof(message_1)
+));
+
+std::uint8_t tmp_message_1[sizeof(message_1)];
+std::memcpy(tmp_message_1, message_1, sizeof(message_1));
+std::uint8_t b_session_buffer[::axolotl_account_size()];
+::AxolotlSession *b_session = ::axolotl_session(b_session_buffer);
+::axolotl_create_inbound_session(
+    b_session, b_account, tmp_message_1, sizeof(message_1)
+);
+
+std::memcpy(tmp_message_1, message_1, sizeof(message_1));
+std::uint8_t plaintext_1[::axolotl_decrypt_max_plaintext_length(
+    b_session, 0, tmp_message_1, sizeof(message_1)
+)];
+std::memcpy(tmp_message_1, message_1, sizeof(message_1));
+assert_equals(std::size_t(12), ::axolotl_decrypt(
+    b_session, 0,
+    tmp_message_1, sizeof(message_1),
+    plaintext_1, sizeof(plaintext_1)
+));
+
+for (unsigned i = 0; i < 8; ++i) {
+    {
+    std::uint8_t msg_a[::axolotl_encrypt_message_length(a_session, 12)];
+    std::uint8_t rnd_a[::axolotl_encrypt_random_length(a_session)];
+    mock_random_a(rnd_a, sizeof(rnd_a));
+    std::size_t type_a = ::axolotl_encrypt_message_type(a_session);
+    assert_not_equals(std::size_t(-1), ::axolotl_encrypt(
+        a_session, plaintext, 12, rnd_a, sizeof(rnd_a), msg_a, sizeof(msg_a)
+    ));
+
+    std::uint8_t tmp_a[sizeof(msg_a)];
+    std::memcpy(tmp_a, msg_a, sizeof(msg_a));
+    std::uint8_t out_a[::axolotl_decrypt_max_plaintext_length(
+        b_session, type_a, tmp_a, sizeof(tmp_a)
+    )];
+    std::memcpy(tmp_a, msg_a, sizeof(msg_a));
+    assert_equals(std::size_t(12), ::axolotl_decrypt(
+        b_session, type_a, msg_a, sizeof(msg_a), out_a, sizeof(out_a)
+    ));
+    }
+    {
+    std::uint8_t msg_b[::axolotl_encrypt_message_length(b_session, 12)];
+    std::uint8_t rnd_b[::axolotl_encrypt_random_length(b_session)];
+    mock_random_b(rnd_b, sizeof(rnd_b));
+    std::size_t type_b = ::axolotl_encrypt_message_type(b_session);
+    assert_not_equals(std::size_t(-1), ::axolotl_encrypt(
+        b_session, plaintext, 12, rnd_b, sizeof(rnd_b), msg_b, sizeof(msg_b)
+    ));
+
+    std::uint8_t tmp_b[sizeof(msg_b)];
+    std::memcpy(tmp_b, msg_b, sizeof(msg_b));
+    std::uint8_t out_b[::axolotl_decrypt_max_plaintext_length(
+        a_session, type_b, tmp_b, sizeof(tmp_b)
+    )];
+    std::memcpy(tmp_b, msg_b, sizeof(msg_b));
+    assert_equals(std::size_t(12), ::axolotl_decrypt(
+        a_session, type_b, msg_b, sizeof(msg_b), out_b, sizeof(out_b)
+    ));
+    }
+}
 }
 
 }

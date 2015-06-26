@@ -33,8 +33,8 @@ axolotl::CipherAesSha256 cipher(
 );
 
 std::uint8_t random_bytes[] = "0123456789ABDEF0123456789ABCDEF";
-axolotl::Curve25519KeyPair bob_key;
-axolotl::generate_key(random_bytes, bob_key);
+axolotl::Curve25519KeyPair alice_key;
+axolotl::generate_key(random_bytes, alice_key);
 
 std::uint8_t shared_secret[] = "A secret";
 
@@ -44,8 +44,8 @@ TestCase test_case("Axolotl Send/Receive");
 axolotl::Ratchet alice(kdf_info, cipher);
 axolotl::Ratchet bob(kdf_info, cipher);
 
-alice.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, bob_key);
-bob.initialise_as_alice(shared_secret, sizeof(shared_secret) - 1, bob_key);
+alice.initialise_as_alice(shared_secret, sizeof(shared_secret) - 1, alice_key);
+bob.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, alice_key);
 
 std::uint8_t plaintext[] = "Message";
 std::size_t plaintext_length = sizeof(plaintext) - 1;
@@ -53,23 +53,23 @@ std::size_t plaintext_length = sizeof(plaintext) - 1;
 std::size_t message_length, random_length, output_length;
 std::size_t encrypt_length, decrypt_length;
 {
-    /* Bob sends Alice a message */
-    message_length = bob.encrypt_output_length(plaintext_length);
-    random_length = bob.encrypt_random_length();
+    /* Alice sends Bob a message */
+    message_length = alice.encrypt_output_length(plaintext_length);
+    random_length = alice.encrypt_random_length();
     assert_equals(std::size_t(0), random_length);
 
     std::uint8_t message[message_length];
 
-    encrypt_length = bob.encrypt(
+    encrypt_length = alice.encrypt(
         plaintext, plaintext_length,
         NULL, 0,
         message, message_length
     );
     assert_equals(message_length, encrypt_length);
 
-    output_length = alice.decrypt_max_plaintext_length(message, message_length);
+    output_length = bob.decrypt_max_plaintext_length(message, message_length);
     std::uint8_t output[output_length];
-    decrypt_length = alice.decrypt(
+    decrypt_length = bob.decrypt(
         message, message_length,
         output, output_length
     );
@@ -79,24 +79,24 @@ std::size_t encrypt_length, decrypt_length;
 
 
 {
-    /* Alice sends Bob a message */
-    message_length = alice.encrypt_output_length(plaintext_length);
-    random_length = alice.encrypt_random_length();
+    /* Bob sends Alice a message */
+    message_length = bob.encrypt_output_length(plaintext_length);
+    random_length = bob.encrypt_random_length();
     assert_equals(std::size_t(32), random_length);
 
     std::uint8_t message[message_length];
     std::uint8_t random[] = "This is a random 32 byte string.";
 
-    encrypt_length = alice.encrypt(
+    encrypt_length = bob.encrypt(
         plaintext, plaintext_length,
         random, 32,
         message, message_length
     );
     assert_equals(message_length, encrypt_length);
 
-    output_length = bob.decrypt_max_plaintext_length(message, message_length);
+    output_length = alice.decrypt_max_plaintext_length(message, message_length);
     std::uint8_t output[output_length];
-    decrypt_length = bob.decrypt(
+    decrypt_length = alice.decrypt(
         message, message_length,
         output, output_length
     );
@@ -113,8 +113,8 @@ TestCase test_case("Axolotl Out of Order");
 axolotl::Ratchet alice(kdf_info, cipher);
 axolotl::Ratchet bob(kdf_info, cipher);
 
-alice.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, bob_key);
-bob.initialise_as_alice(shared_secret, sizeof(shared_secret) - 1, bob_key);
+alice.initialise_as_alice(shared_secret, sizeof(shared_secret) - 1, alice_key);
+bob.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, alice_key);
 
 std::uint8_t plaintext_1[] = "First Message";
 std::size_t plaintext_1_length = sizeof(plaintext_1) - 1;
@@ -129,7 +129,7 @@ std::size_t encrypt_length, decrypt_length;
     /* Alice sends Bob two messages and they arrive out of order */
     message_1_length = alice.encrypt_output_length(plaintext_1_length);
     random_length = alice.encrypt_random_length();
-    assert_equals(std::size_t(32), random_length);
+    assert_equals(std::size_t(0), random_length);
 
     std::uint8_t message_1[message_1_length];
     std::uint8_t random[] = "This is a random 32 byte string.";
@@ -178,5 +178,45 @@ std::size_t encrypt_length, decrypt_length;
 
 } /* Out of order test case */
 
+{ /* More messages */
+
+TestCase test_case("Axolotl More Messages");
+
+axolotl::Ratchet alice(kdf_info, cipher);
+axolotl::Ratchet bob(kdf_info, cipher);
+
+alice.initialise_as_alice(shared_secret, sizeof(shared_secret) - 1, alice_key);
+bob.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, alice_key);
+
+std::uint8_t plaintext[] = "These 15 bytes";
+assert_equals(std::size_t(15), sizeof(plaintext));
+std::uint8_t random[] = "This is a random 32 byte string";
+
+for (unsigned i = 0; i < 8; ++i) {
+{
+    std::uint8_t msg[alice.encrypt_output_length(sizeof(plaintext))];
+    std::uint8_t encrypt_length = alice.encrypt(
+        plaintext, 15, random, 32, msg, sizeof(msg)
+    );
+    std::uint8_t output[bob.decrypt_max_plaintext_length(msg, sizeof(msg))];
+    assert_equals(
+        std::size_t(15), bob.decrypt(msg, sizeof(msg), output, sizeof(output))
+    );
+}
+random[31]++;
+{
+    std::uint8_t msg[bob.encrypt_output_length(sizeof(plaintext))];
+    std::uint8_t encrypt_length = bob.encrypt(
+        plaintext, 15, random, 32, msg, sizeof(msg)
+    );
+    std::uint8_t output[alice.decrypt_max_plaintext_length(msg, sizeof(msg))];
+    assert_equals(
+        std::size_t(15), alice.decrypt(msg, sizeof(msg), output, sizeof(output))
+    );
+}
+random[31]++;
+}
+
+}
 
 }
