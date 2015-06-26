@@ -1,5 +1,5 @@
-Axolotlpp
-=========
+Olm
+===
 
 An implementation of the axolotl ratchet as described by
 https://github.com/trevp/axolotl/wiki, written in C++11 and exposed as a C API
@@ -7,7 +7,7 @@ https://github.com/trevp/axolotl/wiki, written in C++11 and exposed as a C API
 Building
 --------
 
-To build axolotlpp as a shared library run:
+To build olm as a shared library run:
 
 .. code:: bash
 
@@ -29,19 +29,19 @@ To build the javascript bindings run:
 Design
 ------
 
-Axolotlpp is designed to be easy port to different platforms and to be easy
+Olm is designed to be easy port to different platforms and to be easy
 to write bindings for.
 
 Error Handling
 ~~~~~~~~~~~~~~
 
-All C functions in the API for axolotlpp return ``axolotl_error()`` on error.
+All C functions in the API for olm return ``olm_error()`` on error.
 This makes it easy to check for error conditions within the language bindings.
 
 Random Numbers
 ~~~~~~~~~~~~~~
 
-Axolotlpp doesn't generate random numbers itself. Instead the caller must
+Olm doesn't generate random numbers itself. Instead the caller must
 provide the random data. This makes it easier to port the library to different
 platforms since the caller can use whatever cryptographic random number
 generator their platform provides.
@@ -49,7 +49,7 @@ generator their platform provides.
 Memory
 ~~~~~~
 
-Axolotlpp avoids calling malloc or allocating memory on the heap itself.
+Olm avoids calling malloc or allocating memory on the heap itself.
 Instead the library calculates how much memory will be needed to hold the
 output and the caller supplies a buffer of the appropriate size.
 
@@ -62,6 +62,13 @@ strings will find it easier to handle the output.
 Dependencies
 ~~~~~~~~~~~~
 
-Axolotlpp uses pure C implementations of the cryptographic primitives used by
+Olm uses pure C implementations of the cryptographic primitives used by
 the ratchet. While this decreases the performance it makes it much easier
 to compile the library for different architectures.
+
+What's an olm?
+~~~~~~~~~~~~~~
+
+It's a really cool species of European troglodytic salamander.
+Matthew once tried to climb into a pool full of them in Postojnska Jama.
+http://www.postojnska-jama.eu/en/about-the-cave/meet-the-dragon-s-offspring/

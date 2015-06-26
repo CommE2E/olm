@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "axolotl/crypto.hh"
+#include "olm/crypto.hh"
 
 #include "unittest.hh"
 
@@ -58,25 +58,25 @@ std::uint8_t expected_agreement[32] = {
     0x76, 0xF0, 0x9B, 0x3C, 0x1E, 0x16, 0x17, 0x42
 };
 
-axolotl::Curve25519KeyPair alice_pair;
-axolotl::generate_key(alice_private, alice_pair);
+olm::Curve25519KeyPair alice_pair;
+olm::generate_key(alice_private, alice_pair);
 
 assert_equals(alice_private, alice_pair.private_key, 32);
 assert_equals(alice_public, alice_pair.public_key, 32);
 
-axolotl::Curve25519KeyPair bob_pair;
-axolotl::generate_key(bob_private, bob_pair);
+olm::Curve25519KeyPair bob_pair;
+olm::generate_key(bob_private, bob_pair);
 
 assert_equals(bob_private, bob_pair.private_key, 32);
 assert_equals(bob_public, bob_pair.public_key, 32);
 
-std::uint8_t actual_agreement[axolotl::CURVE25519_SHARED_SECRET_LENGTH] = {};
+std::uint8_t actual_agreement[olm::CURVE25519_SHARED_SECRET_LENGTH] = {};
 
-axolotl::curve25519_shared_secret(alice_pair, bob_pair, actual_agreement);
+olm::curve25519_shared_secret(alice_pair, bob_pair, actual_agreement);
 
 assert_equals(expected_agreement, actual_agreement, 32);
 
-axolotl::curve25519_shared_secret(bob_pair, alice_pair, actual_agreement);
+olm::curve25519_shared_secret(bob_pair, alice_pair, actual_agreement);
 
 assert_equals(expected_agreement, actual_agreement, 32);
 
@@ -90,22 +90,22 @@ std::uint8_t private_key[33] = "This key is a string of 32 bytes";
 std::uint8_t message[] = "message";
 std::size_t message_length = sizeof(message) - 1;
 
-axolotl::Curve25519KeyPair key_pair;
-axolotl::generate_key(private_key, key_pair);
+olm::Curve25519KeyPair key_pair;
+olm::generate_key(private_key, key_pair);
 
 std::uint8_t signature[64];
 
-axolotl::curve25519_sign(
+olm::curve25519_sign(
     key_pair, message, message_length, signature
 );
 
-bool result = axolotl::curve25519_verify(
+bool result = olm::curve25519_verify(
     key_pair, message, message_length, signature
 );
 assert_equals(true, result);
 
 message[0] = 'n';
-result = axolotl::curve25519_verify(
+result = olm::curve25519_verify(
     key_pair, message, message_length, signature
 );
 assert_equals(false, result);
@@ -116,8 +116,8 @@ assert_equals(false, result);
 
 TestCase test_case("AES Test Case 1");
 
-axolotl::Aes256Key key = {};
-axolotl::Aes256Iv iv = {};
+olm::Aes256Key key = {};
+olm::Aes256Iv iv = {};
 std::uint8_t input[16] = {};
 
 std::uint8_t expected[32] = {
@@ -127,16 +127,16 @@ std::uint8_t expected[32] = {
     0x4B, 0xAE, 0xDF, 0xFC, 0x3D, 0x21, 0x4C, 0x38
 };
 
-std::size_t length = axolotl::aes_encrypt_cbc_length(sizeof(input));
+std::size_t length = olm::aes_encrypt_cbc_length(sizeof(input));
 assert_equals(std::size_t(32), length);
 
 
 std::uint8_t actual[32] = {};
 
-axolotl::aes_encrypt_cbc(key, iv, input, sizeof(input), actual);
+olm::aes_encrypt_cbc(key, iv, input, sizeof(input), actual);
 assert_equals(expected, actual, 32);
 
-length = axolotl::aes_decrypt_cbc(key, iv, expected, sizeof(expected), actual);
+length = olm::aes_decrypt_cbc(key, iv, expected, sizeof(expected), actual);
 assert_equals(std::size_t(16), length);
 assert_equals(input, actual, length);
 
@@ -158,7 +158,7 @@ std::uint8_t expected[32] = {
 
 std::uint8_t actual[32];
 
-axolotl::sha256(input, sizeof(input), actual);
+olm::sha256(input, sizeof(input), actual);
 
 assert_equals(expected, actual, 32);
 
@@ -179,7 +179,7 @@ std::uint8_t expected[32] = {
 
 std::uint8_t actual[32];
 
-axolotl::hmac_sha256(input, sizeof(input), input, sizeof(input), actual);
+olm::hmac_sha256(input, sizeof(input), input, sizeof(input), actual);
 
 assert_equals(expected, actual, 32);
 
@@ -214,7 +214,7 @@ std::uint8_t hmac_expected_output[32] = {
 
 std::uint8_t hmac_actual_output[32] = {};
 
-axolotl::hmac_sha256(
+olm::hmac_sha256(
     salt, sizeof(salt),
     input, sizeof(input),
     hmac_actual_output
@@ -233,7 +233,7 @@ std::uint8_t hkdf_expected_output[42] = {
 
 std::uint8_t hkdf_actual_output[42] = {};
 
-axolotl::hkdf_sha256(
+olm::hkdf_sha256(
     input, sizeof(input),
     salt, sizeof(salt),
     info, sizeof(info),

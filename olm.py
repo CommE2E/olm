@@ -2,31 +2,31 @@
 from ctypes import *
 import json
 
-lib = cdll.LoadLibrary("build/libaxolotl.so")
+lib = cdll.LoadLibrary("build/libolm.so")
 
 
-lib.axolotl_error.argtypes = []
-lib.axolotl_error.restypes = c_size_t
+lib.olm_error.argtypes = []
+lib.olm_error.restypes = c_size_t
 
-ERR = lib.axolotl_error()
+ERR = lib.olm_error()
 
-class AxolotlError(Exception):
+class OlmError(Exception):
     pass
 
 
-lib.axolotl_account_size.argtypes = []
-lib.axolotl_account_size.restype = c_size_t
+lib.olm_account_size.argtypes = []
+lib.olm_account_size.restype = c_size_t
 
-lib.axolotl_account.argtypes = [c_void_p]
-lib.axolotl_account.restype = c_void_p
+lib.olm_account.argtypes = [c_void_p]
+lib.olm_account.restype = c_void_p
 
-lib.axolotl_account_last_error.argtypes = [c_void_p]
-lib.axolotl_account_last_error.restype = c_char_p
+lib.olm_account_last_error.argtypes = [c_void_p]
+lib.olm_account_last_error.restype = c_char_p
 
 def account_errcheck(res, func, args):
     if res == ERR:
-        raise AxolotlError("%s: %s" % (
-            func.__name__, lib.axolotl_account_last_error(args[0])
+        raise OlmError("%s: %s" % (
+            func.__name__, lib.olm_account_last_error(args[0])
         ))
     return res
 
@@ -38,17 +38,17 @@ def account_function(func, *types):
 
 
 account_function(
-    lib.axolotl_pickle_account, c_void_p, c_size_t, c_void_p, c_size_t
+    lib.olm_pickle_account, c_void_p, c_size_t, c_void_p, c_size_t
 )
 account_function(
-    lib.axolotl_unpickle_account, c_void_p, c_size_t, c_void_p, c_size_t
+    lib.olm_unpickle_account, c_void_p, c_size_t, c_void_p, c_size_t
 )
-account_function(lib.axolotl_create_account_random_length)
-account_function(lib.axolotl_create_account, c_void_p, c_size_t)
-account_function(lib.axolotl_account_identity_keys_length)
-account_function(lib.axolotl_account_identity_keys, c_void_p, c_size_t)
-account_function(lib.axolotl_account_one_time_keys_length)
-account_function(lib.axolotl_account_one_time_keys, c_void_p, c_size_t)
+account_function(lib.olm_create_account_random_length)
+account_function(lib.olm_create_account, c_void_p, c_size_t)
+account_function(lib.olm_account_identity_keys_length)
+account_function(lib.olm_account_identity_keys, c_void_p, c_size_t)
+account_function(lib.olm_account_one_time_keys_length)
+account_function(lib.olm_account_one_time_keys, c_void_p, c_size_t)
 
 def read_random(n):
     with open("/dev/urandom", "rb") as f:
@@ -56,20 +56,20 @@ def read_random(n):
 
 class Account(object):
     def __init__(self):
-        self.buf = create_string_buffer(lib.axolotl_account_size())
-        self.ptr = lib.axolotl_account(self.buf)
+        self.buf = create_string_buffer(lib.olm_account_size())
+        self.ptr = lib.olm_account(self.buf)
 
     def create(self):
-        random_length = lib.axolotl_create_account_random_length(self.ptr)
+        random_length = lib.olm_create_account_random_length(self.ptr)
         random = read_random(random_length)
         random_buffer = create_string_buffer(random)
-        lib.axolotl_create_account(self.ptr, random_buffer, random_length)
+        lib.olm_create_account(self.ptr, random_buffer, random_length)
 
     def pickle(self, key):
         key_buffer = create_string_buffer(key)
-        pickle_length = lib.axolotl_pickle_account_length(self.ptr)
+        pickle_length = lib.olm_pickle_account_length(self.ptr)
         pickle_buffer = create_string_buffer(pickle_length)
-        lib.axolotl_pickle_account(
+        lib.olm_pickle_account(
             self.ptr, key_buffer, len(key), pickle_buffer, pickle_length
         )
         return pickle_buffer.raw
@@ -77,40 +77,40 @@ class Account(object):
     def unpickle(self, key, pickle):
         key_buffer = create_string_buffer(key)
         pickle_buffer = create_string_buffer(pickle)
-        lib.axolotl_unpickle_account(
+        lib.olm_unpickle_account(
             self.ptr, key_buffer, len(key), pickle_buffer, len(pickle)
         )
 
     def identity_keys(self):
-        out_length = lib.axolotl_account_identity_keys_length(self.ptr)
+        out_length = lib.olm_account_identity_keys_length(self.ptr)
         out_buffer = create_string_buffer(out_length)
-        lib.axolotl_account_identity_keys(self.ptr, out_buffer, out_length)
+        lib.olm_account_identity_keys(self.ptr, out_buffer, out_length)
         return json.loads(out_buffer.raw)
 
     def one_time_keys(self):
-        out_length = lib.axolotl_account_one_time_keys_length(self.ptr)
+        out_length = lib.olm_account_one_time_keys_length(self.ptr)
         out_buffer = create_string_buffer(out_length)
-        lib.axolotl_account_one_time_keys(self.ptr, out_buffer, out_length)
+        lib.olm_account_one_time_keys(self.ptr, out_buffer, out_length)
         return json.loads(out_buffer.raw)
 
     def clear(self):
         pass
 
 
-lib.axolotl_session_size.argtypes = []
-lib.axolotl_session_size.restype = c_size_t
+lib.olm_session_size.argtypes = []
+lib.olm_session_size.restype = c_size_t
 
-lib.axolotl_session.argtypes = [c_void_p]
-lib.axolotl_session.restype = c_void_p
+lib.olm_session.argtypes = [c_void_p]
+lib.olm_session.restype = c_void_p
 
-lib.axolotl_session_last_error.argtypes = [c_void_p]
-lib.axolotl_session_last_error.restype = c_char_p
+lib.olm_session_last_error.argtypes = [c_void_p]
+lib.olm_session_last_error.restype = c_char_p
 
 
 def session_errcheck(res, func, args):
     if res == ERR:
-        raise AxolotlError("%s: %s" % (
-            func.__name__, lib.axolotl_session_last_error(args[0])
+        raise OlmError("%s: %s" % (
+            func.__name__, lib.olm_session_last_error(args[0])
         ))
     return res
 
@@ -120,16 +120,16 @@ def session_function(func, *types):
     func.restypes = c_size_t
     func.errcheck = session_errcheck
 
-session_function(lib.axolotl_session_last_error)
+session_function(lib.olm_session_last_error)
 session_function(
-    lib.axolotl_pickle_session, c_void_p, c_size_t, c_void_p, c_size_t
+    lib.olm_pickle_session, c_void_p, c_size_t, c_void_p, c_size_t
 )
 session_function(
-    lib.axolotl_unpickle_session, c_void_p, c_size_t, c_void_p, c_size_t
+    lib.olm_unpickle_session, c_void_p, c_size_t, c_void_p, c_size_t
 )
-session_function(lib.axolotl_create_outbound_session_random_length)
+session_function(lib.olm_create_outbound_session_random_length)
 session_function(
-    lib.axolotl_create_outbound_session,
+    lib.olm_create_outbound_session,
     c_void_p,  # Account
     c_void_p, c_size_t,  # Identity Key
     c_uint,  # One Time Key Id
@@ -137,27 +137,27 @@ session_function(
     c_void_p, c_size_t,  # Random
 )
 session_function(
-    lib.axolotl_create_inbound_session,
+    lib.olm_create_inbound_session,
     c_void_p,  # Account
     c_void_p, c_size_t,  # Pre Key Message
 )
-session_function(lib.axolotl_matches_inbound_session, c_void_p, c_size_t)
-session_function(lib.axolotl_encrypt_message_type)
-session_function(lib.axolotl_encrypt_random_length)
-session_function(lib.axolotl_encrypt_message_length, c_size_t)
+session_function(lib.olm_matches_inbound_session, c_void_p, c_size_t)
+session_function(lib.olm_encrypt_message_type)
+session_function(lib.olm_encrypt_random_length)
+session_function(lib.olm_encrypt_message_length, c_size_t)
 session_function(
-    lib.axolotl_encrypt,
+    lib.olm_encrypt,
     c_void_p, c_size_t,  # Plaintext
     c_void_p, c_size_t,  # Random
     c_void_p, c_size_t,  # Message
 );
 session_function(
-    lib.axolotl_decrypt_max_plaintext_length,
+    lib.olm_decrypt_max_plaintext_length,
     c_size_t,  # Message Type
     c_void_p, c_size_t,  # Message
 )
 session_function(
-    lib.axolotl_decrypt,
+    lib.olm_decrypt,
     c_size_t,  # Message Type
     c_void_p, c_size_t,  # Message
     c_void_p, c_size_t, # Plaintext
@@ -165,14 +165,14 @@ session_function(
 
 class Session(object):
     def __init__(self):
-        self.buf = create_string_buffer(lib.axolotl_session_size())
-        self.ptr = lib.axolotl_session(self.buf)
+        self.buf = create_string_buffer(lib.olm_session_size())
+        self.ptr = lib.olm_session(self.buf)
 
     def pickle(self, key):
         key_buffer = create_string_buffer(key)
-        pickle_length = lib.axolotl_pickle_session_length(self.ptr)
+        pickle_length = lib.olm_pickle_session_length(self.ptr)
         pickle_buffer = create_string_buffer(pickle_length)
-        lib.axolotl_pickle_session(
+        lib.olm_pickle_session(
             self.ptr, key_buffer, len(key), pickle_buffer, pickle_length
         )
         return pickle_buffer.raw
@@ -180,18 +180,18 @@ class Session(object):
     def unpickle(self, key, pickle):
         key_buffer = create_string_buffer(key)
         pickle_buffer = create_string_buffer(pickle)
-        lib.axolotl_unpickle_session(
+        lib.olm_unpickle_session(
             self.ptr, key_buffer, len(key), pickle_buffer, len(pickle)
         )
 
     def create_outbound(self, account, identity_key, one_time_key_id,
                         one_time_key):
-        r_length = lib.axolotl_create_outbound_session_random_length(self.ptr)
+        r_length = lib.olm_create_outbound_session_random_length(self.ptr)
         random = read_random(r_length)
         random_buffer = create_string_buffer(random)
         identity_key_buffer = create_string_buffer(identity_key)
         one_time_key_buffer = create_string_buffer(one_time_key)
-        lib.axolotl_create_outbound_session(
+        lib.olm_create_outbound_session(
             self.ptr,
             account.ptr,
             identity_key_buffer, len(identity_key),
@@ -202,7 +202,7 @@ class Session(object):
 
     def create_inbound(self, account, one_time_key_message):
         one_time_key_message_buffer = create_string_buffer(one_time_key_message)
-        lib.axolotl_create_inbound_session(
+        lib.olm_create_inbound_session(
             self.ptr,
             account.ptr,
             one_time_key_message_buffer, len(one_time_key_message)
@@ -210,25 +210,25 @@ class Session(object):
 
     def matches_inbound(self, one_time_key_message):
         one_time_key_message_buffer = create_string_buffer(one_time_key_message)
-        return bool(lib.axolotl_create_inbound_session(
+        return bool(lib.olm_create_inbound_session(
             self.ptr,
             one_time_key_message_buffer, len(one_time_key_message)
         ))
 
     def encrypt(self, plaintext):
-        r_length = lib.axolotl_encrypt_random_length(self.ptr)
+        r_length = lib.olm_encrypt_random_length(self.ptr)
         random = read_random(r_length)
         random_buffer = create_string_buffer(random)
 
-        message_type = lib.axolotl_encrypt_message_type(self.ptr)
-        message_length = lib.axolotl_encrypt_message_length(
+        message_type = lib.olm_encrypt_message_type(self.ptr)
+        message_length = lib.olm_encrypt_message_length(
             self.ptr, len(plaintext)
         )
         message_buffer = create_string_buffer(message_length)
 
         plaintext_buffer = create_string_buffer(plaintext)
 
-        lib.axolotl_encrypt(
+        lib.olm_encrypt(
             self.ptr,
             plaintext_buffer, len(plaintext),
             random_buffer, r_length,
@@ -238,12 +238,12 @@ class Session(object):
 
     def decrypt(self, message_type, message):
         message_buffer = create_string_buffer(message)
-        max_plaintext_length = lib.axolotl_decrypt_max_plaintext_length(
+        max_plaintext_length = lib.olm_decrypt_max_plaintext_length(
             self.ptr, message_type, message_buffer, len(message)
         )
         plaintext_buffer = create_string_buffer(max_plaintext_length)
         message_buffer = create_string_buffer(message)
-        plaintext_length = lib.axolotl_decrypt(
+        plaintext_length = lib.olm_decrypt(
             self.ptr, message_type, message_buffer, len(message),
             plaintext_buffer, max_plaintext_length
         )

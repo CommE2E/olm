@@ -12,37 +12,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "axolotl/ratchet.hh"
-#include "axolotl/cipher.hh"
+#include "olm/ratchet.hh"
+#include "olm/cipher.hh"
 #include "unittest.hh"
 
 
 int main() {
 
-std::uint8_t root_info[] = "Axolotl";
-std::uint8_t ratchet_info[] = "AxolotlRatchet";
-std::uint8_t message_info[] = "AxolotlMessageKeys";
+std::uint8_t root_info[] = "Olm";
+std::uint8_t ratchet_info[] = "OlmRatchet";
+std::uint8_t message_info[] = "OlmMessageKeys";
 
-axolotl::KdfInfo kdf_info = {
+olm::KdfInfo kdf_info = {
     root_info, sizeof(root_info) - 1,
     ratchet_info, sizeof(ratchet_info) - 1
 };
 
-axolotl::CipherAesSha256 cipher(
+olm::CipherAesSha256 cipher(
     message_info, sizeof(message_info) - 1
 );
 
 std::uint8_t random_bytes[] = "0123456789ABDEF0123456789ABCDEF";
-axolotl::Curve25519KeyPair alice_key;
-axolotl::generate_key(random_bytes, alice_key);
+olm::Curve25519KeyPair alice_key;
+olm::generate_key(random_bytes, alice_key);
 
 std::uint8_t shared_secret[] = "A secret";
 
 { /* Send/Receive test case */
-TestCase test_case("Axolotl Send/Receive");
+TestCase test_case("Olm Send/Receive");
 
-axolotl::Ratchet alice(kdf_info, cipher);
-axolotl::Ratchet bob(kdf_info, cipher);
+olm::Ratchet alice(kdf_info, cipher);
+olm::Ratchet bob(kdf_info, cipher);
 
 alice.initialise_as_alice(shared_secret, sizeof(shared_secret) - 1, alice_key);
 bob.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, alice_key);
@@ -108,10 +108,10 @@ std::size_t encrypt_length, decrypt_length;
 
 { /* Out of order test case */
 
-TestCase test_case("Axolotl Out of Order");
+TestCase test_case("Olm Out of Order");
 
-axolotl::Ratchet alice(kdf_info, cipher);
-axolotl::Ratchet bob(kdf_info, cipher);
+olm::Ratchet alice(kdf_info, cipher);
+olm::Ratchet bob(kdf_info, cipher);
 
 alice.initialise_as_alice(shared_secret, sizeof(shared_secret) - 1, alice_key);
 bob.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, alice_key);
@@ -180,10 +180,10 @@ std::size_t encrypt_length, decrypt_length;
 
 { /* More messages */
 
-TestCase test_case("Axolotl More Messages");
+TestCase test_case("Olm More Messages");
 
-axolotl::Ratchet alice(kdf_info, cipher);
-axolotl::Ratchet bob(kdf_info, cipher);
+olm::Ratchet alice(kdf_info, cipher);
+olm::Ratchet bob(kdf_info, cipher);
 
 alice.initialise_as_alice(shared_secret, sizeof(shared_secret) - 1, alice_key);
 bob.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, alice_key);

@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef AXOLOTL_SESSION_HH_
-#define AXOLOTL_SESSION_HH_
+#ifndef OLM_SESSION_HH_
+#define OLM_SESSION_HH_
 
-#include "axolotl/ratchet.hh"
+#include "olm/ratchet.hh"
 
-namespace axolotl {
+namespace olm {
 
 class Account;
 
@@ -109,6 +109,6 @@ std::uint8_t const * unpickle(
 );
 
 
-} // namespace axolotl
+} // namespace olm
 
-#endif /* AXOLOTL_SESSION_HH_ */
+#endif /* OLM_SESSION_HH_ */

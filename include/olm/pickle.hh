@@ -12,16 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef AXOLOTL_PICKLE_HH_
-#define AXOLOTL_PICKLE_HH_
+#ifndef OLM_PICKLE_HH_
+#define OLM_PICKLE_HH_
 
-#include "axolotl/list.hh"
-#include "axolotl/crypto.hh"
+#include "olm/list.hh"
+#include "olm/crypto.hh"
 
 #include <cstring>
 #include <cstdint>
 
-namespace axolotl {
+namespace olm {
 
 static std::size_t pickle_length(
     const std::uint32_t & value
@@ -79,7 +79,7 @@ static std::uint8_t const * unpickle(
 
 template<typename T, std::size_t max_size>
 std::size_t pickle_length(
-    axolotl::List<T, max_size> const & list
+    olm::List<T, max_size> const & list
 ) {
     std::size_t length = pickle_length(std::uint32_t(list.size()));
     for (auto const & value : list) {
@@ -92,7 +92,7 @@ std::size_t pickle_length(
 template<typename T, std::size_t max_size>
 std::uint8_t * pickle(
     std::uint8_t * pos,
-    axolotl::List<T, max_size> const & list
+    olm::List<T, max_size> const & list
 ) {
     pos = pickle(pos, std::uint32_t(list.size()));
     for (auto const & value : list) {
@@ -105,7 +105,7 @@ std::uint8_t * pickle(
 template<typename T, std::size_t max_size>
 std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    axolotl::List<T, max_size> & list
+    olm::List<T, max_size> & list
 ) {
     std::uint32_t size;
     pos = unpickle(pos, end, size);
@@ -170,9 +170,9 @@ std::uint8_t const * unpickle(
 );
 
 
-} // namespace axolotl
+} // namespace olm
 
 
 
 
-#endif /* AXOLOTL_PICKLE_HH */
+#endif /* OLM_PICKLE_HH */

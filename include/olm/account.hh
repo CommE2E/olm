@@ -12,16 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef AXOLOTL_ACCOUNT_HH_
-#define AXOLOTL_ACCOUNT_HH_
+#ifndef OLM_ACCOUNT_HH_
+#define OLM_ACCOUNT_HH_
 
-#include "axolotl/list.hh"
-#include "axolotl/crypto.hh"
-#include "axolotl/error.hh"
+#include "olm/list.hh"
+#include "olm/crypto.hh"
+#include "olm/error.hh"
 
 #include <cstdint>
 
-namespace axolotl {
+namespace olm {
 
 
 struct LocalKey {
@@ -79,6 +79,6 @@ std::uint8_t const * unpickle(
 );
 
 
-} // namespace axolotl
+} // namespace olm
 
-#endif /* AXOLOTL_ACCOUNT_HH_ */
+#endif /* OLM_ACCOUNT_HH_ */

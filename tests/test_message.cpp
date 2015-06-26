@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "axolotl/message.hh"
+#include "olm/message.hh"
 #include "unittest.hh"
 
 int main() {
@@ -27,8 +27,8 @@ std::uint8_t hmacsha2[9] = "hmacsha2";
 
 TestCase test_case("Message decode test");
 
-axolotl::MessageReader reader;
-axolotl::decode_message(reader, message1, 35, 8);
+olm::MessageReader reader;
+olm::decode_message(reader, message1, 35, 8);
 
 assert_equals(std::uint8_t(3), reader.version);
 assert_equals(true, reader.has_counter);
@@ -46,13 +46,13 @@ assert_equals(ciphertext, reader.ciphertext, 10);
 
 TestCase test_case("Message encode test");
 
-std::size_t length = axolotl::encode_message_length(1, 10, 10, 8);
+std::size_t length = olm::encode_message_length(1, 10, 10, 8);
 assert_equals(std::size_t(35), length);
 
 std::uint8_t output[length];
 
-axolotl::MessageWriter writer;
-axolotl::encode_message(writer, 3, 1, 10, 10, output);
+olm::MessageWriter writer;
+olm::encode_message(writer, 3, 1, 10, 10, output);
 
 std::memcpy(writer.ratchet_key, ratchetkey, 10);
 std::memcpy(writer.ciphertext, ciphertext, 10);

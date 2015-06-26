@@ -16,7 +16,7 @@
 #include <cstdint>
 
 
-namespace axolotl {
+namespace olm {
 
 /**
  * The length of the buffer needed to hold a message.
@@ -123,4 +123,4 @@ void decode_one_time_key_message(
 );
 
 
-} // namespace axolotl
+} // namespace olm

@@ -12,20 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "axolotl/account.hh"
-#include "axolotl/pickle.hh"
+#include "olm/account.hh"
+#include "olm/pickle.hh"
 
 
-axolotl::LocalKey const * axolotl::Account::lookup_key(
+olm::LocalKey const * olm::Account::lookup_key(
     std::uint32_t id
 ) {
-    for (axolotl::LocalKey const & key : one_time_keys) {
+    for (olm::LocalKey const & key : one_time_keys) {
         if (key.id == id) return &key;
     }
     return 0;
 }
 
-std::size_t axolotl::Account::remove_key(
+std::size_t olm::Account::remove_key(
     std::uint32_t id
 ) {
     LocalKey * i;
@@ -38,34 +38,34 @@ std::size_t axolotl::Account::remove_key(
     return std::size_t(-1);
 }
 
-std::size_t axolotl::Account::new_account_random_length() {
+std::size_t olm::Account::new_account_random_length() {
     return 103 * 32;
 }
 
-std::size_t axolotl::Account::new_account(
+std::size_t olm::Account::new_account(
     uint8_t const * random, std::size_t random_length
 ) {
     if (random_length < new_account_random_length()) {
-        last_error = axolotl::ErrorCode::NOT_ENOUGH_RANDOM;
+        last_error = olm::ErrorCode::NOT_ENOUGH_RANDOM;
         return std::size_t(-1);
     }
 
     unsigned id = 0;
 
     identity_key.id = ++id;
-    axolotl::generate_key(random, identity_key.key);
+    olm::generate_key(random, identity_key.key);
     random += 32;
 
     random += 32;
 
     last_resort_one_time_key.id = ++id;
-    axolotl::generate_key(random, last_resort_one_time_key.key);
+    olm::generate_key(random, last_resort_one_time_key.key);
     random += 32;
 
     for (unsigned i = 0; i < 10; ++i) {
         LocalKey & key = *one_time_keys.insert(one_time_keys.end());
         key.id = ++id;
-        axolotl::generate_key(random, key.key);
+        olm::generate_key(random, key.key);
         random += 32;
     }
 
@@ -73,94 +73,94 @@ std::size_t axolotl::Account::new_account(
 }
 
 
-namespace axolotl {
+namespace olm {
 
 
 static std::size_t pickle_length(
-    axolotl::LocalKey const & value
+    olm::LocalKey const & value
 ) {
-    return axolotl::pickle_length(value.id) + axolotl::pickle_length(value.key);
+    return olm::pickle_length(value.id) + olm::pickle_length(value.key);
 }
 
 
 static std::uint8_t * pickle(
     std::uint8_t * pos,
-    axolotl::LocalKey const & value
+    olm::LocalKey const & value
 ) {
-    pos = axolotl::pickle(pos, value.id);
-    pos = axolotl::pickle(pos, value.key);
+    pos = olm::pickle(pos, value.id);
+    pos = olm::pickle(pos, value.key);
     return pos;
 }
 
 
 static std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    axolotl::LocalKey & value
+    olm::LocalKey & value
 ) {
-    pos = axolotl::unpickle(pos, end, value.id);
-    pos = axolotl::unpickle(pos, end, value.key);
+    pos = olm::unpickle(pos, end, value.id);
+    pos = olm::unpickle(pos, end, value.key);
     return pos;
 }
 
 
 static std::size_t pickle_length(
-    axolotl::SignedKey const & value
+    olm::SignedKey const & value
 ) {
-    return axolotl::pickle_length((axolotl::LocalKey const &) value) + 64;
+    return olm::pickle_length((olm::LocalKey const &) value) + 64;
 }
 
 
 static std::uint8_t * pickle(
     std::uint8_t * pos,
-    axolotl::SignedKey const & value
+    olm::SignedKey const & value
 ) {
-    pos = axolotl::pickle(pos, (axolotl::LocalKey const &) value);
-    pos = axolotl::pickle_bytes(pos, value.signature, 64);
+    pos = olm::pickle(pos, (olm::LocalKey const &) value);
+    pos = olm::pickle_bytes(pos, value.signature, 64);
     return pos;
 }
 
 
 static std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    axolotl::SignedKey & value
+    olm::SignedKey & value
 ) {
-    pos = axolotl::unpickle(pos, end, (axolotl::LocalKey &) value);
-    pos = axolotl::unpickle_bytes(pos, end, value.signature, 64);
+    pos = olm::unpickle(pos, end, (olm::LocalKey &) value);
+    pos = olm::unpickle_bytes(pos, end, value.signature, 64);
     return pos;
 }
 
 
-} // namespace axolotl
+} // namespace olm
 
 
-std::size_t axolotl::pickle_length(
-    axolotl::Account const & value
+std::size_t olm::pickle_length(
+    olm::Account const & value
 ) {
     std::size_t length = 0;
-    length += axolotl::pickle_length(value.identity_key);
-    length += axolotl::pickle_length(value.last_resort_one_time_key);
-    length += axolotl::pickle_length(value.one_time_keys);
+    length += olm::pickle_length(value.identity_key);
+    length += olm::pickle_length(value.last_resort_one_time_key);
+    length += olm::pickle_length(value.one_time_keys);
     return length;
 }
 
 
-std::uint8_t * axolotl::pickle(
+std::uint8_t * olm::pickle(
     std::uint8_t * pos,
-    axolotl::Account const & value
+    olm::Account const & value
 ) {
-    pos = axolotl::pickle(pos, value.identity_key);
-    pos = axolotl::pickle(pos, value.last_resort_one_time_key);
-    pos = axolotl::pickle(pos, value.one_time_keys);
+    pos = olm::pickle(pos, value.identity_key);
+    pos = olm::pickle(pos, value.last_resort_one_time_key);
+    pos = olm::pickle(pos, value.one_time_keys);
     return pos;
 }
 
 
-std::uint8_t const * axolotl::unpickle(
+std::uint8_t const * olm::unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    axolotl::Account & value
+    olm::Account & value
 ) {
-    pos = axolotl::unpickle(pos, end, value.identity_key);
-    pos = axolotl::unpickle(pos, end, value.last_resort_one_time_key);
-    pos = axolotl::unpickle(pos, end, value.one_time_keys);
+    pos = olm::unpickle(pos, end, value.identity_key);
+    pos = olm::unpickle(pos, end, value.last_resort_one_time_key);
+    pos = olm::unpickle(pos, end, value.one_time_keys);
     return pos;
 }

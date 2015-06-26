@@ -229,7 +229,7 @@
                y="-64"
                x="32"
                id="tspan4814"
-               sodipodi:role="line">&quot;AXOLOTL_ROOT&quot;</tspan></text>
+               sodipodi:role="line">&quot;OLM_ROOT&quot;</tspan></text>
         </g>
         <g
            transform="translate(64,0)"
@@ -622,7 +622,7 @@
                sodipodi:role="line"
                id="tspan4695"
                x="32"
-               y="-64">&quot;AXOLOTL_KEYS&quot;</tspan></text>
+               y="-64">&quot;OLM_KEYS&quot;</tspan></text>
         </g>
         <text
            xml:space="preserve"
@@ -848,7 +848,7 @@
                sodipodi:role="line"
                id="tspan4904"
                x="32"
-               y="-64">&quot;AXOLOTL_RATCHET&quot;</tspan></text>
+               y="-64">&quot;OLM_RATCHET&quot;</tspan></text>
         </g>
         <g
            id="g4906"

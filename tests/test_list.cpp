@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "axolotl/list.hh"
+#include "olm/list.hh"
 #include "unittest.hh"
 
 int main() {
@@ -21,7 +21,7 @@ int main() {
 
 TestCase test_case("List insert");
 
-axolotl::List<int, 4> test_list;
+olm::List<int, 4> test_list;
 
 assert_equals(std::size_t(0), test_list.size());
 
@@ -47,7 +47,7 @@ assert_equals(4, test_list[3]);
 { /** List erase test **/
 TestCase test_case("List erase");
 
-axolotl::List<int, 4> test_list;
+olm::List<int, 4> test_list;
 assert_equals(std::size_t(0), test_list.size());
 
 for (int i = 0; i < 4; ++i) {

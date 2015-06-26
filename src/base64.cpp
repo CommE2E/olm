@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "axolotl/base64.hh"
+#include "olm/base64.hh"
 
 
 namespace {
@@ -45,14 +45,14 @@ static const std::uint8_t DECODE_BASE64[128] = {
 } // namespace
 
 
-std::size_t axolotl::encode_base64_length(
+std::size_t olm::encode_base64_length(
     std::size_t input_length
 ) {
     return 4 * ((input_length + 2) / 3) + (input_length + 2) % 3 - 2;
 }
 
 
-void axolotl::encode_base64(
+void olm::encode_base64(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
 ) {
@@ -87,7 +87,7 @@ void axolotl::encode_base64(
 }
 
 
-std::size_t axolotl::decode_base64_length(
+std::size_t olm::decode_base64_length(
     std::size_t input_length
 ) {
     if (input_length % 4 == 1) {
@@ -98,7 +98,7 @@ std::size_t axolotl::decode_base64_length(
 }
 
 
-void axolotl::decode_base64(
+void olm::decode_base64(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
 ) {

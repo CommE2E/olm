@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "axolotl/crypto.hh"
-#include "axolotl/memory.hh"
+#include "olm/crypto.hh"
+#include "olm/memory.hh"
 
 #include <cstring>
 
@@ -110,7 +110,7 @@ inline void hmac_sha256_init(
     }
     ::sha256_init(context);
     ::sha256_update(context, i_pad, SHA256_BLOCK_LENGTH);
-    axolotl::unset(i_pad);
+    olm::unset(i_pad);
 }
 
 
@@ -129,16 +129,16 @@ inline void hmac_sha256_final(
     ::sha256_init(&final_context);
     ::sha256_update(&final_context, o_pad, sizeof(o_pad));
     ::sha256_final(&final_context, output);
-    axolotl::unset(final_context);
-    axolotl::unset(o_pad);
+    olm::unset(final_context);
+    olm::unset(o_pad);
 }
 
 } // namespace
 
 
-void axolotl::generate_key(
+void olm::generate_key(
     std::uint8_t const * random_32_bytes,
-    axolotl::Curve25519KeyPair & key_pair
+    olm::Curve25519KeyPair & key_pair
 ) {
     std::memcpy(key_pair.private_key, random_32_bytes, 32);
     ::curve25519_donna(
@@ -147,17 +147,17 @@ void axolotl::generate_key(
 }
 
 
-void axolotl::curve25519_shared_secret(
-    axolotl::Curve25519KeyPair const & our_key,
-    axolotl::Curve25519PublicKey const & their_key,
+void olm::curve25519_shared_secret(
+    olm::Curve25519KeyPair const & our_key,
+    olm::Curve25519PublicKey const & their_key,
     std::uint8_t * output
 ) {
     ::curve25519_donna(output, our_key.private_key, their_key.public_key);
 }
 
 
-void axolotl::curve25519_sign(
-    axolotl::Curve25519KeyPair const & our_key,
+void olm::curve25519_sign(
+    olm::Curve25519KeyPair const & our_key,
     std::uint8_t const * message, std::size_t message_length,
     std::uint8_t * output
 ) {
@@ -174,8 +174,8 @@ void axolotl::curve25519_sign(
 }
 
 
-bool axolotl::curve25519_verify(
-    axolotl::Curve25519PublicKey const & their_key,
+bool olm::curve25519_verify(
+    olm::Curve25519PublicKey const & their_key,
     std::uint8_t const * message, std::size_t message_length,
     std::uint8_t const * signature
 ) {
@@ -191,16 +191,16 @@ bool axolotl::curve25519_verify(
     );
 }
 
-std::size_t axolotl::aes_encrypt_cbc_length(
+std::size_t olm::aes_encrypt_cbc_length(
     std::size_t input_length
 ) {
     return input_length + AES_BLOCK_LENGTH - input_length % AES_BLOCK_LENGTH;
 }
 
 
-void axolotl::aes_encrypt_cbc(
-    axolotl::Aes256Key const & key,
-    axolotl::Aes256Iv const & iv,
+void olm::aes_encrypt_cbc(
+    olm::Aes256Key const & key,
+    olm::Aes256Iv const & iv,
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
 ) {
@@ -224,14 +224,14 @@ void axolotl::aes_encrypt_cbc(
         input_block[i] ^= AES_BLOCK_LENGTH - input_length;
     }
     ::aes_encrypt(input_block, output, key_schedule, 256);
-    axolotl::unset(key_schedule);
-    axolotl::unset(input_block);
+    olm::unset(key_schedule);
+    olm::unset(input_block);
 }
 
 
-std::size_t axolotl::aes_decrypt_cbc(
-    axolotl::Aes256Key const & key,
-    axolotl::Aes256Iv const & iv,
+std::size_t olm::aes_decrypt_cbc(
+    olm::Aes256Key const & key,
+    olm::Aes256Iv const & iv,
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
 ) {
@@ -246,15 +246,15 @@ std::size_t axolotl::aes_decrypt_cbc(
         xor_block<AES_BLOCK_LENGTH>(&output[i], block1);
         std::memcpy(block1, block2, AES_BLOCK_LENGTH);
     }
-    axolotl::unset(key_schedule);
-    axolotl::unset(block1);
-    axolotl::unset(block2);
+    olm::unset(key_schedule);
+    olm::unset(block1);
+    olm::unset(block2);
     std::size_t padding = output[input_length - 1];
     return (padding > input_length) ? std::size_t(-1) : (input_length - padding);
 }
 
 
-void axolotl::sha256(
+void olm::sha256(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
 ) {
@@ -262,10 +262,10 @@ void axolotl::sha256(
     ::sha256_init(&context);
     ::sha256_update(&context, input, input_length);
     ::sha256_final(&context, output);
-    axolotl::unset(context);
+    olm::unset(context);
 }
 
-void axolotl::hmac_sha256(
+void olm::hmac_sha256(
     std::uint8_t const * key, std::size_t key_length,
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
@@ -276,12 +276,12 @@ void axolotl::hmac_sha256(
     hmac_sha256_init(&context, hmac_key);
     ::sha256_update(&context, input, input_length);
     hmac_sha256_final(&context, hmac_key, output);
-    axolotl::unset(hmac_key);
-    axolotl::unset(context);
+    olm::unset(hmac_key);
+    olm::unset(context);
 }
 
 
-void axolotl::hkdf_sha256(
+void olm::hkdf_sha256(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t const * salt, std::size_t salt_length,
     std::uint8_t const * info, std::size_t info_length,
@@ -320,7 +320,7 @@ void axolotl::hkdf_sha256(
         hmac_sha256_final(&context, hmac_key, step_result);
     }
     std::memcpy(output, step_result, bytes_remaining);
-    axolotl::unset(context);
-    axolotl::unset(hmac_key);
-    axolotl::unset(step_result);
+    olm::unset(context);
+    olm::unset(hmac_key);
+    olm::unset(step_result);
 }

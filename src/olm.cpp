@@ -12,31 +12,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "axolotl/axolotl.hh"
-#include "axolotl/session.hh"
-#include "axolotl/account.hh"
-#include "axolotl/base64.hh"
-#include "axolotl/cipher.hh"
+#include "olm/olm.hh"
+#include "olm/session.hh"
+#include "olm/account.hh"
+#include "olm/base64.hh"
+#include "olm/cipher.hh"
 
 #include <new>
 #include <cstring>
 
 namespace {
 
-static AxolotlAccount * to_c(axolotl::Account * account) {
-    return reinterpret_cast<AxolotlAccount *>(account);
+static OlmAccount * to_c(olm::Account * account) {
+    return reinterpret_cast<OlmAccount *>(account);
 }
 
-static AxolotlSession * to_c(axolotl::Session * account) {
-    return reinterpret_cast<AxolotlSession *>(account);
+static OlmSession * to_c(olm::Session * account) {
+    return reinterpret_cast<OlmSession *>(account);
 }
 
-static axolotl::Account * from_c(AxolotlAccount * account) {
-    return reinterpret_cast<axolotl::Account *>(account);
+static olm::Account * from_c(OlmAccount * account) {
+    return reinterpret_cast<olm::Account *>(account);
 }
 
-static axolotl::Session * from_c(AxolotlSession * account) {
-    return reinterpret_cast<axolotl::Session *>(account);
+static olm::Session * from_c(OlmSession * account) {
+    return reinterpret_cast<olm::Session *>(account);
 }
 
 static std::uint8_t * from_c(void * bytes) {
@@ -49,7 +49,7 @@ static std::uint8_t const * from_c(void const * bytes) {
 
 static const std::uint8_t CIPHER_KDF_INFO[] = "Pickle";
 
-static const axolotl::CipherAesSha256 PICKLE_CIPHER(
+static const olm::CipherAesSha256 PICKLE_CIPHER(
     CIPHER_KDF_INFO, sizeof(CIPHER_KDF_INFO) -1
 );
 
@@ -58,7 +58,7 @@ std::size_t enc_output_length(
 ) {
     std::size_t length = PICKLE_CIPHER.encrypt_ciphertext_length(raw_length);
     length += PICKLE_CIPHER.mac_length();
-    return axolotl::encode_base64_length(length);
+    return olm::encode_base64_length(length);
 }
 
 
@@ -68,7 +68,7 @@ std::uint8_t * enc_output_pos(
 ) {
     std::size_t length = PICKLE_CIPHER.encrypt_ciphertext_length(raw_length);
     length += PICKLE_CIPHER.mac_length();
-    return output + axolotl::encode_base64_length(length) - length;
+    return output + olm::encode_base64_length(length) - length;
 }
 
 std::size_t enc_output(
@@ -79,7 +79,7 @@ std::size_t enc_output(
         raw_length
     );
     std::size_t length = ciphertext_length + PICKLE_CIPHER.mac_length();
-    std::size_t base64_length = axolotl::encode_base64_length(length);
+    std::size_t base64_length = olm::encode_base64_length(length);
     std::uint8_t * raw_output = output + base64_length - length;
     PICKLE_CIPHER.encrypt(
         key, key_length,
@@ -87,21 +87,21 @@ std::size_t enc_output(
         raw_output, ciphertext_length,
         raw_output, length
     );
-    axolotl::encode_base64(raw_output, length, output);
+    olm::encode_base64(raw_output, length, output);
     return raw_length;
 }
 
 std::size_t enc_input(
     std::uint8_t const * key, std::size_t key_length,
     std::uint8_t * input, size_t b64_length,
-    axolotl::ErrorCode & last_error
+    olm::ErrorCode & last_error
 ) {
-    std::size_t enc_length = axolotl::decode_base64_length(b64_length);
+    std::size_t enc_length = olm::decode_base64_length(b64_length);
     if (enc_length == std::size_t(-1)) {
-        last_error = axolotl::ErrorCode::INVALID_BASE64;
+        last_error = olm::ErrorCode::INVALID_BASE64;
         return std::size_t(-1);
     }
-    axolotl::decode_base64(input, b64_length, input);
+    olm::decode_base64(input, b64_length, input);
     std::size_t raw_length = enc_length - PICKLE_CIPHER.mac_length();
     std::size_t result = PICKLE_CIPHER.decrypt(
         key, key_length,
@@ -110,7 +110,7 @@ std::size_t enc_input(
         input, raw_length
     );
     if (result == std::size_t(-1)) {
-        last_error = axolotl::ErrorCode::BAD_ACCOUNT_KEY;
+        last_error = olm::ErrorCode::BAD_ACCOUNT_KEY;
     }
     return result;
 }
@@ -119,35 +119,35 @@ std::size_t enc_input(
 std::size_t b64_output_length(
     size_t raw_length
 ) {
-    return axolotl::encode_base64_length(raw_length);
+    return olm::encode_base64_length(raw_length);
 }
 
 std::uint8_t * b64_output_pos(
     std::uint8_t * output,
     size_t raw_length
 ) {
-    return output + axolotl::encode_base64_length(raw_length) - raw_length;
+    return output + olm::encode_base64_length(raw_length) - raw_length;
 }
 
 std::size_t b64_output(
     std::uint8_t * output, size_t raw_length
 ) {
-    std::size_t base64_length = axolotl::encode_base64_length(raw_length);
+    std::size_t base64_length = olm::encode_base64_length(raw_length);
     std::uint8_t * raw_output = output + base64_length - raw_length;
-    axolotl::encode_base64(raw_output, raw_length, output);
+    olm::encode_base64(raw_output, raw_length, output);
     return base64_length;
 }
 
 std::size_t b64_input(
     std::uint8_t * input, size_t b64_length,
-    axolotl::ErrorCode & last_error
+    olm::ErrorCode & last_error
 ) {
-    std::size_t raw_length = axolotl::decode_base64_length(b64_length);
+    std::size_t raw_length = olm::decode_base64_length(b64_length);
     if (raw_length == std::size_t(-1)) {
-        last_error = axolotl::ErrorCode::INVALID_BASE64;
+        last_error = olm::ErrorCode::INVALID_BASE64;
         return std::size_t(-1);
     }
-    axolotl::decode_base64(input, b64_length, input);
+    olm::decode_base64(input, b64_length, input);
     return raw_length;
 }
 
@@ -169,13 +169,13 @@ const char * errors[9] {
 extern "C" {
 
 
-size_t axolotl_error() {
+size_t olm_error() {
     return std::size_t(-1);
 }
 
 
-const char * axolotl_account_last_error(
-    AxolotlSession * account
+const char * olm_account_last_error(
+    OlmSession * account
 ) {
     unsigned error = unsigned(from_c(account)->last_error);
     if (error < 9) {
@@ -186,8 +186,8 @@ const char * axolotl_account_last_error(
 }
 
 
-const char * axolotl_session_last_error(
-    AxolotlSession * session
+const char * olm_session_last_error(
+    OlmSession * session
 ) {
     unsigned error = unsigned(from_c(session)->last_error);
     if (error < 9) {
@@ -198,53 +198,53 @@ const char * axolotl_session_last_error(
 }
 
 
-size_t axolotl_account_size() {
-    return sizeof(axolotl::Account);
+size_t olm_account_size() {
+    return sizeof(olm::Account);
 }
 
 
-size_t axolotl_session_size() {
-    return sizeof(axolotl::Session);
+size_t olm_session_size() {
+    return sizeof(olm::Session);
 }
 
 
-AxolotlAccount * axolotl_account(
+OlmAccount * olm_account(
     void * memory
 ) {
-    return to_c(new(memory) axolotl::Account());
+    return to_c(new(memory) olm::Account());
 }
 
 
-AxolotlSession * axolotl_session(
+OlmSession * olm_session(
     void * memory
 ) {
-    return to_c(new(memory) axolotl::Session());
+    return to_c(new(memory) olm::Session());
 }
 
 
-size_t axolotl_pickle_account_length(
-    AxolotlAccount * account
+size_t olm_pickle_account_length(
+    OlmAccount * account
 ) {
     return enc_output_length(pickle_length(*from_c(account)));
 }
 
 
-size_t axolotl_pickle_session_length(
-    AxolotlSession * session
+size_t olm_pickle_session_length(
+    OlmSession * session
 ) {
     return enc_output_length(pickle_length(*from_c(session)));
 }
 
 
-size_t axolotl_pickle_account(
-    AxolotlAccount * account,
+size_t olm_pickle_account(
+    OlmAccount * account,
     void const * key, size_t key_length,
     void * pickled, size_t pickled_length
 ) {
-    axolotl::Account & object = *from_c(account);
+    olm::Account & object = *from_c(account);
     std::size_t raw_length = pickle_length(object);
     if (pickled_length < enc_output_length(raw_length)) {
-        object.last_error = axolotl::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        object.last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return size_t(-1);
     }
     pickle(enc_output_pos(from_c(pickled), raw_length), object);
@@ -252,15 +252,15 @@ size_t axolotl_pickle_account(
 }
 
 
-size_t axolotl_pickle_session(
-    AxolotlSession * session,
+size_t olm_pickle_session(
+    OlmSession * session,
     void const * key, size_t key_length,
     void * pickled, size_t pickled_length
 ) {
-    axolotl::Session & object = *from_c(session);
+    olm::Session & object = *from_c(session);
     std::size_t raw_length = pickle_length(object);
     if (pickled_length < enc_output_length(raw_length)) {
-        object.last_error = axolotl::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        object.last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return size_t(-1);
     }
     pickle(enc_output_pos(from_c(pickled), raw_length), object);
@@ -268,12 +268,12 @@ size_t axolotl_pickle_session(
 }
 
 
-size_t axolotl_unpickle_account(
-    AxolotlAccount * account,
+size_t olm_unpickle_account(
+    OlmAccount * account,
     void const * key, size_t key_length,
     void * pickled, size_t pickled_length
 ) {
-    axolotl::Account & object = *from_c(account);
+    olm::Account & object = *from_c(account);
     std::uint8_t * const pos = from_c(pickled);
     std::size_t raw_length = enc_input(
         from_c(key), key_length, pos, pickled_length, object.last_error
@@ -287,12 +287,12 @@ size_t axolotl_unpickle_account(
 }
 
 
-size_t axolotl_unpickle_session(
-    AxolotlSession * session,
+size_t olm_unpickle_session(
+    OlmSession * session,
     void const * key, size_t key_length,
     void * pickled, size_t pickled_length
 ) {
-    axolotl::Session & object = *from_c(session);
+    olm::Session & object = *from_c(session);
     std::uint8_t * const pos = from_c(pickled);
     std::size_t raw_length = enc_input(
         from_c(key), key_length, pos, pickled_length, object.last_error
@@ -306,15 +306,15 @@ size_t axolotl_unpickle_session(
 }
 
 
-size_t axolotl_create_account_random_length(
-    AxolotlAccount * account
+size_t olm_create_account_random_length(
+    OlmAccount * account
 ) {
     return from_c(account)->new_account_random_length();
 }
 
 
-size_t axolotl_create_account(
-    AxolotlAccount * account,
+size_t olm_create_account(
+    OlmAccount * account,
     void const * random, size_t random_length
 ) {
     return from_c(account)->new_account(from_c(random), random_length);
@@ -323,10 +323,10 @@ size_t axolotl_create_account(
 namespace {
 
 static const std::size_t OUTPUT_KEY_LENGTH = 2 + 10 + 2 +
-        axolotl::encode_base64_length(32) + 3;
+        olm::encode_base64_length(32) + 3;
 
 void output_key(
-    axolotl::LocalKey const & key,
+    olm::LocalKey const & key,
     std::uint8_t sep,
     std::uint8_t * output
 ) {
@@ -343,7 +343,7 @@ void output_key(
     }
     output[12] = ',';
     output[13] = '"';
-    axolotl::encode_base64(key.key.public_key, 32, output + 14);
+    olm::encode_base64(key.key.public_key, 32, output + 14);
     output[OUTPUT_KEY_LENGTH - 3] = '"';
     output[OUTPUT_KEY_LENGTH - 2] = ']';
     output[OUTPUT_KEY_LENGTH - 1] = '\n';
@@ -352,21 +352,21 @@ void output_key(
 } // namespace
 
 
-size_t axolotl_account_identity_keys_length(
-    AxolotlAccount * account
+size_t olm_account_identity_keys_length(
+    OlmAccount * account
 ) {
     return OUTPUT_KEY_LENGTH + 1;
 }
 
 
-size_t axolotl_account_identity_keys(
-    AxolotlAccount * account,
+size_t olm_account_identity_keys(
+    OlmAccount * account,
     void * identity_keys, size_t identity_key_length
 ) {
-    std::size_t length = axolotl_account_identity_keys_length(account);
+    std::size_t length = olm_account_identity_keys_length(account);
     if (identity_key_length < length) {
         from_c(account)->last_error =
-            axolotl::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+            olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return size_t(-1);
     }
     std::uint8_t * output = from_c(identity_keys);
@@ -377,22 +377,22 @@ size_t axolotl_account_identity_keys(
 }
 
 
-size_t axolotl_account_one_time_keys_length(
-    AxolotlAccount * account
+size_t olm_account_one_time_keys_length(
+    OlmAccount * account
 ) {
     size_t count = from_c(account)->one_time_keys.size();
     return OUTPUT_KEY_LENGTH * (count + 1) + 1;
 }
 
 
-size_t axolotl_account_one_time_keys(
-    AxolotlAccount * account,
+size_t olm_account_one_time_keys(
+    OlmAccount * account,
     void * identity_keys, size_t identity_key_length
 ) {
-    std::size_t length = axolotl_account_one_time_keys_length(account);
+    std::size_t length = olm_account_one_time_keys_length(account);
     if (identity_key_length < length) {
         from_c(account)->last_error =
-            axolotl::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+            olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return size_t(-1);
     }
     std::uint8_t * output = from_c(identity_keys);
@@ -407,35 +407,35 @@ size_t axolotl_account_one_time_keys(
 }
 
 
-size_t axolotl_create_outbound_session_random_length(
-    AxolotlSession * session
+size_t olm_create_outbound_session_random_length(
+    OlmSession * session
 ) {
     return from_c(session)->new_outbound_session_random_length();
 }
 
-size_t axolotl_create_outbound_session(
-    AxolotlSession * session,
-    AxolotlAccount * account,
+size_t olm_create_outbound_session(
+    OlmSession * session,
+    OlmAccount * account,
     void const * their_identity_key, size_t their_identity_key_length,
     unsigned their_one_time_key_id,
     void const * their_one_time_key, size_t their_one_time_key_length,
     void const * random, size_t random_length
 ) {
-    if (axolotl::decode_base64_length(their_identity_key_length) != 32
-            || axolotl::decode_base64_length(their_one_time_key_length) != 32
+    if (olm::decode_base64_length(their_identity_key_length) != 32
+            || olm::decode_base64_length(their_one_time_key_length) != 32
     ) {
-        from_c(session)->last_error = axolotl::ErrorCode::INVALID_BASE64;
+        from_c(session)->last_error = olm::ErrorCode::INVALID_BASE64;
         return std::size_t(-1);
     }
-    axolotl::Curve25519PublicKey identity_key;
-    axolotl::RemoteKey one_time_key;
+    olm::Curve25519PublicKey identity_key;
+    olm::RemoteKey one_time_key;
 
-    axolotl::decode_base64(
+    olm::decode_base64(
         from_c(their_identity_key), their_identity_key_length,
         identity_key.public_key
     );
     one_time_key.id = their_one_time_key_id;
-    axolotl::decode_base64(
+    olm::decode_base64(
         from_c(their_one_time_key), their_one_time_key_length,
         one_time_key.key.public_key
     );
@@ -447,9 +447,9 @@ size_t axolotl_create_outbound_session(
 }
 
 
-size_t axolotl_create_inbound_session(
-    AxolotlSession * session,
-    AxolotlAccount * account,
+size_t olm_create_inbound_session(
+    OlmSession * session,
+    OlmAccount * account,
     void * one_time_key_message, size_t message_length
 ) {
     std::size_t raw_length = b64_input(
@@ -464,8 +464,8 @@ size_t axolotl_create_inbound_session(
 }
 
 
-size_t axolotl_matches_inbound_session(
-    AxolotlSession * session,
+size_t olm_matches_inbound_session(
+    OlmSession * session,
     void * one_time_key_message, size_t message_length
 ) {
     std::size_t raw_length = b64_input(
@@ -481,36 +481,36 @@ size_t axolotl_matches_inbound_session(
 }
 
 
-size_t axolotl_remove_one_time_keys(
-    AxolotlAccount * account,
-    AxolotlSession * session
+size_t olm_remove_one_time_keys(
+    OlmAccount * account,
+    OlmSession * session
 ) {
     size_t result = from_c(account)->remove_key(
         from_c(session)->bob_one_time_key_id
     );
     if (result == std::size_t(-1)) {
-        from_c(account)->last_error = axolotl::ErrorCode::BAD_MESSAGE_KEY_ID;
+        from_c(account)->last_error = olm::ErrorCode::BAD_MESSAGE_KEY_ID;
     }
     return result;
 }
 
 
-size_t axolotl_encrypt_message_type(
-    AxolotlSession * session
+size_t olm_encrypt_message_type(
+    OlmSession * session
 ) {
     return size_t(from_c(session)->encrypt_message_type());
 }
 
 
-size_t axolotl_encrypt_random_length(
-    AxolotlSession * session
+size_t olm_encrypt_random_length(
+    OlmSession * session
 ) {
     return from_c(session)->encrypt_random_length();
 }
 
 
-size_t axolotl_encrypt_message_length(
-    AxolotlSession * session,
+size_t olm_encrypt_message_length(
+    OlmSession * session,
     size_t plaintext_length
 ) {
     return b64_output_length(
@@ -519,8 +519,8 @@ size_t axolotl_encrypt_message_length(
 }
 
 
-size_t axolotl_encrypt(
-    AxolotlSession * session,
+size_t olm_encrypt(
+    OlmSession * session,
     void const * plaintext, size_t plaintext_length,
     void const * random, size_t random_length,
     void * message, size_t message_length
@@ -530,7 +530,7 @@ size_t axolotl_encrypt(
     );
     if (message_length < raw_length) {
         from_c(session)->last_error =
-            axolotl::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+            olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
     from_c(session)->encrypt(
@@ -542,8 +542,8 @@ size_t axolotl_encrypt(
 }
 
 
-size_t axolotl_decrypt_max_plaintext_length(
-    AxolotlSession * session,
+size_t olm_decrypt_max_plaintext_length(
+    OlmSession * session,
     size_t message_type,
     void * message, size_t message_length
 ) {
@@ -554,13 +554,13 @@ size_t axolotl_decrypt_max_plaintext_length(
         return std::size_t(-1);
     }
     return from_c(session)->decrypt_max_plaintext_length(
-        axolotl::MessageType(message_type), from_c(message), raw_length
+        olm::MessageType(message_type), from_c(message), raw_length
     );
 }
 
 
-size_t axolotl_decrypt(
-    AxolotlSession * session,
+size_t olm_decrypt(
+    OlmSession * session,
     size_t message_type,
     void * message, size_t message_length,
     void * plaintext, size_t max_plaintext_length
@@ -572,7 +572,7 @@ size_t axolotl_decrypt(
         return std::size_t(-1);
     }
     return from_c(session)->decrypt(
-        axolotl::MessageType(message_type), from_c(message), raw_length,
+        olm::MessageType(message_type), from_c(message), raw_length,
         from_c(plaintext), max_plaintext_length
     );
 }

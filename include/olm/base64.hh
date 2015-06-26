@@ -18,7 +18,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace axolotl {
+namespace olm {
 
 
 std::size_t encode_base64_length(
@@ -43,7 +43,7 @@ void decode_base64(
 );
 
 
-} // namespace axolotl
+} // namespace olm
 
 
 #endif /* AXOLOLT_BASE64_HH_ */

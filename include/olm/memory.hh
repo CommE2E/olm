@@ -15,7 +15,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace axolotl {
+namespace olm {
 
 /** Clear the memory held in the buffer */
 void unset(
@@ -35,4 +35,4 @@ bool is_equal(
     std::size_t length
 );
 
-} // namespace axolotl
+} // namespace olm

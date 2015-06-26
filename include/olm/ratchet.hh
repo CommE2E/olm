@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#include "axolotl/crypto.hh"
-#include "axolotl/list.hh"
-#include "axolotl/error.hh"
+#include "olm/crypto.hh"
+#include "olm/list.hh"
+#include "olm/error.hh"
 
-namespace axolotl {
+namespace olm {
 
 class Cipher;
 
@@ -174,4 +174,4 @@ std::uint8_t const * unpickle(
 );
 
 
-} // namespace axolotl
+} // namespace olm

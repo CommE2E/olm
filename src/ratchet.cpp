@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "axolotl/ratchet.hh"
-#include "axolotl/message.hh"
-#include "axolotl/memory.hh"
-#include "axolotl/cipher.hh"
-#include "axolotl/pickle.hh"
+#include "olm/ratchet.hh"
+#include "olm/message.hh"
+#include "olm/memory.hh"
+#include "olm/cipher.hh"
+#include "olm/pickle.hh"
 
 
 #include <cstring>
@@ -24,23 +24,23 @@
 namespace {
 
 std::uint8_t PROTOCOL_VERSION = 3;
-std::size_t KEY_LENGTH = axolotl::Curve25519PublicKey::LENGTH;
+std::size_t KEY_LENGTH = olm::Curve25519PublicKey::LENGTH;
 std::uint8_t MESSAGE_KEY_SEED[1] = {0x01};
 std::uint8_t CHAIN_KEY_SEED[1] = {0x02};
 std::size_t MAX_MESSAGE_GAP = 2000;
 
 void create_chain_key(
-    axolotl::SharedKey const & root_key,
-    axolotl::Curve25519KeyPair const & our_key,
-    axolotl::Curve25519PublicKey const & their_key,
-    axolotl::KdfInfo const & info,
-    axolotl::SharedKey & new_root_key,
-    axolotl::ChainKey & new_chain_key
+    olm::SharedKey const & root_key,
+    olm::Curve25519KeyPair const & our_key,
+    olm::Curve25519PublicKey const & their_key,
+    olm::KdfInfo const & info,
+    olm::SharedKey & new_root_key,
+    olm::ChainKey & new_chain_key
 ) {
-    axolotl::SharedKey secret;
-    axolotl::curve25519_shared_secret(our_key, their_key, secret);
+    olm::SharedKey secret;
+    olm::curve25519_shared_secret(our_key, their_key, secret);
     std::uint8_t derived_secrets[64];
-    axolotl::hkdf_sha256(
+    olm::hkdf_sha256(
         secret, sizeof(secret),
         root_key, sizeof(root_key),
         info.ratchet_info, info.ratchet_info_length,
@@ -49,16 +49,16 @@ void create_chain_key(
     std::memcpy(new_root_key, derived_secrets, 32);
     std::memcpy(new_chain_key.key, derived_secrets + 32, 32);
     new_chain_key.index = 0;
-    axolotl::unset(derived_secrets);
-    axolotl::unset(secret);
+    olm::unset(derived_secrets);
+    olm::unset(secret);
 }
 
 
 void advance_chain_key(
-    axolotl::ChainKey const & chain_key,
-    axolotl::ChainKey & new_chain_key
+    olm::ChainKey const & chain_key,
+    olm::ChainKey & new_chain_key
 ) {
-    axolotl::hmac_sha256(
+    olm::hmac_sha256(
         chain_key.key, sizeof(chain_key.key),
         CHAIN_KEY_SEED, sizeof(CHAIN_KEY_SEED),
         new_chain_key.key
@@ -68,11 +68,11 @@ void advance_chain_key(
 
 
 void create_message_keys(
-    axolotl::ChainKey const & chain_key,
-    axolotl::KdfInfo const & info,
-    axolotl::MessageKey & message_key
+    olm::ChainKey const & chain_key,
+    olm::KdfInfo const & info,
+    olm::MessageKey & message_key
 ) {
-    axolotl::hmac_sha256(
+    olm::hmac_sha256(
         chain_key.key, sizeof(chain_key.key),
         MESSAGE_KEY_SEED, sizeof(MESSAGE_KEY_SEED),
         message_key.key
@@ -82,9 +82,9 @@ void create_message_keys(
 
 
 std::size_t verify_mac_and_decrypt(
-    axolotl::Cipher const & cipher,
-    axolotl::MessageKey const & message_key,
-    axolotl::MessageReader const & reader,
+    olm::Cipher const & cipher,
+    olm::MessageKey const & message_key,
+    olm::MessageReader const & reader,
     std::uint8_t * plaintext, std::size_t max_plaintext_length
 ) {
     return cipher.decrypt(
@@ -97,9 +97,9 @@ std::size_t verify_mac_and_decrypt(
 
 
 std::size_t verify_mac_and_decrypt_for_existing_chain(
-    axolotl::Ratchet const & session,
-    axolotl::ChainKey const & chain,
-    axolotl::MessageReader const & reader,
+    olm::Ratchet const & session,
+    olm::ChainKey const & chain,
+    olm::MessageReader const & reader,
     std::uint8_t * plaintext, std::size_t max_plaintext_length
 ) {
     if (reader.counter < chain.index) {
@@ -111,13 +111,13 @@ std::size_t verify_mac_and_decrypt_for_existing_chain(
         return std::size_t(-1);
     }
 
-    axolotl::ChainKey new_chain = chain;
+    olm::ChainKey new_chain = chain;
 
     while (new_chain.index < reader.counter) {
         advance_chain_key(new_chain, new_chain);
     }
 
-    axolotl::MessageKey message_key;
+    olm::MessageKey message_key;
     create_message_keys(new_chain, session.kdf_info, message_key);
 
     std::size_t result = verify_mac_and_decrypt(
@@ -125,18 +125,18 @@ std::size_t verify_mac_and_decrypt_for_existing_chain(
         plaintext, max_plaintext_length
     );
 
-    axolotl::unset(new_chain);
+    olm::unset(new_chain);
     return result;
 }
 
 
 std::size_t verify_mac_and_decrypt_for_new_chain(
-    axolotl::Ratchet const & session,
-    axolotl::MessageReader const & reader,
+    olm::Ratchet const & session,
+    olm::MessageReader const & reader,
     std::uint8_t * plaintext, std::size_t max_plaintext_length
 ) {
-    axolotl::SharedKey new_root_key;
-    axolotl::ReceiverChain new_chain;
+    olm::SharedKey new_root_key;
+    olm::ReceiverChain new_chain;
 
     /* They shouldn't move to a new chain until we've sent them a message
      * acknowledging the last one */
@@ -162,29 +162,29 @@ std::size_t verify_mac_and_decrypt_for_new_chain(
         session, new_chain.chain_key, reader,
         plaintext, max_plaintext_length
     );
-    axolotl::unset(new_root_key);
-    axolotl::unset(new_chain);
+    olm::unset(new_root_key);
+    olm::unset(new_chain);
     return result;
 }
 
 } // namespace
 
 
-axolotl::Ratchet::Ratchet(
-    axolotl::KdfInfo const & kdf_info,
+olm::Ratchet::Ratchet(
+    olm::KdfInfo const & kdf_info,
     Cipher const & ratchet_cipher
 ) : kdf_info(kdf_info),
     ratchet_cipher(ratchet_cipher),
-    last_error(axolotl::ErrorCode::SUCCESS) {
+    last_error(olm::ErrorCode::SUCCESS) {
 }
 
 
-void axolotl::Ratchet::initialise_as_bob(
+void olm::Ratchet::initialise_as_bob(
     std::uint8_t const * shared_secret, std::size_t shared_secret_length,
-    axolotl::Curve25519PublicKey const & their_ratchet_key
+    olm::Curve25519PublicKey const & their_ratchet_key
 ) {
     std::uint8_t derived_secrets[64];
-    axolotl::hkdf_sha256(
+    olm::hkdf_sha256(
         shared_secret, shared_secret_length,
         nullptr, 0,
         kdf_info.root_info, kdf_info.root_info_length,
@@ -195,16 +195,16 @@ void axolotl::Ratchet::initialise_as_bob(
     std::memcpy(root_key, derived_secrets, 32);
     std::memcpy(receiver_chains[0].chain_key.key, derived_secrets + 32, 32);
     receiver_chains[0].ratchet_key = their_ratchet_key;
-    axolotl::unset(derived_secrets);
+    olm::unset(derived_secrets);
 }
 
 
-void axolotl::Ratchet::initialise_as_alice(
+void olm::Ratchet::initialise_as_alice(
     std::uint8_t const * shared_secret, std::size_t shared_secret_length,
-    axolotl::Curve25519KeyPair const & our_ratchet_key
+    olm::Curve25519KeyPair const & our_ratchet_key
 ) {
     std::uint8_t derived_secrets[64];
-    axolotl::hkdf_sha256(
+    olm::hkdf_sha256(
         shared_secret, shared_secret_length,
         nullptr, 0,
         kdf_info.root_info, kdf_info.root_info_length,
@@ -215,14 +215,14 @@ void axolotl::Ratchet::initialise_as_alice(
     std::memcpy(root_key, derived_secrets, 32);
     std::memcpy(sender_chain[0].chain_key.key, derived_secrets + 32, 32);
     sender_chain[0].ratchet_key = our_ratchet_key;
-    axolotl::unset(derived_secrets);
+    olm::unset(derived_secrets);
 }
 
-namespace axolotl {
+namespace olm {
 
 
 static std::size_t pickle_length(
-    const axolotl::SharedKey & value
+    const olm::SharedKey & value
 ) {
     return KEY_LENGTH;
 }
@@ -230,135 +230,135 @@ static std::size_t pickle_length(
 
 static std::uint8_t * pickle(
     std::uint8_t * pos,
-    const axolotl::SharedKey & value
+    const olm::SharedKey & value
 ) {
-    return axolotl::pickle_bytes(pos, value, KEY_LENGTH);
+    return olm::pickle_bytes(pos, value, KEY_LENGTH);
 }
 
 
 static std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    axolotl::SharedKey & value
+    olm::SharedKey & value
 ) {
-    return axolotl::unpickle_bytes(pos, end, value, KEY_LENGTH);
+    return olm::unpickle_bytes(pos, end, value, KEY_LENGTH);
 }
 
 
 static std::size_t pickle_length(
-    const axolotl::SenderChain & value
+    const olm::SenderChain & value
 ) {
     std::size_t length = 0;
-    length += axolotl::pickle_length(value.ratchet_key);
-    length += axolotl::pickle_length(value.chain_key.key);
-    length += axolotl::pickle_length(value.chain_key.index);
+    length += olm::pickle_length(value.ratchet_key);
+    length += olm::pickle_length(value.chain_key.key);
+    length += olm::pickle_length(value.chain_key.index);
     return length;
 }
 
 
 static std::uint8_t * pickle(
     std::uint8_t * pos,
-    const axolotl::SenderChain & value
+    const olm::SenderChain & value
 ) {
-    pos = axolotl::pickle(pos, value.ratchet_key);
-    pos = axolotl::pickle(pos, value.chain_key.key);
-    pos = axolotl::pickle(pos, value.chain_key.index);
+    pos = olm::pickle(pos, value.ratchet_key);
+    pos = olm::pickle(pos, value.chain_key.key);
+    pos = olm::pickle(pos, value.chain_key.index);
     return pos;
 }
 
 
 static std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    axolotl::SenderChain & value
+    olm::SenderChain & value
 ) {
-    pos = axolotl::unpickle(pos, end, value.ratchet_key);
-    pos = axolotl::unpickle(pos, end, value.chain_key.key);
-    pos = axolotl::unpickle(pos, end, value.chain_key.index);
+    pos = olm::unpickle(pos, end, value.ratchet_key);
+    pos = olm::unpickle(pos, end, value.chain_key.key);
+    pos = olm::unpickle(pos, end, value.chain_key.index);
     return pos;
 }
 
 static std::size_t pickle_length(
-    const axolotl::ReceiverChain & value
+    const olm::ReceiverChain & value
 ) {
     std::size_t length = 0;
-    length += axolotl::pickle_length(value.ratchet_key);
-    length += axolotl::pickle_length(value.chain_key.key);
-    length += axolotl::pickle_length(value.chain_key.index);
+    length += olm::pickle_length(value.ratchet_key);
+    length += olm::pickle_length(value.chain_key.key);
+    length += olm::pickle_length(value.chain_key.index);
     return length;
 }
 
 
 static std::uint8_t * pickle(
     std::uint8_t * pos,
-    const axolotl::ReceiverChain & value
+    const olm::ReceiverChain & value
 ) {
-    pos = axolotl::pickle(pos, value.ratchet_key);
-    pos = axolotl::pickle(pos, value.chain_key.key);
-    pos = axolotl::pickle(pos, value.chain_key.index);
+    pos = olm::pickle(pos, value.ratchet_key);
+    pos = olm::pickle(pos, value.chain_key.key);
+    pos = olm::pickle(pos, value.chain_key.index);
     return pos;
 }
 
 
 static std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    axolotl::ReceiverChain & value
+    olm::ReceiverChain & value
 ) {
-    pos = axolotl::unpickle(pos, end, value.ratchet_key);
-    pos = axolotl::unpickle(pos, end, value.chain_key.key);
-    pos = axolotl::unpickle(pos, end, value.chain_key.index);
+    pos = olm::unpickle(pos, end, value.ratchet_key);
+    pos = olm::unpickle(pos, end, value.chain_key.key);
+    pos = olm::unpickle(pos, end, value.chain_key.index);
     return pos;
 }
 
 
 static std::size_t pickle_length(
-    const axolotl::SkippedMessageKey & value
+    const olm::SkippedMessageKey & value
 ) {
     std::size_t length = 0;
-    length += axolotl::pickle_length(value.ratchet_key);
-    length += axolotl::pickle_length(value.message_key.key);
-    length += axolotl::pickle_length(value.message_key.index);
+    length += olm::pickle_length(value.ratchet_key);
+    length += olm::pickle_length(value.message_key.key);
+    length += olm::pickle_length(value.message_key.index);
     return length;
 }
 
 
 static std::uint8_t * pickle(
     std::uint8_t * pos,
-    const axolotl::SkippedMessageKey & value
+    const olm::SkippedMessageKey & value
 ) {
-    pos = axolotl::pickle(pos, value.ratchet_key);
-    pos = axolotl::pickle(pos, value.message_key.key);
-    pos = axolotl::pickle(pos, value.message_key.index);
+    pos = olm::pickle(pos, value.ratchet_key);
+    pos = olm::pickle(pos, value.message_key.key);
+    pos = olm::pickle(pos, value.message_key.index);
     return pos;
 }
 
 
 static std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    axolotl::SkippedMessageKey & value
+    olm::SkippedMessageKey & value
 ) {
-    pos = axolotl::unpickle(pos, end, value.ratchet_key);
-    pos = axolotl::unpickle(pos, end, value.message_key.key);
-    pos = axolotl::unpickle(pos, end, value.message_key.index);
+    pos = olm::unpickle(pos, end, value.ratchet_key);
+    pos = olm::unpickle(pos, end, value.message_key.key);
+    pos = olm::unpickle(pos, end, value.message_key.index);
     return pos;
 }
 
 
-} // namespace axolotl
+} // namespace olm
 
 
-std::size_t axolotl::pickle_length(
-    axolotl::Ratchet const & value
+std::size_t olm::pickle_length(
+    olm::Ratchet const & value
 ) {
     std::size_t length = 0;
     length += KEY_LENGTH;
-    length += axolotl::pickle_length(value.sender_chain);
-    length += axolotl::pickle_length(value.receiver_chains);
-    length += axolotl::pickle_length(value.skipped_message_keys);
+    length += olm::pickle_length(value.sender_chain);
+    length += olm::pickle_length(value.receiver_chains);
+    length += olm::pickle_length(value.skipped_message_keys);
     return length;
 }
 
-std::uint8_t * axolotl::pickle(
+std::uint8_t * olm::pickle(
     std::uint8_t * pos,
-    axolotl::Ratchet const & value
+    olm::Ratchet const & value
 ) {
     pos = pickle(pos, value.root_key);
     pos = pickle(pos, value.sender_chain);
@@ -368,9 +368,9 @@ std::uint8_t * axolotl::pickle(
 }
 
 
-std::uint8_t const * axolotl::unpickle(
+std::uint8_t const * olm::unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    axolotl::Ratchet & value
+    olm::Ratchet & value
 ) {
     pos = unpickle(pos, end, value.root_key);
     pos = unpickle(pos, end, value.sender_chain);
@@ -380,7 +380,7 @@ std::uint8_t const * axolotl::unpickle(
 }
 
 
-std::size_t axolotl::Ratchet::encrypt_output_length(
+std::size_t olm::Ratchet::encrypt_output_length(
     std::size_t plaintext_length
 ) {
     std::size_t counter = 0;
@@ -390,18 +390,18 @@ std::size_t axolotl::Ratchet::encrypt_output_length(
     std::size_t padded = ratchet_cipher.encrypt_ciphertext_length(
         plaintext_length
     );
-    return axolotl::encode_message_length(
+    return olm::encode_message_length(
         counter, KEY_LENGTH, padded, ratchet_cipher.mac_length()
     );
 }
 
 
-std::size_t axolotl::Ratchet::encrypt_random_length() {
+std::size_t olm::Ratchet::encrypt_random_length() {
     return sender_chain.empty() ? KEY_LENGTH : 0;
 }
 
 
-std::size_t axolotl::Ratchet::encrypt(
+std::size_t olm::Ratchet::encrypt(
     std::uint8_t const * plaintext, std::size_t plaintext_length,
     std::uint8_t const * random, std::size_t random_length,
     std::uint8_t * output, std::size_t max_output_length
@@ -409,17 +409,17 @@ std::size_t axolotl::Ratchet::encrypt(
     std::size_t output_length = encrypt_output_length(plaintext_length);
 
     if (random_length < encrypt_random_length()) {
-        last_error = axolotl::ErrorCode::NOT_ENOUGH_RANDOM;
+        last_error = olm::ErrorCode::NOT_ENOUGH_RANDOM;
         return std::size_t(-1);
     }
     if (max_output_length < output_length) {
-        last_error = axolotl::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
 
     if (sender_chain.empty()) {
         sender_chain.insert();
-        axolotl::generate_key(random, sender_chain[0].ratchet_key);
+        olm::generate_key(random, sender_chain[0].ratchet_key);
         create_chain_key(
             root_key,
             sender_chain[0].ratchet_key,
@@ -439,9 +439,9 @@ std::size_t axolotl::Ratchet::encrypt(
     std::uint32_t counter = keys.index;
     Curve25519PublicKey const & ratchet_key = sender_chain[0].ratchet_key;
 
-    axolotl::MessageWriter writer;
+    olm::MessageWriter writer;
 
-    axolotl::encode_message(
+    olm::encode_message(
         writer, PROTOCOL_VERSION, counter, KEY_LENGTH, ciphertext_length, output
     );
 
@@ -454,21 +454,21 @@ std::size_t axolotl::Ratchet::encrypt(
         output, output_length
     );
 
-    axolotl::unset(keys);
+    olm::unset(keys);
     return output_length;
 }
 
 
-std::size_t axolotl::Ratchet::decrypt_max_plaintext_length(
+std::size_t olm::Ratchet::decrypt_max_plaintext_length(
     std::uint8_t const * input, std::size_t input_length
 ) {
-    axolotl::MessageReader reader;
-    axolotl::decode_message(
+    olm::MessageReader reader;
+    olm::decode_message(
         reader, input, input_length, ratchet_cipher.mac_length()
     );
 
     if (!reader.ciphertext) {
-        last_error = axolotl::ErrorCode::BAD_MESSAGE_FORMAT;
+        last_error = olm::ErrorCode::BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }
 
@@ -476,22 +476,22 @@ std::size_t axolotl::Ratchet::decrypt_max_plaintext_length(
 }
 
 
-std::size_t axolotl::Ratchet::decrypt(
+std::size_t olm::Ratchet::decrypt(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * plaintext, std::size_t max_plaintext_length
 ) {
-    axolotl::MessageReader reader;
-    axolotl::decode_message(
+    olm::MessageReader reader;
+    olm::decode_message(
         reader, input, input_length, ratchet_cipher.mac_length()
     );
 
     if (reader.version != PROTOCOL_VERSION) {
-        last_error = axolotl::ErrorCode::BAD_MESSAGE_VERSION;
+        last_error = olm::ErrorCode::BAD_MESSAGE_VERSION;
         return std::size_t(-1);
     }
 
     if (!reader.has_counter || !reader.ratchet_key || !reader.ciphertext) {
-        last_error = axolotl::ErrorCode::BAD_MESSAGE_FORMAT;
+        last_error = olm::ErrorCode::BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }
 
@@ -500,17 +500,17 @@ std::size_t axolotl::Ratchet::decrypt(
     );
 
     if (max_plaintext_length < max_length) {
-        last_error = axolotl::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
 
     if (reader.ratchet_key_length != KEY_LENGTH) {
-        last_error = axolotl::ErrorCode::BAD_MESSAGE_FORMAT;
+        last_error = olm::ErrorCode::BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }
 
     ReceiverChain * chain = nullptr;
-    for (axolotl::ReceiverChain & receiver_chain : receiver_chains) {
+    for (olm::ReceiverChain & receiver_chain : receiver_chains) {
         if (0 == std::memcmp(
                 receiver_chain.ratchet_key.public_key, reader.ratchet_key,
                 KEY_LENGTH
@@ -529,7 +529,7 @@ std::size_t axolotl::Ratchet::decrypt(
     } else if (chain->chain_key.index > reader.counter) {
         /* Chain already advanced beyond the key for this message
          * Check if the message keys are in the skipped key list. */
-        for (axolotl::SkippedMessageKey & skipped : skipped_message_keys) {
+        for (olm::SkippedMessageKey & skipped : skipped_message_keys) {
             if (reader.counter == skipped.message_key.index
                     && 0 == std::memcmp(
                         skipped.ratchet_key.public_key, reader.ratchet_key,
@@ -546,7 +546,7 @@ std::size_t axolotl::Ratchet::decrypt(
                 if (result != std::size_t(-1)) {
                     /* Remove the key from the skipped keys now that we've
                      * decoded the message it corresponds to. */
-                    axolotl::unset(skipped);
+                    olm::unset(skipped);
                     skipped_message_keys.erase(&skipped);
                     return result;
                 }
@@ -559,7 +559,7 @@ std::size_t axolotl::Ratchet::decrypt(
     }
 
     if (result == std::size_t(-1)) {
-        last_error = axolotl::ErrorCode::BAD_MESSAGE_MAC;
+        last_error = olm::ErrorCode::BAD_MESSAGE_MAC;
         return std::size_t(-1);
     }
 
@@ -576,12 +576,12 @@ std::size_t axolotl::Ratchet::decrypt(
             root_key, sender_chain[0].ratchet_key, chain->ratchet_key,
             kdf_info, root_key, chain->chain_key
         );
-        axolotl::unset(sender_chain[0]);
+        olm::unset(sender_chain[0]);
         sender_chain.erase(sender_chain.begin());
     }
 
     while (chain->chain_key.index < reader.counter) {
-        axolotl::SkippedMessageKey & key = *skipped_message_keys.insert();
+        olm::SkippedMessageKey & key = *skipped_message_keys.insert();
         create_message_keys(chain->chain_key, kdf_info, key.message_key);
         key.ratchet_key = chain->ratchet_key;
         advance_chain_key(chain->chain_key, chain->chain_key);

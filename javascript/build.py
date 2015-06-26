@@ -28,8 +28,8 @@ if not os.path.exists("build"):
     os.mkdir("build")
 
 functions = set()
-RE_FUNCTION=re.compile("(axolotl_[^( ]*)\\(")
-with open("include/axolotl/axolotl.hh") as header:
+RE_FUNCTION=re.compile("(olm_[^( ]*)\\(")
+with open("include/olm/olm.hh") as header:
     for line in header:
         match = RE_FUNCTION.search(line)
         if match:
@@ -60,7 +60,7 @@ compile_args += ("--pre-js", pre_js)
 compile_args += ("--post-js", post_js)
 compile_args += ("-s", "EXPORTED_FUNCTIONS=@" + exported_functions)
 
-library = "build/axolotl.js"
+library = "build/olm.js"
 
 def run(args):
     print args

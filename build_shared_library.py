@@ -25,7 +25,7 @@ source_files = glob.glob("src/*.cpp")
 compile_args = "g++ -O0 -g -Iinclude -Ilib --std=c++11 --shared -fPIC".split()
 compile_args += source_files
 
-library = "build/libaxolotl.so"
+library = "build/libolm.so"
 
 def run(args):
     print " ".join(args)

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "axolotl/message.hh"
+#include "olm/message.hh"
 
 namespace {
 
@@ -161,7 +161,7 @@ std::uint8_t const * skip_unknown(
 } // namespace
 
 
-std::size_t axolotl::encode_message_length(
+std::size_t olm::encode_message_length(
     std::uint32_t counter,
     std::size_t ratchet_key_length,
     std::size_t ciphertext_length,
@@ -176,8 +176,8 @@ std::size_t axolotl::encode_message_length(
 }
 
 
-void axolotl::encode_message(
-    axolotl::MessageWriter & writer,
+void olm::encode_message(
+    olm::MessageWriter & writer,
     std::uint8_t version,
     std::uint32_t counter,
     std::size_t ratchet_key_length,
@@ -192,8 +192,8 @@ void axolotl::encode_message(
 }
 
 
-void axolotl::decode_message(
-    axolotl::MessageReader & reader,
+void olm::decode_message(
+    olm::MessageReader & reader,
     std::uint8_t const * input, std::size_t input_length,
     std::size_t mac_length
 ) {
@@ -240,7 +240,7 @@ static std::uint8_t const MESSAGE_TAG = 042;
 } // namespace
 
 
-std::size_t axolotl::encode_one_time_key_message_length(
+std::size_t olm::encode_one_time_key_message_length(
     std::uint32_t one_time_key_id,
     std::size_t identity_key_length,
     std::size_t base_key_length,
@@ -255,8 +255,8 @@ std::size_t axolotl::encode_one_time_key_message_length(
 }
 
 
-void axolotl::encode_one_time_key_message(
-    axolotl::PreKeyMessageWriter & writer,
+void olm::encode_one_time_key_message(
+    olm::PreKeyMessageWriter & writer,
     std::uint8_t version,
     std::uint32_t one_time_key_id,
     std::size_t identity_key_length,
@@ -273,7 +273,7 @@ void axolotl::encode_one_time_key_message(
 }
 
 
-void axolotl::decode_one_time_key_message(
+void olm::decode_one_time_key_message(
     PreKeyMessageReader & reader,
     std::uint8_t const * input, std::size_t input_length
 ) {

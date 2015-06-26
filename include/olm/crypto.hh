@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef AXOLOTL_CRYPTO_HH_
-#define AXOLOTL_CRYPTO_HH_
+#ifndef OLM_CRYPTO_HH_
+#define OLM_CRYPTO_HH_
 
 #include <cstdint>
 #include <cstddef>
 
-namespace axolotl {
+namespace olm {
 
 
 struct Curve25519PublicKey {
@@ -143,6 +143,6 @@ void hkdf_sha256(
     std::uint8_t * output, std::size_t output_length
 );
 
-} // namespace axolotl
+} // namespace olm
 
-#endif /* AXOLOTL_CRYPTO_HH_ */
+#endif /* OLM_CRYPTO_HH_ */

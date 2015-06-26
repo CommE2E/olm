@@ -12,32 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "axolotl/pickle.hh"
+#include "olm/pickle.hh"
 
 
-std::size_t axolotl::pickle_length(
-    const axolotl::Curve25519PublicKey & value
+std::size_t olm::pickle_length(
+    const olm::Curve25519PublicKey & value
 ) {
     return sizeof(value.public_key);
 }
 
 
-std::uint8_t * axolotl::pickle(
+std::uint8_t * olm::pickle(
     std::uint8_t * pos,
-    const axolotl::Curve25519PublicKey & value
+    const olm::Curve25519PublicKey & value
 ) {
-    pos = axolotl::pickle_bytes(
+    pos = olm::pickle_bytes(
         pos, value.public_key, sizeof(value.public_key)
     );
     return pos;
 }
 
 
-std::uint8_t const * axolotl::unpickle(
+std::uint8_t const * olm::unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    axolotl::Curve25519PublicKey & value
+    olm::Curve25519PublicKey & value
 ) {
-    pos = axolotl::unpickle_bytes(
+    pos = olm::unpickle_bytes(
         pos, end, value.public_key, sizeof(value.public_key)
     );
     return pos;
@@ -45,35 +45,35 @@ std::uint8_t const * axolotl::unpickle(
 }
 
 
-std::size_t axolotl::pickle_length(
-    const axolotl::Curve25519KeyPair & value
+std::size_t olm::pickle_length(
+    const olm::Curve25519KeyPair & value
 ) {
     return sizeof(value.public_key) + sizeof(value.private_key);
 }
 
 
-std::uint8_t * axolotl::pickle(
+std::uint8_t * olm::pickle(
     std::uint8_t * pos,
-    const axolotl::Curve25519KeyPair & value
+    const olm::Curve25519KeyPair & value
 ) {
-    pos = axolotl::pickle_bytes(
+    pos = olm::pickle_bytes(
         pos, value.public_key, sizeof(value.public_key)
     );
-    pos = axolotl::pickle_bytes(
+    pos = olm::pickle_bytes(
         pos, value.private_key, sizeof(value.private_key)
     );
     return pos;
 }
 
 
-std::uint8_t const * axolotl::unpickle(
+std::uint8_t const * olm::unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    axolotl::Curve25519KeyPair & value
+    olm::Curve25519KeyPair & value
 ) {
-    pos = axolotl::unpickle_bytes(
+    pos = olm::unpickle_bytes(
         pos, end, value.public_key, sizeof(value.public_key)
     );
-    pos = axolotl::unpickle_bytes(
+    pos = olm::unpickle_bytes(
         pos, end, value.private_key, sizeof(value.private_key)
     );
     return pos;

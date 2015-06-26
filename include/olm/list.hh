@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef AXOLOTL_LIST_HH_
-#define AXOLOTL_LIST_HH_
+#ifndef OLM_LIST_HH_
+#define OLM_LIST_HH_
 
 #include <cstddef>
 
-namespace axolotl {
+namespace olm {
 
 template<typename T, std::size_t max_size>
 class List {
@@ -114,6 +114,6 @@ private:
     T _data[max_size];
 };
 
-} // namespace axolotl
+} // namespace olm
 
-#endif /* AXOLOTL_LIST_HH_ */
+#endif /* OLM_LIST_HH_ */

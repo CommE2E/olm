@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "axolotl/cipher.hh"
-#include "axolotl/crypto.hh"
-#include "axolotl/memory.hh"
+#include "olm/cipher.hh"
+#include "olm/crypto.hh"
+#include "olm/memory.hh"
 #include <cstring>
 
-axolotl::Cipher::~Cipher() {
+olm::Cipher::~Cipher() {
 
 }
 
@@ -26,9 +26,9 @@ namespace {
 static const std::size_t SHA256_LENGTH = 32;
 
 struct DerivedKeys {
-    axolotl::Aes256Key aes_key;
+    olm::Aes256Key aes_key;
     std::uint8_t mac_key[SHA256_LENGTH];
-    axolotl::Aes256Iv aes_iv;
+    olm::Aes256Iv aes_iv;
 };
 
 
@@ -38,7 +38,7 @@ static void derive_keys(
     DerivedKeys & keys
 ) {
     std::uint8_t derived_secrets[80];
-    axolotl::hkdf_sha256(
+    olm::hkdf_sha256(
         key, key_length,
         nullptr, 0,
         kdf_info, kdf_info_length,
@@ -47,7 +47,7 @@ static void derive_keys(
     std::memcpy(keys.aes_key.key, derived_secrets, 32);
     std::memcpy(keys.mac_key, derived_secrets + 32, 32);
     std::memcpy(keys.aes_iv.iv, derived_secrets + 64, 16);
-    axolotl::unset(derived_secrets);
+    olm::unset(derived_secrets);
 }
 
 static const std::size_t MAC_LENGTH = 8;
@@ -55,26 +55,26 @@ static const std::size_t MAC_LENGTH = 8;
 } // namespace
 
 
-axolotl::CipherAesSha256::CipherAesSha256(
+olm::CipherAesSha256::CipherAesSha256(
     std::uint8_t const * kdf_info, std::size_t kdf_info_length
 ) : kdf_info(kdf_info), kdf_info_length(kdf_info_length) {
 
 }
 
 
-std::size_t axolotl::CipherAesSha256::mac_length() const {
+std::size_t olm::CipherAesSha256::mac_length() const {
     return MAC_LENGTH;
 }
 
 
-std::size_t axolotl::CipherAesSha256::encrypt_ciphertext_length(
+std::size_t olm::CipherAesSha256::encrypt_ciphertext_length(
     std::size_t plaintext_length
 ) const {
-    return axolotl::aes_encrypt_cbc_length(plaintext_length);
+    return olm::aes_encrypt_cbc_length(plaintext_length);
 }
 
 
-std::size_t axolotl::CipherAesSha256::encrypt(
+std::size_t olm::CipherAesSha256::encrypt(
     std::uint8_t const * key, std::size_t key_length,
     std::uint8_t const * plaintext, std::size_t plaintext_length,
     std::uint8_t * ciphertext, std::size_t ciphertext_length,
@@ -88,28 +88,28 @@ std::size_t axolotl::CipherAesSha256::encrypt(
 
     derive_keys(kdf_info, kdf_info_length, key, key_length, keys);
 
-    axolotl::aes_encrypt_cbc(
+    olm::aes_encrypt_cbc(
         keys.aes_key, keys.aes_iv, plaintext, plaintext_length, ciphertext
     );
 
-    axolotl::hmac_sha256(
+    olm::hmac_sha256(
         keys.mac_key, SHA256_LENGTH, output, output_length - MAC_LENGTH, mac
     );
 
     std::memcpy(output + output_length - MAC_LENGTH, mac, MAC_LENGTH);
 
-    axolotl::unset(keys);
+    olm::unset(keys);
     return output_length;
 }
 
 
-std::size_t axolotl::CipherAesSha256::decrypt_max_plaintext_length(
+std::size_t olm::CipherAesSha256::decrypt_max_plaintext_length(
     std::size_t ciphertext_length
 ) const {
     return ciphertext_length;
 }
 
-std::size_t axolotl::CipherAesSha256::decrypt(
+std::size_t olm::CipherAesSha256::decrypt(
      std::uint8_t const * key, std::size_t key_length,
      std::uint8_t const * input, std::size_t input_length,
      std::uint8_t const * ciphertext, std::size_t ciphertext_length,
@@ -120,20 +120,20 @@ std::size_t axolotl::CipherAesSha256::decrypt(
 
     derive_keys(kdf_info, kdf_info_length, key, key_length, keys);
 
-    axolotl::hmac_sha256(
+    olm::hmac_sha256(
         keys.mac_key, SHA256_LENGTH, input, input_length - MAC_LENGTH, mac
     );
 
     std::uint8_t const * input_mac = input + input_length - MAC_LENGTH;
-    if (!axolotl::is_equal(input_mac, mac, MAC_LENGTH)) {
-        axolotl::unset(keys);
+    if (!olm::is_equal(input_mac, mac, MAC_LENGTH)) {
+        olm::unset(keys);
         return std::size_t(-1);
     }
 
-    std::size_t plaintext_length = axolotl::aes_decrypt_cbc(
+    std::size_t plaintext_length = olm::aes_decrypt_cbc(
         keys.aes_key, keys.aes_iv, ciphertext, ciphertext_length, plaintext
     );
 
-    axolotl::unset(keys);
+    olm::unset(keys);
     return plaintext_length;
 }

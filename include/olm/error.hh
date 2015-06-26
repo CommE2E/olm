@@ -15,7 +15,7 @@
 #ifndef ERROR_HH_
 #define ERROR_HH_
 
-namespace axolotl {
+namespace olm {
 
 enum struct ErrorCode {
     SUCCESS = 0, /*!< There wasn't an error */
@@ -29,6 +29,6 @@ enum struct ErrorCode {
     BAD_ACCOUNT_KEY = 8, /*!< The supplied account key is invalid */
 };
 
-} // namespace axolotl
+} // namespace olm
 
 #endif /* ERROR_HH_ */

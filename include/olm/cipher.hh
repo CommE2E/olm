@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-#ifndef AXOLOTL_CIPHER_HH_
-#define AXOLOTL_CIPHER_HH_
+#ifndef OLM_CIPHER_HH_
+#define OLM_CIPHER_HH_
 
 #include <cstdint>
 #include <cstddef>
 
-namespace axolotl {
+namespace olm {
 
 class Cipher {
 public:
@@ -125,4 +125,4 @@ private:
 } // namespace
 
 
-#endif /* AXOLOTL_CIPHER_HH_ */
+#endif /* OLM_CIPHER_HH_ */
