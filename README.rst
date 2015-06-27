@@ -20,7 +20,7 @@ To run the tests run:
    ./test.py
 
 
-To build the javascript bindings run:
+To build the javascript bindings, install emscripten from http://kripken.github.io/emscripten-site/ and then run:
 
 .. code:: bash
 
