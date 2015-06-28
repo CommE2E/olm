@@ -1,7 +1,7 @@
 Olm
 ===
 
-An implementation of the axolotl ratchet as described by
+An implementation of the cryptographic ratchet described by
 https://github.com/trevp/axolotl/wiki, written in C++11 and exposed as a C API
 
 Building
