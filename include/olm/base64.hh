@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef AXOLOLT_BASE64_HH_
-#define AXOLOLT_BASE64_HH_
+#ifndef OLM_BASE64_HH_
+#define OLM_BASE64_HH_
 
 #include <cstddef>
 #include <cstdint>
@@ -46,4 +46,4 @@ void decode_base64(
 } // namespace olm
 
 
-#endif /* AXOLOLT_BASE64_HH_ */
+#endif /* OLM_BASE64_HH_ */
