@@ -34,7 +34,7 @@ olm::CipherAesSha256 cipher(
 
 std::uint8_t random_bytes[] = "0123456789ABDEF0123456789ABCDEF";
 olm::Curve25519KeyPair alice_key;
-olm::generate_key(random_bytes, alice_key);
+olm::curve25519_generate_key(random_bytes, alice_key);
 
 std::uint8_t shared_secret[] = "A secret";
 

@@ -34,7 +34,7 @@ struct Curve25519KeyPair : public Curve25519PublicKey {
 
 
 /** Generate a curve25519 key pair from 32 random bytes. */
-void generate_key(
+void curve25519_generate_key(
     std::uint8_t const * random_32_bytes,
     Curve25519KeyPair & key_pair
 );

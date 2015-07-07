@@ -59,13 +59,13 @@ std::uint8_t expected_agreement[32] = {
 };
 
 olm::Curve25519KeyPair alice_pair;
-olm::generate_key(alice_private, alice_pair);
+olm::curve25519_generate_key(alice_private, alice_pair);
 
 assert_equals(alice_private, alice_pair.private_key, 32);
 assert_equals(alice_public, alice_pair.public_key, 32);
 
 olm::Curve25519KeyPair bob_pair;
-olm::generate_key(bob_private, bob_pair);
+olm::curve25519_generate_key(bob_private, bob_pair);
 
 assert_equals(bob_private, bob_pair.private_key, 32);
 assert_equals(bob_public, bob_pair.public_key, 32);
@@ -91,7 +91,7 @@ std::uint8_t message[] = "message";
 std::size_t message_length = sizeof(message) - 1;
 
 olm::Curve25519KeyPair key_pair;
-olm::generate_key(private_key, key_pair);
+olm::curve25519_generate_key(private_key, key_pair);
 
 std::uint8_t signature[64];
 

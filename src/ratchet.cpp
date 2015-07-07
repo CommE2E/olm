@@ -419,7 +419,7 @@ std::size_t olm::Ratchet::encrypt(
 
     if (sender_chain.empty()) {
         sender_chain.insert();
-        olm::generate_key(random, sender_chain[0].ratchet_key);
+        olm::curve25519_generate_key(random, sender_chain[0].ratchet_key);
         create_chain_key(
             root_key,
             sender_chain[0].ratchet_key,

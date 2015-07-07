@@ -68,10 +68,10 @@ std::size_t olm::Session::new_outbound_session(
     }
 
     Curve25519KeyPair base_key;
-    olm::generate_key(random, base_key);
+    olm::curve25519_generate_key(random, base_key);
 
     Curve25519KeyPair ratchet_key;
-    olm::generate_key(random + 32, ratchet_key);
+    olm::curve25519_generate_key(random + 32, ratchet_key);
 
     received_message = false;
     alice_identity_key.id = local_account.identity_key.id;

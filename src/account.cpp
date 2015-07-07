@@ -53,7 +53,7 @@ std::size_t olm::Account::new_account(
     unsigned id = 0;
 
     identity_key.id = ++id;
-    olm::generate_key(random, identity_key.key);
+    olm::curve25519_generate_key(random, identity_key.key);
     random += 32;
 
     random += 32;
@@ -61,7 +61,7 @@ std::size_t olm::Account::new_account(
     for (unsigned i = 0; i < 10; ++i) {
         LocalKey & key = *one_time_keys.insert(one_time_keys.end());
         key.id = ++id;
-        olm::generate_key(random, key.key);
+        olm::curve25519_generate_key(random, key.key);
         random += 32;
     }
 

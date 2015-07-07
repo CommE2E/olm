@@ -136,7 +136,7 @@ inline void hmac_sha256_final(
 } // namespace
 
 
-void olm::generate_key(
+void olm::curve25519_generate_key(
     std::uint8_t const * random_32_bytes,
     olm::Curve25519KeyPair & key_pair
 ) {
