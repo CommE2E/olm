@@ -30,11 +30,6 @@ struct LocalKey {
 };
 
 
-struct SignedKey : LocalKey {
-    std::uint8_t signature[64];
-};
-
-
 static std::size_t const MAX_ONE_TIME_KEYS = 100;
 
 struct Account {

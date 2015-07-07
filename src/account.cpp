@@ -102,34 +102,6 @@ static std::uint8_t const * unpickle(
     return pos;
 }
 
-
-static std::size_t pickle_length(
-    olm::SignedKey const & value
-) {
-    return olm::pickle_length((olm::LocalKey const &) value) + 64;
-}
-
-
-static std::uint8_t * pickle(
-    std::uint8_t * pos,
-    olm::SignedKey const & value
-) {
-    pos = olm::pickle(pos, (olm::LocalKey const &) value);
-    pos = olm::pickle_bytes(pos, value.signature, 64);
-    return pos;
-}
-
-
-static std::uint8_t const * unpickle(
-    std::uint8_t const * pos, std::uint8_t const * end,
-    olm::SignedKey & value
-) {
-    pos = olm::unpickle(pos, end, (olm::LocalKey &) value);
-    pos = olm::unpickle_bytes(pos, end, value.signature, 64);
-    return pos;
-}
-
-
 } // namespace olm
 
 
