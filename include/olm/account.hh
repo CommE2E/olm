@@ -32,9 +32,9 @@ struct LocalKey {
 
 static std::size_t const MAX_ONE_TIME_KEYS = 100;
 
+
 struct Account {
     LocalKey identity_key;
-    LocalKey last_resort_one_time_key;
     List<LocalKey, MAX_ONE_TIME_KEYS> one_time_keys;
     ErrorCode last_error;
 

@@ -396,11 +396,12 @@ size_t olm_account_one_time_keys(
         return size_t(-1);
     }
     std::uint8_t * output = from_c(identity_keys);
-    output_key(from_c(account)->last_resort_one_time_key, '[', output);
+    std::uint8_t sep = '[';
     output += OUTPUT_KEY_LENGTH;
     for (auto const & key : from_c(account)->one_time_keys) {
-        output_key(key, ',', output);
+        output_key(key, sep, output);
         output += OUTPUT_KEY_LENGTH;
+        sep = ',';
     }
     output[0] = ']';
     return length;

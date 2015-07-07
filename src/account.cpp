@@ -58,10 +58,6 @@ std::size_t olm::Account::new_account(
 
     random += 32;
 
-    last_resort_one_time_key.id = ++id;
-    olm::generate_key(random, last_resort_one_time_key.key);
-    random += 32;
-
     for (unsigned i = 0; i < 10; ++i) {
         LocalKey & key = *one_time_keys.insert(one_time_keys.end());
         key.id = ++id;
@@ -110,7 +106,6 @@ std::size_t olm::pickle_length(
 ) {
     std::size_t length = 0;
     length += olm::pickle_length(value.identity_key);
-    length += olm::pickle_length(value.last_resort_one_time_key);
     length += olm::pickle_length(value.one_time_keys);
     return length;
 }
@@ -121,7 +116,6 @@ std::uint8_t * olm::pickle(
     olm::Account const & value
 ) {
     pos = olm::pickle(pos, value.identity_key);
-    pos = olm::pickle(pos, value.last_resort_one_time_key);
     pos = olm::pickle(pos, value.one_time_keys);
     return pos;
 }
@@ -132,7 +126,6 @@ std::uint8_t const * olm::unpickle(
     olm::Account & value
 ) {
     pos = olm::unpickle(pos, end, value.identity_key);
-    pos = olm::unpickle(pos, end, value.last_resort_one_time_key);
     pos = olm::unpickle(pos, end, value.one_time_keys);
     return pos;
 }
