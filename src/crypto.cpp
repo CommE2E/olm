@@ -191,6 +191,42 @@ bool olm::curve25519_verify(
     );
 }
 
+
+void olm::ed25519_generate_key(
+    std::uint8_t const * random_32_bytes,
+    olm::Ed25519KeyPair & key_pair
+) {
+    std::memcpy(key_pair.private_key, random_32_bytes, 32);
+    ::ed25519_keypair(key_pair.private_key, key_pair.public_key);
+}
+
+
+void olm::ed25519_sign(
+    olm::Ed25519KeyPair const & our_key,
+    std::uint8_t const * message, std::size_t message_length,
+    std::uint8_t * output
+) {
+    ::ed25519_sign(
+        output,
+        message, message_length,
+        our_key.public_key, our_key.private_key
+    );
+}
+
+
+bool olm::ed25519_verify(
+    olm::Ed25519PublicKey const & their_key,
+    std::uint8_t const * message, std::size_t message_length,
+    std::uint8_t const * signature
+) {
+    return 0 != ::ed25519_verify(
+        signature,
+        message, message_length,
+        their_key.public_key
+    );
+}
+
+
 std::size_t olm::aes_encrypt_cbc_length(
     std::size_t input_length
 ) {

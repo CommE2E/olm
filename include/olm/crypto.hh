@@ -33,6 +33,18 @@ struct Curve25519KeyPair : public Curve25519PublicKey {
 };
 
 
+struct Ed25519PublicKey {
+    static const int LENGTH = 32;
+    std::uint8_t public_key[32];
+};
+
+
+struct Ed25519KeyPair : public Ed25519PublicKey {
+    static const int LENGTH = 64;
+    std::uint8_t private_key[32];
+};
+
+
 /** Generate a curve25519 key pair from 32 random bytes. */
 void curve25519_generate_key(
     std::uint8_t const * random_32_bytes,
@@ -61,11 +73,36 @@ void curve25519_sign(
 );
 
 
-/** Verify thei message using their public key.
+/** Verify their message using their public key.
  * The signature input buffer must be 64 bytes long.
  * Returns true if the signature is valid. */
 bool curve25519_verify(
     Curve25519PublicKey const & their_key,
+    std::uint8_t const * message, std::size_t message_length,
+    std::uint8_t const * signature
+);
+
+/** Generate a curve25519 key pair from 32 random bytes. */
+void ed25519_generate_key(
+    std::uint8_t const * random_32_bytes,
+    Ed25519KeyPair & key_pair
+);
+
+
+/** Signs the message using our private key.
+ * The output buffer must be at least 64 bytes long. */
+void ed25519_sign(
+    Ed25519KeyPair const & our_key,
+    std::uint8_t const * message, std::size_t message_length,
+    std::uint8_t * output
+);
+
+
+/** Verify their message using their public key.
+ * The signature input buffer must be 64 bytes long.
+ * Returns true if the signature is valid. */
+bool ed25519_verify(
+    Ed25519PublicKey const & their_key,
     std::uint8_t const * message, std::size_t message_length,
     std::uint8_t const * signature
 );
