@@ -170,6 +170,39 @@ std::uint8_t const * unpickle(
 );
 
 
+std::size_t pickle_length(
+    const Ed25519PublicKey & value
+);
+
+
+std::uint8_t * pickle(
+    std::uint8_t * pos,
+    const Ed25519PublicKey & value
+);
+
+
+std::uint8_t const * unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    Ed25519PublicKey & value
+);
+
+
+std::size_t pickle_length(
+    const Ed25519KeyPair & value
+);
+
+
+std::uint8_t * pickle(
+    std::uint8_t * pos,
+    const Ed25519KeyPair & value
+);
+
+
+std::uint8_t const * unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    Ed25519KeyPair & value
+);
+
 } // namespace olm
 
 

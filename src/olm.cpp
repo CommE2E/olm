@@ -325,8 +325,8 @@ namespace {
 static const std::size_t OUTPUT_KEY_LENGTH = 2 + 10 + 2 +
         olm::encode_base64_length(32) + 3;
 
-void output_key(
-    olm::LocalKey const & key,
+void output_one_time_key(
+    olm::OneTimeKey const & key,
     std::uint8_t sep,
     std::uint8_t * output
 ) {
@@ -353,27 +353,35 @@ void output_key(
 
 
 size_t olm_account_identity_keys_length(
-    OlmAccount * account
+    OlmAccount * account,
+    size_t user_id_length,
+    size_t device_id_length,
+    uint64_t valid_after_ts,
+    uint64_t valid_until_ts
 ) {
-    return OUTPUT_KEY_LENGTH + 1;
+    return from_c(account)->get_identity_json_length(
+        user_id_length,
+        device_id_length,
+        valid_after_ts,
+        valid_until_ts
+    );
 }
-
 
 size_t olm_account_identity_keys(
     OlmAccount * account,
+    void const * user_id, size_t user_id_length,
+    void const * device_id, size_t device_id_length,
+    uint64_t valid_after_ts,
+    uint64_t valid_until_ts,
     void * identity_keys, size_t identity_key_length
 ) {
-    std::size_t length = olm_account_identity_keys_length(account);
-    if (identity_key_length < length) {
-        from_c(account)->last_error =
-            olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
-        return size_t(-1);
-    }
-    std::uint8_t * output = from_c(identity_keys);
-    output_key(from_c(account)->identity_key, '[', output);
-    output += OUTPUT_KEY_LENGTH;
-    output[0] = ']';
-    return length;
+    return from_c(account)->get_identity_json(
+        from_c(user_id), user_id_length,
+        from_c(device_id), device_id_length,
+        valid_after_ts,
+        valid_until_ts,
+        from_c(identity_keys), identity_key_length
+    );
 }
 
 
@@ -381,7 +389,7 @@ size_t olm_account_one_time_keys_length(
     OlmAccount * account
 ) {
     size_t count = from_c(account)->one_time_keys.size();
-    return OUTPUT_KEY_LENGTH * (count + 1) + 1;
+    return OUTPUT_KEY_LENGTH * count + 1;
 }
 
 
@@ -397,9 +405,8 @@ size_t olm_account_one_time_keys(
     }
     std::uint8_t * output = from_c(identity_keys);
     std::uint8_t sep = '[';
-    output += OUTPUT_KEY_LENGTH;
     for (auto const & key : from_c(account)->one_time_keys) {
-        output_key(key, sep, output);
+        output_one_time_key(key, sep, output);
         output += OUTPUT_KEY_LENGTH;
         sep = ',';
     }

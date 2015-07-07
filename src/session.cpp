@@ -74,15 +74,16 @@ std::size_t olm::Session::new_outbound_session(
     olm::curve25519_generate_key(random + 32, ratchet_key);
 
     received_message = false;
-    alice_identity_key.id = local_account.identity_key.id;
-    alice_identity_key.key = local_account.identity_key.key;
+    alice_identity_key.id = 0;
+    alice_identity_key.key = local_account.identity_keys.curve25519_key;
     alice_base_key = base_key;
     bob_one_time_key_id = one_time_key.id;
 
     std::uint8_t shared_secret[96];
 
     olm::curve25519_shared_secret(
-        local_account.identity_key.key, one_time_key.key, shared_secret
+        local_account.identity_keys.curve25519_key,
+        one_time_key.key, shared_secret
     );
     olm::curve25519_shared_secret(
          base_key, identity_key, shared_secret + 32
@@ -148,7 +149,7 @@ std::size_t olm::Session::new_inbound_session(
     olm::Curve25519PublicKey ratchet_key;
     std::memcpy(ratchet_key.public_key, message_reader.ratchet_key, 32);
 
-    olm::LocalKey const * bob_one_time_key = local_account.lookup_key(
+    olm::OneTimeKey const * bob_one_time_key = local_account.lookup_key(
         bob_one_time_key_id
     );
 
@@ -163,7 +164,8 @@ std::size_t olm::Session::new_inbound_session(
         bob_one_time_key->key, alice_identity_key.key, shared_secret
     );
     olm::curve25519_shared_secret(
-        local_account.identity_key.key, alice_base_key, shared_secret + 32
+        local_account.identity_keys.curve25519_key,
+        alice_base_key, shared_secret + 32
     );
     olm::curve25519_shared_secret(
         bob_one_time_key->key, alice_base_key, shared_secret + 64

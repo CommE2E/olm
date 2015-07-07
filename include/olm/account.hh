@@ -24,7 +24,12 @@
 namespace olm {
 
 
-struct LocalKey {
+struct IdentityKeys {
+    Ed25519KeyPair ed25519_key;
+    Curve25519KeyPair curve25519_key;
+};
+
+struct OneTimeKey {
     std::uint32_t id;
     Curve25519KeyPair key;
 };
@@ -34,8 +39,8 @@ static std::size_t const MAX_ONE_TIME_KEYS = 100;
 
 
 struct Account {
-    LocalKey identity_key;
-    List<LocalKey, MAX_ONE_TIME_KEYS> one_time_keys;
+    IdentityKeys identity_keys;
+    List<OneTimeKey, MAX_ONE_TIME_KEYS> one_time_keys;
     ErrorCode last_error;
 
     /** Number of random bytes needed to create a new account */
@@ -47,7 +52,54 @@ struct Account {
         uint8_t const * random, std::size_t random_length
     );
 
-    LocalKey const * lookup_key(
+    /** Number of bytes needed to output the identity keys for this account */
+    std::size_t get_identity_json_length(
+        std::size_t user_id_length,
+        std::size_t device_id_length,
+        std::uint64_t valid_after_ts,
+        std::uint64_t valid_until_ts
+    );
+
+    /** Output the identity keys for this account as JSON in the following
+     * format.
+     *
+     *  14 "{\"algorithms\":"
+     *  30 "[\"m.olm.curve25519-aes-sha256\""
+     *  15 "],\"device_id\":\""
+     *   ? <device identifier>
+     *  22 "\",\"keys\":{\"curve25519:"
+     *   4 <base64 characters>
+     *   3 "\":\""
+     *  43 <base64 characters>
+     *  11 "\",\"ed25519:"
+     *   4 <base64 characters>
+     *   3 "\":\""
+     *  43 <base64 characters>
+     *  14 "\"},\"user_id\":\""
+     *   ? <user identifier>
+     *  19 "\",\"valid_after_ts\":"
+     *   ? <digits>
+     *  18 ",\"valid_until_ts\":"
+     *   ? <digits>
+     *  16 ",\"signatures\":{\""
+     *   ? <user identifier>
+     *   1 "/"
+     *   ? <device identifier>
+     *  12 "\":{\"ed25519:"
+     *   4 <base64 characters>
+     *   3 "\":\""
+     *  86 <base64 characters>
+     *   4 "\"}}}"
+     */
+    std::size_t get_identity_json(
+        std::uint8_t const * user_id, std::size_t user_id_length,
+        std::uint8_t const * device_id, std::size_t device_id_length,
+        std::uint64_t valid_after_ts,
+        std::uint64_t valid_until_ts,
+        std::uint8_t * identity_keys, std::size_t identity_keys_length
+    );
+
+    OneTimeKey const * lookup_key(
         std::uint32_t id
     );
 

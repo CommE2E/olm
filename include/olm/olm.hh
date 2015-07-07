@@ -16,6 +16,7 @@
 #define OLM_HH_
 
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -131,18 +132,23 @@ size_t olm_create_account(
 
 /** The size of the output buffer needed to hold the identity keys */
 size_t olm_account_identity_keys_length(
-    OlmAccount * account
+    OlmAccount * account,
+    size_t user_id_length,
+    size_t device_id_length,
+    uint64_t valid_after_ts,
+    uint64_t valid_until_ts
 );
 
 /** Writes the public parts of the identity keys for the account into the
- * identity_keys output buffer. The output is formatted as though it was
- * created with sprintf(output, "[[%10d,\"%43s\"]\n]", key_id, key_base64).
- * The output can either be parsed as fixed width using the above format or by
- * a JSON parser. Returns olm_error() on failure. If the identity_keys
- * buffer was too small then olm_account_last_error() will be
+ * identity_keys output buffer. Returns olm_error() on failure. If the
+ * identity_keys buffer was too small then olm_account_last_error() will be
  * "OUTPUT_BUFFER_TOO_SMALL". */
 size_t olm_account_identity_keys(
     OlmAccount * account,
+    void const * user_id, size_t user_id_length,
+    void const * device_id, size_t device_id_length,
+    uint64_t valid_after_ts,
+    uint64_t valid_until_ts,
     void * identity_keys, size_t identity_key_length
 );
 

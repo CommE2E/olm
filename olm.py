@@ -45,8 +45,15 @@ account_function(
 )
 account_function(lib.olm_create_account_random_length)
 account_function(lib.olm_create_account, c_void_p, c_size_t)
-account_function(lib.olm_account_identity_keys_length)
-account_function(lib.olm_account_identity_keys, c_void_p, c_size_t)
+account_function(
+    lib.olm_account_identity_keys_length,
+    c_size_t, c_size_t, c_uint64, c_uint64
+)
+account_function(
+    lib.olm_account_identity_keys,
+    c_void_p, c_size_t, c_void_p, c_size_t, c_uint64, c_uint64,
+    c_void_p, c_size_t
+)
 account_function(lib.olm_account_one_time_keys_length)
 account_function(lib.olm_account_one_time_keys, c_void_p, c_size_t)
 
@@ -81,10 +88,20 @@ class Account(object):
             self.ptr, key_buffer, len(key), pickle_buffer, len(pickle)
         )
 
-    def identity_keys(self):
-        out_length = lib.olm_account_identity_keys_length(self.ptr)
+    def identity_keys(self, user_id, device_id, valid_after, valid_until):
+        out_length = lib.olm_account_identity_keys_length(
+            self.ptr, len(user_id), len(device_id), valid_after, valid_until
+        )
+        user_id_buffer = create_string_buffer(user_id)
+        device_id_buffer = create_string_buffer(device_id)
         out_buffer = create_string_buffer(out_length)
-        lib.olm_account_identity_keys(self.ptr, out_buffer, out_length)
+        lib.olm_account_identity_keys(
+            self.ptr,
+            user_id_buffer, len(user_id),
+            device_id_buffer, len(device_id),
+            valid_after, valid_until,
+            out_buffer, out_length
+        )
         return json.loads(out_buffer.raw)
 
     def one_time_keys(self):
@@ -280,33 +297,31 @@ if __name__ == '__main__':
     create_account.set_defaults(func=do_create_account)
 
     keys = commands.add_parser("keys", help="List public keys for an account")
-    keys.add_argument("account_file", help="Local account_file")
+    keys.add_argument("--user-id", default="A User ID")
+    keys.add_argument("--device-id", default="A Device ID")
+    keys.add_argument("--valid-after", default=0, type=int)
+    keys.add_argument("--valid-until", default=0, type=int)
+    keys.add_argument("account_file", help="Local account file")
 
     def do_keys(args):
         account = Account()
         with open(args.account_file, "rb") as f:
             account.unpickle(args.key, f.read())
-        (r_id, id_key), (signed_id, signed_key) = account.identity_keys()
-        ot_keys = account.one_time_keys()
         result1 = {
-            "identityKey": str(id_key),
-            "signedKey": {
-                "keyId": signed_id,
-                "publicKey": str(signed_key),
-            },
-            "lastResortKey": {
-                "keyId": ot_keys[0][0],
-                "publicKey": str(ot_keys[0][1]),
-            },
+            "device_keys": account.identity_keys(
+                args.user_id, args.device_id,
+                args.valid_after, args.valid_until,
+            )
         }
+        ot_keys = account.one_time_keys()
         result2 = {
-            "oneTimeKeys": [{
+            "one_time_keys": [{
                 "keyId": k[0],
                 "publicKey": str(k[1]),
             } for k in ot_keys[1:]]
         }
         try:
-            yaml.dump(result1, sys.stdout, default_flow_style=False)
+            yaml.safe_dump(result1, sys.stdout, default_flow_style=False)
             yaml.dump(result2, sys.stdout, default_flow_style=False)
         except:
             pass
