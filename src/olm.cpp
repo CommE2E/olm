@@ -435,7 +435,7 @@ size_t olm_create_outbound_session(
         return std::size_t(-1);
     }
     olm::Curve25519PublicKey identity_key;
-    olm::RemoteKey one_time_key;
+    olm::Curve25519PublicKey one_time_key;
 
     olm::decode_base64(
         from_c(their_identity_key), their_identity_key_length,
@@ -443,7 +443,7 @@ size_t olm_create_outbound_session(
     );
     olm::decode_base64(
         from_c(their_one_time_key), their_one_time_key_length,
-        one_time_key.key.public_key
+        one_time_key.public_key
     );
 
     return from_c(session)->new_outbound_session(

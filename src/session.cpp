@@ -59,7 +59,7 @@ std::size_t olm::Session::new_outbound_session_random_length() {
 std::size_t olm::Session::new_outbound_session(
     olm::Account const & local_account,
     olm::Curve25519PublicKey const & identity_key,
-    olm::RemoteKey const & one_time_key,
+    olm::Curve25519PublicKey const & one_time_key,
     std::uint8_t const * random, std::size_t random_length
 ) {
     if (random_length < new_outbound_session_random_length()) {
@@ -74,22 +74,21 @@ std::size_t olm::Session::new_outbound_session(
     olm::curve25519_generate_key(random + 32, ratchet_key);
 
     received_message = false;
-    alice_identity_key.id = 0;
-    alice_identity_key.key = local_account.identity_keys.curve25519_key;
+    alice_identity_key = local_account.identity_keys.curve25519_key;
     alice_base_key = base_key;
-    bob_one_time_key = one_time_key.key;
+    bob_one_time_key = one_time_key;
 
     std::uint8_t shared_secret[96];
 
     olm::curve25519_shared_secret(
         local_account.identity_keys.curve25519_key,
-        one_time_key.key, shared_secret
+        one_time_key, shared_secret
     );
     olm::curve25519_shared_secret(
          base_key, identity_key, shared_secret + 32
     );
     olm::curve25519_shared_secret(
-         base_key, one_time_key.key, shared_secret + 64
+         base_key, one_time_key, shared_secret + 64
     );
 
     ratchet.initialise_as_alice(shared_secret, 96, ratchet_key);
@@ -144,7 +143,7 @@ std::size_t olm::Session::new_inbound_session(
         return std::size_t(-1);
     }
 
-    std::memcpy(alice_identity_key.key.public_key, reader.identity_key, 32);
+    std::memcpy(alice_identity_key.public_key, reader.identity_key, 32);
     std::memcpy(alice_base_key.public_key, reader.base_key, 32);
     std::memcpy(bob_one_time_key.public_key, reader.one_time_key, 32);
     olm::Curve25519PublicKey ratchet_key;
@@ -162,7 +161,7 @@ std::size_t olm::Session::new_inbound_session(
     std::uint8_t shared_secret[96];
 
     olm::curve25519_shared_secret(
-        our_one_time_key->key, alice_identity_key.key, shared_secret
+        our_one_time_key->key, alice_identity_key, shared_secret
     );
     olm::curve25519_shared_secret(
         local_account.identity_keys.curve25519_key,
@@ -190,7 +189,7 @@ bool olm::Session::matches_inbound_session(
 
     bool same = true;
     same = same && 0 == std::memcmp(
-        reader.identity_key, alice_identity_key.key.public_key, KEY_LENGTH
+        reader.identity_key, alice_identity_key.public_key, KEY_LENGTH
     );
     same = same && 0 == std::memcmp(
         reader.base_key, alice_base_key.public_key, KEY_LENGTH
@@ -267,7 +266,7 @@ std::size_t olm::Session::encrypt(
             writer.one_time_key, bob_one_time_key.public_key, KEY_LENGTH
         );
         std::memcpy(
-            writer.identity_key, alice_identity_key.key.public_key, KEY_LENGTH
+            writer.identity_key, alice_identity_key.public_key, KEY_LENGTH
         );
         std::memcpy(
             writer.base_key, alice_base_key.public_key, KEY_LENGTH
@@ -361,8 +360,7 @@ std::size_t olm::pickle_length(
 ) {
     std::size_t length = 0;
     length += olm::pickle_length(value.received_message);
-    length += olm::pickle_length(value.alice_identity_key.id);
-    length += olm::pickle_length(value.alice_identity_key.key);
+    length += olm::pickle_length(value.alice_identity_key);
     length += olm::pickle_length(value.alice_base_key);
     length += olm::pickle_length(value.bob_one_time_key);
     length += olm::pickle_length(value.bob_one_time_key_id);
@@ -376,8 +374,7 @@ std::uint8_t * olm::pickle(
     Session const & value
 ) {
     pos = olm::pickle(pos, value.received_message);
-    pos = olm::pickle(pos, value.alice_identity_key.id);
-    pos = olm::pickle(pos, value.alice_identity_key.key);
+    pos = olm::pickle(pos, value.alice_identity_key);
     pos = olm::pickle(pos, value.alice_base_key);
     pos = olm::pickle(pos, value.bob_one_time_key);
     pos = olm::pickle(pos, value.bob_one_time_key_id);
@@ -391,8 +388,7 @@ std::uint8_t const * olm::unpickle(
     Session & value
 ) {
     pos = olm::unpickle(pos, end, value.received_message);
-    pos = olm::unpickle(pos, end, value.alice_identity_key.id);
-    pos = olm::unpickle(pos, end, value.alice_identity_key.key);
+    pos = olm::unpickle(pos, end, value.alice_identity_key);
     pos = olm::unpickle(pos, end, value.alice_base_key);
     pos = olm::unpickle(pos, end, value.bob_one_time_key);
     pos = olm::unpickle(pos, end, value.bob_one_time_key_id);

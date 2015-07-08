@@ -21,17 +21,10 @@ namespace olm {
 
 class Account;
 
-struct RemoteKey {
-    std::uint32_t id;
-    Curve25519PublicKey key;
-};
-
-
 enum struct MessageType {
     PRE_KEY = 0,
     MESSAGE = 1,
 };
-
 
 struct Session {
 
@@ -42,7 +35,7 @@ struct Session {
 
     bool received_message;
 
-    RemoteKey alice_identity_key;
+    Curve25519PublicKey alice_identity_key;
     Curve25519PublicKey alice_base_key;
     Curve25519PublicKey bob_one_time_key;
     std::uint32_t bob_one_time_key_id;
@@ -52,7 +45,7 @@ struct Session {
     std::size_t new_outbound_session(
         Account const & local_account,
         Curve25519PublicKey const & identity_key,
-        RemoteKey const & one_time_key,
+        Curve25519PublicKey const & one_time_key,
         std::uint8_t const * random, std::size_t random_length
     );
 
