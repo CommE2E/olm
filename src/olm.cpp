@@ -447,7 +447,7 @@ size_t olm_remove_one_time_keys(
     OlmSession * session
 ) {
     size_t result = from_c(account)->remove_key(
-        from_c(session)->bob_one_time_key_id
+        from_c(session)->bob_one_time_key
     );
     if (result == std::size_t(-1)) {
         from_c(account)->last_error = olm::ErrorCode::BAD_MESSAGE_KEY_ID;

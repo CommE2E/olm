@@ -30,16 +30,20 @@ document.addEventListener("DOMContentLoaded", function (event) {
     tasks.push(["bob", "Creating account", function() { bob.create() }]);
     tasks.push(["alice", "Create outbound session", function() {
         var bobs_id_keys = JSON.parse(bob.identity_keys("bob", "bob_device", 0, 0));
-        var bobs_curve25519_key;
+        var bobs_id_key;
         for (key in bobs_id_keys.keys) {
             if (key.startsWith("curve25519:")) {
-                bobs_curve25519_key = bobs_id_keys.keys[key];
+                bobs_id_key = bobs_id_keys.keys[key];
             }
         }
-        var bobs_keys_2 = JSON.parse(bob.one_time_keys())[1];
-        a_session.create_outbound(
-            alice, bobs_curve25519_key, bobs_keys_2[0], bobs_keys_2[1]
-        );
+        var bobs_ot_keys = JSON.parse(bob.one_time_keys());
+        var bobs_ot_key;
+        for (key in bobs_ot_keys) {
+            if (key.startsWith("curve25519:")) {
+                bobs_ot_key = bobs_ot_keys[key];
+            }
+        }
+        a_session.create_outbound(alice, bobs_id_key, bobs_ot_key);
     }]);
     tasks.push(["alice", "Encrypt first message", function() {
         message_1 = a_session.encrypt("");
@@ -96,7 +100,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
             window.setTimeout(function() {
                 task[2]();
                 p.done();
-                window.setTimeout(do_tasks, 0, next);
+                window.setTimeout(do_tasks, 50, next);
             }, 0)
         } else {
             next();

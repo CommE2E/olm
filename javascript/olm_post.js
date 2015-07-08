@@ -172,7 +172,7 @@ Session.prototype['unpickle'] = restore_stack(function(key, pickle) {
 });
 
 Session.prototype['create_outbound'] = restore_stack(function(
-    account, their_identity_key, their_one_time_key_id, their_one_time_key
+    account, their_identity_key, their_one_time_key
 ) {
     var random_length = session_method(
         Module['_olm_create_outbound_session_random_length']
@@ -185,7 +185,6 @@ Session.prototype['create_outbound'] = restore_stack(function(
     session_method(Module['_olm_create_outbound_session'])(
         this.ptr, account.ptr,
         identity_key_buffer, identity_key_array.length,
-        their_one_time_key_id,
         one_time_key_buffer, one_time_key_array.length,
         random, random_length
     );

@@ -45,8 +45,7 @@ static const olm::KdfInfo OLM_KDF_INFO = {
 olm::Session::Session(
 ) : ratchet(OLM_KDF_INFO, OLM_CIPHER),
     last_error(olm::ErrorCode::SUCCESS),
-    received_message(false),
-    bob_one_time_key_id(0) {
+    received_message(false) {
 
 }
 
@@ -157,7 +156,6 @@ std::size_t olm::Session::new_inbound_session(
         last_error = olm::ErrorCode::BAD_MESSAGE_KEY_ID;
         return std::size_t(-1);
     }
-    bob_one_time_key_id = our_one_time_key->id;
 
     std::uint8_t shared_secret[96];
 
@@ -364,7 +362,6 @@ std::size_t olm::pickle_length(
     length += olm::pickle_length(value.alice_identity_key);
     length += olm::pickle_length(value.alice_base_key);
     length += olm::pickle_length(value.bob_one_time_key);
-    length += olm::pickle_length(value.bob_one_time_key_id);
     length += olm::pickle_length(value.ratchet);
     return length;
 }
@@ -378,7 +375,6 @@ std::uint8_t * olm::pickle(
     pos = olm::pickle(pos, value.alice_identity_key);
     pos = olm::pickle(pos, value.alice_base_key);
     pos = olm::pickle(pos, value.bob_one_time_key);
-    pos = olm::pickle(pos, value.bob_one_time_key_id);
     pos = olm::pickle(pos, value.ratchet);
     return pos;
 }
@@ -392,7 +388,6 @@ std::uint8_t const * olm::unpickle(
     pos = olm::unpickle(pos, end, value.alice_identity_key);
     pos = olm::unpickle(pos, end, value.alice_base_key);
     pos = olm::unpickle(pos, end, value.bob_one_time_key);
-    pos = olm::unpickle(pos, end, value.bob_one_time_key_id);
     pos = olm::unpickle(pos, end, value.ratchet);
     return pos;
 }

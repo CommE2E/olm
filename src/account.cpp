@@ -29,11 +29,12 @@ olm::OneTimeKey const * olm::Account::lookup_key(
 }
 
 std::size_t olm::Account::remove_key(
-    std::uint32_t id
+    olm::Curve25519PublicKey const & public_key
 ) {
     OneTimeKey * i;
     for (i = one_time_keys.begin(); i != one_time_keys.end(); ++i) {
-        if (i->id == id) {
+        if (0 == memcmp(i->key.public_key, public_key.public_key, 32)) {
+            std::uint32_t id = i->id;
             one_time_keys.erase(i);
             return id;
         }
@@ -42,7 +43,7 @@ std::size_t olm::Account::remove_key(
 }
 
 std::size_t olm::Account::new_account_random_length() {
-    return 103 * 32;
+    return 12 * 32;
 }
 
 std::size_t olm::Account::new_account(

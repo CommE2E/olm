@@ -112,13 +112,14 @@ struct Account {
         std::uint8_t * one_time_json, std::size_t one_time_json_length
     );
 
-    /** Lookup a one_time key with the given key-id */
+    /** Lookup a one time key with the given public key */
     OneTimeKey const * lookup_key(
         Curve25519PublicKey const & public_key
     );
 
+    /** Remove a one time key with the given public key */
     std::size_t remove_key(
-        std::uint32_t id
+        Curve25519PublicKey const & public_key
     );
 };
 

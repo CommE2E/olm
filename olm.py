@@ -1,8 +1,11 @@
 #! /usr/bin/python
 from ctypes import *
 import json
+import os
 
-lib = cdll.LoadLibrary("build/libolm.so")
+lib = cdll.LoadLibrary(os.path.join(
+    os.path.dirname(__file__), "build", "libolm.so")
+)
 
 
 lib.olm_error.argtypes = []
@@ -149,7 +152,6 @@ session_function(
     lib.olm_create_outbound_session,
     c_void_p,  # Account
     c_void_p, c_size_t,  # Identity Key
-    c_uint,  # One Time Key Id
     c_void_p, c_size_t,  # One Time Key
     c_void_p, c_size_t,  # Random
 )
@@ -201,8 +203,7 @@ class Session(object):
             self.ptr, key_buffer, len(key), pickle_buffer, len(pickle)
         )
 
-    def create_outbound(self, account, identity_key, one_time_key_id,
-                        one_time_key):
+    def create_outbound(self, account, identity_key, one_time_key):
         r_length = lib.olm_create_outbound_session_random_length(self.ptr)
         random = read_random(r_length)
         random_buffer = create_string_buffer(random)
@@ -212,7 +213,6 @@ class Session(object):
             self.ptr,
             account.ptr,
             identity_key_buffer, len(identity_key),
-            one_time_key_id,
             one_time_key_buffer, len(one_time_key),
             random_buffer, r_length
         )
@@ -325,11 +325,6 @@ if __name__ == '__main__':
     outbound.add_argument("account_file", help="Local account file")
     outbound.add_argument("session_file", help="Local session file")
     outbound.add_argument("identity_key", help="Remote identity key")
-    outbound.add_argument("signed_key_id", help="Remote signed key id",
-                          type=int)
-    outbound.add_argument("signed_key", help="Remote signed key")
-    outbound.add_argument("one_time_key_id", help="Remote one time key id",
-                          type=int)
     outbound.add_argument("one_time_key", help="Remote one time key")
 
     def do_outbound(args):
@@ -343,8 +338,7 @@ if __name__ == '__main__':
             account.unpickle(args.key, f.read())
         session = Session()
         session.create_outbound(
-            account, args.identity_key, args.signed_key_id, args.signed_key,
-            args.one_time_key_id, args.one_time_key
+            account, args.identity_key, args.one_time_key
         )
         with open(args.session_file, "wb") as f:
             f.write(session.pickle(args.key))
@@ -416,8 +410,8 @@ if __name__ == '__main__':
 
     decrypt = commands.add_parser("decrypt", help="Decrypt a message")
     decrypt.add_argument("session_file", help="Local session file")
-    decrypt.add_argument("plaintext_file", help="Plaintext", default="-")
     decrypt.add_argument("message_file", help="Message", default="-")
+    decrypt.add_argument("plaintext_file", help="Plaintext", default="-")
 
     def do_decrypt(args):
         session = Session()

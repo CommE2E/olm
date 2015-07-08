@@ -59,6 +59,7 @@ compile_args += source_files
 compile_args += ("--pre-js", pre_js)
 compile_args += ("--post-js", post_js)
 compile_args += ("-s", "EXPORTED_FUNCTIONS=@" + exported_functions)
+compile_args += sys.argv[1:]
 
 library = "build/olm.js"
 
