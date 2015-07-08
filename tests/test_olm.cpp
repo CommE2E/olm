@@ -89,7 +89,7 @@ mock_random_a(a_rand, sizeof(a_rand));
 assert_not_equals(std::size_t(-1), ::olm_create_outbound_session(
     a_session, a_account,
     b_id_keys + 88, 43,
-    b_ot_keys + 74, 43,
+    b_ot_keys + 22, 43,
     a_rand, sizeof(a_rand)
 ));
 
@@ -193,7 +193,7 @@ mock_random_a(a_rand, sizeof(a_rand));
 assert_not_equals(std::size_t(-1), ::olm_create_outbound_session(
     a_session, a_account,
     b_id_keys + 88, 43,
-    b_ot_keys + 74, 43,
+    b_ot_keys + 22, 43,
     a_rand, sizeof(a_rand)
 ));
 

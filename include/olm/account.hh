@@ -63,34 +63,36 @@ struct Account {
     /** Output the identity keys for this account as JSON in the following
      * format.
      *
-     *  14 "{\"algorithms\":"
-     *  30 "[\"m.olm.curve25519-aes-sha256\""
-     *  15 "],\"device_id\":\""
+     *  14 {"algorithms":
+     *  30 ["m.olm.curve25519-aes-sha256"
+     *  15 ],"device_id":"
      *   ? <device identifier>
-     *  22 "\",\"keys\":{\"curve25519:"
+     *  22 ","keys":{"curve25519:
      *   4 <base64 characters>
-     *   3 "\":\""
+     *   3 ":"
      *  43 <base64 characters>
-     *  11 "\",\"ed25519:"
+     *  11 ","ed25519:
      *   4 <base64 characters>
-     *   3 "\":\""
+     *   3 ":"
      *  43 <base64 characters>
-     *  14 "\"},\"user_id\":\""
+     *  14 "},"user_id":"
      *   ? <user identifier>
-     *  19 "\",\"valid_after_ts\":"
+     *  19 ","valid_after_ts":
      *   ? <digits>
-     *  18 ",\"valid_until_ts\":"
+     *  18 ,"valid_until_ts":
      *   ? <digits>
-     *  16 ",\"signatures\":{\""
+     *  16 ,"signatures":{"
      *   ? <user identifier>
-     *   1 "/"
+     *   1 /
      *   ? <device identifier>
-     *  12 "\":{\"ed25519:"
+     *  12 ":{"ed25519:
      *   4 <base64 characters>
-     *   3 "\":\""
+     *   3 ":"
      *  86 <base64 characters>
-     *   4 "\"}}}"
-     */
+     *   4 "}}}
+     *
+     * Returns the size of the JSON written or std::size_t(-1) on error.
+     * If the buffer is too small last_error will be OUTPUT_BUFFER_TOO_SMALL. */
     std::size_t get_identity_json(
         std::uint8_t const * user_id, std::size_t user_id_length,
         std::uint8_t const * device_id, std::size_t device_id_length,
@@ -99,6 +101,18 @@ struct Account {
         std::uint8_t * identity_json, std::size_t identity_json_length
     );
 
+    /** Number of bytes needed to output the one time keys for this account */
+    std::size_t get_one_time_keys_json_length();
+
+    /*
+     * Returns the size of the JSON written or std::size_t(-1) on error.
+     * If the buffer is too small last_error will be OUTPUT_BUFFER_TOO_SMALL.
+     */
+    std::size_t get_one_time_keys_json(
+        std::uint8_t * one_time_json, std::size_t one_time_json_length
+    );
+
+    /** Lookup a one_time key with the given key-id */
     OneTimeKey const * lookup_key(
         Curve25519PublicKey const & public_key
     );

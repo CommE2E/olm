@@ -297,8 +297,8 @@ if __name__ == '__main__':
     create_account.set_defaults(func=do_create_account)
 
     keys = commands.add_parser("keys", help="List public keys for an account")
-    keys.add_argument("--user-id", default="A User ID")
-    keys.add_argument("--device-id", default="A Device ID")
+    keys.add_argument("--user-id", default="@user:example.com")
+    keys.add_argument("--device-id", default="default_device_id")
     keys.add_argument("--valid-after", default=0, type=int)
     keys.add_argument("--valid-until", default=0, type=int)
     keys.add_argument("account_file", help="Local account file")
@@ -311,18 +311,11 @@ if __name__ == '__main__':
             "device_keys": account.identity_keys(
                 args.user_id, args.device_id,
                 args.valid_after, args.valid_until,
-            )
-        }
-        ot_keys = account.one_time_keys()
-        result2 = {
-            "one_time_keys": [{
-                "keyId": k[0],
-                "publicKey": str(k[1]),
-            } for k in ot_keys[1:]]
+            ),
+            "one_time_keys": account.one_time_keys(),
         }
         try:
             yaml.safe_dump(result1, sys.stdout, default_flow_style=False)
-            yaml.dump(result2, sys.stdout, default_flow_style=False)
         except:
             pass
 

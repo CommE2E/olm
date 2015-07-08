@@ -320,38 +320,6 @@ size_t olm_create_account(
     return from_c(account)->new_account(from_c(random), random_length);
 }
 
-namespace {
-
-static const std::size_t OUTPUT_KEY_LENGTH = 2 + 10 + 2 +
-        olm::encode_base64_length(32) + 3;
-
-void output_one_time_key(
-    olm::OneTimeKey const & key,
-    std::uint8_t sep,
-    std::uint8_t * output
-) {
-    output[0] = sep;
-    output[1] = '[';
-    std::memset(output + 2, ' ', 10);
-    uint32_t value = key.id;
-    uint8_t * number = output + 11;
-    *number = '0' + value % 10;
-    value /= 10;
-    while (value) {
-        *(--number) = '0' + value % 10;
-        value /= 10;
-    }
-    output[12] = ',';
-    output[13] = '"';
-    olm::encode_base64(key.key.public_key, 32, output + 14);
-    output[OUTPUT_KEY_LENGTH - 3] = '"';
-    output[OUTPUT_KEY_LENGTH - 2] = ']';
-    output[OUTPUT_KEY_LENGTH - 1] = '\n';
-}
-
-} // namespace
-
-
 size_t olm_account_identity_keys_length(
     OlmAccount * account,
     size_t user_id_length,
@@ -388,30 +356,17 @@ size_t olm_account_identity_keys(
 size_t olm_account_one_time_keys_length(
     OlmAccount * account
 ) {
-    size_t count = from_c(account)->one_time_keys.size();
-    return OUTPUT_KEY_LENGTH * count + 1;
+    return from_c(account)->get_one_time_keys_json_length();
 }
 
 
 size_t olm_account_one_time_keys(
     OlmAccount * account,
-    void * identity_keys, size_t identity_key_length
+    void * one_time_keys_json, size_t one_time_key_json_length
 ) {
-    std::size_t length = olm_account_one_time_keys_length(account);
-    if (identity_key_length < length) {
-        from_c(account)->last_error =
-            olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
-        return size_t(-1);
-    }
-    std::uint8_t * output = from_c(identity_keys);
-    std::uint8_t sep = '[';
-    for (auto const & key : from_c(account)->one_time_keys) {
-        output_one_time_key(key, sep, output);
-        output += OUTPUT_KEY_LENGTH;
-        sep = ',';
-    }
-    output[0] = ']';
-    return length;
+    return from_c(account)->get_one_time_keys_json(
+        from_c(one_time_keys_json), one_time_key_json_length
+    );
 }
 
 

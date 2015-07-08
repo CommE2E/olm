@@ -157,6 +157,7 @@ std::size_t olm::Session::new_inbound_session(
         last_error = olm::ErrorCode::BAD_MESSAGE_KEY_ID;
         return std::size_t(-1);
     }
+    bob_one_time_key_id = our_one_time_key->id;
 
     std::uint8_t shared_secret[96];
 

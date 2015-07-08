@@ -45,14 +45,7 @@ static const std::uint8_t DECODE_BASE64[128] = {
 } // namespace
 
 
-std::size_t olm::encode_base64_length(
-    std::size_t input_length
-) {
-    return 4 * ((input_length + 2) / 3) + (input_length + 2) % 3 - 2;
-}
-
-
-void olm::encode_base64(
+std::uint8_t * olm::encode_base64(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
 ) {
@@ -70,6 +63,7 @@ void olm::encode_base64(
         output += 4;
     }
     unsigned remainder = input + input_length - pos;
+    std::uint8_t * result = output;
     if (remainder) {
         unsigned value = pos[0];
         if (remainder == 2) {
@@ -77,13 +71,16 @@ void olm::encode_base64(
             value <<= 2;
             output[2] = ENCODE_BASE64[value & 0x3F];
             value >>= 6;
+            result += 3;
         } else {
             value <<= 4;
+            result += 2;
         }
         output[1] = ENCODE_BASE64[value & 0x3F];
         value >>= 6;
         output[0] = ENCODE_BASE64[value];
     }
+    return result;
 }
 
 
@@ -98,7 +95,7 @@ std::size_t olm::decode_base64_length(
 }
 
 
-void olm::decode_base64(
+std::uint8_t const * olm::decode_base64(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
 ) {
@@ -129,4 +126,5 @@ void olm::decode_base64(
         }
         output[0] = value;
     }
+    return input + input_length;
 }

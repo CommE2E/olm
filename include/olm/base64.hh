@@ -21,12 +21,14 @@
 namespace olm {
 
 
-std::size_t encode_base64_length(
+static std::size_t encode_base64_length(
     std::size_t input_length
-);
+) {
+    return 4 * ((input_length + 2) / 3) + (input_length + 2) % 3 - 2;
+}
 
 
-void encode_base64(
+std::uint8_t * encode_base64(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
 );
@@ -37,7 +39,7 @@ std::size_t decode_base64_length(
 );
 
 
-void decode_base64(
+std::uint8_t const * decode_base64(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
 );
