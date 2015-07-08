@@ -100,7 +100,7 @@ struct Account {
     );
 
     OneTimeKey const * lookup_key(
-        std::uint32_t id
+        Curve25519PublicKey const & public_key
     );
 
     std::size_t remove_key(

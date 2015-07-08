@@ -425,7 +425,6 @@ size_t olm_create_outbound_session(
     OlmSession * session,
     OlmAccount * account,
     void const * their_identity_key, size_t their_identity_key_length,
-    unsigned their_one_time_key_id,
     void const * their_one_time_key, size_t their_one_time_key_length,
     void const * random, size_t random_length
 ) {
@@ -442,7 +441,6 @@ size_t olm_create_outbound_session(
         from_c(their_identity_key), their_identity_key_length,
         identity_key.public_key
     );
-    one_time_key.id = their_one_time_key_id;
     olm::decode_base64(
         from_c(their_one_time_key), their_one_time_key_length,
         one_time_key.key.public_key

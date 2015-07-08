@@ -18,10 +18,12 @@
 
 
 olm::OneTimeKey const * olm::Account::lookup_key(
-    std::uint32_t id
+    olm::Curve25519PublicKey const & public_key
 ) {
     for (olm::OneTimeKey const & key : one_time_keys) {
-        if (key.id == id) return &key;
+        if (0 == memcmp(key.key.public_key, public_key.public_key, 32)) {
+            return &key;
+        }
     }
     return 0;
 }

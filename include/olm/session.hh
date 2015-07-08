@@ -44,8 +44,8 @@ struct Session {
 
     RemoteKey alice_identity_key;
     Curve25519PublicKey alice_base_key;
+    Curve25519PublicKey bob_one_time_key;
     std::uint32_t bob_one_time_key_id;
-
 
     std::size_t new_outbound_session_random_length();
 

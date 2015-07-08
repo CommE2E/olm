@@ -77,7 +77,7 @@ std::size_t olm::Session::new_outbound_session(
     alice_identity_key.id = 0;
     alice_identity_key.key = local_account.identity_keys.curve25519_key;
     alice_base_key = base_key;
-    bob_one_time_key_id = one_time_key.id;
+    bob_one_time_key = one_time_key.key;
 
     std::uint8_t shared_secret[96];
 
@@ -112,7 +112,8 @@ bool check_message_fields(
     ok = ok && reader.message;
     ok = ok && reader.base_key;
     ok = ok && reader.base_key_length == KEY_LENGTH;
-    ok = ok && reader.has_one_time_key_id;
+    ok = ok && reader.one_time_key;
+    ok = ok && reader.one_time_key_length == KEY_LENGTH;
     return ok;
 }
 
@@ -145,15 +146,15 @@ std::size_t olm::Session::new_inbound_session(
 
     std::memcpy(alice_identity_key.key.public_key, reader.identity_key, 32);
     std::memcpy(alice_base_key.public_key, reader.base_key, 32);
-    bob_one_time_key_id = reader.one_time_key_id;
+    std::memcpy(bob_one_time_key.public_key, reader.one_time_key, 32);
     olm::Curve25519PublicKey ratchet_key;
     std::memcpy(ratchet_key.public_key, message_reader.ratchet_key, 32);
 
-    olm::OneTimeKey const * bob_one_time_key = local_account.lookup_key(
-        bob_one_time_key_id
+    olm::OneTimeKey const * our_one_time_key = local_account.lookup_key(
+        bob_one_time_key
     );
 
-    if (!bob_one_time_key) {
+    if (!our_one_time_key) {
         last_error = olm::ErrorCode::BAD_MESSAGE_KEY_ID;
         return std::size_t(-1);
     }
@@ -161,14 +162,14 @@ std::size_t olm::Session::new_inbound_session(
     std::uint8_t shared_secret[96];
 
     olm::curve25519_shared_secret(
-        bob_one_time_key->key, alice_identity_key.key, shared_secret
+        our_one_time_key->key, alice_identity_key.key, shared_secret
     );
     olm::curve25519_shared_secret(
         local_account.identity_keys.curve25519_key,
         alice_base_key, shared_secret + 32
     );
     olm::curve25519_shared_secret(
-        bob_one_time_key->key, alice_base_key, shared_secret + 64
+        our_one_time_key->key, alice_base_key, shared_secret + 64
     );
 
     ratchet.initialise_as_bob(shared_secret, 96, ratchet_key);
@@ -194,7 +195,9 @@ bool olm::Session::matches_inbound_session(
     same = same && 0 == std::memcmp(
         reader.base_key, alice_base_key.public_key, KEY_LENGTH
     );
-    same = same && reader.one_time_key_id == bob_one_time_key_id;
+    same = same && 0 == std::memcmp(
+        reader.one_time_key, bob_one_time_key.public_key, KEY_LENGTH
+    );
     return same;
 }
 
@@ -220,7 +223,7 @@ std::size_t olm::Session::encrypt_message_length(
     }
 
     return encode_one_time_key_message_length(
-        bob_one_time_key_id,
+        KEY_LENGTH,
         KEY_LENGTH,
         KEY_LENGTH,
         message_length
@@ -254,11 +257,14 @@ std::size_t olm::Session::encrypt(
         encode_one_time_key_message(
             writer,
             PROTOCOL_VERSION,
-            bob_one_time_key_id,
+            KEY_LENGTH,
             KEY_LENGTH,
             KEY_LENGTH,
             message_body_length,
             message
+        );
+        std::memcpy(
+            writer.one_time_key, bob_one_time_key.public_key, KEY_LENGTH
         );
         std::memcpy(
             writer.identity_key, alice_identity_key.key.public_key, KEY_LENGTH
@@ -358,6 +364,7 @@ std::size_t olm::pickle_length(
     length += olm::pickle_length(value.alice_identity_key.id);
     length += olm::pickle_length(value.alice_identity_key.key);
     length += olm::pickle_length(value.alice_base_key);
+    length += olm::pickle_length(value.bob_one_time_key);
     length += olm::pickle_length(value.bob_one_time_key_id);
     length += olm::pickle_length(value.ratchet);
     return length;
@@ -372,6 +379,7 @@ std::uint8_t * olm::pickle(
     pos = olm::pickle(pos, value.alice_identity_key.id);
     pos = olm::pickle(pos, value.alice_identity_key.key);
     pos = olm::pickle(pos, value.alice_base_key);
+    pos = olm::pickle(pos, value.bob_one_time_key);
     pos = olm::pickle(pos, value.bob_one_time_key_id);
     pos = olm::pickle(pos, value.ratchet);
     return pos;
@@ -386,6 +394,7 @@ std::uint8_t const * olm::unpickle(
     pos = olm::unpickle(pos, end, value.alice_identity_key.id);
     pos = olm::unpickle(pos, end, value.alice_identity_key.key);
     pos = olm::unpickle(pos, end, value.alice_base_key);
+    pos = olm::unpickle(pos, end, value.bob_one_time_key);
     pos = olm::unpickle(pos, end, value.bob_one_time_key_id);
     pos = olm::unpickle(pos, end, value.ratchet);
     return pos;
