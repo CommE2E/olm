@@ -170,8 +170,8 @@ std::size_t olm::Account::get_identity_json_length(
 std::size_t olm::Account::get_identity_json(
     std::uint8_t const * user_id, std::size_t user_id_length,
     std::uint8_t const * device_id, std::size_t device_id_length,
-    std::uint64_t valid_until_ts,
     std::uint64_t valid_after_ts,
+    std::uint64_t valid_until_ts,
     std::uint8_t * identity_json, std::size_t identity_json_length
 ) {
 

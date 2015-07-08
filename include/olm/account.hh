@@ -96,7 +96,7 @@ struct Account {
         std::uint8_t const * device_id, std::size_t device_id_length,
         std::uint64_t valid_after_ts,
         std::uint64_t valid_until_ts,
-        std::uint8_t * identity_keys, std::size_t identity_keys_length
+        std::uint8_t * identity_json, std::size_t identity_json_length
     );
 
     OneTimeKey const * lookup_key(
