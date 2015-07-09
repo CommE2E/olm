@@ -31,6 +31,7 @@ struct IdentityKeys {
 
 struct OneTimeKey {
     std::uint32_t id;
+    bool published;
     Curve25519KeyPair key;
 };
 
@@ -39,15 +40,17 @@ static std::size_t const MAX_ONE_TIME_KEYS = 100;
 
 
 struct Account {
+    Account();
     IdentityKeys identity_keys;
     List<OneTimeKey, MAX_ONE_TIME_KEYS> one_time_keys;
+    std::uint32_t next_one_time_key_id;
     ErrorCode last_error;
 
     /** Number of random bytes needed to create a new account */
     std::size_t new_account_random_length();
 
-    /** Create a new account. Returns NOT_ENOUGH_RANDOM if the number of random
-     * bytes is too small. */
+    /** Create a new account. Returns std::size_t(-1) on error. If the number of
+     * random bytes is too small then last_error will be NOT_ENOUGH_RANDOM */
     std::size_t new_account(
         uint8_t const * random, std::size_t random_length
     );
@@ -61,35 +64,30 @@ struct Account {
     );
 
     /** Output the identity keys for this account as JSON in the following
-     * format.
+     * format:
      *
-     *  14 {"algorithms":
-     *  30 ["m.olm.curve25519-aes-sha256"
-     *  15 ],"device_id":"
-     *   ? <device identifier>
-     *  22 ","keys":{"curve25519:
-     *   4 <base64 characters>
-     *   3 ":"
-     *  43 <base64 characters>
-     *  11 ","ed25519:
-     *   4 <base64 characters>
-     *   3 ":"
-     *  43 <base64 characters>
-     *  14 "},"user_id":"
-     *   ? <user identifier>
-     *  19 ","valid_after_ts":
-     *   ? <digits>
-     *  18 ,"valid_until_ts":
-     *   ? <digits>
-     *  16 ,"signatures":{"
-     *   ? <user identifier>
-     *   1 /
-     *   ? <device identifier>
-     *  12 ":{"ed25519:
-     *   4 <base64 characters>
-     *   3 ":"
-     *  86 <base64 characters>
-     *   4 "}}}
+     *    {"algorithms":
+     *    ["m.olm.curve25519-aes-sha256"
+     *    ]
+     *    ,"device_id":"<device identifier>"
+     *    ,"keys":
+     *    {"curve25519:<key id>":"<base64 characters>"
+     *    ,"ed25519:<key id>":"<base64 characters>"
+     *    }
+     *    ,"user_id":"<user identifier>"
+     *    ,"valid_after_ts":<digits>
+     *    ,"valid_until_ts":<digits>
+     *    ,"signatures":
+     *    {"<user identifier>/<device identifier>":
+     *    {"ed25519:<key id>":"<base64 characters>"
+     *    }
+     *    }
+     *    }
+     *
+     * The user_id and device_id must not contain 0x00-0x1F, '\"' or '\\'.
+     * The JSON up to but not including the "signatures" key will be signed
+     * using the account's ed25519 key. That signature is then included under
+     * the "signatures" key.
      *
      * Returns the size of the JSON written or std::size_t(-1) on error.
      * If the buffer is too small last_error will be OUTPUT_BUFFER_TOO_SMALL. */
@@ -104,12 +102,40 @@ struct Account {
     /** Number of bytes needed to output the one time keys for this account */
     std::size_t get_one_time_keys_json_length();
 
-    /*
+    /** Output the one time keys that haven't been published yet as JSON:
+     *
+     *  {"curve25519:<key id>":"<base64 characters>"
+     *  ,"curve25519:<key_id>":"<base64 characters>"
+     *  ...
+     *  }
+     *
      * Returns the size of the JSON written or std::size_t(-1) on error.
      * If the buffer is too small last_error will be OUTPUT_BUFFER_TOO_SMALL.
      */
     std::size_t get_one_time_keys_json(
         std::uint8_t * one_time_json, std::size_t one_time_json_length
+    );
+
+    /** Mark the current list of one_time_keys as being published. They
+     * will no longer be returned by get_one_time_keys_json_length(). */
+    std::size_t mark_keys_as_published();
+
+    /** The largest number of one time keys this account can store. */
+    std::size_t max_number_of_one_time_keys();
+
+    /** Returns the number of random bytes needed to generate a given number
+     * of new one time keys. */
+    std::size_t generate_one_time_keys_random_length(
+        std::size_t number_of_keys
+    );
+
+    /** Generates a number of new one time keys. If the total number of keys
+     * stored by this account exceeds max_number_of_one_time_keys() then the
+     * old keys are discarded. Returns std::size_t(-1) on error. If the number
+     * of random bytes is too small then last_error will be NOT_ENOUGH_RANDOM */
+    std::size_t generate_one_time_keys(
+        std::size_t number_of_keys,
+        std::uint8_t const * random, std::size_t random_length
     );
 
     /** Lookup a one time key with the given public key */

@@ -16,6 +16,11 @@
 #include "olm/base64.hh"
 #include "olm/pickle.hh"
 
+olm::Account::Account(
+) : next_one_time_key_id(0),
+    last_error(olm::ErrorCode::SUCCESS) {
+}
+
 
 olm::OneTimeKey const * olm::Account::lookup_key(
     olm::Curve25519PublicKey const & public_key
@@ -54,19 +59,12 @@ std::size_t olm::Account::new_account(
         return std::size_t(-1);
     }
 
-    unsigned id = 0;
-
     olm::ed25519_generate_key(random, identity_keys.ed25519_key);
     random += 32;
     olm::curve25519_generate_key(random, identity_keys.curve25519_key);
     random += 32;
 
-    for (unsigned i = 0; i < 10; ++i) {
-        OneTimeKey & key = *one_time_keys.insert(one_time_keys.end());
-        key.id = ++id;
-        olm::curve25519_generate_key(random, key.key);
-        random += 32;
-    }
+    generate_one_time_keys(10, random, random_length - 64);
 
     return 0;
 }
@@ -236,6 +234,9 @@ std::size_t olm::Account::get_one_time_keys_json_length(
 ) {
     std::size_t length = 0;
     for (auto const & key : one_time_keys) {
+        if (key.published) {
+            continue;
+        }
         length += 2; /* {" */
         length += sizeof(ONE_TIME_KEY_JSON_ALG) - 1;
         length += 1; /* : */
@@ -262,6 +263,9 @@ std::size_t olm::Account::get_one_time_keys_json(
     }
     std::uint8_t sep = '{';
     for (auto const & key : one_time_keys) {
+        if (key.published) {
+            continue;
+        }
         *(pos++) = sep;
         *(pos++) = '\"';
         pos = write_string(pos, ONE_TIME_KEY_JSON_ALG);
@@ -283,6 +287,48 @@ std::size_t olm::Account::get_one_time_keys_json(
     return pos - one_time_json;
 }
 
+
+std::size_t olm::Account::mark_keys_as_published(
+) {
+    std::size_t count = 0;
+    for (auto & key : one_time_keys) {
+        if (!key.published) {
+            key.published = true;
+            count++;
+        }
+    }
+    return count;
+}
+
+
+std::size_t olm::Account::max_number_of_one_time_keys(
+) {
+    return olm::MAX_ONE_TIME_KEYS;
+}
+
+std::size_t olm::Account::generate_one_time_keys_random_length(
+    std::size_t number_of_keys
+) {
+    return 32 * number_of_keys;
+}
+
+std::size_t olm::Account::generate_one_time_keys(
+    std::size_t number_of_keys,
+    std::uint8_t const * random, std::size_t random_length
+) {
+    if (random_length < generate_one_time_keys_random_length(number_of_keys)) {
+        last_error = olm::ErrorCode::NOT_ENOUGH_RANDOM;
+        return std::size_t(-1);
+    }
+    for (unsigned i = 0; i < number_of_keys; ++i) {
+        OneTimeKey & key = *one_time_keys.insert(one_time_keys.begin());
+        key.id = ++next_one_time_key_id;
+        key.published = false;
+        olm::curve25519_generate_key(random, key.key);
+        random += 32;
+    }
+    return number_of_keys;
+}
 
 namespace olm {
 
@@ -319,7 +365,11 @@ static std::uint8_t const * unpickle(
 static std::size_t pickle_length(
     olm::OneTimeKey const & value
 ) {
-    return olm::pickle_length(value.id) + olm::pickle_length(value.key);
+    std::size_t length = 0;
+    length += olm::pickle_length(value.id);
+    length += olm::pickle_length(value.published);
+    length += olm::pickle_length(value.key);
+    return length;
 }
 
 
@@ -328,6 +378,7 @@ static std::uint8_t * pickle(
     olm::OneTimeKey const & value
 ) {
     pos = olm::pickle(pos, value.id);
+    pos = olm::pickle(pos, value.published);
     pos = olm::pickle(pos, value.key);
     return pos;
 }
@@ -338,6 +389,7 @@ static std::uint8_t const * unpickle(
     olm::OneTimeKey & value
 ) {
     pos = olm::unpickle(pos, end, value.id);
+    pos = olm::unpickle(pos, end, value.published);
     pos = olm::unpickle(pos, end, value.key);
     return pos;
 }
@@ -351,6 +403,7 @@ std::size_t olm::pickle_length(
     std::size_t length = 0;
     length += olm::pickle_length(value.identity_keys);
     length += olm::pickle_length(value.one_time_keys);
+    length += olm::pickle_length(value.next_one_time_key_id);
     return length;
 }
 
@@ -361,6 +414,7 @@ std::uint8_t * olm::pickle(
 ) {
     pos = olm::pickle(pos, value.identity_keys);
     pos = olm::pickle(pos, value.one_time_keys);
+    pos = olm::pickle(pos, value.next_one_time_key_id);
     return pos;
 }
 
@@ -371,5 +425,6 @@ std::uint8_t const * olm::unpickle(
 ) {
     pos = olm::unpickle(pos, end, value.identity_keys);
     pos = olm::unpickle(pos, end, value.one_time_keys);
+    pos = olm::unpickle(pos, end, value.next_one_time_key_id);
     return pos;
 }
