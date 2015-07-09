@@ -48,7 +48,7 @@ std::size_t olm::Account::remove_key(
 }
 
 std::size_t olm::Account::new_account_random_length() {
-    return 12 * 32;
+    return 2 * 32;
 }
 
 std::size_t olm::Account::new_account(
@@ -63,8 +63,6 @@ std::size_t olm::Account::new_account(
     random += 32;
     olm::curve25519_generate_key(random, identity_keys.curve25519_key);
     random += 32;
-
-    generate_one_time_keys(10, random, random_length - 64);
 
     return 0;
 }

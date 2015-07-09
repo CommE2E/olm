@@ -28,6 +28,9 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     tasks.push(["alice", "Creating account", function() { alice.create() }]);
     tasks.push(["bob", "Creating account", function() { bob.create() }]);
+    tasks.push(["bob", "Generate one time keys", function() {
+        bob.generate_one_time_keys(1);
+    }]);
     tasks.push(["alice", "Create outbound session", function() {
         var bobs_id_keys = JSON.parse(bob.identity_keys("bob", "bob_device", 0, 0));
         var bobs_id_key;

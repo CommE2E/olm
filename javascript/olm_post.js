@@ -100,6 +100,28 @@ Account.prototype['one_time_keys'] = restore_stack(function() {
     return Pointer_stringify(keys, keys_length);
 });
 
+Account.prototype['mark_keys_as_published'] = restore_stack(function() {
+    account_method(Module['_olm_account_mark_keys_as_published'])(this.ptr);
+});
+
+Account.prototype['max_number_of_one_time_keys'] = restore_stack(function() {
+    account_method(Module['_olm_account_max_number_of_one_time_keys'])(
+        this.ptr
+    );
+});
+
+Account.prototype['generate_one_time_keys'] = restore_stack(function(
+    number_of_keys
+) {
+    var random_length = account_method(
+        Module['_olm_account_generate_one_time_keys_random_length']
+    )(this.ptr, number_of_keys);
+    var random = random_stack(random_length);
+    account_method(Module['_olm_account_generate_one_time_keys'])(
+        this.ptr, number_of_keys, random, random_length
+    );
+});
+
 Account.prototype['pickle'] = restore_stack(function(key) {
     var key_array = array_from_string(key);
     var pickle_length = account_method(

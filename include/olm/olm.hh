@@ -157,12 +157,8 @@ size_t olm_account_one_time_keys_length(
     OlmAccount * account
 );
 
-/** Writes the public parts of the one time keys for the account into the
- * one_time_keys output buffer. The first key will be formatted as though it was
- * created with sprintf(output, "[[%10d,\"%43s\"]\n", key_id, key_base64).
- * subsequent keys are formatted with ",[%10d,\"%43s\"]\n". The final byte of
- * output will be "]". The output can either be parsed as fixed width using
- * the above format or by a JSON parser. Returns olm_error() on failure.
+/** Writes the public parts of the unpublished one time keys for the account
+ * into the one_time_keys output buffer. Returns olm_error() on failure.
  * If the one_time_keys buffer was too small then olm_account_last_error()
  * will be "OUTPUT_BUFFER_TOO_SMALL". */
 size_t olm_account_one_time_keys(
@@ -170,8 +166,32 @@ size_t olm_account_one_time_keys(
     void * one_time_keys, size_t one_time_keys_length
 );
 
-/* TODO: Add methods for marking keys as used, generating new keys, and
- * tracking which keys have been uploaded to the central servers */
+/** Marks the current set of one time keys as being published. */
+size_t olm_account_mark_keys_as_published(
+    OlmAccount * account
+);
+
+/** The largest number of one time keys this account can store. */
+size_t olm_account_max_number_of_one_time_keys(
+    OlmAccount * account
+);
+
+/** The number of random bytes needed to generate a given number of new one
+ * time keys. */
+size_t olm_account_generate_one_time_keys_random_length(
+    OlmAccount * account,
+    size_t number_of_keys
+);
+
+/** Generates a number of new one time keys. If the total number of keys stored
+ * by this account exceeds max_number_of_one_time_keys() then the old keys are
+ * discarded. Returns olm_error() on error. If the number of random bytes is
+ * too small then olm_account_last_error() will be "NOT_ENOUGH_RANDOM". */
+size_t olm_account_generate_one_time_keys(
+    OlmAccount * account,
+    size_t number_of_keys,
+    void const * random, size_t random_length
+);
 
 /** The number of random bytes needed to create an outbound session */
 size_t olm_create_outbound_session_random_length(

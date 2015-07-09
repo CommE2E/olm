@@ -123,8 +123,8 @@ struct Account {
     /** The largest number of one time keys this account can store. */
     std::size_t max_number_of_one_time_keys();
 
-    /** Returns the number of random bytes needed to generate a given number
-     * of new one time keys. */
+    /** The number of random bytes needed to generate a given number of new one
+     * time keys. */
     std::size_t generate_one_time_keys_random_length(
         std::size_t number_of_keys
     );

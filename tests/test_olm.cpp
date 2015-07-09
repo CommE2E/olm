@@ -41,6 +41,12 @@ std::uint8_t account_buffer[::olm_account_size()];
 std::uint8_t random[::olm_create_account_random_length(account)];
 mock_random(random, sizeof(random));
 ::olm_create_account(account, random, sizeof(random));
+std::uint8_t ot_random[::olm_account_generate_one_time_keys_random_length(
+    account, 42
+)];
+mock_random(ot_random, sizeof(ot_random));
+::olm_account_generate_one_time_keys(account, 42, ot_random, sizeof(ot_random));
+
 std::size_t pickle_length = ::olm_pickle_account_length(account);
 std::uint8_t pickle1[pickle_length];
 ::olm_pickle_account(account, "secret_key", 10, pickle1, pickle_length);
@@ -74,6 +80,11 @@ std::uint8_t b_account_buffer[::olm_account_size()];
 std::uint8_t b_random[::olm_create_account_random_length(b_account)];
 mock_random_b(b_random, sizeof(b_random));
 ::olm_create_account(b_account, b_random, sizeof(b_random));
+std::uint8_t o_random[::olm_account_generate_one_time_keys_random_length(
+        b_account, 42
+)];
+mock_random_b(o_random, sizeof(o_random));
+::olm_account_generate_one_time_keys(b_account, 42, o_random, sizeof(o_random));
 
 std::uint8_t b_id_keys[::olm_account_identity_keys_length(b_account, 0, 0, 0, 0)];
 std::uint8_t b_ot_keys[::olm_account_one_time_keys_length(b_account)];
@@ -178,6 +189,11 @@ std::uint8_t b_account_buffer[::olm_account_size()];
 std::uint8_t b_random[::olm_create_account_random_length(b_account)];
 mock_random_b(b_random, sizeof(b_random));
 ::olm_create_account(b_account, b_random, sizeof(b_random));
+std::uint8_t o_random[::olm_account_generate_one_time_keys_random_length(
+        b_account, 42
+)];
+mock_random_b(o_random, sizeof(o_random));
+::olm_account_generate_one_time_keys(b_account, 42, o_random, sizeof(o_random));
 
 std::uint8_t b_id_keys[::olm_account_identity_keys_length(b_account, 0, 0, 0, 0)];
 std::uint8_t b_ot_keys[::olm_account_one_time_keys_length(b_account)];

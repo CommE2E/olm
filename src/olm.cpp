@@ -370,11 +370,46 @@ size_t olm_account_one_time_keys(
 }
 
 
+size_t olm_account_mark_keys_as_published(
+    OlmAccount * account
+) {
+    return from_c(account)->mark_keys_as_published();
+}
+
+
+size_t olm_account_max_number_of_one_time_keys(
+    OlmAccount * account
+) {
+    return from_c(account)->max_number_of_one_time_keys();
+}
+
+
+size_t olm_account_generate_one_time_keys_random_length(
+    OlmAccount * account,
+    size_t number_of_keys
+) {
+    return from_c(account)->generate_one_time_keys_random_length(number_of_keys);
+}
+
+
+size_t olm_account_generate_one_time_keys(
+    OlmAccount * account,
+    size_t number_of_keys,
+    void const * random, size_t random_length
+) {
+    return from_c(account)->generate_one_time_keys(
+        number_of_keys,
+        from_c(random), random_length
+    );
+}
+
+
 size_t olm_create_outbound_session_random_length(
     OlmSession * session
 ) {
     return from_c(session)->new_outbound_session_random_length();
 }
+
 
 size_t olm_create_outbound_session(
     OlmSession * session,

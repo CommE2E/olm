@@ -59,6 +59,18 @@ account_function(
 )
 account_function(lib.olm_account_one_time_keys_length)
 account_function(lib.olm_account_one_time_keys, c_void_p, c_size_t)
+account_function(lib.olm_account_mark_keys_as_published)
+account_function(lib.olm_account_max_number_of_one_time_keys)
+account_function(
+    lib.olm_account_generate_one_time_keys_random_length,
+    c_size_t
+)
+account_function(
+    lib.olm_account_generate_one_time_keys
+    c_size_t,
+    c_void_p, c_size_t
+)
+
 
 def read_random(n):
     with open("/dev/urandom", "rb") as f:
@@ -112,6 +124,23 @@ class Account(object):
         out_buffer = create_string_buffer(out_length)
         lib.olm_account_one_time_keys(self.ptr, out_buffer, out_length)
         return json.loads(out_buffer.raw)
+
+    def mark_keys_as_published(self):
+        lib.olm_account_mark_keys_as_published(self.ptr)
+
+
+    def max_number_of_one_time_keys(self):
+        return lib.olm_account_max_number_of_one_time_keys(self.ptr)
+
+    def generate_one_time_keys(self, count):
+        random_length = lib.olm_account_generate_one_time_keys_random_length(
+            self.ptr
+        )
+        random = read_random(random_length)
+        random_buffer = create_string_buffer(random)
+        lib.olm_account_generate_one_time_keys(
+            self.ptr, random_buffer, random_length
+        )
 
     def clear(self):
         pass
