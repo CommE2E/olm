@@ -19,8 +19,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
         return {start:start, done:done};
     }
 
-    var alice = new Olm.Account();
-    var bob = new Olm.Account();
+    window.alice = new Olm.Account();
+    window.bob = new Olm.Account();
     var a_session = new Olm.Session();
     var b_session = new Olm.Session();
     var message_1;
@@ -32,19 +32,12 @@ document.addEventListener("DOMContentLoaded", function (event) {
         bob.generate_one_time_keys(1);
     }]);
     tasks.push(["alice", "Create outbound session", function() {
-        var bobs_id_keys = JSON.parse(bob.identity_keys("bob", "bob_device", 0, 0));
-        var bobs_id_key;
-        for (key in bobs_id_keys.keys) {
-            if (key.startsWith("curve25519:")) {
-                bobs_id_key = bobs_id_keys.keys[key];
-            }
-        }
+        var bobs_id_keys = JSON.parse(bob.identity_keys());
+        var bobs_id_key = bobs_id_keys.curve25519;
         var bobs_ot_keys = JSON.parse(bob.one_time_keys());
         var bobs_ot_key;
-        for (key in bobs_ot_keys) {
-            if (key.startsWith("curve25519:")) {
-                bobs_ot_key = bobs_ot_keys[key];
-            }
+        for (key in bobs_ot_keys.curve25519) {
+            bobs_ot_key = bobs_ot_keys.curve25519[key];
         }
         a_session.create_outbound(alice, bobs_id_key, bobs_ot_key);
     }]);
@@ -104,7 +97,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
                 task[2]();
                 p.done();
                 window.setTimeout(do_tasks, 50, next);
-            }, 0)
+            }, 50)
         } else {
             next();
         }

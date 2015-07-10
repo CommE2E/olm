@@ -86,11 +86,9 @@ std::uint8_t o_random[::olm_account_generate_one_time_keys_random_length(
 mock_random_b(o_random, sizeof(o_random));
 ::olm_account_generate_one_time_keys(b_account, 42, o_random, sizeof(o_random));
 
-std::uint8_t b_id_keys[::olm_account_identity_keys_length(b_account, 0, 0, 0, 0)];
+std::uint8_t b_id_keys[::olm_account_identity_keys_length(b_account)];
 std::uint8_t b_ot_keys[::olm_account_one_time_keys_length(b_account)];
-::olm_account_identity_keys(
-    b_account, nullptr, 0, nullptr, 0, 0, 0, b_id_keys, sizeof(b_id_keys)
-);
+::olm_account_identity_keys(b_account, b_id_keys, sizeof(b_id_keys));
 ::olm_account_one_time_keys(b_account, b_ot_keys, sizeof(b_ot_keys));
 
 std::uint8_t a_session_buffer[::olm_session_size()];
@@ -99,8 +97,8 @@ std::uint8_t a_rand[::olm_create_outbound_session_random_length(a_session)];
 mock_random_a(a_rand, sizeof(a_rand));
 assert_not_equals(std::size_t(-1), ::olm_create_outbound_session(
     a_session, a_account,
-    b_id_keys + 88, 43,
-    b_ot_keys + 22, 43,
+    b_id_keys + 15, 43,
+    b_ot_keys + 25, 43,
     a_rand, sizeof(a_rand)
 ));
 
@@ -195,11 +193,9 @@ std::uint8_t o_random[::olm_account_generate_one_time_keys_random_length(
 mock_random_b(o_random, sizeof(o_random));
 ::olm_account_generate_one_time_keys(b_account, 42, o_random, sizeof(o_random));
 
-std::uint8_t b_id_keys[::olm_account_identity_keys_length(b_account, 0, 0, 0, 0)];
+std::uint8_t b_id_keys[::olm_account_identity_keys_length(b_account)];
 std::uint8_t b_ot_keys[::olm_account_one_time_keys_length(b_account)];
-::olm_account_identity_keys(
-    b_account, nullptr, 0, nullptr, 0, 0, 0, b_id_keys, sizeof(b_id_keys)
-);
+::olm_account_identity_keys(b_account, b_id_keys, sizeof(b_id_keys));
 ::olm_account_one_time_keys(b_account, b_ot_keys, sizeof(b_ot_keys));
 
 std::uint8_t a_session_buffer[::olm_session_size()];
@@ -208,8 +204,8 @@ std::uint8_t a_rand[::olm_create_outbound_session_random_length(a_session)];
 mock_random_a(a_rand, sizeof(a_rand));
 assert_not_equals(std::size_t(-1), ::olm_create_outbound_session(
     a_session, a_account,
-    b_id_keys + 88, 43,
-    b_ot_keys + 22, 43,
+    b_id_keys + 15, 43,
+    b_ot_keys + 25, 43,
     a_rand, sizeof(a_rand)
 ));
 

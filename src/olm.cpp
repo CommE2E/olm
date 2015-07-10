@@ -320,36 +320,47 @@ size_t olm_create_account(
     return from_c(account)->new_account(from_c(random), random_length);
 }
 
+
 size_t olm_account_identity_keys_length(
-    OlmAccount * account,
-    size_t user_id_length,
-    size_t device_id_length,
-    uint64_t valid_after_ts,
-    uint64_t valid_until_ts
+    OlmAccount * account
 ) {
-    return from_c(account)->get_identity_json_length(
-        user_id_length,
-        device_id_length,
-        valid_after_ts,
-        valid_until_ts
-    );
+    return from_c(account)->get_identity_json_length();
 }
+
 
 size_t olm_account_identity_keys(
     OlmAccount * account,
-    void const * user_id, size_t user_id_length,
-    void const * device_id, size_t device_id_length,
-    uint64_t valid_after_ts,
-    uint64_t valid_until_ts,
     void * identity_keys, size_t identity_key_length
 ) {
     return from_c(account)->get_identity_json(
-        from_c(user_id), user_id_length,
-        from_c(device_id), device_id_length,
-        valid_after_ts,
-        valid_until_ts,
         from_c(identity_keys), identity_key_length
     );
+}
+
+
+size_t olm_account_signature_length(
+    OlmAccount * account
+) {
+    return b64_output_length(from_c(account)->signature_length());
+}
+
+
+size_t olm_account_sign(
+    OlmAccount * account,
+    void const * message, size_t message_length,
+    void * signature, size_t signature_length
+) {
+    std::size_t raw_length = from_c(account)->signature_length();
+    if (signature_length < b64_output_length(raw_length)) {
+        from_c(account)->last_error =
+            olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        return std::size_t(-1);
+    }
+    from_c(account)->sign(
+         from_c(message), message_length,
+         b64_output_pos(from_c(signature), raw_length), raw_length
+    );
+    return b64_output(from_c(signature), raw_length);
 }
 
 
@@ -524,7 +535,7 @@ size_t olm_encrypt(
     std::size_t raw_length = from_c(session)->encrypt_message_length(
         plaintext_length
     );
-    if (message_length < raw_length) {
+    if (message_length < b64_output_length(raw_length)) {
         from_c(session)->last_error =
             olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);

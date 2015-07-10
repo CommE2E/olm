@@ -48,15 +48,10 @@ account_function(
 )
 account_function(lib.olm_create_account_random_length)
 account_function(lib.olm_create_account, c_void_p, c_size_t)
-account_function(
-    lib.olm_account_identity_keys_length,
-    c_size_t, c_size_t, c_uint64, c_uint64
-)
-account_function(
-    lib.olm_account_identity_keys,
-    c_void_p, c_size_t, c_void_p, c_size_t, c_uint64, c_uint64,
-    c_void_p, c_size_t
-)
+account_function(lib.olm_account_identity_keys_length)
+account_function(lib.olm_account_identity_keys, c_void_p, c_size_t)
+account_function(lib.olm_account_signature_length)
+account_function(lib.olm_account_sign, c_void_p, c_size_t, c_void_p, c_size_t)
 account_function(lib.olm_account_one_time_keys_length)
 account_function(lib.olm_account_one_time_keys, c_void_p, c_size_t)
 account_function(lib.olm_account_mark_keys_as_published)
@@ -66,7 +61,7 @@ account_function(
     c_size_t
 )
 account_function(
-    lib.olm_account_generate_one_time_keys
+    lib.olm_account_generate_one_time_keys,
     c_size_t,
     c_void_p, c_size_t
 )
@@ -103,21 +98,23 @@ class Account(object):
             self.ptr, key_buffer, len(key), pickle_buffer, len(pickle)
         )
 
-    def identity_keys(self, user_id, device_id, valid_after, valid_until):
-        out_length = lib.olm_account_identity_keys_length(
-            self.ptr, len(user_id), len(device_id), valid_after, valid_until
-        )
-        user_id_buffer = create_string_buffer(user_id)
-        device_id_buffer = create_string_buffer(device_id)
+    def identity_keys(self):
+        out_length = lib.olm_account_identity_keys_length(self.ptr)
         out_buffer = create_string_buffer(out_length)
         lib.olm_account_identity_keys(
             self.ptr,
-            user_id_buffer, len(user_id),
-            device_id_buffer, len(device_id),
-            valid_after, valid_until,
             out_buffer, out_length
         )
         return json.loads(out_buffer.raw)
+
+    def sign(self, message):
+        out_length = lib.olm_account_signature_length(self.ptr)
+        message_buffer = create_string_buffer(message)
+        out_buffer = create_string_buffer(out_length)
+        lib.olm_account_sign(
+            self.ptr, message_buffer, len(message), out_buffer, out_length
+        )
+        return out_buffer.raw
 
     def one_time_keys(self):
         out_length = lib.olm_account_one_time_keys_length(self.ptr)
@@ -127,7 +124,6 @@ class Account(object):
 
     def mark_keys_as_published(self):
         lib.olm_account_mark_keys_as_published(self.ptr)
-
 
     def max_number_of_one_time_keys(self):
         return lib.olm_account_max_number_of_one_time_keys(self.ptr)
@@ -326,10 +322,6 @@ if __name__ == '__main__':
     create_account.set_defaults(func=do_create_account)
 
     keys = commands.add_parser("keys", help="List public keys for an account")
-    keys.add_argument("--user-id", default="@user:example.com")
-    keys.add_argument("--device-id", default="default_device_id")
-    keys.add_argument("--valid-after", default=0, type=int)
-    keys.add_argument("--valid-until", default=0, type=int)
     keys.add_argument("account_file", help="Local account file")
 
     def do_keys(args):
@@ -337,10 +329,7 @@ if __name__ == '__main__':
         with open(args.account_file, "rb") as f:
             account.unpickle(args.key, f.read())
         result1 = {
-            "device_keys": account.identity_keys(
-                args.user_id, args.device_id,
-                args.valid_after, args.valid_until,
-            ),
+            "account_keys": account.identity_keys(),
             "one_time_keys": account.one_time_keys(),
         }
         try:
@@ -349,6 +338,23 @@ if __name__ == '__main__':
             pass
 
     keys.set_defaults(func=do_keys)
+
+    sign = commands.add_parser("sign", help="Sign a message")
+    sign.add_argument("account_file", help="Local account file")
+    sign.add_argument("message_file", help="Message to sign")
+    sign.add_argument("signature_file", help="Signature to output")
+
+    def do_sign(args):
+        account = Account()
+        with open(args.account_file, "rb") as f:
+            account.unpickle(args.key, f.read())
+        with open_in(args.message_file) as f:
+             message = f.read()
+        signature = account.sign(message)
+        with open_out(args.signature_file) as f:
+             f.write(signature)
+
+    sign.set_defaults(func=do_sign)
 
     outbound = commands.add_parser("outbound", help="Create an outbound session")
     outbound.add_argument("account_file", help="Local account file")

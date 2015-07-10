@@ -63,30 +63,30 @@ Account.prototype['create'] = restore_stack(function() {
     );
 });
 
-Account.prototype['identity_keys'] = restore_stack(function(
-    user_id, device_id, valid_after, valid_until
-) {
-    var user_id_array = array_from_string(user_id);
-    var device_id_array = array_from_string(device_id);
+Account.prototype['identity_keys'] = restore_stack(function() {
     var keys_length = account_method(
         Module['_olm_account_identity_keys_length']
-    )(
-        this.ptr, user_id_array.length, device_id_array.length,
-        valid_after, valid_after / Math.pow(2, 32),
-        valid_until, valid_until / Math.pow(2, 32)
-    );
-    var user_id_buffer = stack(user_id_array);
-    var device_id_buffer = stack(device_id_array);
+    )(this.ptr);
     var keys = stack(keys_length);
     account_method(Module['_olm_account_identity_keys'])(
-        this.ptr,
-        user_id_buffer, user_id_array.length,
-        device_id_buffer, device_id_array.length,
-        valid_after, valid_after / Math.pow(2, 32),
-        valid_until, valid_until / Math.pow(2, 32),
-        keys, keys_length
+        this.ptr, keys, keys_length
     );
     return Pointer_stringify(keys, keys_length);
+});
+
+Account.prototype['sign'] = restore_stack(function(message) {
+    var signature_length = account_method(
+        Module['_olm_account_signature_length']
+    )(this.ptr);
+    var message_array = array_from_string(message);
+    var message_buffer = stack(message_array);
+    var signature_buffer = stack(signature_length);
+    account_method(Module['_olm_account_sign'])(
+        this.ptr,
+        message_buffer, message_array.length,
+        signature_buffer, signature_length
+    );
+    return Pointer_stringify(signature_buffer, signature_length);
 });
 
 Account.prototype['one_time_keys'] = restore_stack(function() {

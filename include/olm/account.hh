@@ -56,47 +56,33 @@ struct Account {
     );
 
     /** Number of bytes needed to output the identity keys for this account */
-    std::size_t get_identity_json_length(
-        std::size_t user_id_length,
-        std::size_t device_id_length,
-        std::uint64_t valid_after_ts,
-        std::uint64_t valid_until_ts
-    );
+    std::size_t get_identity_json_length();
 
     /** Output the identity keys for this account as JSON in the following
      * format:
      *
-     *    {"algorithms":
-     *    ["m.olm.curve25519-aes-sha256"
-     *    ]
-     *    ,"device_id":"<device identifier>"
-     *    ,"keys":
-     *    {"curve25519:<key id>":"<base64 characters>"
-     *    ,"ed25519:<key id>":"<base64 characters>"
-     *    }
-     *    ,"user_id":"<user identifier>"
-     *    ,"valid_after_ts":<digits>
-     *    ,"valid_until_ts":<digits>
-     *    ,"signatures":
-     *    {"<user identifier>/<device identifier>":
-     *    {"ed25519:<key id>":"<base64 characters>"
-     *    }
-     *    }
+     *    {"curve25519":"<43 base64 characters>"
+     *    ,"ed25519":"<43 base64 characters>"
      *    }
      *
-     * The user_id and device_id must not contain 0x00-0x1F, '\"' or '\\'.
-     * The JSON up to but not including the "signatures" key will be signed
-     * using the account's ed25519 key. That signature is then included under
-     * the "signatures" key.
      *
      * Returns the size of the JSON written or std::size_t(-1) on error.
      * If the buffer is too small last_error will be OUTPUT_BUFFER_TOO_SMALL. */
     std::size_t get_identity_json(
-        std::uint8_t const * user_id, std::size_t user_id_length,
-        std::uint8_t const * device_id, std::size_t device_id_length,
-        std::uint64_t valid_after_ts,
-        std::uint64_t valid_until_ts,
         std::uint8_t * identity_json, std::size_t identity_json_length
+    );
+
+    /**
+     * The length of an ed25519 signature in bytes.
+     */
+    std::size_t signature_length();
+
+    /**
+     * Signs a message with the ed25519 key for this account.
+     */
+    std::size_t sign(
+        std::uint8_t const * message, std::size_t message_length,
+        std::uint8_t * signature, std::size_t signature_length
     );
 
     /** Number of bytes needed to output the one time keys for this account */
@@ -104,9 +90,11 @@ struct Account {
 
     /** Output the one time keys that haven't been published yet as JSON:
      *
-     *  {"curve25519:<key id>":"<base64 characters>"
-     *  ,"curve25519:<key_id>":"<base64 characters>"
+     *  {"curve25519":
+     *  ["<6 byte key id>":"<43 base64 characters>"
+     *  ,"<6 byte key id>":"<43 base64 characters>"
      *  ...
+     *  ]
      *  }
      *
      * Returns the size of the JSON written or std::size_t(-1) on error.

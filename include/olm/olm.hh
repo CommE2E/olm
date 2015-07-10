@@ -132,11 +132,7 @@ size_t olm_create_account(
 
 /** The size of the output buffer needed to hold the identity keys */
 size_t olm_account_identity_keys_length(
-    OlmAccount * account,
-    size_t user_id_length,
-    size_t device_id_length,
-    uint64_t valid_after_ts,
-    uint64_t valid_until_ts
+    OlmAccount * account
 );
 
 /** Writes the public parts of the identity keys for the account into the
@@ -145,11 +141,22 @@ size_t olm_account_identity_keys_length(
  * "OUTPUT_BUFFER_TOO_SMALL". */
 size_t olm_account_identity_keys(
     OlmAccount * account,
-    void const * user_id, size_t user_id_length,
-    void const * device_id, size_t device_id_length,
-    uint64_t valid_after_ts,
-    uint64_t valid_until_ts,
     void * identity_keys, size_t identity_key_length
+);
+
+
+/** The length of an ed25519 signature encoded as base64. */
+size_t olm_account_signature_length(
+    OlmAccount * account
+);
+
+/** Signs a message with the ed25519 key for this account. Returns olm_error()
+ * on failure. If the signature buffer was too small then
+ * olm_account_last_error() will be "OUTPUT_BUFFER_TOO_SMALL" */
+size_t olm_account_sign(
+    OlmAccount * account,
+    void const * message, size_t message_length,
+    void * signature, size_t signature_length
 );
 
 /** The size of the output buffer needed to hold the one time keys */

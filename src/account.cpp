@@ -69,22 +69,12 @@ std::size_t olm::Account::new_account(
 
 namespace {
 
-static const uint8_t IDENTITY_JSON_PART_0[] =
-    "{\"algorithms\":"
-    "[\"m.olm.curve25519-aes-sha256\""
-    "],\"device_id\":\"";
-static const uint8_t IDENTITY_JSON_PART_1[] = "\",\"keys\":{\"curve25519:";
-static const uint8_t IDENTITY_JSON_PART_2[] = "\":\"";
-static const uint8_t IDENTITY_JSON_PART_3[] = "\",\"ed25519:";
-static const uint8_t IDENTITY_JSON_PART_4[] = "\":\"";
-static const uint8_t IDENTITY_JSON_PART_5[] = "\"},\"user_id\":\"";
-static const uint8_t IDENTITY_JSON_PART_6[] = "\",\"valid_after_ts\":";
-static const uint8_t IDENTITY_JSON_PART_7[] = ",\"valid_until_ts\":";
-static const uint8_t IDENTITY_JSON_PART_8[] = ",\"signatures\":{\"";
-static const uint8_t IDENTITY_JSON_PART_9[] = "/";
-static const uint8_t IDENTITY_JSON_PART_A[] = "\":{\"ed25519:";
-static const uint8_t IDENTITY_JSON_PART_B[] = "\":\"";
-static const uint8_t IDENTITY_JSON_PART_C[] = "\"}}}";
+
+namespace {
+uint8_t KEY_JSON_ED25519[] = "\"ed25519\":";
+uint8_t KEY_JSON_CURVE25519[] = "\"curve25519\":";
+}
+
 
 std::size_t count_digits(
     std::uint64_t value
@@ -130,103 +120,78 @@ std::uint8_t * write_digits(
 }
 
 
-std::size_t olm::Account::get_identity_json_length(
-    std::size_t user_id_length,
-    std::size_t device_id_length,
-    std::uint64_t valid_after_ts,
-    std::uint64_t valid_until_ts
-) {
+std::size_t olm::Account::get_identity_json_length() {
     std::size_t length = 0;
-    length += sizeof(IDENTITY_JSON_PART_0) - 1;
-    length += device_id_length;
-    length += sizeof(IDENTITY_JSON_PART_1) - 1;
-    length += olm::encode_base64_length(3);
-    length += sizeof(IDENTITY_JSON_PART_2) - 1;
+    length += 1; /* { */
+    length += sizeof(KEY_JSON_CURVE25519) - 1;
+    length += 1; /* " */
     length += olm::encode_base64_length(
         sizeof(identity_keys.curve25519_key.public_key)
     );
-    length += sizeof(IDENTITY_JSON_PART_3) - 1;
-    length += olm::encode_base64_length(3);
-    length += sizeof(IDENTITY_JSON_PART_4) - 1;
+    length += 2; /* ", */
+    length += sizeof(KEY_JSON_ED25519) - 1;
+    length += 1; /* " */
     length += olm::encode_base64_length(
         sizeof(identity_keys.ed25519_key.public_key)
     );
-    length += sizeof(IDENTITY_JSON_PART_5) - 1;
-    length += user_id_length;
-    length += sizeof(IDENTITY_JSON_PART_6) - 1;
-    length += count_digits(valid_after_ts);
-    length += sizeof(IDENTITY_JSON_PART_7) - 1;
-    length += count_digits(valid_until_ts);
-    length += sizeof(IDENTITY_JSON_PART_8) - 1;
-    length += user_id_length;
-    length += sizeof(IDENTITY_JSON_PART_9) - 1;
-    length += device_id_length;
-    length += sizeof(IDENTITY_JSON_PART_A) - 1;
-    length += olm::encode_base64_length(3);
-    length += sizeof(IDENTITY_JSON_PART_B) - 1;
-    length += olm::encode_base64_length(64);
-    length += sizeof(IDENTITY_JSON_PART_C) - 1;
+    length += 2; /* "} */
     return length;
 }
 
 
 std::size_t olm::Account::get_identity_json(
-    std::uint8_t const * user_id, std::size_t user_id_length,
-    std::uint8_t const * device_id, std::size_t device_id_length,
-    std::uint64_t valid_after_ts,
-    std::uint64_t valid_until_ts,
     std::uint8_t * identity_json, std::size_t identity_json_length
 ) {
     std::uint8_t * pos = identity_json;
     std::uint8_t signature[64];
-    size_t expected_length = get_identity_json_length(
-            user_id_length, device_id_length, valid_after_ts, valid_until_ts
-    );
+    size_t expected_length = get_identity_json_length();
 
     if (identity_json_length < expected_length) {
         last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
 
-    pos = write_string(pos, IDENTITY_JSON_PART_0);
-    pos = write_string(pos, device_id, device_id_length);
-    pos = write_string(pos, IDENTITY_JSON_PART_1);
-    pos = encode_base64(identity_keys.curve25519_key.public_key, 3, pos);
-    pos = write_string(pos, IDENTITY_JSON_PART_2);
-    pos = encode_base64(identity_keys.curve25519_key.public_key, 32, pos);
-    pos = write_string(pos, IDENTITY_JSON_PART_3);
-    pos = encode_base64(identity_keys.ed25519_key.public_key, 3, pos);
-    pos = write_string(pos, IDENTITY_JSON_PART_4);
-    pos = encode_base64(identity_keys.ed25519_key.public_key, 32, pos);
-    pos = write_string(pos, IDENTITY_JSON_PART_5);
-    pos = write_string(pos, user_id, user_id_length);
-    pos = write_string(pos, IDENTITY_JSON_PART_6);
-    pos = write_digits(pos, valid_after_ts);
-    pos = write_string(pos, IDENTITY_JSON_PART_7);
-    pos = write_digits(pos, valid_until_ts);
-    *pos = '}';
-    // Sign the JSON up to written up to this point.
-    ed25519_sign(
-        identity_keys.ed25519_key,
-        identity_json, 1 + pos - identity_json,
-        signature
+    *(pos++) = '{';
+    pos = write_string(pos, KEY_JSON_CURVE25519);
+    *(pos++) = '\"';
+    pos = olm::encode_base64(
+        identity_keys.curve25519_key.public_key,
+        sizeof(identity_keys.curve25519_key.public_key),
+        pos
     );
-    // Append the signature to the end of the JSON.
-    pos = write_string(pos, IDENTITY_JSON_PART_8);
-    pos = write_string(pos, user_id, user_id_length);
-    pos = write_string(pos, IDENTITY_JSON_PART_9);
-    pos = write_string(pos, device_id, device_id_length);
-    pos = write_string(pos, IDENTITY_JSON_PART_A);
-    pos = encode_base64(identity_keys.ed25519_key.public_key, 3, pos);
-    pos = write_string(pos, IDENTITY_JSON_PART_B);
-    pos = encode_base64(signature, 64, pos);
-    pos = write_string(pos, IDENTITY_JSON_PART_C);
+    *(pos++) = '\"'; *(pos++) = ',';
+    pos = write_string(pos, KEY_JSON_ED25519);
+    *(pos++) = '\"';
+    pos = olm::encode_base64(
+        identity_keys.ed25519_key.public_key,
+        sizeof(identity_keys.ed25519_key.public_key),
+        pos
+    );
+    *(pos++) = '\"'; *(pos++) = '}';
     return pos - identity_json;
 }
 
-namespace {
-uint8_t ONE_TIME_KEY_JSON_ALG[] = "curve25519";
+
+std::size_t olm::Account::signature_length(
+) {
+    return 64;
 }
+
+
+std::size_t olm::Account::sign(
+    std::uint8_t const * message, std::size_t message_length,
+    std::uint8_t * signature, std::size_t signature_length
+) {
+    if (signature_length < this->signature_length()) {
+        last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        return std::size_t(-1);
+    }
+    olm::ed25519_sign(
+        identity_keys.ed25519_key, message, message_length, signature
+    );
+    return this->signature_length();
+}
+
 
 std::size_t olm::Account::get_one_time_keys_json_length(
 ) {
@@ -236,18 +201,18 @@ std::size_t olm::Account::get_one_time_keys_json_length(
             continue;
         }
         length += 2; /* {" */
-        length += sizeof(ONE_TIME_KEY_JSON_ALG) - 1;
-        length += 1; /* : */
         length += olm::encode_base64_length(olm::pickle_length(key.id));
         length += 3; /* ":" */
         length += olm::encode_base64_length(sizeof(key.key.public_key));
         length += 1; /* " */
     }
-    if (length) {
-        return length + 1; /* } */
-    } else {
-        return 2; /* {} */
+    if (length == 0) {
+        /* The list was empty. Add a byte for the opening '{' */
+        length = 1;
     }
+    length += 3; /* }{} */
+    length += sizeof(KEY_JSON_CURVE25519) - 1;
+    return length;
 }
 
 
@@ -259,6 +224,8 @@ std::size_t olm::Account::get_one_time_keys_json(
         last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
+    *(pos++) = '{';
+    pos = write_string(pos, KEY_JSON_CURVE25519);
     std::uint8_t sep = '{';
     for (auto const & key : one_time_keys) {
         if (key.published) {
@@ -266,8 +233,6 @@ std::size_t olm::Account::get_one_time_keys_json(
         }
         *(pos++) = sep;
         *(pos++) = '\"';
-        pos = write_string(pos, ONE_TIME_KEY_JSON_ALG);
-        *(pos++) = ':';
         std::uint8_t key_id[olm::pickle_length(key.id)];
         olm::pickle(key_id, key.id);
         pos = olm::encode_base64(key_id, sizeof(key_id), pos);
@@ -281,6 +246,7 @@ std::size_t olm::Account::get_one_time_keys_json(
     if (sep != ',') {
         *(pos++) = sep;
     }
+    *(pos++) = '}';
     *(pos++) = '}';
     return pos - one_time_json;
 }
