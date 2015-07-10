@@ -360,11 +360,16 @@ static std::uint8_t const * unpickle(
 
 } // namespace olm
 
+namespace {
+static const std::uint32_t ACCOUNT_PICKLE_VERSION = 1;
+}
+
 
 std::size_t olm::pickle_length(
     olm::Account const & value
 ) {
     std::size_t length = 0;
+    length += olm::pickle_length(ACCOUNT_PICKLE_VERSION);
     length += olm::pickle_length(value.identity_keys);
     length += olm::pickle_length(value.one_time_keys);
     length += olm::pickle_length(value.next_one_time_key_id);
@@ -376,6 +381,7 @@ std::uint8_t * olm::pickle(
     std::uint8_t * pos,
     olm::Account const & value
 ) {
+    pos = olm::pickle(pos, ACCOUNT_PICKLE_VERSION);
     pos = olm::pickle(pos, value.identity_keys);
     pos = olm::pickle(pos, value.one_time_keys);
     pos = olm::pickle(pos, value.next_one_time_key_id);
@@ -387,6 +393,12 @@ std::uint8_t const * olm::unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
     olm::Account & value
 ) {
+    uint32_t pickle_version;
+    pos = olm::unpickle(pos, end, pickle_version);
+    if (pickle_version != ACCOUNT_PICKLE_VERSION) {
+        value.last_error = olm::ErrorCode::UNKNOWN_PICKLE_VERSION;
+        return end;
+    }
     pos = olm::unpickle(pos, end, value.identity_keys);
     pos = olm::unpickle(pos, end, value.one_time_keys);
     pos = olm::unpickle(pos, end, value.next_one_time_key_id);

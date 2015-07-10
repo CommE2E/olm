@@ -27,6 +27,8 @@ enum struct ErrorCode {
     BAD_MESSAGE_KEY_ID = 6, /*!< The message references an unknown key id */
     INVALID_BASE64 = 7, /*!< The input base64 was invalid */
     BAD_ACCOUNT_KEY = 8, /*!< The supplied account key is invalid */
+    UNKNOWN_PICKLE_VERSION = 9, /*!< The pickled object is too new */
+    CORRUPTED_PICKLE = 10, /*!< The pickled object couldn't be decoded */
 };
 
 } // namespace olm
