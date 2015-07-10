@@ -61,6 +61,16 @@ const char * olm_session_last_error(
     OlmSession * session
 );
 
+/** Clears the memory used to back this account */
+size_t olm_clear_account(
+    OlmSession * account
+);
+
+/** Clears the memory used to back this session */
+size_t olm_clear_session(
+    OlmSession * session
+);
+
 /** Returns the number of bytes needed to store an account */
 size_t olm_pickle_account_length(
     OlmAccount * account
@@ -127,7 +137,7 @@ size_t olm_create_account_random_length(
  * "NOT_ENOUGH_RANDOM" */
 size_t olm_create_account(
     OlmAccount * account,
-    void const * random, size_t random_length
+    void * random, size_t random_length
 );
 
 /** The size of the output buffer needed to hold the identity keys */
@@ -197,7 +207,7 @@ size_t olm_account_generate_one_time_keys_random_length(
 size_t olm_account_generate_one_time_keys(
     OlmAccount * account,
     size_t number_of_keys,
-    void const * random, size_t random_length
+    void * random, size_t random_length
 );
 
 /** The number of random bytes needed to create an outbound session */
@@ -215,7 +225,7 @@ size_t olm_create_outbound_session(
     OlmAccount * account,
     void const * their_identity_key, size_t their_identity_key_length,
     void const * their_one_time_key, size_t their_one_time_key_length,
-    void const * random, size_t random_length
+    void * random, size_t random_length
 );
 
 /** Create a new in-bound session for sending/receiving messages from an
@@ -282,7 +292,7 @@ size_t olm_encrypt_message_length(
 size_t olm_encrypt(
     OlmSession * session,
     void const * plaintext, size_t plaintext_length,
-    void const * random, size_t random_length,
+    void * random, size_t random_length,
     void * message, size_t message_length
 );
 

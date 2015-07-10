@@ -17,6 +17,7 @@
 #include "olm/account.hh"
 #include "olm/base64.hh"
 #include "olm/cipher.hh"
+#include "olm/memory.hh"
 
 #include <new>
 #include <cstring>
@@ -213,6 +214,7 @@ size_t olm_session_size() {
 OlmAccount * olm_account(
     void * memory
 ) {
+    olm::unset(memory, sizeof(olm::Account));
     return to_c(new(memory) olm::Account());
 }
 
@@ -220,7 +222,30 @@ OlmAccount * olm_account(
 OlmSession * olm_session(
     void * memory
 ) {
+    olm::unset(memory, sizeof(olm::Session));
     return to_c(new(memory) olm::Session());
+}
+
+
+size_t olm_clear_account(
+    OlmSession * account
+) {
+    /* Clear the memory backing the account  */
+    olm::unset(account, sizeof(olm::Account));
+    /* Initialise a fresh account object in case someone tries to use it */
+    new(account) olm::Account();
+    return sizeof(olm::Account);
+}
+
+
+size_t olm_clear_session(
+    OlmSession * session
+) {
+    /* Clear the memory backing the session */
+    olm::unset(session, sizeof(olm::Session));
+    /* Initialise a fresh session object in case someone tries to use it */
+    new(session) olm::Session();
+    return sizeof(olm::Session);
 }
 
 
@@ -336,9 +361,11 @@ size_t olm_create_account_random_length(
 
 size_t olm_create_account(
     OlmAccount * account,
-    void const * random, size_t random_length
+    void * random, size_t random_length
 ) {
-    return from_c(account)->new_account(from_c(random), random_length);
+    size_t result = from_c(account)->new_account(from_c(random), random_length);
+    olm::unset(random, random_length);
+    return result;
 }
 
 
@@ -427,12 +454,14 @@ size_t olm_account_generate_one_time_keys_random_length(
 size_t olm_account_generate_one_time_keys(
     OlmAccount * account,
     size_t number_of_keys,
-    void const * random, size_t random_length
+    void * random, size_t random_length
 ) {
-    return from_c(account)->generate_one_time_keys(
+    size_t result = from_c(account)->generate_one_time_keys(
         number_of_keys,
         from_c(random), random_length
     );
+    olm::unset(random, random_length);
+    return result;
 }
 
 
@@ -448,7 +477,7 @@ size_t olm_create_outbound_session(
     OlmAccount * account,
     void const * their_identity_key, size_t their_identity_key_length,
     void const * their_one_time_key, size_t their_one_time_key_length,
-    void const * random, size_t random_length
+    void * random, size_t random_length
 ) {
     if (olm::decode_base64_length(their_identity_key_length) != 32
             || olm::decode_base64_length(their_one_time_key_length) != 32
@@ -468,10 +497,12 @@ size_t olm_create_outbound_session(
         one_time_key.public_key
     );
 
-    return from_c(session)->new_outbound_session(
+    size_t result = from_c(session)->new_outbound_session(
         *from_c(account), identity_key, one_time_key,
         from_c(random), random_length
     );
+    olm::unset(random, random_length);
+    return result;
 }
 
 
@@ -550,7 +581,7 @@ size_t olm_encrypt_message_length(
 size_t olm_encrypt(
     OlmSession * session,
     void const * plaintext, size_t plaintext_length,
-    void const * random, size_t random_length,
+    void * random, size_t random_length,
     void * message, size_t message_length
 ) {
     std::size_t raw_length = from_c(session)->encrypt_message_length(
@@ -566,6 +597,7 @@ size_t olm_encrypt(
         from_c(random), random_length,
         b64_output_pos(from_c(message), raw_length), raw_length
     );
+    olm::unset(random, random_length);
     return b64_output(from_c(message), raw_length);
 }
 
