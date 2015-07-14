@@ -55,9 +55,57 @@ std::memcpy(pickle2, pickle1, pickle_length);
 
 std::uint8_t account_buffer2[::olm_account_size()];
 ::OlmAccount *account2 = ::olm_account(account_buffer2);
-::olm_unpickle_account(account2, "secret_key", 10, pickle2, pickle_length);
+assert_not_equals(std::size_t(-1), ::olm_unpickle_account(
+    account2, "secret_key", 10, pickle2, pickle_length
+));
 assert_equals(pickle_length, ::olm_pickle_account_length(account2));
 ::olm_pickle_account(account2, "secret_key", 10, pickle2, pickle_length);
+
+assert_equals(pickle1, pickle2, pickle_length);
+
+}
+
+{ /** Pickle session test */
+
+TestCase test_case("Pickle session test");
+MockRandom mock_random('P');
+
+std::uint8_t account_buffer[::olm_account_size()];
+::OlmAccount *account = ::olm_account(account_buffer);
+std::uint8_t random[::olm_create_account_random_length(account)];
+mock_random(random, sizeof(random));
+::olm_create_account(account, random, sizeof(random));
+
+std::uint8_t session_buffer[::olm_session_size()];
+::OlmSession *session = ::olm_session(session_buffer);
+std::uint8_t identity_key[32];
+std::uint8_t one_time_key[32];
+mock_random(identity_key, sizeof(identity_key));
+mock_random(one_time_key, sizeof(one_time_key));
+std::uint8_t random2[::olm_create_outbound_session_random_length(session)];
+mock_random(random2, sizeof(random2));
+
+::olm_create_outbound_session(
+    session, account,
+    identity_key, sizeof(identity_key),
+    one_time_key, sizeof(one_time_key),
+    random2, sizeof(random2)
+);
+
+
+std::size_t pickle_length = ::olm_pickle_session_length(session);
+std::uint8_t pickle1[pickle_length];
+::olm_pickle_session(session, "secret_key", 10, pickle1, pickle_length);
+std::uint8_t pickle2[pickle_length];
+std::memcpy(pickle2, pickle1, pickle_length);
+
+std::uint8_t session_buffer2[::olm_session_size()];
+::OlmSession *session2 = ::olm_session(session_buffer2);
+assert_not_equals(std::size_t(-1), ::olm_unpickle_session(
+    session2, "secret_key", 10, pickle2, pickle_length
+));
+assert_equals(pickle_length, ::olm_pickle_session_length(session2));
+::olm_pickle_session(session2, "secret_key", 10, pickle2, pickle_length);
 
 assert_equals(pickle1, pickle2, pickle_length);
 

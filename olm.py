@@ -130,12 +130,12 @@ class Account(object):
 
     def generate_one_time_keys(self, count):
         random_length = lib.olm_account_generate_one_time_keys_random_length(
-            self.ptr
+            self.ptr, count
         )
         random = read_random(random_length)
         random_buffer = create_string_buffer(random)
         lib.olm_account_generate_one_time_keys(
-            self.ptr, random_buffer, random_length
+            self.ptr, count, random_buffer, random_length
         )
 
     def clear(self):
@@ -323,17 +323,21 @@ if __name__ == '__main__':
 
     keys = commands.add_parser("keys", help="List public keys for an account")
     keys.add_argument("account_file", help="Local account file")
+    keys.add_argument("--json", action="store_true", help="Output as JSON")
 
     def do_keys(args):
         account = Account()
         with open(args.account_file, "rb") as f:
             account.unpickle(args.key, f.read())
-        result1 = {
+        result = {
             "account_keys": account.identity_keys(),
             "one_time_keys": account.one_time_keys(),
         }
         try:
-            yaml.safe_dump(result1, sys.stdout, default_flow_style=False)
+            if args.json:
+                json.dump(result, sys.stdout, indent=4)
+            else:
+                yaml.safe_dump(result, sys.stdout, default_flow_style=False)
         except:
             pass
 
@@ -356,6 +360,22 @@ if __name__ == '__main__':
 
     sign.set_defaults(func=do_sign)
 
+
+    generate_keys = commands.add_parser("generate_keys", help="Generate one time keys")
+    generate_keys.add_argument("account_file", help="Local account file")
+    generate_keys.add_argument("count", type=int, help="Number of keys to generate")
+
+    def do_generate_keys(args):
+        account = Account()
+        with open(args.account_file, "rb") as f:
+            account.unpickle(args.key, f.read())
+        account.generate_one_time_keys(args.count)
+        with open(args.account_file, "wb") as f:
+            f.write(account.pickle(args.key))
+
+    generate_keys.set_defaults(func=do_generate_keys)
+
+
     outbound = commands.add_parser("outbound", help="Create an outbound session")
     outbound.add_argument("account_file", help="Local account file")
     outbound.add_argument("session_file", help="Local session file")
@@ -365,7 +385,7 @@ if __name__ == '__main__':
     def do_outbound(args):
         if os.path.exists(args.session_file):
             sys.stderr.write("Session %r file already exists" % (
-                args.account_file,
+                args.session_file,
             ))
             sys.exit(1)
         account = Account()

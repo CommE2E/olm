@@ -152,7 +152,7 @@ std::size_t b64_input(
     return raw_length;
 }
 
-const char * errors[11] {
+static const char * ERRORS[11] {
     "SUCCESS",
     "NOT_ENOUGH_RANDOM",
     "OUTPUT_BUFFER_TOO_SMALL",
@@ -181,8 +181,8 @@ const char * olm_account_last_error(
     OlmSession * account
 ) {
     unsigned error = unsigned(from_c(account)->last_error);
-    if (error < 9) {
-        return errors[error];
+    if (error < sizeof(ERRORS)) {
+        return ERRORS[error];
     } else {
         return "UNKNOWN_ERROR";
     }
@@ -193,8 +193,8 @@ const char * olm_session_last_error(
     OlmSession * session
 ) {
     unsigned error = unsigned(from_c(session)->last_error);
-    if (error < 9) {
-        return errors[error];
+    if (error < sizeof(ERRORS)) {
+        return ERRORS[error];
     } else {
         return "UNKNOWN_ERROR";
     }
@@ -337,7 +337,7 @@ size_t olm_unpickle_session(
         return std::size_t(-1);
     }
 
-    std::uint8_t * const end = pos + raw_length + 1;
+    std::uint8_t * const end = pos + raw_length;
     /* On success unpickle will return (pos + raw_length). If unpickling
      * terminates too soon then it will return a pointer before
      * (pos + raw_length). On error unpickle will return (pos + raw_length + 1).
