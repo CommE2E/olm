@@ -15,7 +15,7 @@ function array_from_string(string) {
 function random_stack(size) {
     var ptr = stack(size);
     var array = new Uint8Array(Module['HEAPU8'].buffer, ptr, size);
-    window.crypto.getRandomValues(array);
+    get_random_values(array);
     return ptr;
 }
 
@@ -139,7 +139,7 @@ Account.prototype['unpickle'] = restore_stack(function(key, pickle) {
     var key_array = array_from_string(key);
     var key_buffer = stack(key_array);
     var pickle_array = array_from_string(pickle);
-    var pickle_buffer = stack(pickle_length);
+    var pickle_buffer = stack(pickle_array);
     account_method(Module['_olm_unpickle_account'])(
         this.ptr, key_buffer, key_array.length, pickle_buffer,
         pickle_array.length
@@ -280,5 +280,7 @@ Session.prototype['decrypt'] = restore_stack(function(
     return Pointer_stringify(plaintext_buffer, plaintext_length);
 });
 
-return {"Account": Account, "Session": Session};
+olm_exports["Account"] = Account;
+olm_exports["Session"] = Session;
+
 }();
