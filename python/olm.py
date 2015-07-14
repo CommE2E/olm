@@ -4,7 +4,7 @@ import json
 import os
 
 lib = cdll.LoadLibrary(os.path.join(
-    os.path.dirname(__file__), "build", "libolm.so")
+    os.path.dirname(__file__), "..", "build", "libolm.so")
 )
 
 
