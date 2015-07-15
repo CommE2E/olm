@@ -52,7 +52,7 @@ size_t olm_error();
 /** A null terminated string describing the most recent error to happen to an
  * account */
 const char * olm_account_last_error(
-    OlmSession * account
+    OlmAccount * account
 );
 
 /** A null terminated string describing the most recent error to happen to a
@@ -63,7 +63,7 @@ const char * olm_session_last_error(
 
 /** Clears the memory used to back this account */
 size_t olm_clear_account(
-    OlmSession * account
+    OlmAccount * account
 );
 
 /** Clears the memory used to back this session */

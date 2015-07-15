@@ -178,7 +178,7 @@ size_t olm_error() {
 
 
 const char * olm_account_last_error(
-    OlmSession * account
+    OlmAccount * account
 ) {
     unsigned error = unsigned(from_c(account)->last_error);
     if (error < sizeof(ERRORS)) {
@@ -228,7 +228,7 @@ OlmSession * olm_session(
 
 
 size_t olm_clear_account(
-    OlmSession * account
+    OlmAccount * account
 ) {
     /* Clear the memory backing the account  */
     olm::unset(account, sizeof(olm::Account));
