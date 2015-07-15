@@ -252,7 +252,7 @@ class Session(object):
 
     def matches_inbound(self, one_time_key_message):
         one_time_key_message_buffer = create_string_buffer(one_time_key_message)
-        return bool(lib.olm_create_inbound_session(
+        return bool(lib.olm_matches_inbound_session(
             self.ptr,
             one_time_key_message_buffer, len(one_time_key_message)
         ))
