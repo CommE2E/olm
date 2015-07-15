@@ -69,10 +69,10 @@ public:
         } else if (pos == _end) {
             --pos;
         }
-        T * tmp = pos;
-        while (tmp != _end - 1) {
-            *(tmp + 1) = *tmp;
-            ++tmp;
+        T * tmp = _end - 1;
+        while (tmp != pos) {
+            *tmp = *(tmp - 1);
+            --tmp;
         }
         return pos;
     }

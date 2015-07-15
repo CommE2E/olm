@@ -44,6 +44,28 @@ assert_equals(4, test_list[3]);
 
 } /** List insert test **/
 
+{ /** List insert beginning test **/
+
+TestCase test_case("List insert beginning");
+
+olm::List<int, 4> test_list;
+
+assert_equals(std::size_t(0), test_list.size());
+
+for (int i = 0; i < 4; ++i) {
+    test_list.insert(test_list.begin(), i);
+}
+
+assert_equals(std::size_t(4), test_list.size());
+
+int i = 4;
+for (auto item : test_list) {
+    assert_equals(--i, item);
+}
+
+} /** List insert test **/
+
+
 { /** List erase test **/
 TestCase test_case("List erase");
 
