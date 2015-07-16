@@ -518,7 +518,36 @@ size_t olm_create_inbound_session(
         return std::size_t(-1);
     }
     return from_c(session)->new_inbound_session(
-        *from_c(account), from_c(one_time_key_message), raw_length
+        *from_c(account), nullptr, from_c(one_time_key_message), raw_length
+    );
+}
+
+
+size_t olm_create_inbound_session_from(
+    OlmSession * session,
+    OlmAccount * account,
+    void const * their_identity_key, size_t their_identity_key_length,
+    void * one_time_key_message, size_t message_length
+) {
+    if (olm::decode_base64_length(their_identity_key_length) != 32) {
+        from_c(session)->last_error = olm::ErrorCode::INVALID_BASE64;
+        return std::size_t(-1);
+    }
+    olm::Curve25519PublicKey identity_key;
+    olm::decode_base64(
+        from_c(their_identity_key), their_identity_key_length,
+        identity_key.public_key
+    );
+
+    std::size_t raw_length = b64_input(
+        from_c(one_time_key_message), message_length, from_c(session)->last_error
+    );
+    if (raw_length == std::size_t(-1)) {
+        return std::size_t(-1);
+    }
+    return from_c(session)->new_inbound_session(
+        *from_c(account), &identity_key,
+        from_c(one_time_key_message), raw_length
     );
 }
 
@@ -534,7 +563,35 @@ size_t olm_matches_inbound_session(
         return std::size_t(-1);
     }
     bool matches = from_c(session)->matches_inbound_session(
-        from_c(one_time_key_message), raw_length
+        nullptr, from_c(one_time_key_message), raw_length
+    );
+    return matches ? 1 : 0;
+}
+
+
+size_t olm_matches_inbound_session_from(
+    OlmSession * session,
+    void const * their_identity_key, size_t their_identity_key_length,
+    void * one_time_key_message, size_t message_length
+) {
+    if (olm::decode_base64_length(their_identity_key_length) != 32) {
+        from_c(session)->last_error = olm::ErrorCode::INVALID_BASE64;
+        return std::size_t(-1);
+    }
+    olm::Curve25519PublicKey identity_key;
+    olm::decode_base64(
+        from_c(their_identity_key), their_identity_key_length,
+        identity_key.public_key
+    );
+
+    std::size_t raw_length = b64_input(
+        from_c(one_time_key_message), message_length, from_c(session)->last_error
+    );
+    if (raw_length == std::size_t(-1)) {
+        return std::size_t(-1);
+    }
+    bool matches = from_c(session)->matches_inbound_session(
+        &identity_key, from_c(one_time_key_message), raw_length
     );
     return matches ? 1 : 0;
 }

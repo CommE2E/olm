@@ -50,10 +50,12 @@ struct Session {
 
     std::size_t new_inbound_session(
         Account & local_account,
+        Curve25519PublicKey const * their_identity_key,
         std::uint8_t const * one_time_key_message, std::size_t message_length
     );
 
     bool matches_inbound_session(
+        Curve25519PublicKey const * their_identity_key,
         std::uint8_t const * one_time_key_message, std::size_t message_length
     );
 

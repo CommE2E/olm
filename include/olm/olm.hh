@@ -242,6 +242,21 @@ size_t olm_create_inbound_session(
     void * one_time_key_message, size_t message_length
 );
 
+/** Create a new in-bound session for sending/receiving messages from an
+ * incoming PRE_KEY message. Returns olm_error() on failure. If the base64
+ * couldn't be decoded then olm_session_last_error will be "INVALID_BASE64".
+ * If the message was for an unsupported protocol version then
+ * olm_session_last_error() will be "BAD_MESSAGE_VERSION". If the message
+ * couldn't be decoded then then olm_session_last_error() will be
+ * "BAD_MESSAGE_FORMAT". If the message refers to an unknown one time
+ * key then olm_session_last_error() will be "BAD_MESSAGE_KEY_ID". */
+size_t olm_create_inbound_session_from(
+    OlmSession * session,
+    OlmAccount * account,
+    void const * their_identity_key, size_t their_identity_key_length,
+    void * one_time_key_message, size_t message_length
+);
+
 /** Checks if the PRE_KEY message is for this in-bound session. This can happen
  * if multiple messages are sent to this account before this account sends a
  * message in reply. Returns olm_error() on failure. If the base64
@@ -252,6 +267,20 @@ size_t olm_create_inbound_session(
  * "BAD_MESSAGE_FORMAT". */
 size_t olm_matches_inbound_session(
     OlmSession * session,
+    void * one_time_key_message, size_t message_length
+);
+
+/** Checks if the PRE_KEY message is for this in-bound session. This can happen
+ * if multiple messages are sent to this account before this account sends a
+ * message in reply. Returns olm_error() on failure. If the base64
+ * couldn't be decoded then olm_session_last_error will be "INVALID_BASE64".
+ * If the message was for an unsupported protocol version then
+ * olm_session_last_error() will be "BAD_MESSAGE_VERSION". If the message
+ * couldn't be decoded then then olm_session_last_error() will be
+ * "BAD_MESSAGE_FORMAT". */
+size_t olm_matches_inbound_session_from(
+    OlmSession * session,
+    void const * their_identity_key, size_t their_identity_key_length,
     void * one_time_key_message, size_t message_length
 );
 
