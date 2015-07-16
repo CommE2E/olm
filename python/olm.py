@@ -185,7 +185,20 @@ session_function(
     c_void_p,  # Account
     c_void_p, c_size_t,  # Pre Key Message
 )
+session_function(
+    lib.olm_create_inbound_session_from,
+    c_void_p,  # Account
+    c_void_p, c_size_t,  # Identity Key
+    c_void_p, c_size_t,  # Pre Key Message
+)
+session_function(lib.olm_session_id_length)
+session_function(lib.olm_session_id, c_void_p, c_size_t)
 session_function(lib.olm_matches_inbound_session, c_void_p, c_size_t)
+session_function(
+    lib.olm_matches_inbound_session_from,
+    c_void_p, c_size_t,  # Identity Key
+    c_void_p, c_size_t,  # Pre Key Message
+)
 session_function(lib.olm_encrypt_message_type)
 session_function(lib.olm_encrypt_random_length)
 session_function(lib.olm_encrypt_message_length, c_size_t)
@@ -204,7 +217,7 @@ session_function(
     lib.olm_decrypt,
     c_size_t,  # Message Type
     c_void_p, c_size_t,  # Message
-    c_void_p, c_size_t, # Plaintext
+    c_void_p, c_size_t,  # Plaintext
 )
 
 class Session(object):
@@ -250,10 +263,35 @@ class Session(object):
             one_time_key_message_buffer, len(one_time_key_message)
         )
 
+    def create_inbound_from(self, account, identity_key, one_time_key_message):
+        identity_key_buffer = create_string_buffer(identity_key)
+        one_time_key_message_buffer = create_string_buffer(one_time_key_message)
+        lib.olm_create_inbound_session_from(
+            self.ptr,
+            account.ptr,
+            identity_key_buffer, len(identity_key),
+            one_time_key_message_buffer, len(one_time_key_message)
+        )
+
+    def session_id(self):
+        id_length = lib.olm_session_id_length(self.ptr)
+        id_buffer = create_string_buffer(id_length)
+        lib.olm_session_id(self.ptr, id_buffer, id_length);
+        return id_buffer.raw
+
     def matches_inbound(self, one_time_key_message):
         one_time_key_message_buffer = create_string_buffer(one_time_key_message)
         return bool(lib.olm_matches_inbound_session(
             self.ptr,
+            one_time_key_message_buffer, len(one_time_key_message)
+        ))
+
+    def matches_inbound_from(self, identity_key, one_time_key_message):
+        identity_key_buffer = create_string_buffer(identity_key)
+        one_time_key_message_buffer = create_string_buffer(one_time_key_message)
+        return bool(lib.olm_matches_inbound_session(
+            self.ptr,
+            identity_key_buffer, len(identity_key),
             one_time_key_message_buffer, len(one_time_key_message)
         ))
 
@@ -421,7 +459,7 @@ if __name__ == '__main__':
     def do_inbound(args):
         if os.path.exists(args.session_file):
             sys.stderr.write("Session %r file already exists" % (
-                args.account_file,
+                args.session_file,
             ))
             sys.exit(1)
         account = Account()
@@ -442,6 +480,17 @@ if __name__ == '__main__':
             f.write(plaintext)
 
     inbound.set_defaults(func=do_inbound)
+
+    session_id = commands.add_parser("session_id", help="Session ID")
+    session_id.add_argument("session_file", help="Local session file")
+
+    def do_session_id(args):
+        session = Session()
+        with open(args.session_file, "rb") as f:
+            session.unpickle(args.key, f.read())
+        sys.stdout.write(session.session_id() + "\n")
+
+    session_id.set_defaults(func=do_session_id)
 
     encrypt = commands.add_parser("encrypt", help="Encrypt a message")
     encrypt.add_argument("session_file", help="Local session file")

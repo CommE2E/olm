@@ -54,6 +54,12 @@ struct Session {
         std::uint8_t const * one_time_key_message, std::size_t message_length
     );
 
+    std::size_t session_id_length();
+
+    std::size_t session_id(
+        std::uint8_t * id, std::size_t id_length
+    );
+
     bool matches_inbound_session(
         Curve25519PublicKey const * their_identity_key,
         std::uint8_t const * one_time_key_message, std::size_t message_length

@@ -216,6 +216,19 @@ assert_equals(std::size_t(-1), ::olm_decrypt(
     plaintext_2, sizeof(plaintext_2)
 ));
 
+std::uint8_t a_session_id[::olm_session_id_length(a_session)];
+assert_not_equals(std::size_t(-1), ::olm_session_id(
+    a_session, a_session_id, sizeof(a_session_id)
+));
+
+std::uint8_t b_session_id[::olm_session_id_length(b_session)];
+assert_not_equals(std::size_t(-1), ::olm_session_id(
+    b_session, b_session_id, sizeof(b_session_id)
+));
+
+assert_equals(sizeof(a_session_id), sizeof(b_session_id));
+assert_equals(a_session_id, b_session_id, sizeof(b_session_id));
+
 }
 
 { /** More messages test */

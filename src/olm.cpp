@@ -552,6 +552,33 @@ size_t olm_create_inbound_session_from(
 }
 
 
+size_t olm_session_id_length(
+    OlmSession * session
+) {
+    return b64_output_length(from_c(session)->session_id_length());
+}
+
+
+size_t olm_session_id(
+    OlmSession * session,
+    void * id, size_t id_length
+) {
+    std::size_t raw_length = from_c(session)->session_id_length();
+    if (id_length < b64_output_length(raw_length)) {
+        from_c(session)->last_error =
+                olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        return std::size_t(-1);
+    }
+    std::size_t result = from_c(session)->session_id(
+       b64_output_pos(from_c(id), raw_length), raw_length
+    );
+    if (result == std::size_t(-1)) {
+        return result;
+    }
+    return b64_output(from_c(id), raw_length);
+}
+
+
 size_t olm_matches_inbound_session(
     OlmSession * session,
     void * one_time_key_message, size_t message_length
@@ -649,12 +676,15 @@ size_t olm_encrypt(
             olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
-    from_c(session)->encrypt(
+    std::size_t result = from_c(session)->encrypt(
         from_c(plaintext), plaintext_length,
         from_c(random), random_length,
         b64_output_pos(from_c(message), raw_length), raw_length
     );
     olm::unset(random, random_length);
+    if (result == std::size_t(-1)) {
+        return result;
+    }
     return b64_output(from_c(message), raw_length);
 }
 

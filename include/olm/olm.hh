@@ -257,6 +257,19 @@ size_t olm_create_inbound_session_from(
     void * one_time_key_message, size_t message_length
 );
 
+/** The length of the buffer needed to return the id for this session. */
+size_t olm_session_id_length(
+    OlmSession * session
+);
+
+/** An identifier for this session. Will be the same for both ends of the
+ * conversation. If the id buffer is too small then olm_session_last_error()
+ * will be "OUTPUT_BUFFER_TOO_SMALL". */
+size_t olm_session_id(
+    OlmSession * session,
+    void * id, size_t id_length
+);
+
 /** Checks if the PRE_KEY message is for this in-bound session. This can happen
  * if multiple messages are sent to this account before this account sends a
  * message in reply. Returns olm_error() on failure. If the base64

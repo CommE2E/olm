@@ -222,6 +222,29 @@ Session.prototype['create_inbound'] = restore_stack(function(
     );
 });
 
+Session.prototype['create_inbound_from'] = restore_stack(function(
+    account, identity_key, one_time_key_message
+) {
+    var identity_key_array = array_from_string(identity_key);
+    var identity_key_buffer = stack(identity_key_array);
+    var message_array = array_from_string(one_time_key_message);
+    var message_buffer = stack(message_array);
+    session_method(Module['_olm_create_inbound_session_from'])(
+        this.ptr, account.ptr,
+        identity_key_buffer, identity_key_array.length,
+        message_buffer, message_array.length
+    );
+});
+
+Session.prototype['session_id'] = restore_stack(function() {
+    var id_length = session_method(Module['_olm_session_id_length'])(this.ptr);
+    var id_buffer = stack(id_length);
+    session_method(Module['_olm_session_id'])(
+        this.ptr, id_buffer, id_length
+    );
+    return Pointer_stringify(id_buffer, id_length);
+});
+
 Session.prototype['matches_inbound'] = restore_stack(function(
     account, one_time_key_message
 ) {
@@ -229,6 +252,20 @@ Session.prototype['matches_inbound'] = restore_stack(function(
     var message_buffer = stack(message_array);
     return session_method(Module['_olm_matches_inbound_session'])(
         this.ptr, account.ptr, message_buffer, message_array.length
+    ) ? true : false;
+});
+
+Session.prototype['matches_inbound_from'] = restore_stack(function(
+    account, identity_key, one_time_key_message
+) {
+    var identity_key_array = array_from_string(identity_key);
+    var identity_key_buffer = stack(identity_key_array);
+    var message_array = array_from_string(one_time_key_message);
+    var message_buffer = stack(message_array);
+    return session_method(Module['_olm_matches_inbound_session_from'])(
+        this.ptr, account.ptr,
+        identity_key_buffer, identity_key_array.length,
+        message_buffer, message_array.length
     ) ? true : false;
 });
 

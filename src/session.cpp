@@ -189,6 +189,27 @@ std::size_t olm::Session::new_inbound_session(
 }
 
 
+std::size_t olm::Session::session_id_length() {
+    return 32;
+}
+
+
+std::size_t olm::Session::session_id(
+    std::uint8_t * id, std::size_t id_length
+) {
+    if (id_length < session_id_length()) {
+        last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        return std::size_t(-1);
+    }
+    std::uint8_t tmp[96];
+    std::memcpy(tmp, alice_identity_key.public_key, 32);
+    std::memcpy(tmp + 32, alice_base_key.public_key, 32);
+    std::memcpy(tmp + 64, bob_one_time_key.public_key, 32);
+    olm::sha256(tmp, sizeof(tmp), id);
+    return session_id_length();
+}
+
+
 bool olm::Session::matches_inbound_session(
     olm::Curve25519PublicKey const * their_identity_key,
     std::uint8_t const * one_time_key_message, std::size_t message_length
