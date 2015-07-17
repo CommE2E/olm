@@ -105,7 +105,7 @@ Account.prototype['mark_keys_as_published'] = restore_stack(function() {
 });
 
 Account.prototype['max_number_of_one_time_keys'] = restore_stack(function() {
-    account_method(Module['_olm_account_max_number_of_one_time_keys'])(
+    return account_method(Module['_olm_account_max_number_of_one_time_keys'])(
         this.ptr
     );
 });
@@ -119,6 +119,12 @@ Account.prototype['generate_one_time_keys'] = restore_stack(function(
     var random = random_stack(random_length);
     account_method(Module['_olm_account_generate_one_time_keys'])(
         this.ptr, number_of_keys, random, random_length
+    );
+});
+
+Account.prototype['remove_one_time_keys'] = restore_stack(function(session) {
+     account_method(Module['_olm_remove_one_time_keys'])(
+        this.ptr, session.ptr
     );
 });
 
