@@ -1,14 +1,17 @@
 var olm_exports = {};
 var get_random_values;
-if (typeof(window) !== 'undefined') {
-    // We've been imported directly into a browser.
-    window["Olm"] = olm_exports;
+var process; // Shadow the process object so that emscripten won't get
+             // confused by browserify
+if (global && global.window) {
+    // We're running with browserify
+    module["exports"] = olm_exports;
+    global.window["Olm"] = olm_exports;
     get_random_values = function(buf) {
         window.crypto.getRandomValues(buf);
     };
-} else if (global.window) {
-    // We're running with browserify
-    global.window["Olm"] = olm_exports;
+} else if (typeof(window) !== 'undefined') {
+    // We've been imported directly into a browser.
+    window["Olm"] = olm_exports;
     get_random_values = function(buf) {
         window.crypto.getRandomValues(buf);
     };
@@ -20,6 +23,7 @@ if (typeof(window) !== 'undefined') {
         var bytes = nodeCrypto.randomBytes(buf.length);
         buf.set(bytes);
     }
+    process = global.process;
 } else {
     throw new Error("Cannot find global to attach library to");
 }
