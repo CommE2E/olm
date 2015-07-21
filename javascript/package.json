@@ -1,0 +1,22 @@
+{
+  "name": "olm",
+  "version": "0.1.0",
+  "description": "An implementation of a well known cryptographic ratchet",
+  "main": "olm.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matrix-org/olm.git"
+  },
+  "keywords": [
+    "matrix-org"
+  ],
+  "author": "matrix.org",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/matrix-org/olm/issues"
+  },
+  "homepage": "https://github.com/matrix-org/olm#readme"
+}
