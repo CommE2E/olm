@@ -252,24 +252,24 @@ Session.prototype['session_id'] = restore_stack(function() {
 });
 
 Session.prototype['matches_inbound'] = restore_stack(function(
-    account, one_time_key_message
+    one_time_key_message
 ) {
     var message_array = array_from_string(one_time_key_message);
     var message_buffer = stack(message_array);
     return session_method(Module['_olm_matches_inbound_session'])(
-        this.ptr, account.ptr, message_buffer, message_array.length
+        this.ptr, message_buffer, message_array.length
     ) ? true : false;
 });
 
 Session.prototype['matches_inbound_from'] = restore_stack(function(
-    account, identity_key, one_time_key_message
+    identity_key, one_time_key_message
 ) {
     var identity_key_array = array_from_string(identity_key);
     var identity_key_buffer = stack(identity_key_array);
     var message_array = array_from_string(one_time_key_message);
     var message_buffer = stack(message_array);
     return session_method(Module['_olm_matches_inbound_session_from'])(
-        this.ptr, account.ptr,
+        this.ptr,
         identity_key_buffer, identity_key_array.length,
         message_buffer, message_array.length
     ) ? true : false;
