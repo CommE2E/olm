@@ -15,6 +15,7 @@
 #include "olm/olm.hh"
 #include "olm/session.hh"
 #include "olm/account.hh"
+#include "olm/utility.hh"
 #include "olm/base64.hh"
 #include "olm/cipher.hh"
 #include "olm/memory.hh"
@@ -28,16 +29,24 @@ static OlmAccount * to_c(olm::Account * account) {
     return reinterpret_cast<OlmAccount *>(account);
 }
 
-static OlmSession * to_c(olm::Session * account) {
-    return reinterpret_cast<OlmSession *>(account);
+static OlmSession * to_c(olm::Session * session) {
+    return reinterpret_cast<OlmSession *>(session);
+}
+
+static OlmUtility * to_c(olm::Utility * utility) {
+    return reinterpret_cast<OlmUtility *>(utility);
 }
 
 static olm::Account * from_c(OlmAccount * account) {
     return reinterpret_cast<olm::Account *>(account);
 }
 
-static olm::Session * from_c(OlmSession * account) {
-    return reinterpret_cast<olm::Session *>(account);
+static olm::Session * from_c(OlmSession * session) {
+    return reinterpret_cast<olm::Session *>(session);
+}
+
+static olm::Utility * from_c(OlmUtility * utility) {
+    return reinterpret_cast<olm::Utility *>(utility);
 }
 
 static std::uint8_t * from_c(void * bytes) {
@@ -200,6 +209,16 @@ const char * olm_session_last_error(
     }
 }
 
+const char * olm_utility_last_error(
+    OlmUtility * utility
+) {
+    unsigned error = unsigned(from_c(utility)->last_error);
+    if (error < sizeof(ERRORS)) {
+        return ERRORS[error];
+    } else {
+        return "UNKNOWN_ERROR";
+    }
+}
 
 size_t olm_account_size() {
     return sizeof(olm::Account);
@@ -210,6 +229,9 @@ size_t olm_session_size() {
     return sizeof(olm::Session);
 }
 
+size_t olm_utility_size() {
+    return sizeof(olm::Utility);
+}
 
 OlmAccount * olm_account(
     void * memory
@@ -224,6 +246,14 @@ OlmSession * olm_session(
 ) {
     olm::unset(memory, sizeof(olm::Session));
     return to_c(new(memory) olm::Session());
+}
+
+
+OlmUtility * olm_utility(
+    void * memory
+) {
+    olm::unset(memory, sizeof(olm::Utility));
+    return to_c(new(memory) olm::Utility());
 }
 
 
@@ -246,6 +276,17 @@ size_t olm_clear_session(
     /* Initialise a fresh session object in case someone tries to use it */
     new(session) olm::Session();
     return sizeof(olm::Session);
+}
+
+
+size_t olm_clear_utility(
+    OlmUtility * utility
+) {
+    /* Clear the memory backing the session */
+    olm::unset(utility, sizeof(olm::Utility));
+    /* Initialise a fresh session object in case someone tries to use it */
+    new(utility) olm::Utility();
+    return sizeof(olm::Utility);
 }
 
 
@@ -558,7 +599,6 @@ size_t olm_session_id_length(
     return b64_output_length(from_c(session)->session_id_length());
 }
 
-
 size_t olm_session_id(
     OlmSession * session,
     void * id, size_t id_length
@@ -723,5 +763,64 @@ size_t olm_decrypt(
         from_c(plaintext), max_plaintext_length
     );
 }
+
+
+size_t olm_sha256_length(
+   OlmUtility * utility
+) {
+    return b64_output_length(from_c(utility)->sha256_length());
+}
+
+
+size_t olm_sha256(
+    OlmUtility * utility,
+    void const * input, size_t input_length,
+    void * output, size_t output_length
+) {
+    std::size_t raw_length = from_c(utility)->sha256_length();
+    if (output_length < b64_output_length(raw_length)) {
+        from_c(utility)->last_error =
+            olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        return std::size_t(-1);
+    }
+    std::size_t result = from_c(utility)->sha256(
+       from_c(input), input_length,
+       b64_output_pos(from_c(output), raw_length), raw_length
+    );
+    if (result == std::size_t(-1)) {
+        return result;
+    }
+    return b64_output(from_c(output), raw_length);
+}
+
+
+size_t olm_ed25519_verify(
+    OlmUtility * utility,
+    void const * key, size_t key_length,
+    void const * message, size_t message_length,
+    void * signature, size_t signature_length
+) {
+    if (olm::decode_base64_length(key_length) != 32) {
+        from_c(utility)->last_error = olm::ErrorCode::INVALID_BASE64;
+        return std::size_t(-1);
+    }
+    olm::Ed25519PublicKey verify_key;
+    olm::decode_base64(
+        from_c(key), key_length,
+        verify_key.public_key
+    );
+    std::size_t raw_signature_length = b64_input(
+        from_c(signature), signature_length, from_c(utility)->last_error
+    );
+    if (raw_signature_length == std::size_t(-1)) {
+        return std::size_t(-1);
+    }
+    return from_c(utility)->ed25519_verify(
+        verify_key,
+        from_c(message), message_length,
+        from_c(signature), raw_signature_length
+    );
+}
+
 
 }

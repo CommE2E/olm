@@ -27,12 +27,16 @@ static const size_t OLM_MESSAGE_TYPE_MESSAGE = 1;
 
 struct OlmAccount;
 struct OlmSession;
+struct OlmUtility;
 
 /** The size of an account object in bytes */
 size_t olm_account_size();
 
 /** The size of a session object in bytes */
 size_t olm_session_size();
+
+/** The size of a utility object in bytes */
+size_t olm_utility_size();
 
 /** Initialise an account object using the supplied memory
  *  The supplied memory must be at least olm_account_size() bytes */
@@ -43,6 +47,12 @@ OlmAccount * olm_account(
 /** Initialise a session object using the supplied memory
  *  The supplied memory must be at least olm_session_size() bytes */
 OlmSession * olm_session(
+    void * memory
+);
+
+/** Initialise a utility object using the supplied memory
+ *  The supplied memory must be at least olm_session_size() bytes */
+OlmUtility * olm_utility(
     void * memory
 );
 
@@ -61,6 +71,12 @@ const char * olm_session_last_error(
     OlmSession * session
 );
 
+/** A null terminated string describing the most recent error to happen to a
+ * utility */
+const char * olm_utility_last_error(
+    OlmUtility * utility
+);
+
 /** Clears the memory used to back this account */
 size_t olm_clear_account(
     OlmAccount * account
@@ -69,6 +85,11 @@ size_t olm_clear_account(
 /** Clears the memory used to back this session */
 size_t olm_clear_session(
     OlmSession * session
+);
+
+/** Clears the memory used to back this utility */
+size_t olm_clear_utility(
+    OlmUtility * utility
 );
 
 /** Returns the number of bytes needed to store an account */
@@ -370,7 +391,29 @@ size_t olm_decrypt(
     void * plaintext, size_t max_plaintext_length
 );
 
+/** The length of the buffer needed to hold the SHA-256 hash. */
+size_t olm_sha256_length(
+   OlmUtility * utility
+);
 
+/** Calculates the SHA-256 hash of the input and encodes it as base64. If the
+ * output buffer is smaller than olm_sha256_length() then
+ * olm_session_last_error() will be "OUTPUT_BUFFER_TOO_SMALL". */
+size_t olm_sha256(
+    OlmUtility * utility,
+    void const * input, size_t input_length,
+    void * output, size_t output_length
+);
+
+/** Verify an ed25519 signature. If the key was too small then
+ * olm_session_last_error will be "INVALID_BASE64". If the signature was invalid
+ * then olm_session_last_error() will be "BAD_MESSAGE_MAC". */
+size_t olm_ed25519_verify(
+    OlmUtility * utility,
+    void const * key, size_t key_length,
+    void const * message, size_t message_length,
+    void * signature, size_t signature_length
+);
 
 #ifdef __cplusplus
 }
