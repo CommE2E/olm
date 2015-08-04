@@ -50,6 +50,7 @@ function account_method(wrapped) {
 }
 
 Account.prototype['free'] = function() {
+    Module['_olm_clear_account'](this.ptr);
     free(this.ptr);
 }
 
@@ -172,6 +173,7 @@ function session_method(wrapped) {
 }
 
 Session.prototype['free'] = function() {
+    Module['_olm_clear_session'](this.ptr);
     free(this.ptr);
 }
 
@@ -323,7 +325,62 @@ Session.prototype['decrypt'] = restore_stack(function(
     return Pointer_stringify(plaintext_buffer, plaintext_length);
 });
 
+function Utility() {
+    var size = Module['_olm_utility_size']();
+    this.buf = malloc(size);
+    this.ptr = Module['_olm_utility'](this.buf);
+}
+
+function utility_method(wrapped) {
+    return function() {
+        var result = wrapped.apply(this, arguments);
+        if (result === OLM_ERROR) {
+            var message = Pointer_stringify(
+                Module['_olm_utility_last_error'](arguments[0])
+            );
+            throw new Error("OLM." + message);
+        }
+        return result;
+    }
+}
+
+Utility.prototype['free'] = function() {
+    Module['_olm_clear_utility'](this.ptr);
+    free(this.ptr);
+}
+
+Utility.prototype['sha256'] = restore_stack(function(input) {
+    var output_length = utility_method(Module['_olm_sha256_length'])(this.ptr);
+    var input_array = array_from_string(input);
+    var input_buffer = stack(input_array);
+    var output_buffer = stack(output_length);
+    utility_method(Module['_olm_sha2516'])(
+        this.ptr,
+        input_buffer, input_array.length(),
+        output_buffer, output_length
+    );
+    return Pointer_stringify(output_buffer, output_length);
+});
+
+Utility.prototype['ed25519_verify'] = restore_stack(function(
+    key, message, signature
+) {
+    var key_array = array_from_string(key);
+    var key_buffer = stack(key_array);
+    var message_array = array_from_string(message);
+    var message_buffer = stack(message_array);
+    var signature_array = array_from_string(signature);
+    var signature_buffer = stack(signature_array);
+    utility_method(Module['_olm_ed25519_verify'])(
+        this.ptr,
+        key_buffer, key_array.length,
+        message_buffer, message_array.length,
+        signature_buffer, signature_array.length
+    );
+});
+
 olm_exports["Account"] = Account;
 olm_exports["Session"] = Session;
+olm_exports["Utility"] = Utility;
 
 }();
