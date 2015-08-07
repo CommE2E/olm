@@ -213,6 +213,7 @@ void olm::decode_message(
     reader.ciphertext_length = 0;
 
     if (pos == end) return;
+    if (input_length < mac_length) return;
     reader.version = *(pos++);
 
     while (pos != end) {
