@@ -8,9 +8,6 @@ https://github.com/trevp/axolotl/wiki.
 The Olm Algorithm
 -----------------
 
-.. figure:: Axolotl.svg
-
-
 Initial setup
 ~~~~~~~~~~~~~
 
@@ -153,3 +150,44 @@ with :math:`C_{i,j+1}` and stores the message keys that were skipped in the
 process so that they can decode out of order messages. If the receiver created
 a new receiver chain then they discard their current sender chain so that
 they will create a new chain when they next send a message.
+
+
+The Olm Message Format
+----------------------
+
+Normal Messages
+~~~~~~~~~~~~~~~
+
+Olm messages start with a one byte version followed by a variable length
+payload followed by a fixed length message authentication code.
+
+
+.. code::
+
+   +--------------+------------------------------------+-----------+
+   | Version Byte | Payload Bytes                      | MAC Bytes |
+   +--------------+------------------------------------+-----------+
+
+The payload consists of key-value pairs where the keys are integers and the
+values are integers and strings. The keys are encoded as a variable length
+integer tag where the 3 lowest bits indicates the type of the value:
+0 for integers, 2 for strings. If the value is an integer then the tag is
+followed by the value encoded as a variable length integer. If the value is
+a string then the tag is followed by the length of the string encoded as
+a variable length integer followed by the string itself.
+
+Olm uses a variable length encoding for integers. Each integer is encoded as a
+sequence of bytes with the high bit set followed by a byte with the high bit
+clear. The seven low bits of each byte store the bits of the integer. The least
+significant bits are stored in the first byte.
+
+=========== ===== ======== ================================================
+    Name     Tag    Type                     Meaning
+=========== ===== ======== ================================================
+Chain-Index  0x0A Integer  The chain index, :math:`j`, of the message
+Ratchet-Key  0x10 String   The ratchet key, :math:`T_{i}`, of the message
+Cipher-Text  0x22 String   The cipher-text, :math:`X_{i,j}`, of the message
+=========== ===== ======== ================================================
+
+
+
