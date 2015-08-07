@@ -49,6 +49,9 @@ T varint_decode(
     std::uint8_t const * varint_end
 ) {
     T value = 0;
+    if (varint_end == varint_start) {
+        return 0;
+    }
     do {
         value <<= 7;
         value |= 0x7F & *(--varint_end);
