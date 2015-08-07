@@ -204,13 +204,16 @@ void olm::decode_message(
     std::uint8_t const * end = input + input_length - mac_length;
     std::uint8_t const * unknown = nullptr;
 
-    if (pos == end) return;
-    reader.version = *(pos++);
     reader.input = input;
     reader.input_length = input_length;
     reader.has_counter = false;
     reader.ratchet_key = nullptr;
+    reader.ratchet_key_length = 0;
     reader.ciphertext = nullptr;
+    reader.ciphertext_length = 0;
+
+    if (pos == end) return;
+    reader.version = *(pos++);
 
     while (pos != end) {
         pos = decode(
@@ -284,12 +287,17 @@ void olm::decode_one_time_key_message(
     std::uint8_t const * end = input + input_length;
     std::uint8_t const * unknown = nullptr;
 
+    reader.one_time_key = nullptr;
+    reader.one_time_key_length = 0;
+    reader.identity_key = nullptr;
+    reader.identity_key_length = 0;
+    reader.base_key = nullptr;
+    reader.base_key_length = 0;
+    reader.message = nullptr;
+    reader.message_length = 0;
+
     if (pos == end) return;
     reader.version = *(pos++);
-    reader.one_time_key = nullptr;
-    reader.identity_key = nullptr;
-    reader.base_key = nullptr;
-    reader.message = nullptr;
 
     while (pos != end) {
         pos = decode(
