@@ -109,7 +109,7 @@ std::uint8_t const * unpickle(
 ) {
     std::uint32_t size;
     pos = unpickle(pos, end, size);
-    while (size--) {
+    while (size-- && pos != end) {
         T * value = list.insert(list.end());
         pos = unpickle(pos, end, *value);
     }
