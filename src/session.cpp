@@ -101,7 +101,7 @@ std::size_t olm::Session::new_outbound_session(
 
 namespace {
 
-bool check_message_fields(
+static bool check_message_fields(
     olm::PreKeyMessageReader & reader, bool have_their_identity_key
 ) {
     bool ok = true;

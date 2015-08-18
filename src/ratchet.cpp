@@ -29,7 +29,7 @@ std::uint8_t MESSAGE_KEY_SEED[1] = {0x01};
 std::uint8_t CHAIN_KEY_SEED[1] = {0x02};
 std::size_t MAX_MESSAGE_GAP = 2000;
 
-void create_chain_key(
+static void create_chain_key(
     olm::SharedKey const & root_key,
     olm::Curve25519KeyPair const & our_key,
     olm::Curve25519PublicKey const & their_key,
@@ -54,7 +54,7 @@ void create_chain_key(
 }
 
 
-void advance_chain_key(
+static void advance_chain_key(
     olm::ChainKey const & chain_key,
     olm::ChainKey & new_chain_key
 ) {
@@ -67,7 +67,7 @@ void advance_chain_key(
 }
 
 
-void create_message_keys(
+static void create_message_keys(
     olm::ChainKey const & chain_key,
     olm::KdfInfo const & info,
     olm::MessageKey & message_key
@@ -81,7 +81,7 @@ void create_message_keys(
 }
 
 
-std::size_t verify_mac_and_decrypt(
+static std::size_t verify_mac_and_decrypt(
     olm::Cipher const & cipher,
     olm::MessageKey const & message_key,
     olm::MessageReader const & reader,
@@ -96,7 +96,7 @@ std::size_t verify_mac_and_decrypt(
 }
 
 
-std::size_t verify_mac_and_decrypt_for_existing_chain(
+static std::size_t verify_mac_and_decrypt_for_existing_chain(
     olm::Ratchet const & session,
     olm::ChainKey const & chain,
     olm::MessageReader const & reader,
@@ -130,7 +130,7 @@ std::size_t verify_mac_and_decrypt_for_existing_chain(
 }
 
 
-std::size_t verify_mac_and_decrypt_for_new_chain(
+static std::size_t verify_mac_and_decrypt_for_new_chain(
     olm::Ratchet const & session,
     olm::MessageReader const & reader,
     std::uint8_t * plaintext, std::size_t max_plaintext_length

@@ -69,52 +69,16 @@ std::size_t olm::Account::new_account(
 
 namespace {
 
-
-namespace {
 uint8_t KEY_JSON_ED25519[] = "\"ed25519\":";
 uint8_t KEY_JSON_CURVE25519[] = "\"curve25519\":";
-}
-
-
-std::size_t count_digits(
-    std::uint64_t value
-) {
-    std::size_t digits = 0;
-    do {
-        digits++;
-        value /= 10;
-    } while (value);
-    return digits;
-}
 
 template<typename T>
-std::uint8_t * write_string(
+static std::uint8_t * write_string(
     std::uint8_t * pos,
     T const & value
 ) {
     std::memcpy(pos, value, sizeof(T) - 1);
     return pos + (sizeof(T) - 1);
-}
-
-std::uint8_t * write_string(
-    std::uint8_t * pos,
-    std::uint8_t const * value, std::size_t value_length
-) {
-    std::memcpy(pos, value, value_length);
-    return pos + value_length;
-}
-
-std::uint8_t * write_digits(
-    std::uint8_t * pos,
-    std::uint64_t value
-) {
-    size_t digits = count_digits(value);
-    pos += digits;
-    do {
-        *(--pos) = '0' + (value % 10);
-        value /= 10;
-    } while (value);
-    return pos + digits;
 }
 
 }
@@ -196,19 +160,20 @@ std::size_t olm::Account::sign(
 std::size_t olm::Account::get_one_time_keys_json_length(
 ) {
     std::size_t length = 0;
+    bool is_empty = true;
     for (auto const & key : one_time_keys) {
         if (key.published) {
             continue;
         }
+        is_empty = false;
         length += 2; /* {" */
         length += olm::encode_base64_length(olm::pickle_length(key.id));
         length += 3; /* ":" */
         length += olm::encode_base64_length(sizeof(key.key.public_key));
         length += 1; /* " */
     }
-    if (length == 0) {
-        /* The list was empty. Add a byte for the opening '{' */
-        length = 1;
+    if (is_empty) {
+        length += 1; /* { */
     }
     length += 3; /* }{} */
     length += sizeof(KEY_JSON_CURVE25519) - 1;
@@ -244,6 +209,7 @@ std::size_t olm::Account::get_one_time_keys_json(
         sep = ',';
     }
     if (sep != ',') {
+        /* The list was empty */
         *(pos++) = sep;
     }
     *(pos++) = '}';

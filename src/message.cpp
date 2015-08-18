@@ -17,7 +17,7 @@
 namespace {
 
 template<typename T>
-std::size_t varint_length(
+static std::size_t varint_length(
     T value
 ) {
     std::size_t result = 1;
@@ -30,7 +30,7 @@ std::size_t varint_length(
 
 
 template<typename T>
-std::uint8_t * varint_encode(
+static std::uint8_t * varint_encode(
     std::uint8_t * output,
     T value
 ) {
@@ -44,7 +44,7 @@ std::uint8_t * varint_encode(
 
 
 template<typename T>
-T varint_decode(
+static T varint_decode(
     std::uint8_t const * varint_start,
     std::uint8_t const * varint_end
 ) {
@@ -60,7 +60,7 @@ T varint_decode(
 }
 
 
-std::uint8_t const * varint_skip(
+static std::uint8_t const * varint_skip(
     std::uint8_t const * input,
     std::uint8_t const * input_end
 ) {
@@ -74,7 +74,7 @@ std::uint8_t const * varint_skip(
 }
 
 
-std::size_t varstring_length(
+static std::size_t varstring_length(
     std::size_t string_length
 ) {
     return varint_length(string_length) + string_length;
@@ -85,7 +85,7 @@ static std::uint8_t const RATCHET_KEY_TAG = 012;
 static std::uint8_t const COUNTER_TAG = 020;
 static std::uint8_t const CIPHERTEXT_TAG = 042;
 
-std::uint8_t * encode(
+static std::uint8_t * encode(
     std::uint8_t * pos,
     std::uint8_t tag,
     std::uint32_t value
@@ -94,7 +94,7 @@ std::uint8_t * encode(
     return varint_encode(pos, value);
 }
 
-std::uint8_t * encode(
+static std::uint8_t * encode(
     std::uint8_t * pos,
     std::uint8_t tag,
     std::uint8_t * & value, std::size_t value_length
@@ -105,7 +105,7 @@ std::uint8_t * encode(
     return pos + value_length;
 }
 
-std::uint8_t const * decode(
+static std::uint8_t const * decode(
     std::uint8_t const * pos, std::uint8_t const * end,
     std::uint8_t tag,
     std::uint32_t & value, bool & has_value
@@ -121,7 +121,7 @@ std::uint8_t const * decode(
 }
 
 
-std::uint8_t const * decode(
+static std::uint8_t const * decode(
     std::uint8_t const * pos, std::uint8_t const * end,
     std::uint8_t tag,
     std::uint8_t const * & value, std::size_t & value_length
@@ -139,7 +139,7 @@ std::uint8_t const * decode(
     return pos;
 }
 
-std::uint8_t const * skip_unknown(
+static std::uint8_t const * skip_unknown(
     std::uint8_t const * pos, std::uint8_t const * end
 ) {
     if (pos != end) {

@@ -99,7 +99,7 @@ inline static void hmac_sha256_key(
 }
 
 
-inline void hmac_sha256_init(
+inline static void hmac_sha256_init(
     ::SHA256_CTX * context,
     std::uint8_t const * hmac_key
 ) {
@@ -114,7 +114,7 @@ inline void hmac_sha256_init(
 }
 
 
-inline void hmac_sha256_final(
+inline static void hmac_sha256_final(
     ::SHA256_CTX * context,
     std::uint8_t const * hmac_key,
     std::uint8_t * output
