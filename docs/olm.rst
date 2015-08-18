@@ -226,10 +226,10 @@ Olm Authenticated Encryption
 Version 1
 ~~~~~~~~~
 
-Version 1 of Olm uses AES-256_ in CBC_ mode with `PCKS#7`_ padding for encryption
-and HMAC-SHA-256 for authentication. The 256 bit AES key, 256 bit HMAC key,
-and 128 bit AES IV are derived from the message key using HKDF-SHA-256 using
-the default salt and an info of ``"OLM_KEYS"``.
+Version 1 of Olm uses AES-256_ in CBC_ mode with `PCKS#7`_ padding for
+encryption and HMAC-SHA-256_ for authentication. The 256 bit AES key, 256 bit
+HMAC key, and 128 bit AES IV are derived from the message key using
+HKDF-SHA-256_ using the default salt and an info of ``"OLM_KEYS"``.
 
 First the plain-text is encrypted to get the cipher-text, :math:`X_{i,j}`.
 Then the entire message, both the headers and cipher-text, are HMAC'd and the
