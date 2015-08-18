@@ -1,5 +1,5 @@
-Olm: A Crytographic Ratchet
-===========================
+Olm: A Cryptographic Ratchet
+============================
 
 An implementation of the cryptographic ratchet described by
 https://github.com/trevp/axolotl/wiki.
@@ -12,7 +12,7 @@ Initial setup
 ~~~~~~~~~~~~~
 
 The setup takes four Curve25519_ inputs: Identity keys for Alice and Bob,
-:math:`I_A` and :math:`I_B`, and emphemeral keys for Alice and Bob,
+:math:`I_A` and :math:`I_B`, and ephemeral keys for Alice and Bob,
 :math:`E_A` and :math:`E_B`. A shared secret, :math:`S`, is generated using
 `Triple Diffie-Hellman`_. The initial 256 bit root key, :math:`R_0`, and 256
 bit chain key, :math:`C_{0,0}`, are derived from the shared secret using an
@@ -113,7 +113,7 @@ Alice's single-use key, :math:`E_A`, the public part of his single-use key,
 part of the single-use key, :math:`E_B`. Bob computes the root key :math:`R_0`,
 and the chain key :math:`C_{0,0}`. Bob then advances the chain key to compute
 the chain key used by the message, :math:`C_{0,j}`. Bob then creates the
-message key, :math:`M_{0,j}`, and attempts to decrypt the ciphertext,
+message key, :math:`M_{0,j}`, and attempts to decrypt the cipher-text,
 :math:`X_{0,j}`. If the cipher-text's authentication is correct then Bob can
 discard private part of his single-use one-time key, :math:`E_B`.
 
@@ -147,7 +147,7 @@ the receiver computes the chain key, :math:`C_{i,j}`. The receiver computes the
 message key, :math:`M_{i,j}`, from the chain key and attempts to decrypt the
 cipher-text, :math:`X_{i,j}`.
 
-If the decryption succeeds the reciever updates the chain key for :math:`T_i`
+If the decryption succeeds the receiver updates the chain key for :math:`T_i`
 with :math:`C_{i,j+1}` and stores the message keys that were skipped in the
 process so that they can decode out of order messages. If the receiver created
 a new receiver chain then they discard their current sender chain so that
@@ -192,7 +192,7 @@ Cipher-Text  0x22 String   The cipher-text, :math:`X_{i,j}`, of the message
 =========== ===== ======== ================================================
 
 The length of the MAC is determined by the authenticated encryption algorithm
-being used. The MAC protects all of the bytes preceeding the MAC.
+being used. The MAC protects all of the bytes preceding the MAC.
 
 Pre-Key Messages
 ~~~~~~~~~~~~~~~~
