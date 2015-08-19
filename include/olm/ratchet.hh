@@ -21,7 +21,7 @@ namespace olm {
 
 class Cipher;
 
-typedef std::uint8_t SharedKey[32];
+typedef std::uint8_t SharedKey[olm::KEY_LENGTH];
 
 
 struct ChainKey {

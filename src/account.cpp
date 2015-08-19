@@ -15,6 +15,7 @@
 #include "olm/account.hh"
 #include "olm/base64.hh"
 #include "olm/pickle.hh"
+#include "olm/memory.hh"
 
 olm::Account::Account(
 ) : next_one_time_key_id(0),
@@ -26,7 +27,7 @@ olm::OneTimeKey const * olm::Account::lookup_key(
     olm::Curve25519PublicKey const & public_key
 ) {
     for (olm::OneTimeKey const & key : one_time_keys) {
-        if (0 == memcmp(key.key.public_key, public_key.public_key, 32)) {
+        if (olm::array_equal(key.key.public_key, public_key.public_key)) {
             return &key;
         }
     }
@@ -38,7 +39,7 @@ std::size_t olm::Account::remove_key(
 ) {
     OneTimeKey * i;
     for (i = one_time_keys.begin(); i != one_time_keys.end(); ++i) {
-        if (0 == memcmp(i->key.public_key, public_key.public_key, 32)) {
+        if (olm::array_equal(i->key.public_key, public_key.public_key)) {
             std::uint32_t id = i->id;
             one_time_keys.erase(i);
             return id;
@@ -48,7 +49,7 @@ std::size_t olm::Account::remove_key(
 }
 
 std::size_t olm::Account::new_account_random_length() {
-    return 2 * 32;
+    return 2 * olm::KEY_LENGTH;
 }
 
 std::size_t olm::Account::new_account(
@@ -60,9 +61,8 @@ std::size_t olm::Account::new_account(
     }
 
     olm::ed25519_generate_key(random, identity_keys.ed25519_key);
-    random += 32;
+    random += KEY_LENGTH;
     olm::curve25519_generate_key(random, identity_keys.curve25519_key);
-    random += 32;
 
     return 0;
 }
@@ -107,7 +107,6 @@ std::size_t olm::Account::get_identity_json(
     std::uint8_t * identity_json, std::size_t identity_json_length
 ) {
     std::uint8_t * pos = identity_json;
-    std::uint8_t signature[64];
     size_t expected_length = get_identity_json_length();
 
     if (identity_json_length < expected_length) {
@@ -138,7 +137,7 @@ std::size_t olm::Account::get_identity_json(
 
 std::size_t olm::Account::signature_length(
 ) {
-    return 64;
+    return olm::SIGNATURE_LENGTH;
 }
 
 
@@ -239,7 +238,7 @@ std::size_t olm::Account::max_number_of_one_time_keys(
 std::size_t olm::Account::generate_one_time_keys_random_length(
     std::size_t number_of_keys
 ) {
-    return 32 * number_of_keys;
+    return olm::KEY_LENGTH * number_of_keys;
 }
 
 std::size_t olm::Account::generate_one_time_keys(
@@ -255,7 +254,7 @@ std::size_t olm::Account::generate_one_time_keys(
         key.id = ++next_one_time_key_id;
         key.published = false;
         olm::curve25519_generate_key(random, key.key);
-        random += 32;
+        random += olm::KEY_LENGTH;
     }
     return number_of_keys;
 }

@@ -23,7 +23,7 @@ olm::Utility::Utility(
 
 
 size_t olm::Utility::sha256_length() {
-    return olm::HMAC_SHA256_OUTPUT_LENGTH;
+    return olm::SHA256_OUTPUT_LENGTH;
 }
 
 
@@ -36,7 +36,7 @@ size_t olm::Utility::sha256(
         return std::size_t(-1);
     }
     olm::sha256(input, input_length, output);
-    return 32;
+    return olm::SHA256_OUTPUT_LENGTH;
 }
 
 
@@ -45,7 +45,7 @@ size_t olm::Utility::ed25519_verify(
     std::uint8_t const * message, std::size_t message_length,
     std::uint8_t const * signature, std::size_t signature_length
 ) {
-    if (signature_length < 64) {
+    if (signature_length < olm::SIGNATURE_LENGTH) {
         last_error = olm::ErrorCode::BAD_MESSAGE_MAC;
         return std::size_t(-1);
     }

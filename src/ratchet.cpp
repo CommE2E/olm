@@ -23,11 +23,10 @@
 
 namespace {
 
-std::uint8_t PROTOCOL_VERSION = 3;
-std::size_t KEY_LENGTH = olm::Curve25519PublicKey::LENGTH;
-std::uint8_t MESSAGE_KEY_SEED[1] = {0x01};
-std::uint8_t CHAIN_KEY_SEED[1] = {0x02};
-std::size_t MAX_MESSAGE_GAP = 2000;
+static const std::uint8_t PROTOCOL_VERSION = 3;
+static const std::uint8_t MESSAGE_KEY_SEED[1] = {0x01};
+static const std::uint8_t CHAIN_KEY_SEED[1] = {0x02};
+static const std::size_t MAX_MESSAGE_GAP = 2000;
 
 static void create_chain_key(
     olm::SharedKey const & root_key,
@@ -39,15 +38,16 @@ static void create_chain_key(
 ) {
     olm::SharedKey secret;
     olm::curve25519_shared_secret(our_key, their_key, secret);
-    std::uint8_t derived_secrets[64];
+    std::uint8_t derived_secrets[2 * olm::KEY_LENGTH];
     olm::hkdf_sha256(
         secret, sizeof(secret),
         root_key, sizeof(root_key),
         info.ratchet_info, info.ratchet_info_length,
         derived_secrets, sizeof(derived_secrets)
     );
-    std::memcpy(new_root_key, derived_secrets, 32);
-    std::memcpy(new_chain_key.key, derived_secrets + 32, 32);
+    std::uint8_t const * pos = derived_secrets;
+    pos = olm::load_array(new_root_key, pos);
+    pos = olm::load_array(new_chain_key.key, pos);
     new_chain_key.index = 0;
     olm::unset(derived_secrets);
     olm::unset(secret);
@@ -148,9 +148,7 @@ static std::size_t verify_mac_and_decrypt_for_new_chain(
     if (reader.counter > MAX_MESSAGE_GAP) {
         return std::size_t(-1);
     }
-    std::memcpy(
-        new_chain.ratchet_key.public_key, reader.ratchet_key, KEY_LENGTH
-    );
+    olm::load_array(new_chain.ratchet_key.public_key, reader.ratchet_key);
 
     create_chain_key(
         session.root_key, session.sender_chain[0].ratchet_key,
@@ -183,7 +181,7 @@ void olm::Ratchet::initialise_as_bob(
     std::uint8_t const * shared_secret, std::size_t shared_secret_length,
     olm::Curve25519PublicKey const & their_ratchet_key
 ) {
-    std::uint8_t derived_secrets[64];
+    std::uint8_t derived_secrets[2 * olm::KEY_LENGTH];
     olm::hkdf_sha256(
         shared_secret, shared_secret_length,
         nullptr, 0,
@@ -192,8 +190,9 @@ void olm::Ratchet::initialise_as_bob(
     );
     receiver_chains.insert();
     receiver_chains[0].chain_key.index = 0;
-    std::memcpy(root_key, derived_secrets, 32);
-    std::memcpy(receiver_chains[0].chain_key.key, derived_secrets + 32, 32);
+    std::uint8_t const * pos = derived_secrets;
+    pos = olm::load_array(root_key, pos);
+    pos = olm::load_array(receiver_chains[0].chain_key.key, pos);
     receiver_chains[0].ratchet_key = their_ratchet_key;
     olm::unset(derived_secrets);
 }
@@ -203,7 +202,7 @@ void olm::Ratchet::initialise_as_alice(
     std::uint8_t const * shared_secret, std::size_t shared_secret_length,
     olm::Curve25519KeyPair const & our_ratchet_key
 ) {
-    std::uint8_t derived_secrets[64];
+    std::uint8_t derived_secrets[2 * olm::KEY_LENGTH];
     olm::hkdf_sha256(
         shared_secret, shared_secret_length,
         nullptr, 0,
@@ -212,8 +211,9 @@ void olm::Ratchet::initialise_as_alice(
     );
     sender_chain.insert();
     sender_chain[0].chain_key.index = 0;
-    std::memcpy(root_key, derived_secrets, 32);
-    std::memcpy(sender_chain[0].chain_key.key, derived_secrets + 32, 32);
+    std::uint8_t const * pos = derived_secrets;
+    pos = olm::load_array(root_key, pos);
+    pos = olm::load_array(sender_chain[0].chain_key.key, pos);
     sender_chain[0].ratchet_key = our_ratchet_key;
     olm::unset(derived_secrets);
 }
@@ -224,7 +224,7 @@ namespace olm {
 static std::size_t pickle_length(
     const olm::SharedKey & value
 ) {
-    return KEY_LENGTH;
+    return olm::KEY_LENGTH;
 }
 
 
@@ -232,7 +232,7 @@ static std::uint8_t * pickle(
     std::uint8_t * pos,
     const olm::SharedKey & value
 ) {
-    return olm::pickle_bytes(pos, value, KEY_LENGTH);
+    return olm::pickle_bytes(pos, value, olm::KEY_LENGTH);
 }
 
 
@@ -240,7 +240,7 @@ static std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
     olm::SharedKey & value
 ) {
-    return olm::unpickle_bytes(pos, end, value, KEY_LENGTH);
+    return olm::unpickle_bytes(pos, end, value, olm::KEY_LENGTH);
 }
 
 
@@ -349,7 +349,7 @@ std::size_t olm::pickle_length(
     olm::Ratchet const & value
 ) {
     std::size_t length = 0;
-    length += KEY_LENGTH;
+    length += olm::KEY_LENGTH;
     length += olm::pickle_length(value.sender_chain);
     length += olm::pickle_length(value.receiver_chains);
     length += olm::pickle_length(value.skipped_message_keys);
@@ -391,13 +391,13 @@ std::size_t olm::Ratchet::encrypt_output_length(
         plaintext_length
     );
     return olm::encode_message_length(
-        counter, KEY_LENGTH, padded, ratchet_cipher.mac_length()
+        counter, olm::KEY_LENGTH, padded, ratchet_cipher.mac_length()
     );
 }
 
 
 std::size_t olm::Ratchet::encrypt_random_length() {
-    return sender_chain.empty() ? KEY_LENGTH : 0;
+    return sender_chain.empty() ? olm::KEY_LENGTH : 0;
 }
 
 
@@ -442,10 +442,11 @@ std::size_t olm::Ratchet::encrypt(
     olm::MessageWriter writer;
 
     olm::encode_message(
-        writer, PROTOCOL_VERSION, counter, KEY_LENGTH, ciphertext_length, output
+        writer, PROTOCOL_VERSION, counter, olm::KEY_LENGTH, ciphertext_length,
+        output
     );
 
-    std::memcpy(writer.ratchet_key, ratchet_key.public_key, KEY_LENGTH);
+    olm::store_array(writer.ratchet_key, ratchet_key.public_key);
 
     ratchet_cipher.encrypt(
         keys.key, sizeof(keys.key),
@@ -504,7 +505,7 @@ std::size_t olm::Ratchet::decrypt(
         return std::size_t(-1);
     }
 
-    if (reader.ratchet_key_length != KEY_LENGTH) {
+    if (reader.ratchet_key_length != olm::KEY_LENGTH) {
         last_error = olm::ErrorCode::BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }
@@ -513,7 +514,7 @@ std::size_t olm::Ratchet::decrypt(
     for (olm::ReceiverChain & receiver_chain : receiver_chains) {
         if (0 == std::memcmp(
                 receiver_chain.ratchet_key.public_key, reader.ratchet_key,
-                KEY_LENGTH
+                olm::KEY_LENGTH
         )) {
             chain = &receiver_chain;
             break;
@@ -533,7 +534,7 @@ std::size_t olm::Ratchet::decrypt(
             if (reader.counter == skipped.message_key.index
                     && 0 == std::memcmp(
                         skipped.ratchet_key.public_key, reader.ratchet_key,
-                        KEY_LENGTH
+                        olm::KEY_LENGTH
                     )
             ) {
                 /* Found the key for this message. Check the MAC. */
@@ -569,9 +570,7 @@ std::size_t olm::Ratchet::decrypt(
          * We can discard our previous empheral ratchet key.
          * We will generate a new key when we send the next message. */
         chain = receiver_chains.insert();
-        std::memcpy(
-            chain->ratchet_key.public_key, reader.ratchet_key, KEY_LENGTH
-        );
+        olm::load_array(chain->ratchet_key.public_key, reader.ratchet_key);
         create_chain_key(
             root_key, sender_chain[0].ratchet_key, chain->ratchet_key,
             kdf_info, root_key, chain->chain_key

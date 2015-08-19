@@ -33,5 +33,4 @@ olm::decode_base64(input, input_length, output);
 assert_equals(expected_output, output, output_length);
 }
 
-
 }

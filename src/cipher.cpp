@@ -23,11 +23,9 @@ olm::Cipher::~Cipher() {
 
 namespace {
 
-static const std::size_t SHA256_LENGTH = 32;
-
 struct DerivedKeys {
     olm::Aes256Key aes_key;
-    std::uint8_t mac_key[SHA256_LENGTH];
+    std::uint8_t mac_key[olm::KEY_LENGTH];
     olm::Aes256Iv aes_iv;
 };
 
@@ -37,16 +35,17 @@ static void derive_keys(
     std::uint8_t const * key, std::size_t key_length,
     DerivedKeys & keys
 ) {
-    std::uint8_t derived_secrets[80];
+    std::uint8_t derived_secrets[2 * olm::KEY_LENGTH + olm::IV_LENGTH];
     olm::hkdf_sha256(
         key, key_length,
         nullptr, 0,
         kdf_info, kdf_info_length,
         derived_secrets, sizeof(derived_secrets)
     );
-    std::memcpy(keys.aes_key.key, derived_secrets, 32);
-    std::memcpy(keys.mac_key, derived_secrets + 32, 32);
-    std::memcpy(keys.aes_iv.iv, derived_secrets + 64, 16);
+    std::uint8_t const * pos = derived_secrets;
+    pos = olm::load_array(keys.aes_key.key, pos);
+    pos = olm::load_array(keys.mac_key, pos);
+    pos = olm::load_array(keys.aes_iv.iv, pos);
     olm::unset(derived_secrets);
 }
 
@@ -84,7 +83,7 @@ std::size_t olm::CipherAesSha256::encrypt(
         return std::size_t(-1);
     }
     struct DerivedKeys keys;
-    std::uint8_t mac[SHA256_LENGTH];
+    std::uint8_t mac[olm::SHA256_OUTPUT_LENGTH];
 
     derive_keys(kdf_info, kdf_info_length, key, key_length, keys);
 
@@ -93,7 +92,7 @@ std::size_t olm::CipherAesSha256::encrypt(
     );
 
     olm::hmac_sha256(
-        keys.mac_key, SHA256_LENGTH, output, output_length - MAC_LENGTH, mac
+        keys.mac_key, olm::KEY_LENGTH, output, output_length - MAC_LENGTH, mac
     );
 
     std::memcpy(output + output_length - MAC_LENGTH, mac, MAC_LENGTH);
@@ -116,12 +115,12 @@ std::size_t olm::CipherAesSha256::decrypt(
      std::uint8_t * plaintext, std::size_t max_plaintext_length
 ) const {
     DerivedKeys keys;
-    std::uint8_t mac[SHA256_LENGTH];
+    std::uint8_t mac[olm::SHA256_OUTPUT_LENGTH];
 
     derive_keys(kdf_info, kdf_info_length, key, key_length, keys);
 
     olm::hmac_sha256(
-        keys.mac_key, SHA256_LENGTH, input, input_length - MAC_LENGTH, mac
+        keys.mac_key, olm::KEY_LENGTH, input, input_length - MAC_LENGTH, mac
     );
 
     std::uint8_t const * input_mac = input + input_length - MAC_LENGTH;
