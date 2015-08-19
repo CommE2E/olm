@@ -47,6 +47,8 @@ public:
      *  output  |--ciphertext_length-->|       |---mac_length-->|
      *          ciphertext
      *
+     * The plain-text pointers and cipher-text pointers may be the same.
+     *
      * Returns std::size_t(-1) if the length of the cipher-text or the output
      * buffer is too small. Otherwise returns the length of the output buffer.
      */
@@ -72,6 +74,8 @@ public:
      *  |----------------------------------------input_length-->|
      *  input   |--ciphertext_length-->|       |---mac_length-->|
      *          ciphertext
+     *
+     * The plain-text pointers and cipher-text pointers may be the same.
      *
      *  Returns std::size_t(-1) if the length of the plain-text buffer is too
      *  small or if the authentication check fails. Otherwise returns the length
