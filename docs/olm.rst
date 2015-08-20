@@ -14,7 +14,7 @@ side of an :math:`=` it means that the output is split.
 
 When this document uses :math:`ECDH\left(K_A,\,K_B\right)` it means that each
 party computes a Diffie-Hellman agreement using their private key and the
-remote parties public key.
+remote party's public key.
 So party :math:`A` computes :math:`ECDH\left(K_B_public,\,K_A_private\right)`
 and party :math:`B` computes :math:`ECDH\left(K_A_public,\,K_B_private\right)`
 
@@ -108,10 +108,11 @@ Sending the first pre-key messages
 Alice computes a message key, :math:`M_{0,j}`, using the current chain key,
 :math:`C_{0,j}`. Alice replaces the current chain key with :math:`C_{0,j+1}`.
 Alice encrypts her plain-text with the message key, :math:`M_{0,j}`, using an
-authenticated encryption scheme to get a cipher-text, :math:`X_{0,j}`. Alice
-sends her identity key, :math:`I_A`, her single-use key, :math:`E_A`, Bob's
-single-use key, :math:`E_B`, the current chain index, :math:`j`, her ratchet
-key, :math:`T_0`, and the cipher-text, :math:`X_{0,j}`, to Bob.
+authenticated encryption scheme (see below) to get a cipher-text,
+:math:`X_{0,j}`. Alice sends her identity key, :math:`I_A`, her single-use key,
+:math:`E_A`, Bob's single-use key, :math:`E_B`, the current chain index,
+:math:`j`, her ratchet key, :math:`T_0`, and the cipher-text, :math:`X_{0,j}`,
+to Bob.
 
 Alice will continue to send pre-key messages until she receives a message from
 Bob.
@@ -128,7 +129,7 @@ and the chain key :math:`C_{0,0}`. Bob then advances the chain key to compute
 the chain key used by the message, :math:`C_{0,j}`. Bob then creates the
 message key, :math:`M_{0,j}`, and attempts to decrypt the cipher-text,
 :math:`X_{0,j}`. If the cipher-text's authentication is correct then Bob can
-discard private part of his single-use one-time key, :math:`E_B`.
+discard the private part of his single-use one-time key, :math:`E_B`.
 
 Sending messages
 ~~~~~~~~~~~~~~~~
@@ -141,9 +142,9 @@ using :math:`R_{i-1}`, :math:`T_{i-1}` and :math:`T_i`. A message key,
 :math:`M_{i,j}` is computed from the current chain key, :math:`C_{i,j}`, and
 the chain key is replaced with the next chain key, :math:`C_{i,j+1}`. The
 plain-text is encrypted with :math:`M_{i,j}`, using an authenticated encryption
-scheme to get a cipher-text, :math:`X_{i,j}`. Then user sends the current
-chain index, :math:`j`, the ratchet key, :math:`T_i`, and the cipher-text,
-:math:`X_{i,j}`, to the other user.
+scheme (see below) to get a cipher-text, :math:`X_{i,j}`. Then user sends the
+current chain index, :math:`j`, the ratchet key, :math:`T_i`, and the
+cipher-text, :math:`X_{i,j}`, to the other user.
 
 Receiving messages
 ~~~~~~~~~~~~~~~~~~
