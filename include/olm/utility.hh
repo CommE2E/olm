@@ -31,13 +31,22 @@ struct Utility {
 
     ErrorCode last_error;
 
+    /** The length of a SHA-256 hash in bytes. */
     std::size_t sha256_length();
 
+    /** Compute a SHA-256 hash. Returns the length of the SHA-256 hash in bytes
+     * on success. Returns std::size_t(-1) on failure. On failure last_error
+     * will be set with an error code. If the output buffer was too small then
+     * last error will be OUTPUT_BUFFER_TOO_SMALL. */
     std::size_t sha256(
         std::uint8_t const * input, std::size_t input_length,
         std::uint8_t * output, std::size_t output_length
     );
 
+    /** Verify a ed25519 signature. Returns std::size_t(0) on success. Returns
+     * std::size_t(-1) on failure or if the signature was invalid. On failure
+     * last_error will be set with an error code. If the signature was too short
+     * or was not a valid signature then last_error will be BAD_MESSAGE_MAC. */
     std::size_t ed25519_verify(
         Ed25519PublicKey const & key,
         std::uint8_t const * message, std::size_t message_length,
