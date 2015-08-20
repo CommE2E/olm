@@ -4,6 +4,19 @@ Olm: A Cryptographic Ratchet
 An implementation of the cryptographic ratchet described by
 https://github.com/trevp/axolotl/wiki.
 
+Notation
+--------
+
+This document uses :math:`\parallel` to represent string concatenation. When
+:math:`\parallel` appears on the right hand side of an :math:`=` it means that
+the inputs are concatenated. When :math:`\parallel` appears on the left hand
+side of an :math:`=` it means that the output is split.
+
+When this document uses :math:`ECDH\left(K_A,\,K_B\right)` it means that each
+party computes a Diffie-Hellman agreement using their private key and the
+remote parties public key.
+So party :math:`A` computes :math:`ECDH\left(K_B_public,\,K_A_private\right)`
+and party :math:`B` computes :math:`ECDH\left(K_A_public,\,K_B_private\right)`
 
 The Olm Algorithm
 -----------------
