@@ -186,7 +186,8 @@ significant bits are stored in the first byte.
 =========== ===== ======== ================================================
     Name     Tag    Type                     Meaning
 =========== ===== ======== ================================================
-Ratchet-Key  0x0A String   The ratchet key, :math:`T_{i}`, of the message
+Ratchet-Key  0x0A String   The public part of the ratchet key, :math:`T_{i}`,
+                           of the message
 Chain-Index  0x10 Integer  The chain index, :math:`j`, of the message
 Cipher-Text  0x22 String   The cipher-text, :math:`X_{i,j}`, of the message
 =========== ===== ======== ================================================
@@ -213,9 +214,12 @@ The payload uses the same key-value format as for normal messages.
 ============ ===== ======== ================================================
     Name      Tag    Type                     Meaning
 ============ ===== ======== ================================================
-One-Time-Key  0x0A String   Bob's single-use key, :math:`E_b`.
-Base-Key      0x12 String   Alice's single-use key, :math:`E_a`.
-Identity-Key  0x1A String   Alice's identity key, :math:`I_a`.
+One-Time-Key  0x0A String   The public part of Bob's single-use key,
+                            :math:`E_b`.
+Base-Key      0x12 String   The public part of Alice's single-use key,
+                            :math:`E_a`.
+Identity-Key  0x1A String   The public part of Alice's identity key,
+                            :math:`I_a`.
 Message       0x22 String   An embedded Olm message with its own version and
                             MAC.
 ============ ===== ======== ================================================
