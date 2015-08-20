@@ -260,6 +260,23 @@ MAC is appended to the message.
         &= HKDF\left(M_{i,j},\,\text{"OLM\_KEYS"}\right) \\
     \end{align}
 
+IPR
+---
+
+The Olm specification (this document) is hereby placed in the public domain.
+
+Feedback
+--------
+
+Can be sent to mark at matrix.org.
+
+Acknowledgements
+----------------
+
+The ratchet that Olm implements was designed by Trevor Perrin and Moxie
+Marlinspike - details at https://github.com/trevp/axolotl/wiki.  Olm is an
+entirely a new implementation written by the Matrix.org team.
+
 .. _`Curve25519`: http://cr.yp.to/ecdh.html
 .. _`Triple Diffie-Hellman`: https://whispersystems.org/blog/simplifying-otr-deniability/
 .. _`HKDF-SHA-256`: https://tools.ietf.org/html/rfc5869
