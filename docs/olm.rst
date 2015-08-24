@@ -275,7 +275,7 @@ Acknowledgements
 
 The ratchet that Olm implements was designed by Trevor Perrin and Moxie
 Marlinspike - details at https://github.com/trevp/axolotl/wiki.  Olm is an
-entirely a new implementation written by the Matrix.org team.
+entirely new implementation written by the Matrix.org team.
 
 .. _`Curve25519`: http://cr.yp.to/ecdh.html
 .. _`Triple Diffie-Hellman`: https://whispersystems.org/blog/simplifying-otr-deniability/
