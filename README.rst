@@ -4,6 +4,9 @@ Olm
 An implementation of the cryptographic ratchet described by
 https://github.com/trevp/axolotl/wiki, written in C++11 and exposed as a C API
 
+The specification of the Olm ratchet can be found in docs/olm.rst or
+https://matrix.org/docs/spec/olm.html
+
 Building
 --------
 
