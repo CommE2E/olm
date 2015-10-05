@@ -75,3 +75,11 @@ What's an olm?
 It's a really cool species of European troglodytic salamander.
 Matthew once tried to climb into a pool full of them in Postojnska Jama.
 http://www.postojnska-jama.eu/en/about-the-cave/meet-the-dragon-s-offspring/
+
+Legal Notice
+~~~~~~~~~~~~
+
+The software may be subject to the U.S. export control laws and regulations
+and by downloading the software the user certifies that he/she/it is
+authorized to do so in accordance with those export control laws and
+regulations.
