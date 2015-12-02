@@ -24,9 +24,6 @@ source_files = glob.glob("src/*.cpp")
 pre_js, = glob.glob("javascript/*pre.js")
 post_js, = glob.glob("javascript/*post.js")
 
-if not os.path.exists("build"):
-    os.mkdir("build")
-
 functions = set()
 RE_FUNCTION=re.compile("(olm_[^( ]*)\\(")
 with open("include/olm/olm.hh") as header:
@@ -36,7 +33,7 @@ with open("include/olm/olm.hh") as header:
             functions.add(match.groups()[0])
 
 
-exported_functions = os.path.abspath("build/exported_functions.json")
+exported_functions = os.path.abspath("javascript/exported_functions.json")
 with open(exported_functions, "w") as json_file:
     json.dump(["_" + function for function in functions], json_file)
 
@@ -61,7 +58,7 @@ compile_args += ("--post-js", post_js)
 compile_args += ("-s", "EXPORTED_FUNCTIONS=@" + exported_functions)
 compile_args += sys.argv[1:]
 
-library = "build/olm.js"
+library = "javascript/olm.js"
 
 def run(args):
     print args
