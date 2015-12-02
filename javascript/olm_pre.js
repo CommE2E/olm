@@ -2,7 +2,7 @@ var olm_exports = {};
 var get_random_values;
 var process; // Shadow the process object so that emscripten won't get
              // confused by browserify
-if (global && global["window"]) {
+if (typeof(global) !== 'undefined' && global["window"]) {
     // We're running with browserify
     module["exports"] = olm_exports;
     global["window"]["Olm"] = olm_exports;
