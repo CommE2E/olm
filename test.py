@@ -13,12 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import subprocess
 import glob
 import os
+import subprocess
+import sys
 
-if not os.path.exists("build"):
-    os.mkdir("build")
+if not os.path.exists("build/libolm.so"):
+    print >> sys.stderr, \
+        "libolm has not been built. Run ./build_shared_library.py first."
+    exit(1)
 
 test_files = glob.glob("tests/test_*.cpp")
 
