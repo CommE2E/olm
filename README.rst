@@ -30,6 +30,13 @@ To build the javascript bindings, install emscripten from http://kripken.github.
     javascript/build.py  # builds javascript/olm.js
     npm pack javascript  # packages olm.js into olm-x.y.z.tgz
 
+Remember to make a tag after releasing a tarball:
+
+.. code:: bash
+
+    git tag x.y.z
+    git push --tags
+
 Design
 ------
 
