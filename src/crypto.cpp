@@ -19,49 +19,14 @@
 
 extern "C" {
 
-int curve25519_donna(
-    uint8_t * output,
-    const uint8_t * secret,
-    const uint8_t * basepoint
-);
-
 #include "crypto-algorithms/aes.h"
 #include "crypto-algorithms/sha256.h"
 
-int ed25519_sign(
-    unsigned char *signature,
-    const unsigned char *message, size_t message_len,
-    const unsigned char *public_key,
-    const unsigned char *private_key
-);
-
-
-int ed25519_verify(
-    const unsigned char *signature,
-    const unsigned char *message, size_t message_len,
-    const unsigned char *public_key
-);
-
-
-void convert_curve25519_to_ed25519(
-    unsigned char * public_key,
-    unsigned char * signature
-);
-
-
-void convert_ed25519_to_curve25519(
-    unsigned char const * public_key,
-    unsigned char * signature
-);
-
-
-void ed25519_keypair(
-    unsigned char * private_key,
-    unsigned char * public_key
-);
-
 }
 
+#include "ed25519/src/ed25519.h"
+#include "ed25519_additions.h"
+#include "curve25519-donna.h"
 
 namespace {
 
