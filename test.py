@@ -21,16 +21,15 @@ if not os.path.exists("build"):
     os.mkdir("build")
 
 test_files = glob.glob("tests/test_*.cpp")
-source_files = glob.glob("src/*.cpp")
 
-compile_args = "g++ -g -O0 -Itests/include -Iinclude -Ilib --std=c++11".split()
-compile_args += source_files
+compile_args = ("g++ -g -O0 -Itests/include -Iinclude -Ilib --std=c++11 "+
+                "-L build").split()
 
-def run(args):
+def run(args, *xargs, **kwargs):
     print " ".join(args)
-    subprocess.check_call(args)
+    subprocess.check_call(args, *xargs, **kwargs)
 
 for test_file in test_files:
-    exe_file = "build/" + test_file[5:-4]
-    run(compile_args + [test_file, "-o", exe_file])
-    run([exe_file])
+    exe_file = "build/" + test_file[6:-4]
+    run(compile_args + [test_file, "-lolm", "-o", exe_file])
+    run([exe_file], env={'LD_LIBRARY_PATH':'./build'})
