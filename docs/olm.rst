@@ -18,6 +18,11 @@ remote party's public key.
 So party :math:`A` computes :math:`ECDH\left(K_B_public,\,K_A_private\right)`
 and party :math:`B` computes :math:`ECDH\left(K_A_public,\,K_B_private\right)`
 
+Where this document uses :math:`HKDF\left(salt,\,IKM,\,info,\,L\right)` it
+refers to the `HMAC-based key derivation function`_ with a salt value of
+:math:`salt`, input key material of :math:`IKM`, context string :math:`info`,
+and output keying material length of :math:`L` bytes.
+
 The Olm Algorithm
 -----------------
 
@@ -36,7 +41,8 @@ HMAC-based Key Derivation Function using SHA-256_ as the hash function
     \begin{align}
         S&=ECDH\left(I_A,\,E_B\right)\;\parallel\;ECDH\left(E_A,\,I_B\right)\;
             \parallel\;ECDH\left(E_A,\,E_B\right)\\
-        R_0\;\parallel\;C_{0,0}&=HKDF\left(S,\,\text{"OLM\_ROOT"}\right)
+        R_0\;\parallel\;C_{0,0}&=
+             HKDF\left(0,\,S,\,\text{"OLM\_ROOT"},\,64\right)
     \end{align}
 
 Advancing the root key
@@ -54,9 +60,10 @@ info.
 .. math::
     \begin{align}
         R_i\;\parallel\;C_{i,0}&=HKDF\left(
-            ECDH\left(T_{i-1},\,T_i\right),\,
             R_{i-1},\,
-            \text{"OLM\_RATCHET"}
+            ECDH\left(T_{i-1},\,T_i\right),\,
+            \text{"OLM\_RATCHET"},\,
+            64
         \right)
     \end{align}
 
@@ -64,7 +71,7 @@ info.
 Advancing the chain key
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Advancing a root key takes the previous chain key, :math:`C_{i,j-i}`. The next
+Advancing a chain key takes the previous chain key, :math:`C_{i,j-i}`. The next
 chain key, :math:`C_{i,j}`, is the HMAC-SHA-256_ of ``"\x02"`` using the
 previous chain key as the key.
 
@@ -120,25 +127,35 @@ Bob.
 Creating an inbound session from a pre-key message
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bob receives a pre-key message with Alice's identity key, :math:`I_A`,
-Alice's single-use key, :math:`E_A`, the public part of his single-use key,
-:math:`E_B`, the current chain index, :math:`j`, Alice's ratchet key,
-:math:`T_0`, and the cipher-text, :math:`X_{0,j}`. Bob looks up the private
-part of the single-use key, :math:`E_B`. Bob computes the root key :math:`R_0`,
-and the chain key :math:`C_{0,0}`. Bob then advances the chain key to compute
-the chain key used by the message, :math:`C_{0,j}`. Bob then creates the
+Bob receives a pre-key message with the public parts of Alice's identity key,
+:math:`I_A`, Alice's single-use key, :math:`E_A`, Alice's ratchet key,
+:math:`T_0`, and his own single-use key, :math:`E_B`, as well as the
+current chain index, :math:`j`, and the cipher-text, :math:`X_{0,j}`.
+
+Bob looks up the private part of his single-use key, :math:`E_B`. He can now
+compute the root key, :math:`R_0`, and the chain key, :math:`C_{0,0}`, from
+:math:`I_A`, :math:`E_A`, :math:`I_B`, and :math:`E_B`.
+
+Bob then advances the chain key :math:`j` times, to compute the chain key used
+by the message, :math:`C_{0,j}`. He now creates the
 message key, :math:`M_{0,j}`, and attempts to decrypt the cipher-text,
 :math:`X_{0,j}`. If the cipher-text's authentication is correct then Bob can
 discard the private part of his single-use one-time key, :math:`E_B`.
 
+Bob stores Alice's initial ratchet key, :math:`T_0`, until he wants to
+send a message.
+
 Sending messages
 ~~~~~~~~~~~~~~~~
 
-To send a message the user checks if they have a sender chain key,
-:math:`C_{i,j}`. Alice use chain keys where :math:`i` is even. Bob uses chain
+To send a message, the user checks if they have a sender chain key,
+:math:`C_{i,j}`. Alice uses chain keys where :math:`i` is even. Bob uses chain
 keys where :math:`i` is odd. If the chain key doesn't exist then a new ratchet
-key :math:`T_i` is generated and a the chain key, :math:`C_{i,0}`, is computed
-using :math:`R_{i-1}`, :math:`T_{i-1}` and :math:`T_i`. A message key,
+key :math:`T_i` is generated and a new root key :math:`R_i` and chain key
+:math:`C_{i,0}` are computed using :math:`R_{i-1}`, :math:`T_{i-1}` and
+:math:`T_i`.
+
+A message key,
 :math:`M_{i,j}` is computed from the current chain key, :math:`C_{i,j}`, and
 the chain key is replaced with the next chain key, :math:`C_{i,j+1}`. The
 plain-text is encrypted with :math:`M_{i,j}`, using an authenticated encryption
@@ -149,12 +166,16 @@ cipher-text, :math:`X_{i,j}`, to the other user.
 Receiving messages
 ~~~~~~~~~~~~~~~~~~
 
-The user receives a message with the current chain index, :math:`j`, the
-ratchet key, :math:`T_i`, and the cipher-text, :math:`X_{i,j}`, from the
-other user. The user checks if they have a receiver chain with the correct
+The user receives a message with the sender's current chain index, :math:`j`,
+the sender's ratchet key, :math:`T_i`, and the cipher-text, :math:`X_{i,j}`.
+
+The user checks if they have a receiver chain with the correct
 :math:`i` by comparing the ratchet key, :math:`T_i`. If the chain doesn't exist
-then they compute a new receiver chain, :math:`C_{i,0}`, using :math:`R_{i-1}`,
-:math:`T_{i-1}` and :math:`T_i`. If the :math:`j` of the message is less than
+then they compute a new root key, :math:`R_i`, and a new receiver chain, with
+chain key :math:`C_{i,0}`, using :math:`R_{i-1}`, :math:`T_{i-1}` and
+:math:`T_i`.
+
+If the :math:`j` of the message is less than
 the current chain index on the receiver then the message may only be decrypted
 if the receiver has stored a copy of the message key :math:`M_{i,j}`. Otherwise
 the receiver computes the chain key, :math:`C_{i,j}`. The receiver computes the
@@ -169,6 +190,9 @@ they will create a new chain when they next send a message.
 
 The Olm Message Format
 ----------------------
+
+Olm uses two types of messages. The underlying transport protocol must provide
+a means for recipients to distinguish between them.
 
 Normal Messages
 ~~~~~~~~~~~~~~~
@@ -207,7 +231,8 @@ Cipher-Text  0x22 String   The cipher-text, :math:`X_{i,j}`, of the message
 =========== ===== ======== ================================================
 
 The length of the MAC is determined by the authenticated encryption algorithm
-being used. The MAC protects all of the bytes preceding the MAC.
+being used. (Olm version 1 uses HMAC-SHA-256, giving a MAC of 32 bytes). The
+MAC protects all of the bytes preceding the MAC.
 
 Pre-Key Messages
 ~~~~~~~~~~~~~~~~
@@ -249,16 +274,18 @@ encryption and HMAC-SHA-256_ for authentication. The 256 bit AES key, 256 bit
 HMAC key, and 128 bit AES IV are derived from the message key using
 HKDF-SHA-256_ using the default salt and an info of ``"OLM_KEYS"``.
 
-First the plain-text is encrypted to get the cipher-text, :math:`X_{i,j}`.
-Then the entire message, both the headers and cipher-text, are HMAC'd and the
-MAC is appended to the message.
-
 .. math::
 
     \begin{align}
     AES\_KEY_{i,j}\;\parallel\;HMAC\_KEY_{i,j}\;\parallel\;AES\_IV_{i,j}
-        &= HKDF\left(M_{i,j},\,\text{"OLM\_KEYS"}\right) \\
+        &= HKDF\left(0,\,M_{i,j},\text{"OLM\_KEYS"},\,80\right) \\
     \end{align}
+
+The plain-text is encrypted with AES-256, using the key :math:`AES\_KEY_{i,j}`
+and the IV :math:`AES\_IV_{i,j}` to give the cipher-text, :math:`X_{i,j}`.
+
+Then the entire message (including the Version Byte and all Payload Bytes) are
+passed through HMAC-SHA-256, and the MAC is appended to the message.
 
 IPR
 ---
@@ -279,6 +306,7 @@ entirely new implementation written by the Matrix.org team.
 
 .. _`Curve25519`: http://cr.yp.to/ecdh.html
 .. _`Triple Diffie-Hellman`: https://whispersystems.org/blog/simplifying-otr-deniability/
+.. _`HMAC-based key derivation function`: https://tools.ietf.org/html/rfc5869
 .. _`HKDF-SHA-256`: https://tools.ietf.org/html/rfc5869
 .. _`HMAC-SHA-256`: https://tools.ietf.org/html/rfc2104
 .. _`SHA-256`: https://tools.ietf.org/html/rfc6234
