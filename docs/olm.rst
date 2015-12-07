@@ -16,7 +16,7 @@ When this document uses :math:`ECDH\left(K_A,\,K_B\right)` it means that each
 party computes a Diffie-Hellman agreement using their private key and the
 remote party's public key.
 So party :math:`A` computes :math:`ECDH\left(K_B_public,\,K_A_private\right)`
-and party :math:`B` computes :math:`ECDH\left(K_A_public,\,K_B_private\right)`
+and party :math:`B` computes :math:`ECDH\left(K_A_public,\,K_B_private\right)`.
 
 Where this document uses :math:`HKDF\left(salt,\,IKM,\,info,\,L\right)` it
 refers to the `HMAC-based key derivation function`_ with a salt value of
