@@ -25,9 +25,9 @@ extern "C" {
 static const size_t OLM_MESSAGE_TYPE_PRE_KEY = 0;
 static const size_t OLM_MESSAGE_TYPE_MESSAGE = 1;
 
-struct OlmAccount;
-struct OlmSession;
-struct OlmUtility;
+typedef struct OlmAccount OlmAccount;
+typedef struct OlmSession OlmSession;
+typedef struct OlmUtility OlmUtility;
 
 /** The size of an account object in bytes */
 size_t olm_account_size();
@@ -51,7 +51,7 @@ OlmSession * olm_session(
 );
 
 /** Initialise a utility object using the supplied memory
- *  The supplied memory must be at least olm_session_size() bytes */
+ *  The supplied memory must be at least olm_utility_size() bytes */
 OlmUtility * olm_utility(
     void * memory
 );
