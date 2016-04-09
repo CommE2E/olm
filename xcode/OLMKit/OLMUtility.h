@@ -10,6 +10,6 @@
 
 @interface OLMUtility : NSObject
 
-+ (NSData*) randomBytesOfLength:(NSUInteger)length;
++ (NSMutableData*) randomBytesOfLength:(NSUInteger)length;
 
 @end

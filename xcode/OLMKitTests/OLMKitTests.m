@@ -31,10 +31,27 @@
     OLMAccount *alice = [[OLMAccount alloc] initNewAccount];
     OLMAccount *bob = [[OLMAccount alloc] initNewAccount];
     [bob generateOneTimeKeys:5];
-    NSDictionary *identityKeys = bob.identityKeys;
-    NSDictionary *oneTimeKeys = bob.oneTimeKeys;
-    NSParameterAssert(identityKeys != nil);
-    NSParameterAssert(oneTimeKeys != nil);
+    NSDictionary *bobIdKeys = bob.identityKeys;
+    NSString *bobIdKey = bobIdKeys[@"curve25519"];
+    NSDictionary *bobOneTimeKeys = bob.oneTimeKeys;
+    NSParameterAssert(bobIdKey != nil);
+    NSParameterAssert(bobOneTimeKeys != nil);
+    __block NSString *bobOneTimeKey = nil;
+    NSDictionary *bobOtkCurve25519 = bobOneTimeKeys[@"curve25519"];
+    [bobOtkCurve25519 enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        bobOneTimeKey = obj;
+    }];
+    XCTAssert([bobOneTimeKey isKindOfClass:[NSString class]]);
+    
+    OLMSession *aliceSession = [[OLMSession alloc] initOutboundSessionWithAccount:alice theirIdentityKey:bobIdKey theirOneTimeKey:bobOneTimeKey];
+    NSString *message = @"Hello!";
+    OLMMessage *aliceToBobMsg = [aliceSession encryptMessage:message];
+    
+    OLMSession *bobSession = [[OLMSession alloc] initInboundSessionWithAccount:bob oneTimeKeyMessage:aliceToBobMsg.ciphertext];
+    NSString *plaintext = [bobSession decryptMessage:aliceToBobMsg];
+    XCTAssertEqualObjects(message, plaintext);
+    BOOL success = [bobSession removeOneTimeKeys];
+    XCTAssertTrue(success);
 }
 
 

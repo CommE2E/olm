@@ -9,21 +9,30 @@
 #import <Foundation/Foundation.h>
 #import "OLMSerializable.h"
 #import "OLMAccount.h"
+#import "OLMMessage.h"
 
 @interface OLMSession : NSObject <OLMSerializable>
 
-- (instancetype) initOutboundSessionWithAccount:(OLMAccount*)account theirIdentityKey:(NSData*)theirIdentityKey theirOneTimeKey:(NSData*)theirOneTimeKey;
+@property (nonatomic, strong) OLMAccount *account;
 
-- (instancetype) initInboundSessionWithAccount:(OLMAccount*)account oneTimeKeyMessage:(NSData*)oneTimeKeyMessage;
+- (instancetype) initOutboundSessionWithAccount:(OLMAccount*)account theirIdentityKey:(NSString*)theirIdentityKey theirOneTimeKey:(NSString*)theirOneTimeKey;
 
-- (instancetype) initInboundSessionWithAccount:(OLMAccount*)account theirIdentityKey:(NSData*)theirIdentityKey oneTimeKeyMessage:(NSData*)oneTimeKeyMessage;
+- (instancetype) initInboundSessionWithAccount:(OLMAccount*)account oneTimeKeyMessage:(NSString*)oneTimeKeyMessage;
 
-- (NSData*) sessionIdentifier;
+- (instancetype) initInboundSessionWithAccount:(OLMAccount*)account theirIdentityKey:(NSString*)theirIdentityKey oneTimeKeyMessage:(NSString*)oneTimeKeyMessage;
 
-- (BOOL) matchesInboundSession:(NSData*)oneTimeKeyMessage;
+- (NSString*) sessionIdentifier;
 
-- (BOOL) matchesInboundSessionFrom:(NSData*)theirIdentityKey oneTimeKeyMessage:(NSData *)oneTimeKeyMessage;
+- (BOOL) matchesInboundSession:(NSString*)oneTimeKeyMessage;
 
-- (void) removeOneTimeKeys;
+- (BOOL) matchesInboundSessionFrom:(NSString*)theirIdentityKey oneTimeKeyMessage:(NSString *)oneTimeKeyMessage;
+
+- (BOOL) removeOneTimeKeys;
+
+/** UTF-8 plaintext -> base64 ciphertext */
+- (OLMMessage*) encryptMessage:(NSString*)message;
+
+/** base64 ciphertext -> UTF-8 plaintext */
+- (NSString*) decryptMessage:(OLMMessage*)message;
 
 @end

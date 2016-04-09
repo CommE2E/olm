@@ -10,19 +10,16 @@
 
 @implementation OLMUtility
 
-+ (NSData*) randomBytesOfLength:(NSUInteger)length {
-    uint8_t *randomBytes = malloc(length * sizeof(uint8_t));
-    NSParameterAssert(randomBytes != NULL);
-    if (!randomBytes) {
++ (NSMutableData*) randomBytesOfLength:(NSUInteger)length {
+    NSMutableData *randomData = [NSMutableData dataWithLength:length];
+    if (!randomData) {
         return nil;
     }
-    int result = SecRandomCopyBytes(kSecRandomDefault, length, randomBytes);
+    int result = SecRandomCopyBytes(kSecRandomDefault, randomData.length, randomData.mutableBytes);
     if (result != 0) {
-        free(randomBytes);
         return nil;
     }
-    NSData *data = [NSData dataWithBytesNoCopy:randomBytes length:length freeWhenDone:YES];
-    return data;
+    return randomData;
 }
 
 @end

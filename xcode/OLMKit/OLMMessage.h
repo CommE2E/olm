@@ -8,17 +8,21 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSUInteger, OLMMessageType) {
-    OLMMessageTypeUnknown,
-    OLMMessageTypePreKey,
-    OLMMessageTypeMessage
+/*
+ from olm.hh
+ static const size_t OLM_MESSAGE_TYPE_PRE_KEY = 0;
+ static const size_t OLM_MESSAGE_TYPE_MESSAGE = 1;
+ */
+typedef NS_ENUM(NSInteger, OLMMessageType) {
+    OLMMessageTypePreKey = 0,
+    OLMMessageTypeMessage = 1
 };
 
 @interface OLMMessage : NSObject
 
-@property (nonatomic, readonly, nonnull) NSString *message;
+@property (nonatomic, copy, readonly, nonnull) NSString *ciphertext;
 @property (readonly) OLMMessageType type;
 
-- (nonnull instancetype) initWithMessage:(nonnull NSString*)message type:(OLMMessageType)type;
+- (nullable instancetype) initWithCiphertext:(nonnull NSString*)ciphertext type:(OLMMessageType)type;
 
 @end
