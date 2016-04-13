@@ -9,11 +9,8 @@
 #import "OLMSession.h"
 #import "OLMUtility.h"
 #import "OLMAccount_Private.h"
+#import "OLMSession_Private.h"
 @import olm;
-
-@interface OLMSession()
-@property (nonatomic) OlmSession *session;
-@end
 
 @implementation OLMSession
 
@@ -37,13 +34,25 @@
     return YES;
 }
 
-- (instancetype) initWithAccount:(OLMAccount*)account {
+- (instancetype) init {
     self = [super init];
     if (!self) {
         return nil;
     }
     BOOL success = [self initializeSessionMemory];
     if (!success) {
+        return nil;
+    }
+    return self;
+}
+
+- (instancetype) initWithAccount:(OLMAccount*)account {
+    self = [self init];
+    if (!self) {
+        return nil;
+    }
+    NSParameterAssert(account != nil &&  account.account != NULL);
+    if (account == nil || account.account == NULL) {
         return nil;
     }
     _account = account;
@@ -72,10 +81,6 @@
     if (!self) {
         return nil;
     }
-    BOOL success = [self initializeSessionMemory];
-    if (!success) {
-        return nil;
-    }
     NSMutableData *otk = [NSMutableData dataWithData:[oneTimeKeyMessage dataUsingEncoding:NSUTF8StringEncoding]];
     size_t result = olm_create_inbound_session(_session, account.account, otk.mutableBytes, oneTimeKeyMessage.length);
     if (result == olm_error()) {
@@ -89,10 +94,6 @@
 - (instancetype) initInboundSessionWithAccount:(OLMAccount*)account theirIdentityKey:(NSString*)theirIdentityKey oneTimeKeyMessage:(NSString*)oneTimeKeyMessage {
     self = [self initWithAccount:account];
     if (!self) {
-        return nil;
-    }
-    BOOL success = [self initializeSessionMemory];
-    if (!success) {
         return nil;
     }
     NSData *idKey = [theirIdentityKey dataUsingEncoding:NSUTF8StringEncoding];
@@ -143,16 +144,6 @@
     return encryptedMessage;
 }
 
-- (BOOL) removeOneTimeKeys {
-    size_t result = olm_remove_one_time_keys(_account.account, _session);
-    if (result == olm_error()) {
-        const char *error = olm_session_last_error(_session);
-        NSAssert(NO, @"olm_remove_one_time_keys error: %s", error);
-        return NO;
-    }
-    return YES;
-}
-
 - (NSString*) decryptMessage:(OLMMessage*)message {
     NSParameterAssert(message != nil);
     NSData *messageData = [message.ciphertext dataUsingEncoding:NSUTF8StringEncoding];
@@ -178,6 +169,93 @@
     plaintextData.length = plaintextLength;
     NSString *plaintext = [[NSString alloc] initWithData:plaintextData encoding:NSUTF8StringEncoding];
     return plaintext;
+}
+
+#pragma mark OLMSerializable
+
+/** Initializes from encrypted serialized data. Will throw error if invalid key or invalid base64. */
+- (instancetype) initWithSerializedData:(NSString*)serializedData key:(NSData*)key error:(NSError**)error {
+    self = [self init];
+    if (!self) {
+        return nil;
+    }
+    NSParameterAssert(key.length > 0);
+    NSParameterAssert(serializedData.length > 0);
+    if (key.length == 0 || serializedData.length == 0) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"org.matrix.olm" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Bad length."}];
+        }
+        return nil;
+    }
+    NSMutableData *pickle = [serializedData dataUsingEncoding:NSUTF8StringEncoding].mutableCopy;
+    size_t result = olm_unpickle_session(_session, key.bytes, key.length, pickle.mutableBytes, pickle.length);
+    if (result == olm_error()) {
+        const char *olm_error = olm_session_last_error(_session);
+        NSString *errorString = [NSString stringWithUTF8String:olm_error];
+        if (error && errorString) {
+            *error = [NSError errorWithDomain:@"org.matrix.olm" code:0 userInfo:@{NSLocalizedDescriptionKey: errorString}];
+        }
+        return nil;
+    }
+    return self;
+}
+
+/** Serializes and encrypts object data, outputs base64 blob */
+- (NSString*) serializeDataWithKey:(NSData*)key error:(NSError**)error {
+    NSParameterAssert(key.length > 0);
+    size_t length = olm_pickle_session_length(_session);
+    NSMutableData *pickled = [NSMutableData dataWithLength:length];
+    size_t result = olm_pickle_session(_session, key.bytes, key.length, pickled.mutableBytes, pickled.length);
+    if (result == olm_error()) {
+        const char *olm_error = olm_session_last_error(_session);
+        NSString *errorString = [NSString stringWithUTF8String:olm_error];
+        if (error && errorString) {
+            *error = [NSError errorWithDomain:@"org.matrix.olm" code:0 userInfo:@{NSLocalizedDescriptionKey: errorString}];
+        }
+        return nil;
+    }
+    NSString *pickleString = [[NSString alloc] initWithData:pickled encoding:NSUTF8StringEncoding];
+    return pickleString;
+}
+
+#pragma mark NSSecureCoding
+
++ (BOOL) supportsSecureCoding {
+    return YES;
+}
+
+#pragma mark NSCoding
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    NSString *version = [decoder decodeObjectOfClass:[NSString class] forKey:@"version"];
+    
+    NSError *error = nil;
+    
+    if ([version isEqualToString:@"1"]) {
+        NSString *pickle = [decoder decodeObjectOfClass:[NSString class] forKey:@"pickle"];
+        NSData *key = [decoder decodeObjectOfClass:[NSData class] forKey:@"key"];
+        
+        self = [self initWithSerializedData:pickle key:key error:&error];
+    }
+    
+    NSParameterAssert(error == nil);
+    NSParameterAssert(self != nil);
+    if (!self) {
+        return nil;
+    }
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    NSData *key = [OLMUtility randomBytesOfLength:32];
+    NSError *error = nil;
+    NSString *pickle = [self serializeDataWithKey:key error:&error];
+    NSParameterAssert(pickle.length > 0 && error == nil);
+    
+    [encoder encodeObject:pickle forKey:@"pickle"];
+    [encoder encodeObject:key forKey:@"key"];
+    [encoder encodeObject:@"1" forKey:@"version"];
 }
 
 @end

@@ -11,9 +11,9 @@
 @protocol OLMSerializable <NSObject>
 
 /** Initializes from encrypted serialized data. Will throw error if invalid key or invalid base64. */
-- (instancetype) initWithSerializedData:(NSData*)serializedData key:(NSData*)key error:(NSError**)error;
+- (instancetype) initWithSerializedData:(NSString*)serializedData key:(NSData*)key error:(NSError**)error;
 
-/** Serializes and encrypts object data */
-- (NSData*) serializeDataWithKey:(NSData*)key;
+/** Serializes and encrypts object data, outputs base64 blob */
+- (NSString*) serializeDataWithKey:(NSData*)key error:(NSError**)error;
 
 @end

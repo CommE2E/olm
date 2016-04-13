@@ -11,9 +11,7 @@
 #import "OLMAccount.h"
 #import "OLMMessage.h"
 
-@interface OLMSession : NSObject <OLMSerializable>
-
-@property (nonatomic, strong) OLMAccount *account;
+@interface OLMSession : NSObject <OLMSerializable, NSSecureCoding>
 
 - (instancetype) initOutboundSessionWithAccount:(OLMAccount*)account theirIdentityKey:(NSString*)theirIdentityKey theirOneTimeKey:(NSString*)theirOneTimeKey;
 
@@ -26,8 +24,6 @@
 - (BOOL) matchesInboundSession:(NSString*)oneTimeKeyMessage;
 
 - (BOOL) matchesInboundSessionFrom:(NSString*)theirIdentityKey oneTimeKeyMessage:(NSString *)oneTimeKeyMessage;
-
-- (BOOL) removeOneTimeKeys;
 
 /** UTF-8 plaintext -> base64 ciphertext */
 - (OLMMessage*) encryptMessage:(NSString*)message;

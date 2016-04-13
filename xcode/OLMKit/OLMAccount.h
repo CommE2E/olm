@@ -9,7 +9,9 @@
 #import <Foundation/Foundation.h>
 #import "OLMSerializable.h"
 
-@interface OLMAccount : NSObject <OLMSerializable>
+@class OLMSession;
+
+@interface OLMAccount : NSObject <OLMSerializable, NSSecureCoding>
 
 /** Creates new account */
 - (instancetype) initNewAccount;
@@ -18,10 +20,12 @@
 - (NSDictionary*) identityKeys;
 
 /** signs message with ed25519 key for account */
-- (NSData*) signMessage:(NSData*)messageData;
+- (NSString*) signMessage:(NSData*)messageData;
 
 /** Public parts of the unpublished one time keys for the account */
 - (NSDictionary*) oneTimeKeys;
+
+- (BOOL) removeOneTimeKeysForSession:(OLMSession*)session;
 
 /** Marks the current set of one time keys as being published. */
 - (void) markKeysAsPublished;

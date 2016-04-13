@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D9401CDC1CBF10BD003DD078 /* OLMSession_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D9401CDB1CBF10BD003DD078 /* OLMSession_Private.h */; };
 		D976E4411CB852E000F5C124 /* OLMKit.h in Headers */ = {isa = PBXBuildFile; fileRef = D976E4401CB852E000F5C124 /* OLMKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D976E4481CB852E000F5C124 /* OLMKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D976E43E1CB852E000F5C124 /* OLMKit.framework */; };
 		D976E44D1CB852E000F5C124 /* OLMKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D976E44C1CB852E000F5C124 /* OLMKitTests.m */; };
@@ -37,6 +38,7 @@
 		0A0809C67039D4BDCE9CE9AF /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		235C5A0B708438C11BCE552C /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		81B8A7B31F3BA6548ACC45DE /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		D9401CDB1CBF10BD003DD078 /* OLMSession_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLMSession_Private.h; sourceTree = "<group>"; };
 		D976E43E1CB852E000F5C124 /* OLMKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OLMKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D976E4401CB852E000F5C124 /* OLMKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OLMKit.h; sourceTree = "<group>"; };
 		D976E4421CB852E000F5C124 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -115,6 +117,7 @@
 				D976E4671CB8696100F5C124 /* OLMAccount_Private.h */,
 				D976E4561CB8536500F5C124 /* OLMAccount.m */,
 				D976E4591CB8538300F5C124 /* OLMSession.h */,
+				D9401CDB1CBF10BD003DD078 /* OLMSession_Private.h */,
 				D976E45A1CB8538300F5C124 /* OLMSession.m */,
 				D976E45D1CB8538E00F5C124 /* OLMUtility.h */,
 				D976E45E1CB8538E00F5C124 /* OLMUtility.m */,
@@ -139,6 +142,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9401CDC1CBF10BD003DD078 /* OLMSession_Private.h in Headers */,
 				D976E45B1CB8538300F5C124 /* OLMSession.h in Headers */,
 				D976E4681CB8787D00F5C124 /* OLMAccount_Private.h in Headers */,
 				D976E4651CB8674900F5C124 /* OLMMessage.h in Headers */,
