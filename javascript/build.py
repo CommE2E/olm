@@ -20,6 +20,8 @@ import sys
 import re
 import json
 
+
+os.chdir(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 source_files = glob.glob("src/*.cpp")
 pre_js, = glob.glob("javascript/*pre.js")
 post_js, = glob.glob("javascript/*post.js")
@@ -39,19 +41,22 @@ with open(exported_functions, "w") as json_file:
 
 
 emcc = os.environ.get("EMCC", "emcc")
+optimize_opts = os.environ.get("OPTIMIZE_FLAGS", "-O3")
 
 compile_args = [emcc]
+compile_args += optimize_opts.split()
 compile_args += """
-    -O3
     -Iinclude
     -Ilib
     -std=c++11
     --closure 1
     --memory-init-file 0
     -s NO_FILESYSTEM=1
-    -s NO_BROWSER=1
     -s INVOKE_RUN=0
 """.split()
+# NO_BROWSER is kept for compatibility with emscripten 1.35.24, but is no
+# longer needed.
+compile_args += ("-s","NO_BROWSER=1")
 compile_args += source_files
 compile_args += ("--pre-js", pre_js)
 compile_args += ("--post-js", post_js)
@@ -66,4 +71,3 @@ def run(args):
     subprocess.check_call(args)
 
 run(compile_args + ["-o", library])
-
