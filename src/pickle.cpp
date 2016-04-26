@@ -14,6 +14,60 @@
  */
 #include "olm/pickle.hh"
 
+std::uint8_t * olm::pickle(
+    std::uint8_t * pos,
+    std::uint32_t value
+) {
+    pos += 4;
+    for (unsigned i = 4; i--;) { *(--pos) = value; value >>= 8; }
+    return pos + 4;
+}
+
+
+std::uint8_t const * olm::unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    std::uint32_t & value
+) {
+    value = 0;
+    if (end < pos + 4) return end;
+    for (unsigned i = 4; i--;) { value <<= 8; value |= *(pos++); }
+    return pos;
+}
+
+std::uint8_t * olm::pickle(
+    std::uint8_t * pos,
+    bool value
+) {
+    *(pos++) = value ? 1 : 0;
+    return pos;
+}
+
+std::uint8_t const * olm::unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    bool & value
+) {
+    if (pos == end) return end;
+    value = *(pos++);
+    return pos;
+}
+
+std::uint8_t * olm::pickle_bytes(
+    std::uint8_t * pos,
+    std::uint8_t const * bytes, std::size_t bytes_length
+) {
+    std::memcpy(pos, bytes, bytes_length);
+    return pos + bytes_length;
+}
+
+std::uint8_t const * olm::unpickle_bytes(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    std::uint8_t * bytes, std::size_t bytes_length
+) {
+    if (end < pos + bytes_length) return end;
+    std::memcpy(bytes, pos, bytes_length);
+    return pos + bytes_length;
+}
+
 
 std::size_t olm::pickle_length(
     const olm::Curve25519PublicKey & value

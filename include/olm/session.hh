@@ -19,7 +19,7 @@
 
 namespace olm {
 
-class Account;
+struct Account;
 
 enum struct MessageType {
     PRE_KEY = 0,

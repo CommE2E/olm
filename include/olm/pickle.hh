@@ -23,58 +23,38 @@
 
 namespace olm {
 
-static std::size_t pickle_length(
+inline std::size_t pickle_length(
     const std::uint32_t & value
 ) {
     return 4;
 }
 
-
-static std::uint8_t * pickle(
+std::uint8_t * pickle(
     std::uint8_t * pos,
     std::uint32_t value
-) {
-    pos += 4;
-    for (unsigned i = 4; i--;) { *(--pos) = value; value >>= 8; }
-    return pos + 4;
-}
+);
 
-
-static std::uint8_t const * unpickle(
+std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
     std::uint32_t & value
-) {
-    value = 0;
-    if (end - pos < 4) return end;
-    for (unsigned i = 4; i--;) { value <<= 8; value |= *(pos++); }
-    return pos;
-}
+);
 
-static std::size_t pickle_length(
+
+inline std::size_t pickle_length(
     const bool & value
 ) {
     return 1;
 }
 
-
-static std::uint8_t * pickle(
+std::uint8_t * pickle(
     std::uint8_t * pos,
     bool value
-) {
-    *(pos++) = value ? 1 : 0;
-    return pos;
-}
+);
 
-
-static std::uint8_t const * unpickle(
+std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
     bool & value
-) {
-    if (pos == end) return end;
-    value = *(pos++);
-    return pos;
-}
-
+);
 
 
 template<typename T, std::size_t max_size>
@@ -117,23 +97,15 @@ std::uint8_t const * unpickle(
 }
 
 
-static std::uint8_t * pickle_bytes(
+std::uint8_t * pickle_bytes(
     std::uint8_t * pos,
     std::uint8_t const * bytes, std::size_t bytes_length
-) {
-    std::memcpy(pos, bytes, bytes_length);
-    return pos + bytes_length;
-}
+);
 
-
-static std::uint8_t const * unpickle_bytes(
+std::uint8_t const * unpickle_bytes(
     std::uint8_t const * pos, std::uint8_t const * end,
     std::uint8_t * bytes, std::size_t bytes_length
-) {
-    if (end - pos < bytes_length) return end;
-    std::memcpy(bytes, pos, bytes_length);
-    return pos + bytes_length;
-}
+);
 
 
 std::size_t pickle_length(

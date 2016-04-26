@@ -23,7 +23,7 @@
 
 namespace olm {
 
-class Ed25519PublicKey;
+struct Ed25519PublicKey;
 
 struct Utility {
 

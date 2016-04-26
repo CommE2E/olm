@@ -45,6 +45,7 @@ optimize_opts = os.environ.get("OPTIMIZE_FLAGS", "-O3")
 
 compile_args = [emcc]
 compile_args += optimize_opts.split()
+compile_args += ["-Wall"]
 compile_args += """
     -Iinclude
     -Ilib

@@ -23,11 +23,9 @@ namespace olm {
 /**
  * The number of bytes of unpadded base64 needed to encode a length of input.
  */
-static std::size_t encode_base64_length(
+std::size_t encode_base64_length(
     std::size_t input_length
-) {
-    return 4 * ((input_length + 2) / 3) + (input_length + 2) % 3 - 2;
-}
+);
 
 /**
  * Encode the raw input as unpadded base64.

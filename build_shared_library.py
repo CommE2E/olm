@@ -23,7 +23,7 @@ if not os.path.exists("build"):
 
 source_files = glob.glob("src/*.cpp")
 
-compile_args = "g++ -O3 -Iinclude -Ilib --std=c++11 --shared -fPIC".split()
+compile_args = "g++ -Wall -O3 -Iinclude -Ilib --std=c++11 --shared -fPIC".split()
 compile_args += source_files
 compile_args += sys.argv[1:]
 

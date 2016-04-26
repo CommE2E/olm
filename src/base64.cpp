@@ -45,6 +45,12 @@ static const std::uint8_t DECODE_BASE64[128] = {
 } // namespace
 
 
+std::size_t olm::encode_base64_length(
+    std::size_t input_length
+) {
+    return 4 * ((input_length + 2) / 3) + (input_length + 2) % 3 - 2;
+}
+
 std::uint8_t * olm::encode_base64(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
