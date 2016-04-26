@@ -101,6 +101,10 @@ inline static void hmac_sha256_final(
 
 } // namespace
 
+std::string olm::Curve25519PublicKey::to_string() const {
+    return olm::bytes_to_string(std::begin(public_key),
+                                std::end(public_key));
+};
 
 void olm::curve25519_generate_key(
     std::uint8_t const * random_32_bytes,

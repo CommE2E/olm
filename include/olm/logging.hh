@@ -23,6 +23,7 @@ const unsigned int LOG_ERROR   = 2;
 const unsigned int LOG_WARNING = 3;
 const unsigned int LOG_INFO    = 4;
 const unsigned int LOG_DEBUG   = 5;
+const unsigned int LOG_TRACE   = 6;
 
 void set_log_level(unsigned int log_level);
 

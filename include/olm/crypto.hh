@@ -17,6 +17,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <string>
 
 namespace olm {
 
@@ -26,6 +27,7 @@ static const std::size_t IV_LENGTH = 16;
 
 struct Curve25519PublicKey {
     std::uint8_t public_key[KEY_LENGTH];
+    std::string to_string() const;
 };
 
 

@@ -1,4 +1,4 @@
-/* Copyright 2015 OpenMarket Ltd
+/* Copyright 2015, 2016 OpenMarket Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 #include <type_traits>
 
 namespace olm {
@@ -82,6 +85,25 @@ std::uint8_t * store_array(
     );
     std::memcpy(destination, source, sizeof(T));
     return destination + sizeof(T);
+}
+
+/** convert an array of bytes to a string representation */
+template<typename T>
+std::string bytes_to_string(T start, T end) {
+    std::ostringstream ss;
+    ss << std::hex << std::setfill('0');
+    while (start != end) {
+        ss << std::setw(2) << static_cast<int>(*start++);
+        if (start != end) {
+            ss << ":";
+        }
+    }
+    return ss.str();
+}
+
+template<typename T>
+std::string bytes_to_string(T start, size_t len) {
+    return bytes_to_string(start, start+len);
 }
 
 } // namespace olm
