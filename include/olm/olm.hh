@@ -1,4 +1,4 @@
-/* Copyright 2015 OpenMarket Ltd
+/* Copyright 2015, 2016 OpenMarket Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ OlmSession * olm_session(
 );
 
 /** Initialise a utility object using the supplied memory
- *  The supplied memory must be at least olm_session_size() bytes */
+ *  The supplied memory must be at least olm_utility_size() bytes */
 OlmUtility * olm_utility(
     void * memory
 );
@@ -413,6 +413,13 @@ size_t olm_ed25519_verify(
     void const * key, size_t key_length,
     void const * message, size_t message_length,
     void * signature, size_t signature_length
+);
+
+/**
+ * Set the log level. By default, 1, which logs only FATAL messages.
+ */
+void olm_set_log_level(
+    unsigned int level
 );
 
 #ifdef __cplusplus

@@ -383,4 +383,5 @@ olm_exports["Account"] = Account;
 olm_exports["Session"] = Session;
 olm_exports["Utility"] = Utility;
 
+olm_exports['set_log_level'] = Module['_olm_set_log_level'];
 }();
