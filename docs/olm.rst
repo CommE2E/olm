@@ -1,7 +1,7 @@
 Olm: A Cryptographic Ratchet
 ============================
 
-An implementation of the cryptographic ratchet described by
+An implementation of the double cryptographic ratchet described by
 https://github.com/trevp/axolotl/wiki.
 
 Notation
@@ -101,25 +101,32 @@ The Olm Protocol
 Creating an outbound session
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bob publishes his identity key, :math:`I_B`, and some single-use one-time
-keys :math:`E_B`.
+Bob publishes the public parts of his identity key, :math:`I_B`, and some
+single-use one-time keys :math:`E_B`.
 
 Alice downloads Bob's identity key, :math:`I_B`, and a one-time key,
-:math:`E_B`. Alice takes her identity key, :math:`I_A`, and generates a new
-single-use key, :math:`E_A`. Alice computes a root key, :math:`R_0`, and a
-chain key :math:`C_{0,0}`. Alice generates a new ratchet key :math:`T_0`.
+:math:`E_B`. She generates a new single-use key, :math:`E_A`, and computes a
+root key, :math:`R_0`, and a chain key :math:`C_{0,0}`. She also generates a
+new ratchet key :math:`T_0`.
 
 Sending the first pre-key messages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Alice computes a message key, :math:`M_{0,j}`, using the current chain key,
-:math:`C_{0,j}`. Alice replaces the current chain key with :math:`C_{0,j+1}`.
+Alice computes a message key, :math:`M_{0,j}`, and a new chain key,
+:math:`C_{0,j+1}`, using the current chain key. She replaces the current chain
+key with the new one.
+
 Alice encrypts her plain-text with the message key, :math:`M_{0,j}`, using an
 authenticated encryption scheme (see below) to get a cipher-text,
-:math:`X_{0,j}`. Alice sends her identity key, :math:`I_A`, her single-use key,
-:math:`E_A`, Bob's single-use key, :math:`E_B`, the current chain index,
-:math:`j`, her ratchet key, :math:`T_0`, and the cipher-text, :math:`X_{0,j}`,
-to Bob.
+:math:`X_{0,j}`.
+
+She then sends the following to Bob:
+ * The public part of her identity key, :math:`I_A`
+ * The public part of her single-use key, :math:`E_A`
+ * The public part of Bob's single-use key, :math:`E_B`
+ * The current chain index, :math:`j`
+ * The public part of her ratchet key, :math:`T_0`
+ * The cipher-text, :math:`X_{0,j}`
 
 Alice will continue to send pre-key messages until she receives a message from
 Bob.
@@ -127,10 +134,7 @@ Bob.
 Creating an inbound session from a pre-key message
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bob receives a pre-key message with the public parts of Alice's identity key,
-:math:`I_A`, Alice's single-use key, :math:`E_A`, Alice's ratchet key,
-:math:`T_0`, and his own single-use key, :math:`E_B`, as well as the
-current chain index, :math:`j`, and the cipher-text, :math:`X_{0,j}`.
+Bob receives a pre-key message as above.
 
 Bob looks up the private part of his single-use key, :math:`E_B`. He can now
 compute the root key, :math:`R_0`, and the chain key, :math:`C_{0,0}`, from
@@ -145,8 +149,11 @@ discard the private part of his single-use one-time key, :math:`E_B`.
 Bob stores Alice's initial ratchet key, :math:`T_0`, until he wants to
 send a message.
 
-Sending messages
-~~~~~~~~~~~~~~~~
+Sending normal messages
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Once a message has been received from the other side, a session is considered
+established, and a more compact form is used.
 
 To send a message, the user checks if they have a sender chain key,
 :math:`C_{i,j}`. Alice uses chain keys where :math:`i` is even. Bob uses chain
@@ -159,14 +166,17 @@ A message key,
 :math:`M_{i,j}` is computed from the current chain key, :math:`C_{i,j}`, and
 the chain key is replaced with the next chain key, :math:`C_{i,j+1}`. The
 plain-text is encrypted with :math:`M_{i,j}`, using an authenticated encryption
-scheme (see below) to get a cipher-text, :math:`X_{i,j}`. Then user sends the
-current chain index, :math:`j`, the ratchet key, :math:`T_i`, and the
-cipher-text, :math:`X_{i,j}`, to the other user.
+scheme (see below) to get a cipher-text, :math:`X_{i,j}`.
+
+The user then sends the following to the recipient:
+ * The current chain index, :math:`j`
+ * The public part of the current ratchet key, :math:`T_i`
+ * The cipher-text, :math:`X_{i,j}`
 
 Receiving messages
 ~~~~~~~~~~~~~~~~~~
 
-The user receives a message with the sender's current chain index, :math:`j`,
+The user receives a message as above with the sender's current chain index, :math:`j`,
 the sender's ratchet key, :math:`T_i`, and the cipher-text, :math:`X_{i,j}`.
 
 The user checks if they have a receiver chain with the correct
