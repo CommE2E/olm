@@ -25,9 +25,9 @@ extern "C" {
 static const size_t OLM_MESSAGE_TYPE_PRE_KEY = 0;
 static const size_t OLM_MESSAGE_TYPE_MESSAGE = 1;
 
-struct OlmAccount;
-struct OlmSession;
-struct OlmUtility;
+typedef struct OlmAccount OlmAccount;
+typedef struct OlmSession OlmSession;
+typedef struct OlmUtility OlmUtility;
 
 /** The size of an account object in bytes */
 size_t olm_account_size();

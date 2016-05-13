@@ -14,7 +14,7 @@
  */
 #include "olm/message.hh"
 
-#include "olm/logging.hh"
+#include "olm/logging.h"
 #include "olm/memory.hh"
 
 namespace {
@@ -239,7 +239,7 @@ void olm::decode_message(
         }
         unknown = pos;
     }
-    olm::logf(olm::LOG_TRACE, LOG_CATEGORY,
+    olm_logf(OLM_LOG_TRACE, LOG_CATEGORY,
               "Decoded message ver=%i ratchet_key=%s chain_idx=%i ciphertext=%s",
               reader.version,
               olm::bytes_to_string(reader.ratchet_key, reader.ratchet_key_length).c_str(),
@@ -335,7 +335,7 @@ void olm::decode_one_time_key_message(
         unknown = pos;
     }
 
-    olm::logf(olm::LOG_TRACE, LOG_CATEGORY,
+    olm_logf(OLM_LOG_TRACE, LOG_CATEGORY,
               "Decoded pre-key message ver=%i one_time_key[Eb]=%s "
               "base_key[Ea]=%s identity_key[Ia]=%s message=%s",
               reader.version,

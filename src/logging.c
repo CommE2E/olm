@@ -13,26 +13,35 @@
  * limitations under the License.
  */
 
-#ifndef OLM_LOGGING_HH_
-#define OLM_LOGGING_HH_
+#include "olm/logging.h"
 
-namespace olm {
+#include <stdarg.h>
+#include <stdio.h>
 
-const unsigned int LOG_FATAL   = 1;
-const unsigned int LOG_ERROR   = 2;
-const unsigned int LOG_WARNING = 3;
-const unsigned int LOG_INFO    = 4;
-const unsigned int LOG_DEBUG   = 5;
-const unsigned int LOG_TRACE   = 6;
+static unsigned int log_level = 1;
 
-void set_log_level(unsigned int log_level);
+void olm_set_log_level(unsigned int level) {
+    log_level = level;
+}
 
-bool log_enabled_for(unsigned int level, const char *category);
+int olm_log_enabled_for(unsigned int level, const char *category)
+{
+    return level <= log_level;
+}
 
-__attribute__((__format__ (__printf__, 3, 4)))
-void logf(unsigned int level, const char *category,
-          const char *format, ...);
+void olm_logf(unsigned int level, const char *category,
+          const char *format, ...) {
+    if (level > log_level) {
+        return;
+    }
 
-} // namespace olm
+    fputs(category, stdout);
+    fputs(": ", stdout);
 
-#endif /* OLM_LOGGING_HH_ */
+    va_list ap;
+    va_start(ap, format);
+    vprintf(format, ap);
+    va_end(ap);
+
+    putchar('\n');
+}

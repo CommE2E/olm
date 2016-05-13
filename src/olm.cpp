@@ -19,7 +19,7 @@
 #include "olm/base64.hh"
 #include "olm/cipher.hh"
 #include "olm/memory.hh"
-#include "olm/logging.hh"
+#include "olm/logging.h"
 
 #include <new>
 #include <cstring>
@@ -817,12 +817,6 @@ size_t olm_ed25519_verify(
         from_c(message), message_length,
         from_c(signature), raw_signature_length
     );
-}
-
-void olm_set_log_level(
-    unsigned int level
-) {
-    olm::set_log_level(level);
 }
 
 }

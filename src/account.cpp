@@ -14,7 +14,7 @@
  */
 #include "olm/account.hh"
 #include "olm/base64.hh"
-#include "olm/logging.hh"
+#include "olm/logging.h"
 #include "olm/pickle.hh"
 #include "olm/memory.hh"
 
@@ -45,11 +45,11 @@ std::size_t olm::Account::remove_key(
         if (olm::array_equal(i->key.public_key, public_key.public_key)) {
             std::uint32_t id = i->id;
             one_time_keys.erase(i);
-            olm::logf(olm::LOG_INFO, LOG_CATEGORY, "removed key id %i", id);
+            olm_logf(OLM_LOG_INFO, LOG_CATEGORY, "removed key id %i", id);
             return id;
         }
     }
-    olm::logf(olm::LOG_WARNING, LOG_CATEGORY, "Couldn't find key to remove");
+    olm_logf(OLM_LOG_WARNING, LOG_CATEGORY, "Couldn't find key to remove");
     return std::size_t(-1);
 }
 
@@ -69,7 +69,7 @@ std::size_t olm::Account::new_account(
     random += KEY_LENGTH;
     olm::curve25519_generate_key(random, identity_keys.curve25519_key);
 
-    olm::logf(olm::LOG_DEBUG, LOG_CATEGORY, "Created new account");
+    olm_logf(OLM_LOG_DEBUG, LOG_CATEGORY, "Created new account");
 
     return 0;
 }

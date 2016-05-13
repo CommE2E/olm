@@ -13,39 +13,32 @@
  * limitations under the License.
  */
 
-#include "olm/logging.hh"
+#ifndef OLM_LOGGING_H_
+#define OLM_LOGGING_H_
 
-#include <cstdarg>
-#include <cstdio>
+#include "olm/olm.hh"
 
-namespace olm {
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-static unsigned int log_level = 1;
+#define OLM_LOG_FATAL   1
+#define OLM_LOG_ERROR   2
+#define OLM_LOG_WARNING 3
+#define OLM_LOG_INFO    4
+#define OLM_LOG_DEBUG   5
+#define OLM_LOG_TRACE   6
 
-void set_log_level(unsigned int level) {
-    log_level = level;
-}
+/* returns non-zero if logging is enabled for this level */
+int olm_log_enabled_for(unsigned int level, const char *category);
 
-bool log_enabled_for(unsigned int level, const char *category)
-{
-    return level <= log_level;
-}
+__attribute__((__format__ (__printf__, 3, 4)))
+void olm_logf(unsigned int level, const char *category,
+          const char *format, ...);
 
-void logf(unsigned int level, const char *category,
-          const char *format, ...) {
-    if (level > log_level) {
-        return;
-    }
 
-    fputs(category, stdout);
-    fputs(": ", stdout);
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
-    va_list ap;
-    va_start(ap, format);
-    vprintf(format, ap);
-    va_end(ap);
-
-    putchar('\n');
-}
-
-} // namespace olm
+#endif /* OLM_LOGGING_H_ */
