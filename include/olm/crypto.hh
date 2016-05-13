@@ -18,6 +18,11 @@
 #include <cstdint>
 #include <cstddef>
 
+// eventually all of this needs to move into crypto.h, and everything should
+// use that. For now, include crypto.h here.
+
+#include "olm/crypto.h"
+
 namespace olm {
 
 static const std::size_t KEY_LENGTH = 32;
@@ -141,38 +146,6 @@ std::size_t aes_decrypt_cbc(
     std::uint8_t * output
 );
 
-
-/** Computes SHA-256 of the input. The output buffer must be a least 32
- * bytes long. */
-void sha256(
-    std::uint8_t const * input, std::size_t input_length,
-    std::uint8_t * output
-);
-
-
-const std::size_t SHA256_OUTPUT_LENGTH = 32;
-
-
-/** HMAC: Keyed-Hashing for Message Authentication
- * http://tools.ietf.org/html/rfc2104
- * Computes HMAC-SHA-256 of the input for the key. The output buffer must
- * be at least 32 bytes long. */
-void hmac_sha256(
-    std::uint8_t const * key, std::size_t key_length,
-    std::uint8_t const * input, std::size_t input_length,
-    std::uint8_t * output
-);
-
-
-/** HMAC-based Key Derivation Function (HKDF)
- * https://tools.ietf.org/html/rfc5869
- * Derives key material from the input bytes. */
-void hkdf_sha256(
-    std::uint8_t const * input, std::size_t input_length,
-    std::uint8_t const * info, std::size_t info_length,
-    std::uint8_t const * salt, std::size_t salt_length,
-    std::uint8_t * output, std::size_t output_length
-);
 
 } // namespace olm
 

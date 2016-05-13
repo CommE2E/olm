@@ -23,7 +23,7 @@ olm::Utility::Utility(
 
 
 size_t olm::Utility::sha256_length() {
-    return olm::SHA256_OUTPUT_LENGTH;
+    return SHA256_OUTPUT_LENGTH;
 }
 
 
@@ -35,8 +35,8 @@ size_t olm::Utility::sha256(
         last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
-    olm::sha256(input, input_length, output);
-    return olm::SHA256_OUTPUT_LENGTH;
+    crypto_sha256(input, input_length, output);
+    return SHA256_OUTPUT_LENGTH;
 }
 
 

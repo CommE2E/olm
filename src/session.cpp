@@ -192,7 +192,7 @@ std::size_t olm::Session::new_inbound_session(
 
 
 std::size_t olm::Session::session_id_length() {
-    return olm::SHA256_OUTPUT_LENGTH;
+    return SHA256_OUTPUT_LENGTH;
 }
 
 
@@ -208,7 +208,7 @@ std::size_t olm::Session::session_id(
     pos = olm::store_array(pos, alice_identity_key.public_key);
     pos = olm::store_array(pos, alice_base_key.public_key);
     pos = olm::store_array(pos, bob_one_time_key.public_key);
-    olm::sha256(tmp, sizeof(tmp), id);
+    crypto_sha256(tmp, sizeof(tmp), id);
     return session_id_length();
 }
 

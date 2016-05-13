@@ -50,7 +50,7 @@ static void create_chain_key(
     olm::SharedKey secret;
     olm::curve25519_shared_secret(our_key, their_key, secret);
     std::uint8_t derived_secrets[2 * olm::KEY_LENGTH];
-    olm::hkdf_sha256(
+    crypto_hkdf_sha256(
         secret, sizeof(secret),
         root_key, sizeof(root_key),
         info.ratchet_info, info.ratchet_info_length,
@@ -70,7 +70,7 @@ static void advance_chain_key(
     olm::ChainKey const & chain_key,
     olm::ChainKey & new_chain_key
 ) {
-    olm::hmac_sha256(
+    crypto_hmac_sha256(
         chain_key.key, sizeof(chain_key.key),
         CHAIN_KEY_SEED, sizeof(CHAIN_KEY_SEED),
         new_chain_key.key
@@ -84,7 +84,7 @@ static void create_message_keys(
     olm::ChainKey const & chain_key,
     olm::KdfInfo const & info,
     olm::MessageKey & message_key) {
-    olm::hmac_sha256(
+    crypto_hmac_sha256(
         chain_key.key, sizeof(chain_key.key),
         MESSAGE_KEY_SEED, sizeof(MESSAGE_KEY_SEED),
         message_key.key
@@ -195,7 +195,7 @@ void olm::Ratchet::initialise_as_bob(
     olm::Curve25519PublicKey const & their_ratchet_key
 ) {
     std::uint8_t derived_secrets[2 * olm::KEY_LENGTH];
-    olm::hkdf_sha256(
+    crypto_hkdf_sha256(
         shared_secret, shared_secret_length,
         nullptr, 0,
         kdf_info.root_info, kdf_info.root_info_length,
@@ -217,7 +217,7 @@ void olm::Ratchet::initialise_as_alice(
     olm::Curve25519KeyPair const & our_ratchet_key
 ) {
     std::uint8_t derived_secrets[2 * olm::KEY_LENGTH];
-    olm::hkdf_sha256(
+    crypto_hkdf_sha256(
         shared_secret, shared_secret_length,
         nullptr, 0,
         kdf_info.root_info, kdf_info.root_info_length,

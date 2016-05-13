@@ -85,7 +85,7 @@ inline static void hmac_sha256_final(
     std::uint8_t const * hmac_key,
     std::uint8_t * output
 ) {
-    std::uint8_t o_pad[SHA256_BLOCK_LENGTH + olm::SHA256_OUTPUT_LENGTH];
+    std::uint8_t o_pad[SHA256_BLOCK_LENGTH + SHA256_OUTPUT_LENGTH];
     std::memcpy(o_pad, hmac_key, SHA256_BLOCK_LENGTH);
     for (std::size_t i = 0; i < SHA256_BLOCK_LENGTH; ++i) {
         o_pad[i] ^= 0x5C;
@@ -255,7 +255,7 @@ std::size_t olm::aes_decrypt_cbc(
 }
 
 
-void olm::sha256(
+void crypto_sha256(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
 ) {
@@ -267,7 +267,7 @@ void olm::sha256(
 }
 
 
-void olm::hmac_sha256(
+void crypto_hmac_sha256(
     std::uint8_t const * key, std::size_t key_length,
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
@@ -283,7 +283,7 @@ void olm::hmac_sha256(
 }
 
 
-void olm::hkdf_sha256(
+void crypto_hkdf_sha256(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t const * salt, std::size_t salt_length,
     std::uint8_t const * info, std::size_t info_length,
@@ -291,7 +291,7 @@ void olm::hkdf_sha256(
 ) {
     ::SHA256_CTX context;
     std::uint8_t hmac_key[SHA256_BLOCK_LENGTH];
-    std::uint8_t step_result[olm::SHA256_OUTPUT_LENGTH];
+    std::uint8_t step_result[SHA256_OUTPUT_LENGTH];
     std::size_t bytes_remaining = output_length;
     std::uint8_t iteration = 1;
     if (!salt) {
@@ -303,20 +303,20 @@ void olm::hkdf_sha256(
     hmac_sha256_init(&context, hmac_key);
     ::sha256_update(&context, input, input_length);
     hmac_sha256_final(&context, hmac_key, step_result);
-    hmac_sha256_key(step_result, olm::SHA256_OUTPUT_LENGTH, hmac_key);
+    hmac_sha256_key(step_result, SHA256_OUTPUT_LENGTH, hmac_key);
 
     /* Expand */
     hmac_sha256_init(&context, hmac_key);
     ::sha256_update(&context, info, info_length);
     ::sha256_update(&context, &iteration, 1);
     hmac_sha256_final(&context, hmac_key, step_result);
-    while (bytes_remaining > olm::SHA256_OUTPUT_LENGTH) {
-        std::memcpy(output, step_result, olm::SHA256_OUTPUT_LENGTH);
-        output += olm::SHA256_OUTPUT_LENGTH;
-        bytes_remaining -= olm::SHA256_OUTPUT_LENGTH;
+    while (bytes_remaining > SHA256_OUTPUT_LENGTH) {
+        std::memcpy(output, step_result, SHA256_OUTPUT_LENGTH);
+        output += SHA256_OUTPUT_LENGTH;
+        bytes_remaining -= SHA256_OUTPUT_LENGTH;
         iteration ++;
         hmac_sha256_init(&context, hmac_key);
-        ::sha256_update(&context, step_result, olm::SHA256_OUTPUT_LENGTH);
+        ::sha256_update(&context, step_result, SHA256_OUTPUT_LENGTH);
         ::sha256_update(&context, info, info_length);
         ::sha256_update(&context, &iteration, 1);
         hmac_sha256_final(&context, hmac_key, step_result);
