@@ -2,7 +2,7 @@ Olm: A Cryptographic Ratchet
 ============================
 
 An implementation of the double cryptographic ratchet described by
-https://github.com/trevp/axolotl/wiki.
+https://github.com/trevp/double_ratchet/wiki.
 
 Notation
 --------
