@@ -31,7 +31,14 @@ enum OlmErrorCode {
     OLM_BAD_ACCOUNT_KEY = 8, /*!< The supplied account key is invalid */
     OLM_UNKNOWN_PICKLE_VERSION = 9, /*!< The pickled object is too new */
     OLM_CORRUPTED_PICKLE = 10, /*!< The pickled object couldn't be decoded */
+
+    /* remember to update the list of string constants in error.c when updating
+     * this list. */
+
 };
+
+/** get a string representation of the given error code. */
+const char * _olm_error_to_string(enum OlmErrorCode error);
 
 #ifdef __cplusplus
 } // extern "C"

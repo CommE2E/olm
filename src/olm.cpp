@@ -164,20 +164,6 @@ std::size_t b64_input(
     return raw_length;
 }
 
-static const char * ERRORS[11] {
-    "SUCCESS",
-    "NOT_ENOUGH_RANDOM",
-    "OUTPUT_BUFFER_TOO_SMALL",
-    "BAD_MESSAGE_VERSION",
-    "BAD_MESSAGE_FORMAT",
-    "BAD_MESSAGE_MAC",
-    "BAD_MESSAGE_KEY_ID",
-    "INVALID_BASE64",
-    "BAD_ACCOUNT_KEY",
-    "UNKNOWN_PICKLE_VERSION",
-    "CORRUPTED_PICKLE",
-};
-
 } // namespace
 
 
@@ -192,35 +178,23 @@ size_t olm_error() {
 const char * olm_account_last_error(
     OlmAccount * account
 ) {
-    unsigned error = unsigned(from_c(account)->last_error);
-    if (error < (sizeof(ERRORS)/sizeof(ERRORS[0]))) {
-        return ERRORS[error];
-    } else {
-        return "UNKNOWN_ERROR";
-    }
+    auto error = from_c(account)->last_error;
+    return _olm_error_to_string(error);
 }
 
 
 const char * olm_session_last_error(
     OlmSession * session
 ) {
-    unsigned error = unsigned(from_c(session)->last_error);
-    if (error < (sizeof(ERRORS)/sizeof(ERRORS[0]))) {
-        return ERRORS[error];
-    } else {
-        return "UNKNOWN_ERROR";
-    }
+    auto error = from_c(session)->last_error;
+    return _olm_error_to_string(error);
 }
 
 const char * olm_utility_last_error(
     OlmUtility * utility
 ) {
-    unsigned error = unsigned(from_c(utility)->last_error);
-    if (error < (sizeof(ERRORS)/sizeof(ERRORS[0]))) {
-        return ERRORS[error];
-    } else {
-        return "UNKNOWN_ERROR";
-    }
+    auto error = from_c(utility)->last_error;
+    return _olm_error_to_string(error);
 }
 
 size_t olm_account_size() {
