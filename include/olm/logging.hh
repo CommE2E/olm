@@ -27,6 +27,8 @@ const unsigned int LOG_TRACE   = 6;
 
 void set_log_level(unsigned int log_level);
 
+bool log_enabled_for(unsigned int level, const char *category);
+
 __attribute__((__format__ (__printf__, 3, 4)))
 void logf(unsigned int level, const char *category,
           const char *format, ...);

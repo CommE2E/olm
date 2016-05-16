@@ -26,6 +26,11 @@ void set_log_level(unsigned int level) {
     log_level = level;
 }
 
+bool log_enabled_for(unsigned int level, const char *category)
+{
+    return level <= log_level;
+}
+
 void logf(unsigned int level, const char *category,
           const char *format, ...) {
     if (level > log_level) {
