@@ -14,12 +14,9 @@
  */
 #include "olm/message.hh"
 
-#include "olm/logging.hh"
 #include "olm/memory.hh"
 
 namespace {
-
-static const char *LOG_CATEGORY = "olm::Message";
 
 template<typename T>
 static std::size_t varint_length(
@@ -239,13 +236,6 @@ void olm::decode_message(
         }
         unknown = pos;
     }
-    olm::logf(olm::LOG_TRACE, LOG_CATEGORY,
-              "Decoded message ver=%i ratchet_key=%s chain_idx=%i ciphertext=%s",
-              reader.version,
-              olm::bytes_to_string(reader.ratchet_key, reader.ratchet_key_length).c_str(),
-              reader.has_counter ? reader.counter : -1,
-              olm::bytes_to_string(reader.ciphertext, reader.ciphertext_length).c_str()
-    );
 }
 
 
@@ -334,14 +324,4 @@ void olm::decode_one_time_key_message(
         }
         unknown = pos;
     }
-
-    olm::logf(olm::LOG_TRACE, LOG_CATEGORY,
-              "Decoded pre-key message ver=%i one_time_key[Eb]=%s "
-              "base_key[Ea]=%s identity_key[Ia]=%s message=%s",
-              reader.version,
-              olm::bytes_to_string(reader.one_time_key, reader.one_time_key_length).c_str(),
-              olm::bytes_to_string(reader.base_key, reader.base_key_length).c_str(),
-              olm::bytes_to_string(reader.identity_key, reader.identity_key_length).c_str(),
-              olm::bytes_to_string(reader.message, reader.message_length).c_str()
-    );
 }

@@ -16,7 +16,6 @@
 #include "olm/cipher.hh"
 #include "olm/crypto.hh"
 #include "olm/account.hh"
-#include "olm/logging.hh"
 #include "olm/memory.hh"
 #include "olm/message.hh"
 #include "olm/pickle.hh"
@@ -24,8 +23,6 @@
 #include <cstring>
 
 namespace {
-
-static const char *LOG_CATEGORY = "olm::Session";
 
 static const std::uint8_t PROTOCOL_VERSION = 0x3;
 
@@ -68,21 +65,11 @@ std::size_t olm::Session::new_outbound_session(
         return std::size_t(-1);
     }
 
-    olm::logf(olm::LOG_DEBUG, LOG_CATEGORY,
-              "Creating new outbound session to receiver identity IB %s, "
-              "receiver ephemeral EB %s", identity_key.to_string().c_str(),
-              one_time_key.to_string().c_str()
-    );
-
     olm::Curve25519KeyPair base_key;
     olm::curve25519_generate_key(random, base_key);
-    olm::logf(olm::LOG_DEBUG, LOG_CATEGORY, "Created new ephemeral key EA %s",
-              base_key.to_string().c_str());
 
     olm::Curve25519KeyPair ratchet_key;
     olm::curve25519_generate_key(random + olm::KEY_LENGTH, ratchet_key);
-    olm::logf(olm::LOG_DEBUG, LOG_CATEGORY, "Created new ratchet key T(0) %s",
-              ratchet_key.to_string().c_str());
 
     olm::Curve25519KeyPair const & alice_identity_key_pair = (
         local_account.identity_keys.curve25519_key
@@ -108,7 +95,6 @@ std::size_t olm::Session::new_outbound_session(
     olm::unset(ratchet_key);
     olm::unset(secret);
 
-    olm::logf(olm::LOG_DEBUG, LOG_CATEGORY, "Initialised outbound session");
     return std::size_t(0);
 }
 
@@ -151,13 +137,6 @@ std::size_t olm::Session::new_inbound_session(
             their_identity_key->public_key, reader.identity_key, olm::KEY_LENGTH
         );
         if (!same) {
-            olm::logf(olm::LOG_INFO, LOG_CATEGORY,
-                      "Identity key on received message is incorrect "
-                      "(expected %s, got %s)",
-                      their_identity_key->to_string().c_str(),
-                      olm::bytes_to_string(reader.identity_key,
-                                           reader.identity_key + olm::KEY_LENGTH)
-                          .c_str());
             last_error = olm::ErrorCode::BAD_MESSAGE_KEY_ID;
             return std::size_t(-1);
         }
@@ -166,13 +145,6 @@ std::size_t olm::Session::new_inbound_session(
     olm::load_array(alice_identity_key.public_key, reader.identity_key);
     olm::load_array(alice_base_key.public_key, reader.base_key);
     olm::load_array(bob_one_time_key.public_key, reader.one_time_key);
-
-    olm::logf(olm::LOG_DEBUG, LOG_CATEGORY,
-              "Creating new inbound session from sender identity IA %s, "
-              "sender ephemeral EA %s, our ephemeral EB %s",
-              alice_identity_key.to_string().c_str(),
-              alice_base_key.to_string().c_str(),
-              bob_one_time_key.to_string().c_str());
 
     olm::MessageReader message_reader;
     decode_message(
@@ -189,17 +161,11 @@ std::size_t olm::Session::new_inbound_session(
     olm::Curve25519PublicKey ratchet_key;
     olm::load_array(ratchet_key.public_key, message_reader.ratchet_key);
 
-    olm::logf(olm::LOG_DEBUG, LOG_CATEGORY,
-              "Received ratchet key T(0) %s", ratchet_key.to_string().c_str());
-
     olm::OneTimeKey const * our_one_time_key = local_account.lookup_key(
         bob_one_time_key
     );
 
     if (!our_one_time_key) {
-        olm::logf(olm::LOG_INFO, LOG_CATEGORY,
-                  "Session uses unknown ephemeral key %s",
-                  bob_one_time_key.to_string().c_str());
         last_error = olm::ErrorCode::BAD_MESSAGE_KEY_ID;
         return std::size_t(-1);
     }
@@ -221,7 +187,6 @@ std::size_t olm::Session::new_inbound_session(
 
     olm::unset(secret);
 
-    olm::logf(olm::LOG_DEBUG, LOG_CATEGORY, "Initialised inbound session");
     return std::size_t(0);
 }
 
@@ -320,9 +285,6 @@ std::size_t olm::Session::encrypt(
     std::uint8_t const * random, std::size_t random_length,
     std::uint8_t * message, std::size_t message_length
 ) {
-    olm::logf(olm::LOG_DEBUG, LOG_CATEGORY, "Encrypting '%.*s'",
-              (int)plaintext_length, plaintext);
-
     if (message_length < encrypt_message_length(plaintext_length)) {
         last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
@@ -349,16 +311,6 @@ std::size_t olm::Session::encrypt(
         olm::store_array(writer.identity_key, alice_identity_key.public_key);
         olm::store_array(writer.base_key, alice_base_key.public_key);
         message_body = writer.message;
-
-
-        olm::logf(olm::LOG_DEBUG, LOG_CATEGORY,
-                  "Encoded pre-key message ver=%i one_time_key[Eb]=%s "
-                  "base_key[Ea]=%s identity_key[Ia]=%s",
-                  PROTOCOL_VERSION,
-                  olm::bytes_to_string(writer.one_time_key, olm::KEY_LENGTH).c_str(),
-                  olm::bytes_to_string(writer.base_key, olm::KEY_LENGTH).c_str(),
-                  olm::bytes_to_string(writer.identity_key, olm::KEY_LENGTH).c_str()
-        );
     }
 
     std::size_t result = ratchet.encrypt(
@@ -372,9 +324,6 @@ std::size_t olm::Session::encrypt(
         ratchet.last_error = olm::ErrorCode::SUCCESS;
         return result;
     }
-
-    olm::logf(olm::LOG_TRACE, LOG_CATEGORY, "Encrypted message %s",
-              olm::bytes_to_string(message_body, result).c_str());
 
     return result;
 }
@@ -417,9 +366,6 @@ std::size_t olm::Session::decrypt(
     std::uint8_t const * message, std::size_t message_length,
     std::uint8_t * plaintext, std::size_t max_plaintext_length
 ) {
-    olm::logf(olm::LOG_TRACE, LOG_CATEGORY, "Decrypting %smessage",
-              message_type == olm::MessageType::MESSAGE ? "" : "pre-key ");
-
     std::uint8_t const * message_body;
     std::size_t message_body_length;
     if (message_type == olm::MessageType::MESSAGE) {
@@ -447,8 +393,6 @@ std::size_t olm::Session::decrypt(
     }
 
     received_message = true;
-    olm::logf(olm::LOG_DEBUG, LOG_CATEGORY, "Decrypted '%.*s'",
-              (int)result, plaintext);
     return result;
 }
 
