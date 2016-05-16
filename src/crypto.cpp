@@ -298,14 +298,14 @@ void olm::hkdf_sha256(
         salt = HKDF_DEFAULT_SALT;
         salt_length = sizeof(HKDF_DEFAULT_SALT);
     }
-    /* Expand */
+    /* Extract */
     hmac_sha256_key(salt, salt_length, hmac_key);
     hmac_sha256_init(&context, hmac_key);
     ::sha256_update(&context, input, input_length);
     hmac_sha256_final(&context, hmac_key, step_result);
     hmac_sha256_key(step_result, olm::SHA256_OUTPUT_LENGTH, hmac_key);
 
-    /* Extract */
+    /* Expand */
     hmac_sha256_init(&context, hmac_key);
     ::sha256_update(&context, info, info_length);
     ::sha256_update(&context, &iteration, 1);
