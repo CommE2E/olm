@@ -15,9 +15,9 @@
 #include "olm/olm.h"
 #include "olm/session.hh"
 #include "olm/account.hh"
+#include "olm/cipher.h"
 #include "olm/utility.hh"
 #include "olm/base64.hh"
-#include "olm/cipher.hh"
 #include "olm/memory.hh"
 
 #include <new>
@@ -59,15 +59,24 @@ static std::uint8_t const * from_c(void const * bytes) {
 
 static const std::uint8_t CIPHER_KDF_INFO[] = "Pickle";
 
-static const olm::CipherAesSha256 PICKLE_CIPHER(
-    CIPHER_KDF_INFO, sizeof(CIPHER_KDF_INFO) -1
-);
+const olm_cipher *get_pickle_cipher() {
+    static olm_cipher *cipher = NULL;
+    static olm_cipher_aes_sha_256 PICKLE_CIPHER;
+    if (!cipher) {
+        cipher = olm_cipher_aes_sha_256_init(
+            &PICKLE_CIPHER,
+            CIPHER_KDF_INFO, sizeof(CIPHER_KDF_INFO) - 1
+        );
+    }
+    return cipher;
+}
 
 std::size_t enc_output_length(
     size_t raw_length
 ) {
-    std::size_t length = PICKLE_CIPHER.encrypt_ciphertext_length(raw_length);
-    length += PICKLE_CIPHER.mac_length();
+    auto *cipher = get_pickle_cipher();
+    std::size_t length = cipher->ops->encrypt_ciphertext_length(cipher, raw_length);
+    length += cipher->ops->mac_length(cipher);
     return olm::encode_base64_length(length);
 }
 
@@ -76,8 +85,9 @@ std::uint8_t * enc_output_pos(
     std::uint8_t * output,
     size_t raw_length
 ) {
-    std::size_t length = PICKLE_CIPHER.encrypt_ciphertext_length(raw_length);
-    length += PICKLE_CIPHER.mac_length();
+    auto *cipher = get_pickle_cipher();
+    std::size_t length = cipher->ops->encrypt_ciphertext_length(cipher, raw_length);
+    length += cipher->ops->mac_length(cipher);
     return output + olm::encode_base64_length(length) - length;
 }
 
@@ -85,13 +95,15 @@ std::size_t enc_output(
     std::uint8_t const * key, std::size_t key_length,
     std::uint8_t * output, size_t raw_length
 ) {
-    std::size_t ciphertext_length = PICKLE_CIPHER.encrypt_ciphertext_length(
-        raw_length
+    auto *cipher = get_pickle_cipher();
+    std::size_t ciphertext_length = cipher->ops->encrypt_ciphertext_length(
+        cipher, raw_length
     );
-    std::size_t length = ciphertext_length + PICKLE_CIPHER.mac_length();
+    std::size_t length = ciphertext_length + cipher->ops->mac_length(cipher);
     std::size_t base64_length = olm::encode_base64_length(length);
     std::uint8_t * raw_output = output + base64_length - length;
-    PICKLE_CIPHER.encrypt(
+    cipher->ops->encrypt(
+        cipher,
         key, key_length,
         raw_output, raw_length,
         raw_output, ciphertext_length,
@@ -112,8 +124,10 @@ std::size_t enc_input(
         return std::size_t(-1);
     }
     olm::decode_base64(input, b64_length, input);
-    std::size_t raw_length = enc_length - PICKLE_CIPHER.mac_length();
-    std::size_t result = PICKLE_CIPHER.decrypt(
+    auto *cipher = get_pickle_cipher();
+    std::size_t raw_length = enc_length - cipher->ops->mac_length(cipher);
+    std::size_t result = cipher->ops->decrypt(
+        cipher,
         key, key_length,
         input, enc_length,
         input, raw_length,

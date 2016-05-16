@@ -17,9 +17,9 @@
 #include "olm/list.hh"
 #include "olm/error.h"
 
-namespace olm {
+struct olm_cipher;
 
-class Cipher;
+namespace olm {
 
 typedef std::uint8_t SharedKey[olm::KEY_LENGTH];
 
@@ -69,14 +69,14 @@ struct Ratchet {
 
     Ratchet(
         KdfInfo const & kdf_info,
-        Cipher const & ratchet_cipher
+        olm_cipher const *ratchet_cipher
     );
 
     /** A some strings identifying the application to feed into the KDF. */
     KdfInfo const & kdf_info;
 
     /** The AEAD cipher to use for encrypting messages. */
-    Cipher const & ratchet_cipher;
+    olm_cipher const *ratchet_cipher;
 
     /** The last error that happened encrypting or decrypting a message. */
     OlmErrorCode last_error;

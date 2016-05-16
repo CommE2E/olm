@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 #include "olm/session.hh"
-#include "olm/cipher.hh"
+#include "olm/cipher.h"
 #include "olm/crypto.hh"
 #include "olm/account.hh"
 #include "olm/memory.hh"
@@ -30,19 +30,27 @@ static const std::uint8_t ROOT_KDF_INFO[] = "OLM_ROOT";
 static const std::uint8_t RATCHET_KDF_INFO[] = "OLM_RATCHET";
 static const std::uint8_t CIPHER_KDF_INFO[] = "OLM_KEYS";
 
-static const olm::CipherAesSha256 OLM_CIPHER(
-    CIPHER_KDF_INFO, sizeof(CIPHER_KDF_INFO) -1
-);
-
 static const olm::KdfInfo OLM_KDF_INFO = {
     ROOT_KDF_INFO, sizeof(ROOT_KDF_INFO) - 1,
     RATCHET_KDF_INFO, sizeof(RATCHET_KDF_INFO) - 1
 };
 
+const olm_cipher *get_cipher() {
+    static olm_cipher *cipher;
+    static olm_cipher_aes_sha_256 OLM_CIPHER;
+    if (!cipher) {
+        cipher = olm_cipher_aes_sha_256_init(
+            &OLM_CIPHER,
+            CIPHER_KDF_INFO, sizeof(CIPHER_KDF_INFO) - 1
+        );
+    }
+    return cipher;
+}
+
 } // namespace
 
 olm::Session::Session(
-) : ratchet(OLM_KDF_INFO, OLM_CIPHER),
+) : ratchet(OLM_KDF_INFO, get_cipher()),
     last_error(OlmErrorCode::OLM_SUCCESS),
     received_message(false) {
 
@@ -149,7 +157,7 @@ std::size_t olm::Session::new_inbound_session(
     olm::MessageReader message_reader;
     decode_message(
         message_reader, reader.message, reader.message_length,
-        ratchet.ratchet_cipher.mac_length()
+        ratchet.ratchet_cipher->ops->mac_length(ratchet.ratchet_cipher)
     );
 
     if (!message_reader.ratchet_key

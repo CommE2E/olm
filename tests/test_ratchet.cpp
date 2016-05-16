@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 #include "olm/ratchet.hh"
-#include "olm/cipher.hh"
+#include "olm/cipher.h"
 #include "unittest.hh"
 
 
@@ -28,8 +28,9 @@ olm::KdfInfo kdf_info = {
     ratchet_info, sizeof(ratchet_info) - 1
 };
 
-olm::CipherAesSha256 cipher(
-    message_info, sizeof(message_info) - 1
+olm_cipher_aes_sha_256 cipher0;
+olm_cipher *cipher = olm_cipher_aes_sha_256_init(
+    &cipher0, message_info, sizeof(message_info) - 1
 );
 
 std::uint8_t random_bytes[] = "0123456789ABDEF0123456789ABCDEF";
