@@ -19,7 +19,6 @@
 #include "olm/base64.hh"
 #include "olm/cipher.hh"
 #include "olm/memory.hh"
-#include "olm/logging.h"
 
 #include <new>
 #include <cstring>
