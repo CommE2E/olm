@@ -18,7 +18,7 @@
 
 
 olm::Utility::Utility(
-) : last_error(olm::ErrorCode::SUCCESS) {
+) : last_error(OlmErrorCode::OLM_SUCCESS) {
 }
 
 
@@ -32,7 +32,7 @@ size_t olm::Utility::sha256(
     std::uint8_t * output, std::size_t output_length
 ) {
     if (output_length < sha256_length()) {
-        last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
     crypto_sha256(input, input_length, output);
@@ -46,11 +46,11 @@ size_t olm::Utility::ed25519_verify(
     std::uint8_t const * signature, std::size_t signature_length
 ) {
     if (signature_length < olm::SIGNATURE_LENGTH) {
-        last_error = olm::ErrorCode::BAD_MESSAGE_MAC;
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_MAC;
         return std::size_t(-1);
     }
     if (!olm::ed25519_verify(key, message, message_length, signature)) {
-        last_error = olm::ErrorCode::BAD_MESSAGE_MAC;
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_MAC;
         return std::size_t(-1);
     }
     return std::size_t(0);

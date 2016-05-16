@@ -17,7 +17,7 @@
 
 #include "olm/list.hh"
 #include "olm/crypto.hh"
-#include "olm/error.hh"
+#include "olm/error.h"
 
 #include <cstdint>
 
@@ -44,7 +44,7 @@ struct Account {
     IdentityKeys identity_keys;
     List<OneTimeKey, MAX_ONE_TIME_KEYS> one_time_keys;
     std::uint32_t next_one_time_key_id;
-    ErrorCode last_error;
+    OlmErrorCode last_error;
 
     /** Number of random bytes needed to create a new account */
     std::size_t new_account_random_length();

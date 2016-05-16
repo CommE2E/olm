@@ -43,7 +43,7 @@ static const olm::KdfInfo OLM_KDF_INFO = {
 
 olm::Session::Session(
 ) : ratchet(OLM_KDF_INFO, OLM_CIPHER),
-    last_error(olm::ErrorCode::SUCCESS),
+    last_error(OlmErrorCode::OLM_SUCCESS),
     received_message(false) {
 
 }
@@ -61,7 +61,7 @@ std::size_t olm::Session::new_outbound_session(
     std::uint8_t const * random, std::size_t random_length
 ) {
     if (random_length < new_outbound_session_random_length()) {
-        last_error = olm::ErrorCode::NOT_ENOUGH_RANDOM;
+        last_error = OlmErrorCode::OLM_NOT_ENOUGH_RANDOM;
         return std::size_t(-1);
     }
 
@@ -128,7 +128,7 @@ std::size_t olm::Session::new_inbound_session(
     decode_one_time_key_message(reader, one_time_key_message, message_length);
 
     if (!check_message_fields(reader, their_identity_key)) {
-        last_error = olm::ErrorCode::BAD_MESSAGE_FORMAT;
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }
 
@@ -137,7 +137,7 @@ std::size_t olm::Session::new_inbound_session(
             their_identity_key->public_key, reader.identity_key, olm::KEY_LENGTH
         );
         if (!same) {
-            last_error = olm::ErrorCode::BAD_MESSAGE_KEY_ID;
+            last_error = OlmErrorCode::OLM_BAD_MESSAGE_KEY_ID;
             return std::size_t(-1);
         }
     }
@@ -154,7 +154,7 @@ std::size_t olm::Session::new_inbound_session(
 
     if (!message_reader.ratchet_key
             || message_reader.ratchet_key_length != olm::KEY_LENGTH) {
-        last_error = olm::ErrorCode::BAD_MESSAGE_FORMAT;
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }
 
@@ -166,7 +166,7 @@ std::size_t olm::Session::new_inbound_session(
     );
 
     if (!our_one_time_key) {
-        last_error = olm::ErrorCode::BAD_MESSAGE_KEY_ID;
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_KEY_ID;
         return std::size_t(-1);
     }
 
@@ -200,7 +200,7 @@ std::size_t olm::Session::session_id(
     std::uint8_t * id, std::size_t id_length
 ) {
     if (id_length < session_id_length()) {
-        last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
     std::uint8_t tmp[olm::KEY_LENGTH * 3];
@@ -286,7 +286,7 @@ std::size_t olm::Session::encrypt(
     std::uint8_t * message, std::size_t message_length
 ) {
     if (message_length < encrypt_message_length(plaintext_length)) {
-        last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
     std::uint8_t * message_body;
@@ -321,7 +321,7 @@ std::size_t olm::Session::encrypt(
 
     if (result == std::size_t(-1)) {
         last_error = ratchet.last_error;
-        ratchet.last_error = olm::ErrorCode::SUCCESS;
+        ratchet.last_error = OlmErrorCode::OLM_SUCCESS;
         return result;
     }
 
@@ -342,7 +342,7 @@ std::size_t olm::Session::decrypt_max_plaintext_length(
         olm::PreKeyMessageReader reader;
         decode_one_time_key_message(reader, message, message_length);
         if (!reader.message) {
-            last_error = olm::ErrorCode::BAD_MESSAGE_FORMAT;
+            last_error = OlmErrorCode::OLM_BAD_MESSAGE_FORMAT;
             return std::size_t(-1);
         }
         message_body = reader.message;
@@ -355,7 +355,7 @@ std::size_t olm::Session::decrypt_max_plaintext_length(
 
     if (result == std::size_t(-1)) {
         last_error = ratchet.last_error;
-        ratchet.last_error = olm::ErrorCode::SUCCESS;
+        ratchet.last_error = OlmErrorCode::OLM_SUCCESS;
     }
     return result;
 }
@@ -375,7 +375,7 @@ std::size_t olm::Session::decrypt(
         olm::PreKeyMessageReader reader;
         decode_one_time_key_message(reader, message, message_length);
         if (!reader.message) {
-            last_error = olm::ErrorCode::BAD_MESSAGE_FORMAT;
+            last_error = OlmErrorCode::OLM_BAD_MESSAGE_FORMAT;
             return std::size_t(-1);
         }
         message_body = reader.message;
@@ -388,7 +388,7 @@ std::size_t olm::Session::decrypt(
 
     if (result == std::size_t(-1)) {
         last_error = ratchet.last_error;
-        ratchet.last_error = olm::ErrorCode::SUCCESS;
+        ratchet.last_error = OlmErrorCode::OLM_SUCCESS;
         return result;
     }
 
@@ -435,7 +435,7 @@ std::uint8_t const * olm::unpickle(
     uint32_t pickle_version;
     pos = olm::unpickle(pos, end, pickle_version);
     if (pickle_version != SESSION_PICKLE_VERSION) {
-        value.last_error = olm::ErrorCode::UNKNOWN_PICKLE_VERSION;
+        value.last_error = OlmErrorCode::OLM_UNKNOWN_PICKLE_VERSION;
         return end;
     }
     pos = olm::unpickle(pos, end, value.received_message);

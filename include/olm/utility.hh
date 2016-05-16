@@ -16,7 +16,7 @@
 #ifndef UTILITY_HH_
 #define UTILITY_HH_
 
-#include "olm/error.hh"
+#include "olm/error.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -29,7 +29,7 @@ struct Utility {
 
     Utility();
 
-    ErrorCode last_error;
+    OlmErrorCode last_error;
 
     /** The length of a SHA-256 hash in bytes. */
     std::size_t sha256_length();

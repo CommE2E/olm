@@ -15,7 +15,7 @@
 
 #include "olm/crypto.hh"
 #include "olm/list.hh"
-#include "olm/error.hh"
+#include "olm/error.h"
 
 namespace olm {
 
@@ -79,7 +79,7 @@ struct Ratchet {
     Cipher const & ratchet_cipher;
 
     /** The last error that happened encrypting or decrypting a message. */
-    ErrorCode last_error;
+    OlmErrorCode last_error;
 
     /**
      * A count of the number of times the root key has been advanced; this is

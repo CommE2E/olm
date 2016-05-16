@@ -186,7 +186,7 @@ olm::Ratchet::Ratchet(
     Cipher const & ratchet_cipher
 ) : kdf_info(kdf_info),
     ratchet_cipher(ratchet_cipher),
-    last_error(olm::ErrorCode::SUCCESS) {
+    last_error(OlmErrorCode::OLM_SUCCESS) {
 }
 
 
@@ -427,11 +427,11 @@ std::size_t olm::Ratchet::encrypt(
     std::size_t output_length = encrypt_output_length(plaintext_length);
 
     if (random_length < encrypt_random_length()) {
-        last_error = olm::ErrorCode::NOT_ENOUGH_RANDOM;
+        last_error = OlmErrorCode::OLM_NOT_ENOUGH_RANDOM;
         return std::size_t(-1);
     }
     if (max_output_length < output_length) {
-        last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
 
@@ -488,7 +488,7 @@ std::size_t olm::Ratchet::decrypt_max_plaintext_length(
     );
 
     if (!reader.ciphertext) {
-        last_error = olm::ErrorCode::BAD_MESSAGE_FORMAT;
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }
 
@@ -506,12 +506,12 @@ std::size_t olm::Ratchet::decrypt(
     );
 
     if (reader.version != PROTOCOL_VERSION) {
-        last_error = olm::ErrorCode::BAD_MESSAGE_VERSION;
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_VERSION;
         return std::size_t(-1);
     }
 
     if (!reader.has_counter || !reader.ratchet_key || !reader.ciphertext) {
-        last_error = olm::ErrorCode::BAD_MESSAGE_FORMAT;
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }
 
@@ -520,12 +520,12 @@ std::size_t olm::Ratchet::decrypt(
     );
 
     if (max_plaintext_length < max_length) {
-        last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
 
     if (reader.ratchet_key_length != olm::KEY_LENGTH) {
-        last_error = olm::ErrorCode::BAD_MESSAGE_FORMAT;
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }
 
@@ -588,7 +588,7 @@ std::size_t olm::Ratchet::decrypt(
     }
 
     if (result == std::size_t(-1)) {
-        last_error = olm::ErrorCode::BAD_MESSAGE_MAC;
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_MAC;
         return std::size_t(-1);
     }
 

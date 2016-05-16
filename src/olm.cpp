@@ -104,11 +104,11 @@ std::size_t enc_output(
 std::size_t enc_input(
     std::uint8_t const * key, std::size_t key_length,
     std::uint8_t * input, size_t b64_length,
-    olm::ErrorCode & last_error
+    OlmErrorCode & last_error
 ) {
     std::size_t enc_length = olm::decode_base64_length(b64_length);
     if (enc_length == std::size_t(-1)) {
-        last_error = olm::ErrorCode::INVALID_BASE64;
+        last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
     }
     olm::decode_base64(input, b64_length, input);
@@ -120,7 +120,7 @@ std::size_t enc_input(
         input, raw_length
     );
     if (result == std::size_t(-1)) {
-        last_error = olm::ErrorCode::BAD_ACCOUNT_KEY;
+        last_error = OlmErrorCode::OLM_BAD_ACCOUNT_KEY;
     }
     return result;
 }
@@ -150,11 +150,11 @@ std::size_t b64_output(
 
 std::size_t b64_input(
     std::uint8_t * input, size_t b64_length,
-    olm::ErrorCode & last_error
+    OlmErrorCode & last_error
 ) {
     std::size_t raw_length = olm::decode_base64_length(b64_length);
     if (raw_length == std::size_t(-1)) {
-        last_error = olm::ErrorCode::INVALID_BASE64;
+        last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
     }
     olm::decode_base64(input, b64_length, input);
@@ -312,7 +312,7 @@ size_t olm_pickle_account(
     olm::Account & object = *from_c(account);
     std::size_t raw_length = pickle_length(object);
     if (pickled_length < enc_output_length(raw_length)) {
-        object.last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        object.last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return size_t(-1);
     }
     pickle(enc_output_pos(from_c(pickled), raw_length), object);
@@ -328,7 +328,7 @@ size_t olm_pickle_session(
     olm::Session & object = *from_c(session);
     std::size_t raw_length = pickle_length(object);
     if (pickled_length < enc_output_length(raw_length)) {
-        object.last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        object.last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return size_t(-1);
     }
     pickle(enc_output_pos(from_c(pickled), raw_length), object);
@@ -355,8 +355,8 @@ size_t olm_unpickle_account(
      * (pos + raw_length). On error unpickle will return (pos + raw_length + 1).
      */
     if (end != unpickle(pos, end + 1, object)) {
-        if (object.last_error == olm::ErrorCode::SUCCESS) {
-            object.last_error = olm::ErrorCode::CORRUPTED_PICKLE;
+        if (object.last_error == OlmErrorCode::OLM_SUCCESS) {
+            object.last_error = OlmErrorCode::OLM_CORRUPTED_PICKLE;
         }
         return std::size_t(-1);
     }
@@ -384,8 +384,8 @@ size_t olm_unpickle_session(
      * (pos + raw_length). On error unpickle will return (pos + raw_length + 1).
      */
     if (end != unpickle(pos, end + 1, object)) {
-        if (object.last_error == olm::ErrorCode::SUCCESS) {
-            object.last_error = olm::ErrorCode::CORRUPTED_PICKLE;
+        if (object.last_error == OlmErrorCode::OLM_SUCCESS) {
+            object.last_error = OlmErrorCode::OLM_CORRUPTED_PICKLE;
         }
         return std::size_t(-1);
     }
@@ -442,7 +442,7 @@ size_t olm_account_sign(
     std::size_t raw_length = from_c(account)->signature_length();
     if (signature_length < b64_output_length(raw_length)) {
         from_c(account)->last_error =
-            olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+            OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
     from_c(account)->sign(
@@ -528,7 +528,7 @@ size_t olm_create_outbound_session(
     if (olm::decode_base64_length(id_key_length) != olm::KEY_LENGTH
             || olm::decode_base64_length(ot_key_length) != olm::KEY_LENGTH
     ) {
-        from_c(session)->last_error = olm::ErrorCode::INVALID_BASE64;
+        from_c(session)->last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
     }
     olm::Curve25519PublicKey identity_key;
@@ -573,7 +573,7 @@ size_t olm_create_inbound_session_from(
     std::size_t id_key_length = their_identity_key_length;
 
     if (olm::decode_base64_length(id_key_length) != olm::KEY_LENGTH) {
-        from_c(session)->last_error = olm::ErrorCode::INVALID_BASE64;
+        from_c(session)->last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
     }
     olm::Curve25519PublicKey identity_key;
@@ -605,7 +605,7 @@ size_t olm_session_id(
     std::size_t raw_length = from_c(session)->session_id_length();
     if (id_length < b64_output_length(raw_length)) {
         from_c(session)->last_error =
-                olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+                OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
     std::size_t result = from_c(session)->session_id(
@@ -644,7 +644,7 @@ size_t olm_matches_inbound_session_from(
     std::size_t id_key_length = their_identity_key_length;
 
     if (olm::decode_base64_length(id_key_length) != olm::KEY_LENGTH) {
-        from_c(session)->last_error = olm::ErrorCode::INVALID_BASE64;
+        from_c(session)->last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
     }
     olm::Curve25519PublicKey identity_key;
@@ -671,7 +671,7 @@ size_t olm_remove_one_time_keys(
         from_c(session)->bob_one_time_key
     );
     if (result == std::size_t(-1)) {
-        from_c(account)->last_error = olm::ErrorCode::BAD_MESSAGE_KEY_ID;
+        from_c(account)->last_error = OlmErrorCode::OLM_BAD_MESSAGE_KEY_ID;
     }
     return result;
 }
@@ -712,7 +712,7 @@ size_t olm_encrypt(
     );
     if (message_length < b64_output_length(raw_length)) {
         from_c(session)->last_error =
-            olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+            OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
     std::size_t result = from_c(session)->encrypt(
@@ -779,7 +779,7 @@ size_t olm_sha256(
     std::size_t raw_length = from_c(utility)->sha256_length();
     if (output_length < b64_output_length(raw_length)) {
         from_c(utility)->last_error =
-            olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+            OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
     std::size_t result = from_c(utility)->sha256(
@@ -800,7 +800,7 @@ size_t olm_ed25519_verify(
     void * signature, size_t signature_length
 ) {
     if (olm::decode_base64_length(key_length) != olm::KEY_LENGTH) {
-        from_c(utility)->last_error = olm::ErrorCode::INVALID_BASE64;
+        from_c(utility)->last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
     }
     olm::Ed25519PublicKey verify_key;
