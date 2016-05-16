@@ -415,13 +415,6 @@ size_t olm_ed25519_verify(
     void * signature, size_t signature_length
 );
 
-/**
- * Set the log level. By default, 1, which logs only FATAL messages.
- */
-void olm_set_log_level(
-    unsigned int level
-);
-
 #ifdef __cplusplus
 }
 #endif
