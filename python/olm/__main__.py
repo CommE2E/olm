@@ -8,7 +8,7 @@ import yaml
 
 from . import *
 
-if __name__ == '__main__':
+def build_arg_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("--key", help="Account encryption key", default="")
     commands = parser.add_subparsers()
@@ -206,5 +206,41 @@ if __name__ == '__main__':
 
     decrypt.set_defaults(func=do_decrypt)
 
+    outbound_group = commands.add_parser("outbound_group", help="Create an outbound group session")
+    outbound_group.add_argument("session_file", help="Local group session file")
+    outbound_group.set_defaults(func=do_outbound_group)
+
+    group_encrypt = commands.add_parser("group_encrypt", help="Encrypt a group message")
+    group_encrypt.add_argument("session_file", help="Local group session file")
+    group_encrypt.add_argument("plaintext_file", help="Plaintext",
+                               type=argparse.FileType('rb'), default=sys.stdin)
+    group_encrypt.add_argument("message_file", help="Message",
+                               type=argparse.FileType('wb'), default=sys.stdout)
+    group_encrypt.set_defaults(func=do_group_encrypt)
+
+    return parser
+
+def do_outbound_group(args):
+    if os.path.exists(args.session_file):
+        sys.stderr.write("Session %r file already exists" % (
+            args.session_file,
+        ))
+        sys.exit(1)
+    session = OutboundGroupSession()
+    with open(args.session_file, "wb") as f:
+            f.write(session.pickle(args.key))
+
+def do_group_encrypt(args):
+    session = OutboundGroupSession()
+    with open(args.session_file, "rb") as f:
+        session.unpickle(args.key, f.read())
+    plaintext = args.plaintext_file.read()
+    message = session.encrypt(plaintext)
+    with open(args.session_file, "wb") as f:
+        f.write(session.pickle(args.key))
+    args.message_file.write(message)
+
+if __name__ == '__main__':
+    parser = build_arg_parser()
     args = parser.parse_args()
     args.func(args)

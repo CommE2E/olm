@@ -4,11 +4,13 @@ OLM="python -m olm"
 
 ALICE_ACCOUNT=alice.account
 ALICE_SESSION=alice.session
+ALICE_GROUP_SESSION=alice.group_session
 BOB_ACCOUNT=bob.account
 BOB_SESSION=bob.session
 
 rm $ALICE_ACCOUNT $BOB_ACCOUNT
 rm $ALICE_SESSION $BOB_SESSION
+rm $ALICE_GROUP_SESSION
 
 $OLM create_account $ALICE_ACCOUNT
 $OLM create_account $BOB_ACCOUNT
@@ -20,3 +22,9 @@ BOB_ONE_TIME_KEY="$($OLM keys --json $BOB_ACCOUNT | jq -r '.one_time_keys.curve2
 $OLM outbound $ALICE_ACCOUNT $ALICE_SESSION "$BOB_IDENTITY_KEY" "$BOB_ONE_TIME_KEY"
 
 echo "Hello world" | $OLM encrypt $ALICE_SESSION - - | $OLM inbound $BOB_ACCOUNT $BOB_SESSION - -
+
+
+### group sessions
+
+$OLM outbound_group $ALICE_GROUP_SESSION
+echo "Hello world" | $OLM group_encrypt $ALICE_GROUP_SESSION - -
