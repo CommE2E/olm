@@ -48,6 +48,42 @@ size_t olm_clear_outbound_group_session(
     OlmOutboundGroupSession *session
 );
 
+/** Returns the number of bytes needed to store an outbound group session */
+size_t olm_pickle_outbound_group_session_length(
+    const OlmOutboundGroupSession *session
+);
+
+/**
+ * Stores a group session as a base64 string. Encrypts the session using the
+ * supplied key. Returns the length of the session on success.
+ *
+ * Returns olm_error() on failure. If the pickle output buffer
+ * is smaller than olm_pickle_outbound_group_session_length() then
+ * olm_outbound_group_session_last_error() will be "OUTPUT_BUFFER_TOO_SMALL"
+ */
+size_t olm_pickle_outbound_group_session(
+    OlmOutboundGroupSession *session,
+    void const * key, size_t key_length,
+    void * pickled, size_t pickled_length
+);
+
+/**
+ * Loads a group session from a pickled base64 string. Decrypts the session
+ * using the supplied key.
+ *
+ * Returns olm_error() on failure. If the key doesn't match the one used to
+ * encrypt the account then olm_outbound_group_session_last_error() will be
+ * "BAD_ACCOUNT_KEY". If the base64 couldn't be decoded then
+ * olm_outbound_group_session_last_error() will be "INVALID_BASE64". The input
+ * pickled buffer is destroyed
+ */
+size_t olm_unpickle_outbound_group_session(
+    OlmOutboundGroupSession *session,
+    void const * key, size_t key_length,
+    void * pickled, size_t pickled_length
+);
+
+
 /** The number of random bytes needed to create an outbound group session */
 size_t olm_init_outbound_group_session_random_length(
     const OlmOutboundGroupSession *session

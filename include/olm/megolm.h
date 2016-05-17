@@ -61,6 +61,21 @@ const struct _olm_cipher *megolm_cipher();
  */
 void megolm_init(Megolm *megolm, uint8_t const *random_data, uint32_t counter);
 
+/** Returns the number of bytes needed to store a megolm */
+size_t megolm_pickle_length(const Megolm *megolm);
+
+/**
+ * Pickle the megolm. Returns a pointer to the next free space in the buffer.
+ */
+uint8_t * megolm_pickle(const Megolm *megolm, uint8_t *pos);
+
+/**
+ * Unpickle the megolm. Returns a pointer to the next item in the buffer.
+ */
+const uint8_t * megolm_unpickle(Megolm *megolm, const uint8_t *pos,
+                                const uint8_t *end);
+
+
 /** advance the ratchet by one step */
 void megolm_advance(Megolm *megolm);
 

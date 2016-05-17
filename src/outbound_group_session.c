@@ -23,10 +23,13 @@
 #include "olm/error.h"
 #include "olm/megolm.h"
 #include "olm/message.h"
+#include "olm/pickle.h"
+#include "olm/pickle_encoding.h"
 
 #define OLM_PROTOCOL_VERSION     3
 #define SESSION_ID_RANDOM_BYTES  4
 #define GROUP_SESSION_ID_LENGTH (sizeof(struct timeval) + SESSION_ID_RANDOM_BYTES)
+#define PICKLE_VERSION           1
 
 struct OlmOutboundGroupSession {
     /** the Megolm ratchet providing the encryption keys */
@@ -63,6 +66,80 @@ size_t olm_clear_outbound_group_session(
     memset(session, 0, sizeof(OlmOutboundGroupSession));
     return sizeof(OlmOutboundGroupSession);
 }
+
+static size_t raw_pickle_length(
+    const OlmOutboundGroupSession *session
+) {
+    size_t length = 0;
+    length += _olm_pickle_uint32_length(PICKLE_VERSION);
+    length += megolm_pickle_length(&(session->ratchet));
+    length += _olm_pickle_bytes_length(session->session_id,
+                                       GROUP_SESSION_ID_LENGTH);
+    return length;
+}
+
+size_t olm_pickle_outbound_group_session_length(
+    const OlmOutboundGroupSession *session
+) {
+    return _olm_enc_output_length(raw_pickle_length(session));
+}
+
+size_t olm_pickle_outbound_group_session(
+    OlmOutboundGroupSession *session,
+    void const * key, size_t key_length,
+    void * pickled, size_t pickled_length
+) {
+    size_t raw_length = raw_pickle_length(session);
+    uint8_t *pos;
+
+    if (pickled_length < _olm_enc_output_length(raw_length)) {
+        session->last_error = OLM_OUTPUT_BUFFER_TOO_SMALL;
+        return (size_t)-1;
+    }
+
+    pos = _olm_enc_output_pos(pickled, raw_length);
+    pos = _olm_pickle_uint32(pos, PICKLE_VERSION);
+    pos = megolm_pickle(&(session->ratchet), pos);
+    pos = _olm_pickle_bytes(pos, session->session_id, GROUP_SESSION_ID_LENGTH);
+
+    return _olm_enc_output(key, key_length, pickled, raw_length);
+}
+
+size_t olm_unpickle_outbound_group_session(
+    OlmOutboundGroupSession *session,
+    void const * key, size_t key_length,
+    void * pickled, size_t pickled_length
+) {
+    const uint8_t *pos;
+    const uint8_t *end;
+    uint32_t pickle_version;
+
+    size_t raw_length = _olm_enc_input(
+        key, key_length, pickled, pickled_length, &(session->last_error)
+    );
+    if (raw_length == (size_t)-1) {
+        return raw_length;
+    }
+
+    pos = pickled;
+    end = pos + raw_length;
+    pos = _olm_unpickle_uint32(pos, end, &pickle_version);
+    if (pickle_version != PICKLE_VERSION) {
+        session->last_error = OLM_UNKNOWN_PICKLE_VERSION;
+        return (size_t)-1;
+    }
+    pos = megolm_unpickle(&(session->ratchet), pos, end);
+    pos = _olm_unpickle_bytes(pos, end, session->session_id, GROUP_SESSION_ID_LENGTH);
+
+    if (end != pos) {
+        /* We had the wrong number of bytes in the input. */
+        session->last_error = OLM_CORRUPTED_PICKLE;
+        return (size_t)-1;
+    }
+
+    return pickled_length;
+}
+
 
 size_t olm_init_outbound_group_session_random_length(
     const OlmOutboundGroupSession *session

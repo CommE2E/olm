@@ -20,6 +20,7 @@
 
 #include "olm/cipher.h"
 #include "olm/crypto.h"
+#include "olm/pickle.h"
 
 const struct _olm_cipher *megolm_cipher() {
     static const uint8_t CIPHER_KDF_INFO[] = "MEGOLM_KEYS";
@@ -59,12 +60,32 @@ static void rehash_part(
 
 
 
-void megolm_init(Megolm *megolm, uint8_t const *random_data, uint32_t counter)
-{
+void megolm_init(Megolm *megolm, uint8_t const *random_data, uint32_t counter) {
     megolm->counter = counter;
     memcpy(megolm->data, random_data, MEGOLM_RATCHET_LENGTH);
 }
 
+size_t megolm_pickle_length(const Megolm *megolm) {
+    size_t length = 0;
+    length += _olm_pickle_bytes_length(megolm_get_data(megolm), MEGOLM_RATCHET_LENGTH);
+    length += _olm_pickle_uint32_length(megolm->counter);
+    return length;
+
+}
+
+uint8_t * megolm_pickle(const Megolm *megolm,  uint8_t *pos) {
+    pos = _olm_pickle_bytes(pos, megolm_get_data(megolm), MEGOLM_RATCHET_LENGTH);
+    pos = _olm_pickle_uint32(pos, megolm->counter);
+    return pos;
+}
+
+const uint8_t * megolm_unpickle(Megolm *megolm, const uint8_t *pos,
+                                const uint8_t *end) {
+    pos = _olm_unpickle_bytes(pos, end, (uint8_t *)(megolm->data),
+                             MEGOLM_RATCHET_LENGTH);
+    pos = _olm_unpickle_uint32(pos, end, &megolm->counter);
+    return pos;
+}
 
 /* simplistic implementation for a single step */
 void megolm_advance(Megolm *megolm) {
