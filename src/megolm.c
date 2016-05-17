@@ -18,7 +18,21 @@
 
 #include <string.h>
 
+#include "olm/cipher.h"
 #include "olm/crypto.h"
+
+const struct _olm_cipher *megolm_cipher() {
+    static const uint8_t CIPHER_KDF_INFO[] = "MEGOLM_KEYS";
+    static struct _olm_cipher *cipher;
+    static struct _olm_cipher_aes_sha_256 OLM_CIPHER;
+    if (!cipher) {
+        cipher = _olm_cipher_aes_sha_256_init(
+            &OLM_CIPHER,
+            CIPHER_KDF_INFO, sizeof(CIPHER_KDF_INFO) - 1
+        );
+    }
+    return cipher;
+}
 
 /* the seeds used in the HMAC-SHA-256 functions for each part of the ratchet.
  */

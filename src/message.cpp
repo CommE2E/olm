@@ -1,4 +1,4 @@
-/* Copyright 2015 OpenMarket Ltd
+/* Copyright 2015-2016 OpenMarket Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -324,4 +324,42 @@ void olm::decode_one_time_key_message(
         }
         unknown = pos;
     }
+}
+
+
+
+static std::uint8_t const GROUP_SESSION_ID_TAG = 052;
+
+size_t _olm_encode_group_message_length(
+    size_t group_session_id_length,
+    uint32_t chain_index,
+    size_t ciphertext_length,
+    size_t mac_length
+) {
+    size_t length = VERSION_LENGTH;
+    length += 1 + varstring_length(group_session_id_length);
+    length += 1 + varint_length(chain_index);
+    length += 1 + varstring_length(ciphertext_length);
+    length += mac_length;
+    return length;
+}
+
+
+void _olm_encode_group_message(
+    uint8_t version,
+    const uint8_t *session_id,
+    size_t session_id_length,
+    uint32_t chain_index,
+    size_t ciphertext_length,
+    uint8_t *output,
+    uint8_t **ciphertext_ptr
+) {
+    std::uint8_t * pos = output;
+    std::uint8_t * session_id_pos;
+
+    *(pos++) = version;
+    pos = encode(pos, GROUP_SESSION_ID_TAG, session_id_pos, session_id_length);
+    std::memcpy(session_id_pos, session_id, session_id_length);
+    pos = encode(pos, COUNTER_TAG, chain_index);
+    pos = encode(pos, CIPHERTEXT_TAG, *ciphertext_ptr, ciphertext_length);
 }

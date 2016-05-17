@@ -12,6 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
+/**
+ * functions for encoding and decoding messages in the Olm protocol.
+ *
+ * Some of these functions have plain-C bindings, and are declared in
+ * message.h; in time, all of the functions declared here should probably be
+ * converted to plain C and moved to message.h.
+ */
+
+#include "message.h"
+
 #include <cstddef>
 #include <cstdint>
 

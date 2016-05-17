@@ -1,4 +1,4 @@
-/* Copyright 2015 OpenMarket Ltd
+/* Copyright 2015-2016 OpenMarket Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,5 +61,40 @@ std::memcpy(output + length - 8, hmacsha2, 8);
 assert_equals(message2, output, 35);
 
 } /* Message encode test */
+
+
+{ /* group message encode test */
+
+    TestCase test_case("Group message encode test");
+
+    const uint8_t session_id[] = "sessionid";
+    size_t session_id_len = 9;
+
+    size_t length = _olm_encode_group_message_length(
+        session_id_len, 200, 10, 8);
+    size_t expected_length = 1 + (2+session_id_len) + (1+2) + (2+10) + 8;
+    assert_equals(expected_length, length);
+
+    uint8_t output[50];
+    uint8_t *ciphertext_ptr;
+
+    _olm_encode_group_message(
+        3,
+        session_id, session_id_len,
+        200, // counter
+        10,  // ciphertext length
+        output,
+        &ciphertext_ptr
+    );
+
+    uint8_t expected[] =
+        "\x03"
+        "\x2A\x09sessionid"
+        "\x10\xc8\x01"
+        "\x22\x0a";
+
+    assert_equals(expected, output, sizeof(expected)-1);
+    assert_equals(output+sizeof(expected)-1, ciphertext_ptr);
+} /* group message encode test */
 
 }

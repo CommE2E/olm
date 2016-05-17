@@ -34,7 +34,6 @@ enum OlmErrorCode {
 
     /* remember to update the list of string constants in error.c when updating
      * this list. */
-
 };
 
 /** get a string representation of the given error code. */

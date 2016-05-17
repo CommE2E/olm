@@ -47,6 +47,14 @@ typedef struct Megolm {
     uint32_t counter;
 } Megolm;
 
+
+/**
+ * Get the cipher used in megolm-backed conversations
+ *
+ * (AES256 + SHA256, with keys based on an HKDF with info of MEGOLM_KEYS)
+ */
+const struct _olm_cipher *megolm_cipher();
+
 /**
  * initialize the megolm ratchet. random_data should be at least
  * MEGOLM_RATCHET_LENGTH bytes of randomness.
