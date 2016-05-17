@@ -12,7 +12,7 @@ JS_TARGET := javascript/olm.js
 
 JS_EXPORTED_FUNCTIONS := javascript/exported_functions.json
 
-PUBLIC_HEADERS := include/olm/olm.hh
+PUBLIC_HEADERS := include/olm/olm.h
 
 SOURCES := $(wildcard src/*.cpp) $(wildcard src/*.c)
 RELEASE_OBJECTS := $(patsubst src/%,$(BUILD_DIR)/release/%,$(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCES))))

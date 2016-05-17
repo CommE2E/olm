@@ -1,4 +1,4 @@
-#include "olm/olm.hh"
+#include "olm/olm.h"
 #include "unittest.hh"
 
 int main() {

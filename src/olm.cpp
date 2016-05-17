@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "olm/olm.hh"
+#include "olm/olm.h"
 #include "olm/session.hh"
 #include "olm/account.hh"
 #include "olm/utility.hh"
