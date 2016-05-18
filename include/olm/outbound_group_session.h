@@ -90,7 +90,7 @@ size_t olm_init_outbound_group_session_random_length(
 );
 
 /**
- * Start a new outbound group session. Returns std::size_t(-1) on failure. On
+ * Start a new outbound group session. Returns olm_error() on failure. On
  * failure last_error will be set with an error code. The last_error will be
  * NOT_ENOUGH_RANDOM if the number of random bytes was too small.
  */
@@ -109,7 +109,7 @@ size_t olm_group_encrypt_message_length(
 
 /**
  * Encrypt some plain-text. Returns the length of the encrypted message or
- * std::size_t(-1) on failure. On failure last_error will be set with an
+ * olm_error() on failure. On failure last_error will be set with an
  * error code. The last_error will be OUTPUT_BUFFER_TOO_SMALL if the output
  * buffer is too small.
  */
@@ -118,6 +118,61 @@ size_t olm_group_encrypt(
     uint8_t const * plaintext, size_t plaintext_length,
     uint8_t * message, size_t message_length
 );
+
+
+/**
+ * Get the number of bytes returned by olm_outbound_group_session_id()
+ */
+size_t olm_outbound_group_session_id_length(
+    const OlmOutboundGroupSession *session
+);
+
+/**
+ * Get a base64-encoded identifier for this session.
+ *
+ * Returns the length of the session id on success or olm_error() on
+ * failure. On failure last_error will be set with an error code. The
+ * last_error will be OUTPUT_BUFFER_TOO_SMALL if the id buffer was too
+ * small.
+ */
+size_t olm_outbound_group_session_id(
+    OlmOutboundGroupSession *session,
+    uint8_t * id, size_t id_length
+);
+
+/**
+ * Get the current message index for this session.
+ *
+ * Each message is sent with an increasing index; this returns the index for
+ * the next message.
+ */
+uint32_t olm_outbound_group_session_message_index(
+    OlmOutboundGroupSession *session
+);
+
+/**
+ * Get the number of bytes returned by olm_outbound_group_session_key()
+ */
+size_t olm_outbound_group_session_key_length(
+    const OlmOutboundGroupSession *session
+);
+
+/**
+ * Get the base64-encoded current ratchet key for this session.
+ *
+ * Each message is sent with a diffent ratchet key. This function returns the
+ * ratchet key that will be used for the next message.
+ *
+ * Returns the length of the ratchet key on success or olm_error() on
+ * failure. On failure last_error will be set with an error code. The
+ * last_error will be OUTPUT_BUFFER_TOO_SMALL if the buffer was too small.
+ */
+size_t olm_outbound_group_session_key(
+    OlmOutboundGroupSession *session,
+    uint8_t * key, size_t key_length
+);
+
+
 
 #ifdef __cplusplus
 } // extern "C"

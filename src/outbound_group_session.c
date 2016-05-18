@@ -254,7 +254,52 @@ size_t olm_group_encrypt(
     megolm_advance(&(session->ratchet));
 
     return _olm_encode_base64(
-        message_pos, rawmsglen,
-        message
+        message_pos, rawmsglen, message
+    );
+}
+
+
+size_t olm_outbound_group_session_id_length(
+    const OlmOutboundGroupSession *session
+) {
+    return _olm_encode_base64_length(GROUP_SESSION_ID_LENGTH);
+}
+
+size_t olm_outbound_group_session_id(
+    OlmOutboundGroupSession *session,
+    uint8_t * id, size_t id_length
+) {
+    if (id_length < olm_outbound_group_session_id_length(session)) {
+        session->last_error = OLM_OUTPUT_BUFFER_TOO_SMALL;
+        return (size_t)-1;
+    }
+
+    return _olm_encode_base64(session->session_id, GROUP_SESSION_ID_LENGTH, id);
+}
+
+uint32_t olm_outbound_group_session_message_index(
+    OlmOutboundGroupSession *session
+) {
+    return session->ratchet.counter;
+}
+
+size_t olm_outbound_group_session_key_length(
+    const OlmOutboundGroupSession *session
+) {
+    return _olm_encode_base64_length(MEGOLM_RATCHET_LENGTH);
+}
+
+size_t olm_outbound_group_session_key(
+    OlmOutboundGroupSession *session,
+    uint8_t * key, size_t key_length
+) {
+    if (key_length < olm_outbound_group_session_key_length(session)) {
+        session->last_error = OLM_OUTPUT_BUFFER_TOO_SMALL;
+        return (size_t)-1;
+    }
+
+    return _olm_encode_base64(
+        megolm_get_data(&session->ratchet),
+        MEGOLM_RATCHET_LENGTH, key
     );
 }

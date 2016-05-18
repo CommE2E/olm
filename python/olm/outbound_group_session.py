@@ -34,11 +34,20 @@ outbound_group_session_function(
 
 outbound_group_session_function(lib.olm_init_outbound_group_session_random_length)
 outbound_group_session_function(lib.olm_init_outbound_group_session, c_void_p, c_size_t)
+
+lib.olm_outbound_group_session_message_index.argtypes = [c_void_p]
+lib.olm_outbound_group_session_message_index.restype = c_uint32
+
 outbound_group_session_function(lib.olm_group_encrypt_message_length, c_size_t)
 outbound_group_session_function(lib.olm_group_encrypt,
     c_void_p, c_size_t,  # Plaintext
     c_void_p, c_size_t,  # Message
 )
+
+outbound_group_session_function(lib.olm_outbound_group_session_id_length)
+outbound_group_session_function(lib.olm_outbound_group_session_id, c_void_p, c_size_t)
+outbound_group_session_function(lib.olm_outbound_group_session_key_length)
+outbound_group_session_function(lib.olm_outbound_group_session_key, c_void_p, c_size_t)
 
 
 class OutboundGroupSession(object):
@@ -81,3 +90,18 @@ class OutboundGroupSession(object):
             message_buffer, message_length,
         )
         return message_buffer.raw
+
+    def session_id(self):
+        id_length = lib.olm_outbound_group_session_id_length(self.ptr)
+        id_buffer = create_string_buffer(id_length)
+        lib.olm_outbound_group_session_id(self.ptr, id_buffer, id_length);
+        return id_buffer.raw
+
+    def message_index(self):
+        return lib.olm_outbound_group_session_message_index(self.ptr)
+
+    def session_key(self):
+        key_length = lib.olm_outbound_group_session_key_length(self.ptr)
+        key_buffer = create_string_buffer(key_length)
+        lib.olm_outbound_group_session_key(self.ptr, key_buffer, key_length);
+        return key_buffer.raw
