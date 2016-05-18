@@ -97,4 +97,26 @@ assert_equals(message2, output, 35);
     assert_equals(output+sizeof(expected)-1, ciphertext_ptr);
 } /* group message encode test */
 
+{
+    TestCase test_case("Group message decode test");
+
+    struct _OlmDecodeGroupMessageResults results;
+    std::uint8_t message[] =
+        "\x03"
+        "\x2A\x09sessionid"
+        "\x10\xc8\x01"
+        "\x22\x0A" "ciphertext"
+        "hmacsha2";
+
+    const uint8_t expected_session_id[] = "sessionid";
+
+    _olm_decode_group_message(message, sizeof(message)-1, 8, &results);
+    assert_equals(std::uint8_t(3), results.version);
+    assert_equals(std::size_t(9), results.session_id_length);
+    assert_equals(expected_session_id, results.session_id, 9);
+    assert_equals(1, results.has_chain_index);
+    assert_equals(std::uint32_t(200), results.chain_index);
+    assert_equals(std::size_t(10), results.ciphertext_length);
+    assert_equals(ciphertext, results.ciphertext, 10);
+} /* group message decode test */
 }

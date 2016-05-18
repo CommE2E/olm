@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "olm/inbound_group_session.h"
 #include "olm/outbound_group_session.h"
 #include "unittest.hh"
 
@@ -19,11 +20,10 @@
 int main() {
 
 {
-
     TestCase test_case("Pickle outbound group");
 
     size_t size = olm_outbound_group_session_size();
-    void *memory = alloca(size);
+    uint8_t memory[size];
     OlmOutboundGroupSession *session = olm_outbound_group_session(memory);
 
     size_t pickle_length = olm_pickle_outbound_group_session_length(session);
@@ -61,9 +61,9 @@ int main() {
         "0123456789ABDEF0123456789ABCDEF";
 
 
-
+    /* build the outbound session */
     size_t size = olm_outbound_group_session_size();
-    void *memory = alloca(size);
+    uint8_t memory[size];
     OlmOutboundGroupSession *session = olm_outbound_group_session(memory);
 
     assert_equals((size_t)132,
@@ -73,18 +73,48 @@ int main() {
         session, random_bytes, sizeof(random_bytes));
     assert_equals((size_t)0, res);
 
+    assert_equals(0U, olm_outbound_group_session_message_index(session));
+    size_t session_key_len = olm_outbound_group_session_key_length(session);
+    uint8_t session_key[session_key_len];
+    olm_outbound_group_session_key(session, session_key, session_key_len);
+
+
+    /* encode the message */
     uint8_t plaintext[] = "Message";
     size_t plaintext_length = sizeof(plaintext) - 1;
 
     size_t msglen = olm_group_encrypt_message_length(
         session, plaintext_length);
 
-    uint8_t *msg = (uint8_t *)alloca(msglen);
+    uint8_t msg[msglen];
     res = olm_group_encrypt(session, plaintext, plaintext_length,
                             msg, msglen);
     assert_equals(msglen, res);
+    assert_equals(1U, olm_outbound_group_session_message_index(session));
 
-    // TODO: decode the message
+
+    /* build the inbound session */
+    size = olm_inbound_group_session_size();
+    uint8_t inbound_session_memory[size];
+    OlmInboundGroupSession *inbound_session =
+        olm_inbound_group_session(inbound_session_memory);
+
+    res = olm_init_inbound_group_session(
+        inbound_session, 0U, session_key, session_key_len);
+    assert_equals((size_t)0, res);
+
+    /* decode the message */
+
+    /* olm_group_decrypt_max_plaintext_length destroys the input so we have to
+       copy it. */
+    uint8_t msgcopy[msglen];
+    memcpy(msgcopy, msg, msglen);
+    size = olm_group_decrypt_max_plaintext_length(inbound_session, msgcopy, msglen);
+    uint8_t plaintext_buf[size];
+    res = olm_group_decrypt(inbound_session, msg, msglen,
+                            plaintext_buf, size);
+    assert_equals(plaintext_length, res);
+    assert_equals(plaintext, plaintext_buf, res);
 }
 
 }

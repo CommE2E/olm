@@ -363,3 +363,45 @@ void _olm_encode_group_message(
     pos = encode(pos, COUNTER_TAG, chain_index);
     pos = encode(pos, CIPHERTEXT_TAG, *ciphertext_ptr, ciphertext_length);
 }
+
+void _olm_decode_group_message(
+    const uint8_t *input, size_t input_length,
+    size_t mac_length,
+    struct _OlmDecodeGroupMessageResults *results
+) {
+    std::uint8_t const * pos = input;
+    std::uint8_t const * end = input + input_length - mac_length;
+    std::uint8_t const * unknown = nullptr;
+
+    results->session_id = nullptr;
+    results->session_id_length = 0;
+    bool has_chain_index = false;
+    results->chain_index = 0;
+    results->ciphertext = nullptr;
+    results->ciphertext_length = 0;
+
+    if (pos == end) return;
+    if (input_length < mac_length) return;
+    results->version = *(pos++);
+
+    while (pos != end) {
+        pos = decode(
+            pos, end, GROUP_SESSION_ID_TAG,
+            results->session_id, results->session_id_length
+        );
+        pos = decode(
+            pos, end, COUNTER_TAG,
+            results->chain_index, has_chain_index
+        );
+        pos = decode(
+            pos, end, CIPHERTEXT_TAG,
+            results->ciphertext, results->ciphertext_length
+        );
+        if (unknown == pos) {
+            pos = skip_unknown(pos, end);
+        }
+        unknown = pos;
+    }
+
+    results->has_chain_index = (int)has_chain_index;
+}

@@ -32,6 +32,9 @@ enum OlmErrorCode {
     OLM_UNKNOWN_PICKLE_VERSION = 9, /*!< The pickled object is too new */
     OLM_CORRUPTED_PICKLE = 10, /*!< The pickled object couldn't be decoded */
 
+    OLM_BAD_RATCHET_KEY = 11,
+    OLM_BAD_CHAIN_INDEX = 12,
+
     /* remember to update the list of string constants in error.c when updating
      * this list. */
 };

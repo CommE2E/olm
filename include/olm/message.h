@@ -65,6 +65,30 @@ void _olm_encode_group_message(
 );
 
 
+struct _OlmDecodeGroupMessageResults {
+    uint8_t version;
+    const uint8_t *session_id;
+    size_t session_id_length;
+    uint32_t chain_index;
+    int has_chain_index;
+    const uint8_t *ciphertext;
+    size_t ciphertext_length;
+};
+
+
+/**
+ * Reads the message headers from the input buffer.
+ */
+void _olm_decode_group_message(
+    const uint8_t *input, size_t input_length,
+    size_t mac_length,
+
+    /* output structure: updated with results */
+    struct _OlmDecodeGroupMessageResults *results
+);
+
+
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
