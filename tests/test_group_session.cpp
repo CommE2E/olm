@@ -20,7 +20,7 @@
 int main() {
 
 {
-    TestCase test_case("Pickle outbound group");
+    TestCase test_case("Pickle outbound group session");
 
     size_t size = olm_outbound_group_session_size();
     uint8_t memory[size];
@@ -43,6 +43,37 @@ int main() {
     assert_equals(pickle_length,
                   olm_pickle_outbound_group_session_length(session2));
     olm_pickle_outbound_group_session(session2,
+                                      "secret_key", 10,
+                                      pickle2, pickle_length);
+
+    assert_equals(pickle1, pickle2, pickle_length);
+}
+
+
+{
+    TestCase test_case("Pickle inbound group session");
+
+    size_t size = olm_inbound_group_session_size();
+    uint8_t memory[size];
+    OlmInboundGroupSession *session = olm_inbound_group_session(memory);
+
+    size_t pickle_length = olm_pickle_inbound_group_session_length(session);
+    uint8_t pickle1[pickle_length];
+    olm_pickle_inbound_group_session(session,
+                                     "secret_key", 10,
+                                     pickle1, pickle_length);
+    uint8_t pickle2[pickle_length];
+    memcpy(pickle2, pickle1, pickle_length);
+
+    uint8_t buffer2[size];
+    OlmInboundGroupSession *session2 = olm_inbound_group_session(buffer2);
+    size_t res = olm_unpickle_inbound_group_session(session2,
+                                                    "secret_key", 10,
+                                                    pickle2, pickle_length);
+    assert_not_equals((size_t)-1, res);
+    assert_equals(pickle_length,
+                  olm_pickle_inbound_group_session_length(session2));
+    olm_pickle_inbound_group_session(session2,
                                       "secret_key", 10,
                                       pickle2, pickle_length);
 
