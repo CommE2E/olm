@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "olm/base64.h"
 #include "olm/base64.hh"
-
 
 namespace {
 
@@ -133,4 +133,35 @@ std::uint8_t const * olm::decode_base64(
         output[0] = value;
     }
     return input + input_length;
+}
+
+
+// implementations of base64.h
+
+size_t olm_encode_base64_length(
+    size_t input_length
+) {
+    return olm::encode_base64_length(input_length);
+}
+
+size_t olm_encode_base64(
+    uint8_t const * input, size_t input_length,
+    uint8_t * output
+) {
+    uint8_t * r = olm::encode_base64(input, input_length, output);
+    return r - output;
+}
+
+size_t olm_decode_base64_length(
+    size_t input_length
+) {
+    return olm::decode_base64_length(input_length);
+}
+
+size_t olm_decode_base64(
+    uint8_t const * input, size_t input_length,
+    uint8_t * output
+) {
+    olm::decode_base64(input, input_length, output);
+    return olm::decode_base64_length(input_length);
 }
