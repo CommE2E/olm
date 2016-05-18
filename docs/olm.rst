@@ -216,7 +216,7 @@ payload followed by a fixed length message authentication code.
    | Version Byte | Payload Bytes                      | MAC Bytes |
    +--------------+------------------------------------+-----------+
 
-The version byte is ``"\x01"``.
+The version byte is ``"\x03"``.
 
 The payload consists of key-value pairs where the keys are integers and the
 values are integers and strings. The keys are encoded as a variable length
@@ -241,7 +241,7 @@ Cipher-Text  0x22 String   The cipher-text, :math:`X_{i,j}`, of the message
 =========== ===== ======== ================================================
 
 The length of the MAC is determined by the authenticated encryption algorithm
-being used. (Olm version 1 uses HMAC-SHA-256, giving a MAC of 32 bytes). The
+being used. (Olm version 1 uses HMAC-SHA-256, truncated to 8 bytes). The
 MAC protects all of the bytes preceding the MAC.
 
 Pre-Key Messages
@@ -256,7 +256,7 @@ length payload.
    | Version Byte | Payload Bytes                      |
    +--------------+------------------------------------+
 
-The version byte is ``"\x01"``.
+The version byte is ``"\x03"``.
 
 The payload uses the same key-value format as for normal messages.
 
@@ -280,9 +280,10 @@ Version 1
 ~~~~~~~~~
 
 Version 1 of Olm uses AES-256_ in CBC_ mode with `PCKS#7`_ padding for
-encryption and HMAC-SHA-256_ for authentication. The 256 bit AES key, 256 bit
-HMAC key, and 128 bit AES IV are derived from the message key using
-HKDF-SHA-256_ using the default salt and an info of ``"OLM_KEYS"``.
+encryption and HMAC-SHA-256_ (truncated to 64 bits) for authentication.  The
+256 bit AES key, 256 bit HMAC key, and 128 bit AES IV are derived from the
+message key using HKDF-SHA-256_ using the default salt and an info of
+``"OLM_KEYS"``.
 
 .. math::
 
@@ -295,7 +296,7 @@ The plain-text is encrypted with AES-256, using the key :math:`AES\_KEY_{i,j}`
 and the IV :math:`AES\_IV_{i,j}` to give the cipher-text, :math:`X_{i,j}`.
 
 Then the entire message (including the Version Byte and all Payload Bytes) are
-passed through HMAC-SHA-256, and the MAC is appended to the message.
+passed through HMAC-SHA-256. The first 8 bytes of the MAC are appended to the message.
 
 IPR
 ---
@@ -311,8 +312,8 @@ Acknowledgements
 ----------------
 
 The ratchet that Olm implements was designed by Trevor Perrin and Moxie
-Marlinspike - details at https://github.com/trevp/axolotl/wiki.  Olm is an
-entirely new implementation written by the Matrix.org team.
+Marlinspike - details at https://github.com/trevp/double_ratchet/wiki.  Olm is
+an entirely new implementation written by the Matrix.org team.
 
 .. _`Curve25519`: http://cr.yp.to/ecdh.html
 .. _`Triple Diffie-Hellman`: https://whispersystems.org/blog/simplifying-otr-deniability/
