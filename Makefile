@@ -24,9 +24,9 @@ JS_PRE := $(wildcard javascript/*pre.js)
 JS_POST := $(wildcard javascript/*post.js)
 
 CPPFLAGS += -Iinclude -Ilib
-CFLAGS += -Wall -std=c89 -fPIC
-CXXFLAGS += -Wall -std=c++11 -fPIC
-LDFLAGS += -Wall
+CFLAGS += -Wall -Werror -std=c89 -fPIC
+CXXFLAGS += -Wall -Werror -std=c++11 -fPIC
+LDFLAGS += -Wall -Werror
 
 EMCCFLAGS = --closure 1 --memory-init-file 0 -s NO_FILESYSTEM=1 -s INVOKE_RUN=0
 # NO_BROWSER is kept for compatibility with emscripten 1.35.24, but is no

@@ -67,7 +67,7 @@ int main() {
 {
 TestCase my_test("Olm decrypt test");
 
-for (int i = 0; i < sizeof(test_cases)/ sizeof(const char *); ++i) {
+for (unsigned int i = 0; i < sizeof(test_cases)/ sizeof(const char *); ++i) {
     decrypt_case(0, test_cases[i]);
 }
 

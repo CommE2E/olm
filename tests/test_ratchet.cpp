@@ -195,7 +195,7 @@ std::uint8_t random[] = "This is a random 32 byte string";
 for (unsigned i = 0; i < 8; ++i) {
 {
     std::uint8_t msg[alice.encrypt_output_length(sizeof(plaintext))];
-    std::uint8_t encrypt_length = alice.encrypt(
+    alice.encrypt(
         plaintext, 15, random, 32, msg, sizeof(msg)
     );
     std::uint8_t output[bob.decrypt_max_plaintext_length(msg, sizeof(msg))];
@@ -206,7 +206,7 @@ for (unsigned i = 0; i < 8; ++i) {
 random[31]++;
 {
     std::uint8_t msg[bob.encrypt_output_length(sizeof(plaintext))];
-    std::uint8_t encrypt_length = bob.encrypt(
+    bob.encrypt(
         plaintext, 15, random, 32, msg, sizeof(msg)
     );
     std::uint8_t output[alice.decrypt_max_plaintext_length(msg, sizeof(msg))];
