@@ -91,7 +91,7 @@ size_t olm_unpickle_inbound_group_session(
  * error code. The last_error will be:
  *
  *  * OLM_INVALID_BASE64  if the session_key is not valid base64
- *  * OLM_BAD_RATCHET_KEY if the session_key is invalid
+ *  * OLM_BAD_SESSION_KEY if the session_key is invalid
  */
 size_t olm_init_inbound_group_session(
     OlmInboundGroupSession *session,
@@ -129,9 +129,9 @@ size_t olm_group_decrypt_max_plaintext_length(
  *   * OLM_BAD_MESSAGE_VERSION if the message was encrypted with an unsupported
  *     version of the protocol
  *   * OLM_BAD_MESSAGE_FORMAT if the message headers could not be decoded
- *   * OLM_BAD_MESSAGE_MAC if the message could not be verified
- *   * OLM_BAD_CHAIN_INDEX if we do not have a ratchet key corresponding to the
- *     message's index (ie, it was sent before the ratchet key was shared with
+ *   * OLM_BAD_MESSAGE_MAC    if the message could not be verified
+ *   * OLM_UNKNOWN_MESSAGE_INDEX  if we do not have a session key corresponding to the
+ *     message's index (ie, it was sent before the session key was shared with
  *     us)
  */
 size_t olm_group_decrypt(

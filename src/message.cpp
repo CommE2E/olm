@@ -328,17 +328,19 @@ void olm::decode_one_time_key_message(
 
 
 
-static std::uint8_t const GROUP_SESSION_ID_TAG = 052;
+static const std::uint8_t GROUP_SESSION_ID_TAG = 012;
+static const std::uint8_t GROUP_MESSAGE_INDEX_TAG = 020;
+static const std::uint8_t GROUP_CIPHERTEXT_TAG = 032;
 
 size_t _olm_encode_group_message_length(
     size_t group_session_id_length,
-    uint32_t chain_index,
+    uint32_t message_index,
     size_t ciphertext_length,
     size_t mac_length
 ) {
     size_t length = VERSION_LENGTH;
     length += 1 + varstring_length(group_session_id_length);
-    length += 1 + varint_length(chain_index);
+    length += 1 + varint_length(message_index);
     length += 1 + varstring_length(ciphertext_length);
     length += mac_length;
     return length;
@@ -349,7 +351,7 @@ void _olm_encode_group_message(
     uint8_t version,
     const uint8_t *session_id,
     size_t session_id_length,
-    uint32_t chain_index,
+    uint32_t message_index,
     size_t ciphertext_length,
     uint8_t *output,
     uint8_t **ciphertext_ptr
@@ -360,8 +362,8 @@ void _olm_encode_group_message(
     *(pos++) = version;
     pos = encode(pos, GROUP_SESSION_ID_TAG, session_id_pos, session_id_length);
     std::memcpy(session_id_pos, session_id, session_id_length);
-    pos = encode(pos, COUNTER_TAG, chain_index);
-    pos = encode(pos, CIPHERTEXT_TAG, *ciphertext_ptr, ciphertext_length);
+    pos = encode(pos, GROUP_MESSAGE_INDEX_TAG, message_index);
+    pos = encode(pos, GROUP_CIPHERTEXT_TAG, *ciphertext_ptr, ciphertext_length);
 }
 
 void _olm_decode_group_message(
@@ -375,8 +377,8 @@ void _olm_decode_group_message(
 
     results->session_id = nullptr;
     results->session_id_length = 0;
-    bool has_chain_index = false;
-    results->chain_index = 0;
+    bool has_message_index = false;
+    results->message_index = 0;
     results->ciphertext = nullptr;
     results->ciphertext_length = 0;
 
@@ -390,11 +392,11 @@ void _olm_decode_group_message(
             results->session_id, results->session_id_length
         );
         pos = decode(
-            pos, end, COUNTER_TAG,
-            results->chain_index, has_chain_index
+            pos, end, GROUP_MESSAGE_INDEX_TAG,
+            results->message_index, has_message_index
         );
         pos = decode(
-            pos, end, CIPHERTEXT_TAG,
+            pos, end, GROUP_CIPHERTEXT_TAG,
             results->ciphertext, results->ciphertext_length
         );
         if (unknown == pos) {
@@ -403,5 +405,5 @@ void _olm_decode_group_message(
         unknown = pos;
     }
 
-    results->has_chain_index = (int)has_chain_index;
+    results->has_message_index = (int)has_message_index;
 }

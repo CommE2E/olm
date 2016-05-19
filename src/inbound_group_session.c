@@ -78,7 +78,7 @@ size_t olm_init_inbound_group_session(
     }
 
     if (raw_length != MEGOLM_RATCHET_LENGTH) {
-        session->last_error = OLM_BAD_RATCHET_KEY;
+        session->last_error = OLM_BAD_SESSION_KEY;
         return (size_t)-1;
     }
 
@@ -223,7 +223,7 @@ size_t olm_group_decrypt(
         return (size_t)-1;
     }
 
-    if (!decoded_results.has_chain_index || !decoded_results.session_id
+    if (!decoded_results.has_message_index || !decoded_results.session_id
         || !decoded_results.ciphertext
     ) {
         session->last_error = OLM_BAD_MESSAGE_FORMAT;
@@ -241,11 +241,11 @@ size_t olm_group_decrypt(
 
     /* pick a megolm instance to use. If we're at or beyond the latest ratchet
      * value, use that */
-    if ((int32_t)(decoded_results.chain_index - session->latest_ratchet.counter) >= 0) {
+    if ((int32_t)(decoded_results.message_index - session->latest_ratchet.counter) >= 0) {
         megolm = &session->latest_ratchet;
-    } else if ((int32_t)(decoded_results.chain_index - session->initial_ratchet.counter) < 0) {
+    } else if ((int32_t)(decoded_results.message_index - session->initial_ratchet.counter) < 0) {
         /* the counter is before our intial ratchet - we can't decode this. */
-        session->last_error = OLM_BAD_CHAIN_INDEX;
+        session->last_error = OLM_UNKNOWN_MESSAGE_INDEX;
         return (size_t)-1;
     } else {
         /* otherwise, start from the initial megolm. Take a copy so that we
@@ -254,7 +254,7 @@ size_t olm_group_decrypt(
         megolm = &tmp_megolm;
     }
 
-    megolm_advance_to(megolm, decoded_results.chain_index);
+    megolm_advance_to(megolm, decoded_results.message_index);
 
     /* now try checking the mac, and decrypting */
     r = cipher->ops->decrypt(

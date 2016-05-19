@@ -32,8 +32,12 @@ enum OlmErrorCode {
     OLM_UNKNOWN_PICKLE_VERSION = 9, /*!< The pickled object is too new */
     OLM_CORRUPTED_PICKLE = 10, /*!< The pickled object couldn't be decoded */
 
-    OLM_BAD_RATCHET_KEY = 11,
-    OLM_BAD_CHAIN_INDEX = 12,
+    OLM_BAD_SESSION_KEY = 11,  /*!< Attempt to initialise an inbound group
+                                 session from an invalid session key */
+    OLM_UNKNOWN_MESSAGE_INDEX = 12,  /*!< Attempt to decode a message whose
+                                      * index is earlier than our earliest
+                                      * known session key.
+                                      */
 
     /* remember to update the list of string constants in error.c when updating
      * this list. */

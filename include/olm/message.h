@@ -47,7 +47,7 @@ size_t _olm_encode_group_message_length(
  * version:            version number of the olm protocol
  * session_id:         group session identifier
  * session_id_length:  length of session_id
- * chain_index:        message index
+ * message_index:      message index
  * ciphertext_length:  length of the ciphertext
  * output:             where to write the output. Should be at least
  *                     olm_encode_group_message_length() bytes long.
@@ -58,7 +58,7 @@ void _olm_encode_group_message(
     uint8_t version,
     const uint8_t *session_id,
     size_t session_id_length,
-    uint32_t chain_index,
+    uint32_t message_index,
     size_t ciphertext_length,
     uint8_t *output,
     uint8_t **ciphertext_ptr
@@ -69,8 +69,8 @@ struct _OlmDecodeGroupMessageResults {
     uint8_t version;
     const uint8_t *session_id;
     size_t session_id_length;
-    uint32_t chain_index;
-    int has_chain_index;
+    uint32_t message_index;
+    int has_message_index;
     const uint8_t *ciphertext;
     size_t ciphertext_length;
 };

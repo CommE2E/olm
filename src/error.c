@@ -27,6 +27,8 @@ static const char * ERRORS[] = {
     "BAD_ACCOUNT_KEY",
     "UNKNOWN_PICKLE_VERSION",
     "CORRUPTED_PICKLE",
+    "BAD_SESSION_KEY",
+    "UNKNOWN_MESSAGE_INDEX",
 };
 
 const char * _olm_error_to_string(enum OlmErrorCode error)

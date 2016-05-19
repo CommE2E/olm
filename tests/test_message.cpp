@@ -89,9 +89,9 @@ assert_equals(message2, output, 35);
 
     uint8_t expected[] =
         "\x03"
-        "\x2A\x09sessionid"
-        "\x10\xc8\x01"
-        "\x22\x0a";
+        "\x0A\x09sessionid"
+        "\x10\xC8\x01"
+        "\x1A\x0A";
 
     assert_equals(expected, output, sizeof(expected)-1);
     assert_equals(output+sizeof(expected)-1, ciphertext_ptr);
@@ -103,9 +103,9 @@ assert_equals(message2, output, 35);
     struct _OlmDecodeGroupMessageResults results;
     std::uint8_t message[] =
         "\x03"
-        "\x2A\x09sessionid"
-        "\x10\xc8\x01"
-        "\x22\x0A" "ciphertext"
+        "\x0A\x09sessionid"
+        "\x10\xC8\x01"
+        "\x1A\x0A" "ciphertext"
         "hmacsha2";
 
     const uint8_t expected_session_id[] = "sessionid";
@@ -114,8 +114,8 @@ assert_equals(message2, output, 35);
     assert_equals(std::uint8_t(3), results.version);
     assert_equals(std::size_t(9), results.session_id_length);
     assert_equals(expected_session_id, results.session_id, 9);
-    assert_equals(1, results.has_chain_index);
-    assert_equals(std::uint32_t(200), results.chain_index);
+    assert_equals(1, results.has_message_index);
+    assert_equals(std::uint32_t(200), results.message_index);
     assert_equals(std::size_t(10), results.ciphertext_length);
     assert_equals(ciphertext, results.ciphertext, 10);
 } /* group message decode test */
