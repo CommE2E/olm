@@ -210,14 +210,43 @@ def build_arg_parser():
     outbound_group.add_argument("session_file", help="Local group session file")
     outbound_group.set_defaults(func=do_outbound_group)
 
+    group_credentials = commands.add_parser("group_credentials", help="Export the current outbound group session credentials")
+    group_credentials.add_argument("session_file", help="Local outbound group session file")
+    group_credentials.add_argument("credentials_file", help="File to write credentials to (default stdout)",
+                                   type=argparse.FileType('w'), nargs='?',
+                                   default=sys.stdout)
+    group_credentials.set_defaults(func=do_group_credentials)
+
     group_encrypt = commands.add_parser("group_encrypt", help="Encrypt a group message")
-    group_encrypt.add_argument("session_file", help="Local group session file")
-    group_encrypt.add_argument("plaintext_file", help="Plaintext",
-                               type=argparse.FileType('rb'), default=sys.stdin)
-    group_encrypt.add_argument("message_file", help="Message",
-                               type=argparse.FileType('wb'), default=sys.stdout)
+    group_encrypt.add_argument("session_file", help="Local outbound group session file")
+    group_encrypt.add_argument("plaintext_file", help="Plaintext file (default stdin)",
+                               type=argparse.FileType('rb'), nargs='?',
+                               default=sys.stdin)
+    group_encrypt.add_argument("message_file", help="Message file (default stdout)",
+                               type=argparse.FileType('w'), nargs='?',
+                               default=sys.stdout)
     group_encrypt.set_defaults(func=do_group_encrypt)
 
+    inbound_group = commands.add_parser(
+        "inbound_group",
+        help=("Create an inbound group session based on credentials from an "+
+              "outbound group session"))
+    inbound_group.add_argument("session_file", help="Local inbound group session file")
+    inbound_group.add_argument("credentials_file",
+                               help="File to read credentials from (default stdin)",
+                               type=argparse.FileType('r'), nargs='?',
+                               default=sys.stdin)
+    inbound_group.set_defaults(func=do_inbound_group)
+
+    group_decrypt = commands.add_parser("group_decrypt", help="Decrypt a group message")
+    group_decrypt.add_argument("session_file", help="Local inbound group session file")
+    group_decrypt.add_argument("message_file", help="Message file (default stdin)",
+                               type=argparse.FileType('r'), nargs='?',
+                               default=sys.stdin)
+    group_decrypt.add_argument("plaintext_file", help="Plaintext file (default stdout)",
+                               type=argparse.FileType('wb'), nargs='?',
+                               default=sys.stdout)
+    group_decrypt.set_defaults(func=do_group_decrypt)
     return parser
 
 def do_outbound_group(args):
@@ -239,6 +268,43 @@ def do_group_encrypt(args):
     with open(args.session_file, "wb") as f:
         f.write(session.pickle(args.key))
     args.message_file.write(message)
+
+def do_group_credentials(args):
+    session = OutboundGroupSession()
+    with open(args.session_file, "rb") as f:
+        session.unpickle(args.key, f.read())
+    result = {
+        'message_index': session.message_index(),
+        'session_key': session.session_key(),
+    }
+    json.dump(result, args.credentials_file, indent=4)
+
+def do_inbound_group(args):
+    if os.path.exists(args.session_file):
+        sys.stderr.write("Session %r file already exists\n" % (
+            args.session_file,
+        ))
+        sys.exit(1)
+    credentials = json.load(args.credentials_file)
+    for k in ('message_index', 'session_key'):
+        if not k in credentials:
+            sys.stderr.write("Credentials file is missing %s\n" % k)
+            sys.exit(1);
+
+    session = InboundGroupSession()
+    session.init(credentials['message_index'], credentials['session_key'])
+    with open(args.session_file, "wb") as f:
+        f.write(session.pickle(args.key))
+
+def do_group_decrypt(args):
+    session = InboundGroupSession()
+    with open(args.session_file, "rb") as f:
+        session.unpickle(args.key, f.read())
+    message = args.message_file.read()
+    plaintext = session.decrypt(message)
+    with open(args.session_file, "wb") as f:
+        f.write(session.pickle(args.key))
+    args.plaintext_file.write(plaintext)
 
 if __name__ == '__main__':
     parser = build_arg_parser()
