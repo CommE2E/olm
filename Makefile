@@ -73,7 +73,7 @@ $(JS_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS)
 clean:;
 	rm -rf $(OBJECTS) $(OBJECTS:.o=.d) \
                $(TEST_BINARIES) $(TEST_BINARIES:=.d) \
-               $(JS_OBJECTS) $(JS_TARGET) \
+               $(JS_OBJECTS) $(JS_OBJECTS:=.d) $(JS_TARGET) \
                $(JS_EXPORTED_FUNCTIONS) \
                $(TARGET)
 
