@@ -53,6 +53,9 @@ $(JS_TARGET): LDFLAGS += $(JS_OPTIMIZE_FLAGS)
 
 ### top-level targets
 
+lib: $(TARGET)
+.PHONY: lib
+
 $(TARGET): $(OBJECTS)
 	$(CXX) $(LDFLAGS) --shared -fPIC \
 	    -Wl,--version-script,version_script.ver \
@@ -85,6 +88,9 @@ test: build_tests
 $(JS_EXPORTED_FUNCTIONS): $(PUBLIC_HEADERS)
 	perl -MJSON -ne '/(olm_[^( ]*)\(/ && push @f, "_$$1"; END { print encode_json \@f }' $^ > $@.tmp
 	mv $@.tmp $@
+
+all: test js lib
+.PHONY: lib
 
 ### rules for building objects
 $(BUILD_DIR)/%.o: src/%.c
