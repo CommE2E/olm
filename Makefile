@@ -1,6 +1,8 @@
 #!/usr/bin/make -f
 
-BUILD_DIR := build
+# Make sure that the build directory exists.
+# We can't check the build directory into git because it is empty.
+BUILD_DIR := $(shell mkdir -p build; echo build)
 OPTIMIZE_FLAGS ?= -g -O3
 TEST_OPTIMIZE_FLAGS ?= -g -O0
 JS_OPTIMIZE_FLAGS ?= -O3
@@ -22,8 +24,8 @@ JS_PRE := $(wildcard javascript/*pre.js)
 JS_POST := $(wildcard javascript/*post.js)
 
 CPPFLAGS += -Iinclude -Ilib
-CFLAGS += -Wall --std=c89 -fPIC
-CXXFLAGS += -Wall --std=c++11 -fPIC
+CFLAGS += -Wall -std=c89 -fPIC
+CXXFLAGS += -Wall -std=c++11 -fPIC
 LDFLAGS += -Wall
 
 EMCCFLAGS = --closure 1 --memory-init-file 0 -s NO_FILESYSTEM=1 -s INVOKE_RUN=0
