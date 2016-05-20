@@ -241,9 +241,9 @@ size_t olm_group_decrypt(
 
     /* pick a megolm instance to use. If we're at or beyond the latest ratchet
      * value, use that */
-    if ((int32_t)(decoded_results.message_index - session->latest_ratchet.counter) >= 0) {
+    if ((decoded_results.message_index - session->latest_ratchet.counter) < (1U << 31)) {
         megolm = &session->latest_ratchet;
-    } else if ((int32_t)(decoded_results.message_index - session->initial_ratchet.counter) < 0) {
+    } else if ((decoded_results.message_index - session->initial_ratchet.counter) >= (1U << 31)) {
         /* the counter is before our intial ratchet - we can't decode this. */
         session->last_error = OLM_UNKNOWN_MESSAGE_INDEX;
         return (size_t)-1;
