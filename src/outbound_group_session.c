@@ -22,6 +22,7 @@
 #include "olm/cipher.h"
 #include "olm/error.h"
 #include "olm/megolm.h"
+#include "olm/memory.h"
 #include "olm/message.h"
 #include "olm/pickle.h"
 #include "olm/pickle_encoding.h"
@@ -63,7 +64,7 @@ const char *olm_outbound_group_session_last_error(
 size_t olm_clear_outbound_group_session(
     OlmOutboundGroupSession *session
 ) {
-    memset(session, 0, sizeof(OlmOutboundGroupSession));
+    _olm_unset(session, sizeof(OlmOutboundGroupSession));
     return sizeof(OlmOutboundGroupSession);
 }
 

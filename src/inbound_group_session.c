@@ -21,6 +21,7 @@
 #include "olm/cipher.h"
 #include "olm/error.h"
 #include "olm/megolm.h"
+#include "olm/memory.h"
 #include "olm/message.h"
 #include "olm/pickle.h"
 #include "olm/pickle_encoding.h"
@@ -60,7 +61,7 @@ const char *olm_inbound_group_session_last_error(
 size_t olm_clear_inbound_group_session(
     OlmInboundGroupSession *session
 ) {
-    memset(session, 0, sizeof(OlmInboundGroupSession));
+    _olm_unset(session, sizeof(OlmInboundGroupSession));
     return sizeof(OlmInboundGroupSession);
 }
 
@@ -85,7 +86,7 @@ size_t olm_init_inbound_group_session(
     _olm_decode_base64(session_key, session_key_length, key_buf);
     megolm_init(&session->initial_ratchet, key_buf, message_index);
     megolm_init(&session->latest_ratchet, key_buf, message_index);
-    memset(key_buf, 0, MEGOLM_RATCHET_LENGTH);
+    _olm_unset(key_buf, MEGOLM_RATCHET_LENGTH);
 
     return 0;
 }
@@ -265,7 +266,7 @@ size_t olm_group_decrypt(
         plaintext, max_plaintext_length
     );
 
-    memset(&tmp_megolm, 0, sizeof(tmp_megolm));
+    _olm_unset(&tmp_megolm, sizeof(tmp_megolm));
     if (r == (size_t)-1) {
         session->last_error = OLM_BAD_MESSAGE_MAC;
         return r;
