@@ -190,7 +190,7 @@ const char * olm_account_last_error(
     OlmAccount * account
 ) {
     unsigned error = unsigned(from_c(account)->last_error);
-    if (error < sizeof(ERRORS)) {
+    if (error < (sizeof(ERRORS)/sizeof(ERRORS[0]))) {
         return ERRORS[error];
     } else {
         return "UNKNOWN_ERROR";
