@@ -200,34 +200,34 @@ std::uint8_t const * olm::unpickle(
 
 ////// pickle.h implementations
 
-uint8_t * olm_pickle_uint32(uint8_t * pos, uint32_t value) {
+uint8_t * _olm_pickle_uint32(uint8_t * pos, uint32_t value) {
     return olm::pickle(pos, value);
 }
 
-uint8_t const * olm_unpickle_uint32(
+uint8_t const * _olm_unpickle_uint32(
     uint8_t const * pos, uint8_t const * end,
     uint32_t *value
 ) {
     return olm::unpickle(pos, end, *value);
 }
 
-uint8_t * olm_pickle_bool(uint8_t * pos, int value) {
+uint8_t * _olm_pickle_bool(uint8_t * pos, int value) {
     return olm::pickle(pos, (bool)value);
 }
 
-uint8_t const * olm_unpickle_bool(
+uint8_t const * _olm_unpickle_bool(
     uint8_t const * pos, uint8_t const * end,
     int *value
 ) {
     return olm::unpickle(pos, end, *reinterpret_cast<bool *>(value));
 }
 
-uint8_t * olm_pickle_bytes(uint8_t * pos, uint8_t const * bytes,
+uint8_t * _olm_pickle_bytes(uint8_t * pos, uint8_t const * bytes,
                            size_t bytes_length) {
     return olm::pickle_bytes(pos, bytes, bytes_length);
 }
 
-uint8_t const * olm_unpickle_bytes(uint8_t const * pos, uint8_t const * end,
+uint8_t const * _olm_unpickle_bytes(uint8_t const * pos, uint8_t const * end,
                                    uint8_t * bytes, size_t bytes_length) {
     return olm::unpickle_bytes(pos, end, bytes, bytes_length);
 }

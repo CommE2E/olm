@@ -59,11 +59,11 @@ static std::uint8_t const * from_c(void const * bytes) {
 
 static const std::uint8_t CIPHER_KDF_INFO[] = "Pickle";
 
-const olm_cipher *get_pickle_cipher() {
-    static olm_cipher *cipher = NULL;
-    static olm_cipher_aes_sha_256 PICKLE_CIPHER;
+const _olm_cipher *get_pickle_cipher() {
+    static _olm_cipher *cipher = NULL;
+    static _olm_cipher_aes_sha_256 PICKLE_CIPHER;
     if (!cipher) {
-        cipher = olm_cipher_aes_sha_256_init(
+        cipher = _olm_cipher_aes_sha_256_init(
             &PICKLE_CIPHER,
             CIPHER_KDF_INFO, sizeof(CIPHER_KDF_INFO) - 1
         );

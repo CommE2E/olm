@@ -23,20 +23,22 @@
 extern "C" {
 #endif
 
-struct olm_cipher;
+struct _olm_cipher;
 
-struct cipher_ops {
+struct _olm_cipher_ops {
     /**
      * Returns the length of the message authentication code that will be
      * appended to the output.
      */
-    size_t (*mac_length)(const struct olm_cipher *cipher);
+    size_t (*mac_length)(const struct _olm_cipher *cipher);
 
     /**
      * Returns the length of cipher-text for a given length of plain-text.
      */
-    size_t (*encrypt_ciphertext_length)(const struct olm_cipher *cipher,
-                                        size_t plaintext_length);
+    size_t (*encrypt_ciphertext_length)(
+        const struct _olm_cipher *cipher,
+        size_t plaintext_length
+    );
 
     /*
      * Encrypts the plain-text into the output buffer and authenticates the
@@ -53,7 +55,7 @@ struct cipher_ops {
      * buffer is too small. Otherwise returns the length of the output buffer.
      */
     size_t (*encrypt)(
-        const struct olm_cipher *cipher,
+        const struct _olm_cipher *cipher,
         uint8_t const * key, size_t key_length,
         uint8_t const * plaintext, size_t plaintext_length,
         uint8_t * ciphertext, size_t ciphertext_length,
@@ -65,7 +67,7 @@ struct cipher_ops {
      * cipher-text can contain.
      */
     size_t (*decrypt_max_plaintext_length)(
-        const struct olm_cipher *cipher,
+        const struct _olm_cipher *cipher,
         size_t ciphertext_length
     );
 
@@ -84,7 +86,7 @@ struct cipher_ops {
      *  of the plain text.
      */
     size_t (*decrypt)(
-        const struct olm_cipher *cipher,
+        const struct _olm_cipher *cipher,
         uint8_t const * key, size_t key_length,
         uint8_t const * input, size_t input_length,
         uint8_t const * ciphertext, size_t ciphertext_length,
@@ -92,16 +94,16 @@ struct cipher_ops {
     );
 
     /** destroy any private data associated with this cipher */
-    void (*destruct)(struct olm_cipher *cipher);
+    void (*destruct)(struct _olm_cipher *cipher);
 };
 
-struct olm_cipher {
-    const struct cipher_ops *ops;
+struct _olm_cipher {
+    const struct _olm_cipher_ops *ops;
     /* cipher-specific fields follow */
 };
 
-struct olm_cipher_aes_sha_256 {
-    struct olm_cipher base_cipher;
+struct _olm_cipher_aes_sha_256 {
+    struct _olm_cipher base_cipher;
 
     uint8_t const * kdf_info;
     size_t kdf_info_length;
@@ -121,8 +123,8 @@ struct olm_cipher_aes_sha_256 {
  *
  * kdf_info_length: length of context string kdf_info
  */
-struct olm_cipher *olm_cipher_aes_sha_256_init(
-    struct olm_cipher_aes_sha_256 *cipher,
+struct _olm_cipher *_olm_cipher_aes_sha_256_init(
+    struct _olm_cipher_aes_sha_256 *cipher,
     uint8_t const * kdf_info,
     size_t kdf_info_length);
 

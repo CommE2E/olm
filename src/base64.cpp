@@ -138,13 +138,13 @@ std::uint8_t const * olm::decode_base64(
 
 // implementations of base64.h
 
-size_t olm_encode_base64_length(
+size_t _olm_encode_base64_length(
     size_t input_length
 ) {
     return olm::encode_base64_length(input_length);
 }
 
-size_t olm_encode_base64(
+size_t _olm_encode_base64(
     uint8_t const * input, size_t input_length,
     uint8_t * output
 ) {
@@ -152,13 +152,13 @@ size_t olm_encode_base64(
     return r - output;
 }
 
-size_t olm_decode_base64_length(
+size_t _olm_decode_base64_length(
     size_t input_length
 ) {
     return olm::decode_base64_length(input_length);
 }
 
-size_t olm_decode_base64(
+size_t _olm_decode_base64(
     uint8_t const * input, size_t input_length,
     uint8_t * output
 ) {

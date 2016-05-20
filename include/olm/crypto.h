@@ -31,7 +31,7 @@ const size_t SHA256_OUTPUT_LENGTH = 32;
 
 /** Computes SHA-256 of the input. The output buffer must be a least 32
  * bytes long. */
-void crypto_sha256(
+void _olm_crypto_sha256(
     uint8_t const * input, size_t input_length,
     uint8_t * output
 );
@@ -40,7 +40,7 @@ void crypto_sha256(
  * http://tools.ietf.org/html/rfc2104
  * Computes HMAC-SHA-256 of the input for the key. The output buffer must
  * be at least 32 bytes long. */
-void crypto_hmac_sha256(
+void _olm_crypto_hmac_sha256(
     uint8_t const * key, size_t key_length,
     uint8_t const * input, size_t input_length,
     uint8_t * output
@@ -50,7 +50,7 @@ void crypto_hmac_sha256(
 /** HMAC-based Key Derivation Function (HKDF)
  * https://tools.ietf.org/html/rfc5869
  * Derives key material from the input bytes. */
-void crypto_hkdf_sha256(
+void _olm_crypto_hkdf_sha256(
     uint8_t const * input, size_t input_length,
     uint8_t const * info, size_t info_length,
     uint8_t const * salt, size_t salt_length,

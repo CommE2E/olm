@@ -255,7 +255,7 @@ std::size_t olm::aes_decrypt_cbc(
 }
 
 
-void crypto_sha256(
+void _olm_crypto_sha256(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
 ) {
@@ -267,7 +267,7 @@ void crypto_sha256(
 }
 
 
-void crypto_hmac_sha256(
+void _olm_crypto_hmac_sha256(
     std::uint8_t const * key, std::size_t key_length,
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
@@ -283,7 +283,7 @@ void crypto_hmac_sha256(
 }
 
 
-void crypto_hkdf_sha256(
+void _olm_crypto_hkdf_sha256(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t const * salt, std::size_t salt_length,
     std::uint8_t const * info, std::size_t info_length,

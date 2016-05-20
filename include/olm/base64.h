@@ -30,7 +30,7 @@ extern "C" {
 /**
  * The number of bytes of unpadded base64 needed to encode a length of input.
  */
-size_t olm_encode_base64_length(
+size_t _olm_encode_base64_length(
     size_t input_length
 );
 
@@ -42,7 +42,7 @@ size_t olm_encode_base64_length(
  *
  * Returns number of bytes encoded
  */
-size_t olm_encode_base64(
+size_t _olm_encode_base64(
     uint8_t const * input, size_t input_length,
     uint8_t * output
 );
@@ -51,7 +51,7 @@ size_t olm_encode_base64(
  * The number of bytes of raw data a length of unpadded base64 will encode to.
  * Returns size_t(-1) if the length is not a valid length for base64.
  */
-size_t olm_decode_base64_length(
+size_t _olm_decode_base64_length(
     size_t input_length
 );
 
@@ -63,7 +63,7 @@ size_t olm_decode_base64_length(
  *
  * Returns number of bytes decoded
  */
-size_t olm_decode_base64(
+size_t _olm_decode_base64(
     uint8_t const * input, size_t input_length,
     uint8_t * output
 );

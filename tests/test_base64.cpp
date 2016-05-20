@@ -26,11 +26,11 @@ std::uint8_t input[] = "Hello World";
 std::uint8_t expected_output[] = "SGVsbG8gV29ybGQ";
 std::size_t input_length = sizeof(input) - 1;
 
-std::size_t output_length = ::olm_encode_base64_length(input_length);
+std::size_t output_length = ::_olm_encode_base64_length(input_length);
 assert_equals(std::size_t(15), output_length);
 
 std::uint8_t output[output_length];
-output_length = ::olm_encode_base64(input, input_length, output);
+output_length = ::_olm_encode_base64(input, input_length, output);
 assert_equals(std::size_t(15), output_length);
 assert_equals(expected_output, output, output_length);
 }
@@ -57,11 +57,11 @@ std::uint8_t input[] = "SGVsbG8gV29ybGQ";
 std::uint8_t expected_output[] = "Hello World";
 std::size_t input_length = sizeof(input) - 1;
 
-std::size_t output_length = ::olm_decode_base64_length(input_length);
+std::size_t output_length = ::_olm_decode_base64_length(input_length);
 assert_equals(std::size_t(11), output_length);
 
 std::uint8_t output[output_length];
-output_length = ::olm_decode_base64(input, input_length, output);
+output_length = ::_olm_decode_base64(input, input_length, output);
 assert_equals(std::size_t(11), output_length);
 assert_equals(expected_output, output, output_length);
 }

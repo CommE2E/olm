@@ -28,8 +28,8 @@ olm::KdfInfo kdf_info = {
     ratchet_info, sizeof(ratchet_info) - 1
 };
 
-olm_cipher_aes_sha_256 cipher0;
-olm_cipher *cipher = olm_cipher_aes_sha_256_init(
+_olm_cipher_aes_sha_256 cipher0;
+_olm_cipher *cipher = _olm_cipher_aes_sha_256_init(
     &cipher0, message_info, sizeof(message_info) - 1
 );
 

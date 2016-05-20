@@ -21,25 +21,25 @@
 extern "C" {
 #endif
 
-#define olm_pickle_uint32_length(value) 4
-uint8_t * olm_pickle_uint32(uint8_t * pos, uint32_t value);
-uint8_t const * olm_unpickle_uint32(
+#define _olm_pickle_uint32_length(value) 4
+uint8_t * _olm_pickle_uint32(uint8_t * pos, uint32_t value);
+uint8_t const * _olm_unpickle_uint32(
     uint8_t const * pos, uint8_t const * end,
     uint32_t *value
 );
 
 
-#define olm_pickle_bool_length(value) 1
-uint8_t * olm_pickle_bool(uint8_t * pos, int value);
-uint8_t const * olm_unpickle_bool(
+#define _olm_pickle_bool_length(value) 1
+uint8_t * _olm_pickle_bool(uint8_t * pos, int value);
+uint8_t const * _olm_unpickle_bool(
     uint8_t const * pos, uint8_t const * end,
     int *value
 );
 
-#define olm_pickle_bytes_length(bytes, bytes_length) (bytes_length)
-uint8_t * olm_pickle_bytes(uint8_t * pos, uint8_t const * bytes,
+#define _olm_pickle_bytes_length(bytes, bytes_length) (bytes_length)
+uint8_t * _olm_pickle_bytes(uint8_t * pos, uint8_t const * bytes,
                            size_t bytes_length);
-uint8_t const * olm_unpickle_bytes(uint8_t const * pos, uint8_t const * end,
+uint8_t const * _olm_unpickle_bytes(uint8_t const * pos, uint8_t const * end,
                                    uint8_t * bytes, size_t bytes_length);
 
 

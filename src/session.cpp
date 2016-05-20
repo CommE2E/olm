@@ -35,11 +35,11 @@ static const olm::KdfInfo OLM_KDF_INFO = {
     RATCHET_KDF_INFO, sizeof(RATCHET_KDF_INFO) - 1
 };
 
-const olm_cipher *get_cipher() {
-    static olm_cipher *cipher;
-    static olm_cipher_aes_sha_256 OLM_CIPHER;
+const _olm_cipher *get_cipher() {
+    static _olm_cipher *cipher;
+    static _olm_cipher_aes_sha_256 OLM_CIPHER;
     if (!cipher) {
-        cipher = olm_cipher_aes_sha_256_init(
+        cipher = _olm_cipher_aes_sha_256_init(
             &OLM_CIPHER,
             CIPHER_KDF_INFO, sizeof(CIPHER_KDF_INFO) - 1
         );
@@ -216,7 +216,7 @@ std::size_t olm::Session::session_id(
     pos = olm::store_array(pos, alice_identity_key.public_key);
     pos = olm::store_array(pos, alice_base_key.public_key);
     pos = olm::store_array(pos, bob_one_time_key.public_key);
-    crypto_sha256(tmp, sizeof(tmp), id);
+    _olm_crypto_sha256(tmp, sizeof(tmp), id);
     return session_id_length();
 }
 

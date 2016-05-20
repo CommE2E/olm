@@ -186,7 +186,7 @@ std::uint8_t expected[32] = {
 
 std::uint8_t actual[32];
 
-crypto_sha256(input, sizeof(input), actual);
+_olm_crypto_sha256(input, sizeof(input), actual);
 
 assert_equals(expected, actual, 32);
 
@@ -207,7 +207,7 @@ std::uint8_t expected[32] = {
 
 std::uint8_t actual[32];
 
-crypto_hmac_sha256(input, sizeof(input), input, sizeof(input), actual);
+_olm_crypto_hmac_sha256(input, sizeof(input), input, sizeof(input), actual);
 
 assert_equals(expected, actual, 32);
 
@@ -242,7 +242,7 @@ std::uint8_t hmac_expected_output[32] = {
 
 std::uint8_t hmac_actual_output[32] = {};
 
-crypto_hmac_sha256(
+_olm_crypto_hmac_sha256(
     salt, sizeof(salt),
     input, sizeof(input),
     hmac_actual_output
@@ -261,7 +261,7 @@ std::uint8_t hkdf_expected_output[42] = {
 
 std::uint8_t hkdf_actual_output[42] = {};
 
-crypto_hkdf_sha256(
+_olm_crypto_hkdf_sha256(
     input, sizeof(input),
     salt, sizeof(salt),
     info, sizeof(info),
