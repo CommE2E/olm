@@ -45,7 +45,6 @@ $(OBJECTS): CXXFLAGS += $(OPTIMIZE_FLAGS)
 $(TARGET): LDFLAGS += $(OPTIMIZE_FLAGS)
 
 $(TEST_BINARIES): CPPFLAGS += -Itests/include
-$(TEST_BINARIES): LDLIBS += -lolm
 $(TEST_BINARIES): LDFLAGS += $(TEST_OPTIMIZE_FLAGS) -L$(BUILD_DIR)
 
 $(JS_OBJECTS): CFLAGS += $(JS_OPTIMIZE_FLAGS)
@@ -55,7 +54,9 @@ $(JS_TARGET): LDFLAGS += $(JS_OPTIMIZE_FLAGS)
 ### top-level targets
 
 $(TARGET): $(OBJECTS)
-	$(CXX) $(LDFLAGS) --shared -fPIC $^ $(OUTPUT_OPTION)
+	$(CXX) $(LDFLAGS) --shared -fPIC \
+	    -Wl,--version-script,version_script.ver \
+            $(OUTPUT_OPTION) $(OBJECTS)
 
 js: $(JS_TARGET)
 .PHONY: js
@@ -78,7 +79,7 @@ build_tests: $(TEST_BINARIES)
 test: build_tests
 	for i in $(TEST_BINARIES); do \
 	    echo $$i; \
-	    LD_LIBRARY_PATH=$(BUILD_DIR) $$i || exit $$?; \
+	    $$i || exit $$?; \
 	done
 
 $(JS_EXPORTED_FUNCTIONS): $(PUBLIC_HEADERS)
@@ -98,16 +99,14 @@ $(BUILD_DIR)/%.js.bc: src/%.c
 $(BUILD_DIR)/%.js.bc: src/%.cpp
 	$(EMCC.cc) $(OUTPUT_OPTION) $<
 
-$(BUILD_DIR)/%: tests/%.c
-	$(LINK.c) $< $(LOADLIBES) $(LDLIBS) -o $@
+$(BUILD_DIR)/%: tests/%.c $(OBJECTS)
+	$(LINK.c) $< $(OBJECTS) $(LOADLIBES) $(LDLIBS) -o $@
 
-$(BUILD_DIR)/%: tests/%.cpp
-	$(LINK.cc) $< $(LOADLIBES) $(LDLIBS) -o $@
+$(BUILD_DIR)/%: tests/%.cpp $(OBJECTS)
+	$(LINK.cc) $< $(OBJECTS) $(LOADLIBES) $(LDLIBS) -o $@
 
 
 ### dependencies
-
-$(TEST_BINARIES): $(TARGET)
 
 -include $(OBJECTS:.o=.d)
 -include $(JS_OBJECTS:.bc=.d)
