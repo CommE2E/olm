@@ -14,20 +14,19 @@ To build olm as a shared library run:
 
 .. code:: bash
 
-    ./build_shared_library.py
+    make
 
 To run the tests run:
 
 .. code:: bash
 
-   ./test.py
-
+    make test
 
 To build the javascript bindings, install emscripten from http://kripken.github.io/emscripten-site/ and then run:
 
 .. code:: bash
 
-    javascript/build.py  # builds javascript/olm.js
+    make js
     npm pack javascript  # packages olm.js into olm-x.y.z.tgz
 
 Remember to make a tag after releasing a tarball:
@@ -42,6 +41,11 @@ Design
 
 Olm is designed to be easy port to different platforms and to be easy
 to write bindings for.
+
+It was originally implemented in C++, with a plain-C layer providing the public
+API. As development has progressed, it has become clear that C++ gives little
+advantage, and new functionality is being added in C, with C++ parts being
+rewritten as the need ariases.
 
 Error Handling
 ~~~~~~~~~~~~~~
@@ -78,13 +82,13 @@ the ratchet. While this decreases the performance it makes it much easier
 to compile the library for different architectures.
 
 What's an olm?
-~~~~~~~~~~~~~~
+--------------
 
 It's a really cool species of European troglodytic salamander.
 http://www.postojnska-jama.eu/en/come-and-visit-us/vivarium-proteus/
 
 Legal Notice
-~~~~~~~~~~~~
+------------
 
 The software may be subject to the U.S. export control laws and regulations
 and by downloading the software the user certifies that he/she/it is

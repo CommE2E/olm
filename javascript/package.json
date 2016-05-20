@@ -8,7 +8,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "./build.py",
+    "build": "make -C .. js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
