@@ -87,23 +87,4 @@ std::uint8_t * store_array(
     return destination + sizeof(T);
 }
 
-/** convert an array of bytes to a string representation */
-template<typename T>
-std::string bytes_to_string(T start, T end) {
-    std::ostringstream ss;
-    ss << std::hex << std::setfill('0');
-    while (start != end) {
-        ss << std::setw(2) << static_cast<int>(*start++);
-        if (start != end) {
-            ss << ":";
-        }
-    }
-    return ss.str();
-}
-
-template<typename T>
-std::string bytes_to_string(T start, size_t len) {
-    return bytes_to_string(start, start+len);
-}
-
 } // namespace olm
