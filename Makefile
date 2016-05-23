@@ -2,7 +2,7 @@
 
 # Make sure that the build directory exists.
 # We can't check the build directory into git because it is empty.
-BUILD_DIR := $(shell mkdir -p build/release build/debug build/javascript build/tests; echo build)
+BUILD_DIR := build
 RELEASE_OPTIMIZE_FLAGS ?= -g -O3
 DEBUG_OPTIMIZE_FLAGS ?= -g -O0
 JS_OPTIMIZE_FLAGS ?= -O3
@@ -24,7 +24,6 @@ TEST_BINARIES := $(patsubst tests/%,$(BUILD_DIR)/tests/%,$(patsubst %.c,%,$(pats
 JS_OBJECTS := $(patsubst src/%,$(BUILD_DIR)/javascript/%,$(patsubst %.c,%.js.bc,$(patsubst %.cpp,%.js.bc,$(SOURCES))))
 JS_PRE := $(wildcard javascript/*pre.js)
 JS_POST := $(wildcard javascript/*post.js)
-
 
 CPPFLAGS += -Iinclude -Ilib
 CFLAGS += -Wall -std=c89 -fPIC
@@ -64,6 +63,10 @@ $(JS_TARGET): LDFLAGS += $(JS_OPTIMIZE_FLAGS)
 
 lib: $(RELEASE_TARGET)
 .PHONY: lib
+
+makedirs:
+	mkdir -p $(BUILD_DIR)/release $(BUILD_DIR)/debug $(BUILD_DIR)/javascript $(BUILD_DIR)/tests
+.PHONY: makedirs
 
 $(RELEASE_TARGET): $(RELEASE_OBJECTS)
 	$(CXX) $(LDFLAGS) --shared -fPIC \
@@ -112,22 +115,22 @@ all: test js lib debug
 .PHONY: lib
 
 ### rules for building objects
-$(BUILD_DIR)/release/%.o: src/%.c
+$(BUILD_DIR)/release/%.o: src/%.c | makedirs
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
-$(BUILD_DIR)/release/%.o: src/%.cpp
+$(BUILD_DIR)/release/%.o: src/%.cpp | makedirs
 	$(COMPILE.cc) $(OUTPUT_OPTION) $<
 
-$(BUILD_DIR)/debug/%.o: src/%.c
+$(BUILD_DIR)/debug/%.o: src/%.c | makedirs
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
-$(BUILD_DIR)/debug/%.o: src/%.cpp
+$(BUILD_DIR)/debug/%.o: src/%.cpp | makedirs
 	$(COMPILE.cc) $(OUTPUT_OPTION) $<
 
-$(BUILD_DIR)/javascript/%.js.bc: src/%.c
+$(BUILD_DIR)/javascript/%.js.bc: src/%.c | makedirs
 	$(EMCC.c) $(OUTPUT_OPTION) $<
 
-$(BUILD_DIR)/javascript/%.js.bc: src/%.cpp
+$(BUILD_DIR)/javascript/%.js.bc: src/%.cpp | makedirs
 	$(EMCC.cc) $(OUTPUT_OPTION) $<
 
 $(BUILD_DIR)/tests/%: tests/%.c $(DEBUG_OBJECTS)
