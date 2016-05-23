@@ -95,9 +95,9 @@ clean:;
 	rm -rf $(RELEASE_OBJECTS) $(RELEASE_OBJECTS:.o=.d) \
                $(DEBUG_OBJECTS) $(DEBUG_OBJECTS:.o=.d) \
                $(TEST_BINARIES) $(TEST_BINARIES:=.d) \
-               $(JS_OBJECTS) $(JS_OBJECTS:=.d) $(JS_TARGET) \
+               $(JS_OBJECTS) $(JS_OBJECTS:.bc=.d) $(JS_TARGET) \
                $(JS_EXPORTED_FUNCTIONS) \
-               $(TARGET)
+               $(RELEASE_TARGET) $(DEBUG_TARGET)\
 
 build_tests: $(TEST_BINARIES)
 
