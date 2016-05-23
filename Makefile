@@ -1,7 +1,5 @@
 #!/usr/bin/make -f
 
-# Make sure that the build directory exists.
-# We can't check the build directory into git because it is empty.
 BUILD_DIR := build
 RELEASE_OPTIMIZE_FLAGS ?= -g -O3
 DEBUG_OPTIMIZE_FLAGS ?= -g -O0
@@ -64,6 +62,8 @@ $(JS_TARGET): LDFLAGS += $(JS_OPTIMIZE_FLAGS)
 lib: $(RELEASE_TARGET)
 .PHONY: lib
 
+# Make sure that the build directory exists.
+# We can't check the build directory into git because it is empty.
 makedirs:
 	mkdir -p $(BUILD_DIR)/release $(BUILD_DIR)/debug $(BUILD_DIR)/javascript $(BUILD_DIR)/tests
 .PHONY: makedirs
