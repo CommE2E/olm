@@ -133,7 +133,7 @@ static std::uint8_t const * decode(
         std::uint8_t const * len_start = pos;
         pos = varint_skip(pos, end);
         std::size_t len = varint_decode<std::size_t>(len_start, pos);
-        if (len + pos > end) return end;
+        if (len > std::size_t(end - pos)) return end;
         value = pos;
         value_length = len;
         pos += len;
@@ -154,7 +154,7 @@ static std::uint8_t const * skip_unknown(
             std::uint8_t const * len_start = pos;
             pos = varint_skip(pos, end);
             std::size_t len = varint_decode<std::size_t>(len_start, pos);
-            if (len + pos > end) return end;
+            if (len > std::size_t(end - pos)) return end;
             pos += len;
         } else {
             return end;
