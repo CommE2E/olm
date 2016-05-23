@@ -134,10 +134,10 @@ $(BUILD_DIR)/javascript/%.js.bc: src/%.cpp | makedirs
 	$(EMCC.cc) $(OUTPUT_OPTION) $<
 
 $(BUILD_DIR)/tests/%: tests/%.c $(DEBUG_OBJECTS)
-	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+	$(LINK.c) $< $(DEBUG_OBJECTS) $(LOADLIBES) $(LDLIBS) -o $@
 
 $(BUILD_DIR)/tests/%: tests/%.cpp $(DEBUG_OBJECTS)
-	$(LINK.cc) $^ $(LOADLIBES) $(LDLIBS) -o $@
+	$(LINK.cc) $< $(DEBUG_OBJECTS) $(LOADLIBES) $(LDLIBS) -o $@
 
 
 ### dependencies
