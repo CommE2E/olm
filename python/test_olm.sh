@@ -1,6 +1,6 @@
 #! /bin/bash
 
-OLM="$(dirname $0)/olm.py"
+OLM="python -m olm"
 
 ALICE_ACCOUNT=alice.account
 ALICE_SESSION=alice.session
