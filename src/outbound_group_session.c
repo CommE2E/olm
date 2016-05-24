@@ -179,13 +179,12 @@ static size_t raw_message_length(
     size_t plaintext_length)
 {
     size_t ciphertext_length, mac_length;
-    const struct _olm_cipher *cipher = megolm_cipher();
 
-    ciphertext_length = cipher->ops->encrypt_ciphertext_length(
-        cipher, plaintext_length
+    ciphertext_length = megolm_cipher->ops->encrypt_ciphertext_length(
+        megolm_cipher, plaintext_length
     );
 
-    mac_length = cipher->ops->mac_length(cipher);
+    mac_length = megolm_cipher->ops->mac_length(megolm_cipher);
 
     return _olm_encode_group_message_length(
         GROUP_SESSION_ID_LENGTH, session->ratchet.counter,
@@ -210,7 +209,6 @@ size_t olm_group_encrypt(
     size_t rawmsglen;
     size_t result;
     uint8_t *ciphertext_ptr, *message_pos;
-    const struct _olm_cipher *cipher = megolm_cipher();
 
     rawmsglen = raw_message_length(session, plaintext_length);
 
@@ -219,8 +217,8 @@ size_t olm_group_encrypt(
         return (size_t)-1;
     }
 
-    ciphertext_length = cipher->ops->encrypt_ciphertext_length(
-        cipher,
+    ciphertext_length = megolm_cipher->ops->encrypt_ciphertext_length(
+        megolm_cipher,
         plaintext_length
     );
 
@@ -240,8 +238,8 @@ size_t olm_group_encrypt(
         message_pos,
         &ciphertext_ptr);
 
-    result = cipher->ops->encrypt(
-        cipher,
+    result = megolm_cipher->ops->encrypt(
+        megolm_cipher,
         megolm_get_data(&(session->ratchet)), MEGOLM_RATCHET_LENGTH,
         plaintext, plaintext_length,
         ciphertext_ptr, ciphertext_length,

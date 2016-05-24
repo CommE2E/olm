@@ -49,11 +49,11 @@ typedef struct Megolm {
 
 
 /**
- * Get the cipher used in megolm-backed conversations
+ * The cipher used in megolm-backed conversations
  *
  * (AES256 + SHA256, with keys based on an HKDF with info of MEGOLM_KEYS)
  */
-const struct _olm_cipher *megolm_cipher();
+extern const struct _olm_cipher *megolm_cipher;
 
 /**
  * initialize the megolm ratchet. random_data should be at least

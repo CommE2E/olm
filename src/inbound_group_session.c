@@ -168,7 +168,6 @@ size_t olm_group_decrypt_max_plaintext_length(
     uint8_t * message, size_t message_length
 ) {
     size_t r;
-    const struct _olm_cipher *cipher = megolm_cipher();
     struct _OlmDecodeGroupMessageResults decoded_results;
 
     r = _olm_decode_base64(message, message_length, message);
@@ -179,7 +178,7 @@ size_t olm_group_decrypt_max_plaintext_length(
 
     _olm_decode_group_message(
         message, message_length,
-        cipher->ops->mac_length(cipher),
+        megolm_cipher->ops->mac_length(megolm_cipher),
         &decoded_results);
 
     if (decoded_results.version != OLM_PROTOCOL_VERSION) {
@@ -192,8 +191,8 @@ size_t olm_group_decrypt_max_plaintext_length(
         return (size_t)-1;
     }
 
-    return cipher->ops->decrypt_max_plaintext_length(
-        cipher, decoded_results.ciphertext_length);
+    return megolm_cipher->ops->decrypt_max_plaintext_length(
+        megolm_cipher, decoded_results.ciphertext_length);
 }
 
 
@@ -203,7 +202,6 @@ size_t olm_group_decrypt(
     uint8_t * plaintext, size_t max_plaintext_length
 ) {
     struct _OlmDecodeGroupMessageResults decoded_results;
-    const struct _olm_cipher *cipher = megolm_cipher();
     size_t max_length, raw_message_length, r;
     Megolm *megolm;
     Megolm tmp_megolm;
@@ -216,7 +214,7 @@ size_t olm_group_decrypt(
 
     _olm_decode_group_message(
         message, raw_message_length,
-        cipher->ops->mac_length(cipher),
+        megolm_cipher->ops->mac_length(megolm_cipher),
         &decoded_results);
 
     if (decoded_results.version != OLM_PROTOCOL_VERSION) {
@@ -231,8 +229,8 @@ size_t olm_group_decrypt(
         return (size_t)-1;
     }
 
-    max_length = cipher->ops->decrypt_max_plaintext_length(
-        cipher,
+    max_length = megolm_cipher->ops->decrypt_max_plaintext_length(
+        megolm_cipher,
         decoded_results.ciphertext_length
     );
     if (max_plaintext_length < max_length) {
@@ -258,8 +256,8 @@ size_t olm_group_decrypt(
     megolm_advance_to(megolm, decoded_results.message_index);
 
     /* now try checking the mac, and decrypting */
-    r = cipher->ops->decrypt(
-        cipher,
+    r = megolm_cipher->ops->decrypt(
+        megolm_cipher,
         megolm_get_data(megolm), MEGOLM_RATCHET_LENGTH,
         message, raw_message_length,
         decoded_results.ciphertext, decoded_results.ciphertext_length,
