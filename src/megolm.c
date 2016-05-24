@@ -108,8 +108,12 @@ void megolm_advance_to(Megolm *megolm, uint32_t advance_to) {
         uint32_t mask = (~(uint32_t)0) << shift;
         int k;
 
-        /* how many times to we need to rehash this part? */
-        int steps = (advance_to >> shift) - (megolm->counter >> shift);
+        /* how many times do we need to rehash this part?
+         *
+         * '& 0xff' ensures we handle integer wraparound correctly
+         */
+        unsigned int steps =
+            ((advance_to >> shift) - (megolm->counter >> shift)) & 0xff;
 
         if (steps == 0) {
             continue;
