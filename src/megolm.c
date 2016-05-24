@@ -38,8 +38,7 @@ static uint8_t HASH_KEY_SEEDS[MEGOLM_RATCHET_PARTS][HASH_KEY_SEED_LENGTH] = {
 
 static void rehash_part(
     uint8_t data[MEGOLM_RATCHET_PARTS][MEGOLM_RATCHET_PART_LENGTH],
-    int rehash_from_part, int rehash_to_part,
-    uint32_t old_counter, uint32_t new_counter
+    int rehash_from_part, int rehash_to_part
 ) {
     _olm_crypto_hmac_sha256(
         data[rehash_from_part],
@@ -96,7 +95,7 @@ void megolm_advance(Megolm *megolm) {
 
     /* now update R(h)...R(3) based on R(h) */
     for (i = MEGOLM_RATCHET_PARTS-1; i >= h; i--) {
-        rehash_part(megolm->data, h, i, megolm->counter-1, megolm->counter);
+        rehash_part(megolm->data, h, i);
     }
 }
 
@@ -122,7 +121,7 @@ void megolm_advance_to(Megolm *megolm, uint32_t advance_to) {
          * to R(j+1)...R(3).
          */
         while (steps > 1) {
-            rehash_part(megolm->data, j, j, megolm->counter, next_counter);
+            rehash_part(megolm->data, j, j);
             megolm->counter = next_counter;
             steps --;
             next_counter = megolm->counter + increment;
@@ -150,7 +149,7 @@ void megolm_advance_to(Megolm *megolm, uint32_t advance_to) {
         }
 
         while (k >= j) {
-            rehash_part(megolm->data, j, k, megolm->counter, next_counter);
+            rehash_part(megolm->data, j, k);
             k--;
         }
         megolm->counter = next_counter;
