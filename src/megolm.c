@@ -106,6 +106,7 @@ void megolm_advance_to(Megolm *megolm, uint32_t advance_to) {
     for (j = 0; j < (int)MEGOLM_RATCHET_PARTS; j++) {
         int shift = (MEGOLM_RATCHET_PARTS-j-1) * 8;
         uint32_t mask = (~(uint32_t)0) << shift;
+        int k;
 
         /* how many times to we need to rehash this part? */
         int steps = (advance_to >> shift) - (megolm->counter >> shift);
@@ -122,30 +123,14 @@ void megolm_advance_to(Megolm *megolm, uint32_t advance_to) {
             steps --;
         }
 
-        /* on the last step (except for j=3), we need to bump at least R(j+1);
-         * depending on the target count, we may also need to bump R(j+2) and
-         * R(j+3).
+        /* on the last step we also need to bump R(j+1)...R(3).
+         *
+         * (Theoretically, we could skip bumping R(j+2) if we're going to bump
+         * R(j+1) again, but the code to figure that out is a bit baroque and
+         * doesn't save us much).
          */
-        int k;
-        switch(j) {
-            case 0:
-                if (!(advance_to & 0xFFFF00)) { k = 3; }
-                else if (!(advance_to & 0xFF00)) { k = 2; }
-                else { k = 1; }
-                break;
-            case 1:
-                if (!(advance_to & 0xFF00)) { k = 3; }
-                else { k = 2; }
-                break;
-            case 2:
-            case 3:
-                k = 3;
-                break;
-        }
-
-        while (k >= j) {
+        for (k = 3; k >= j; k--) {
             rehash_part(megolm->data, j, k);
-            k--;
         }
         megolm->counter = advance_to & mask;
     }
