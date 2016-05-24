@@ -130,25 +130,12 @@ size_t aes_sha_256_cipher_decrypt(
     return plaintext_length;
 }
 
+} // namespace
 
-const _olm_cipher_ops aes_sha_256_cipher_ops = {
+const struct _olm_cipher_ops _olm_cipher_aes_sha_256_ops = {
   aes_sha_256_cipher_mac_length,
   aes_sha_256_cipher_encrypt_ciphertext_length,
   aes_sha_256_cipher_encrypt,
   aes_sha_256_cipher_decrypt_max_plaintext_length,
   aes_sha_256_cipher_decrypt,
 };
-
-} // namespace
-
-
-_olm_cipher *_olm_cipher_aes_sha_256_init(
-    struct _olm_cipher_aes_sha_256 *cipher,
-    uint8_t const * kdf_info,
-    size_t kdf_info_length
-) {
-    cipher->base_cipher.ops = &aes_sha_256_cipher_ops;
-    cipher->kdf_info = kdf_info;
-    cipher->kdf_info_length = kdf_info_length;
-    return &(cipher->base_cipher);
-}

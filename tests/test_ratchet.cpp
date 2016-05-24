@@ -28,10 +28,8 @@ olm::KdfInfo kdf_info = {
     ratchet_info, sizeof(ratchet_info) - 1
 };
 
-_olm_cipher_aes_sha_256 cipher0;
-_olm_cipher *cipher = _olm_cipher_aes_sha_256_init(
-    &cipher0, message_info, sizeof(message_info) - 1
-);
+_olm_cipher_aes_sha_256 cipher0 = OLM_CIPHER_INIT_AES_SHA_256(message_info);
+_olm_cipher *cipher = OLM_CIPHER_BASE(&cipher0);
 
 std::uint8_t random_bytes[] = "0123456789ABDEF0123456789ABCDEF";
 olm::Curve25519KeyPair alice_key;

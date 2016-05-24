@@ -35,22 +35,13 @@ static const olm::KdfInfo OLM_KDF_INFO = {
     RATCHET_KDF_INFO, sizeof(RATCHET_KDF_INFO) - 1
 };
 
-const _olm_cipher *get_cipher() {
-    static _olm_cipher *cipher;
-    static _olm_cipher_aes_sha_256 OLM_CIPHER;
-    if (!cipher) {
-        cipher = _olm_cipher_aes_sha_256_init(
-            &OLM_CIPHER,
-            CIPHER_KDF_INFO, sizeof(CIPHER_KDF_INFO) - 1
-        );
-    }
-    return cipher;
-}
+static const struct _olm_cipher_aes_sha_256 OLM_CIPHER =
+    OLM_CIPHER_INIT_AES_SHA_256(CIPHER_KDF_INFO);
 
 } // namespace
 
 olm::Session::Session(
-) : ratchet(OLM_KDF_INFO, get_cipher()),
+) : ratchet(OLM_KDF_INFO, OLM_CIPHER_BASE(&OLM_CIPHER)),
     last_error(OlmErrorCode::OLM_SUCCESS),
     received_message(false) {
 

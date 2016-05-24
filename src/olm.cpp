@@ -57,24 +57,13 @@ static std::uint8_t const * from_c(void const * bytes) {
     return reinterpret_cast<std::uint8_t const *>(bytes);
 }
 
-static const std::uint8_t CIPHER_KDF_INFO[] = "Pickle";
-
-const _olm_cipher *get_pickle_cipher() {
-    static _olm_cipher *cipher = NULL;
-    static _olm_cipher_aes_sha_256 PICKLE_CIPHER;
-    if (!cipher) {
-        cipher = _olm_cipher_aes_sha_256_init(
-            &PICKLE_CIPHER,
-            CIPHER_KDF_INFO, sizeof(CIPHER_KDF_INFO) - 1
-        );
-    }
-    return cipher;
-}
+static const struct _olm_cipher_aes_sha_256 PICKLE_CIPHER =
+    OLM_CIPHER_INIT_AES_SHA_256("Pickle");
 
 std::size_t enc_output_length(
     size_t raw_length
 ) {
-    auto *cipher = get_pickle_cipher();
+    auto *cipher = OLM_CIPHER_BASE(&PICKLE_CIPHER);
     std::size_t length = cipher->ops->encrypt_ciphertext_length(cipher, raw_length);
     length += cipher->ops->mac_length(cipher);
     return olm::encode_base64_length(length);
@@ -85,7 +74,7 @@ std::uint8_t * enc_output_pos(
     std::uint8_t * output,
     size_t raw_length
 ) {
-    auto *cipher = get_pickle_cipher();
+    auto *cipher = OLM_CIPHER_BASE(&PICKLE_CIPHER);
     std::size_t length = cipher->ops->encrypt_ciphertext_length(cipher, raw_length);
     length += cipher->ops->mac_length(cipher);
     return output + olm::encode_base64_length(length) - length;
@@ -95,7 +84,7 @@ std::size_t enc_output(
     std::uint8_t const * key, std::size_t key_length,
     std::uint8_t * output, size_t raw_length
 ) {
-    auto *cipher = get_pickle_cipher();
+    auto *cipher = OLM_CIPHER_BASE(&PICKLE_CIPHER);
     std::size_t ciphertext_length = cipher->ops->encrypt_ciphertext_length(
         cipher, raw_length
     );
@@ -124,7 +113,7 @@ std::size_t enc_input(
         return std::size_t(-1);
     }
     olm::decode_base64(input, b64_length, input);
-    auto *cipher = get_pickle_cipher();
+    auto *cipher = OLM_CIPHER_BASE(&PICKLE_CIPHER);
     std::size_t raw_length = enc_length - cipher->ops->mac_length(cipher);
     std::size_t result = cipher->ops->decrypt(
         cipher,

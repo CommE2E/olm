@@ -102,28 +102,33 @@ struct _olm_cipher {
 struct _olm_cipher_aes_sha_256 {
     struct _olm_cipher base_cipher;
 
+    /** context string for the HKDF used for deriving the AES256 key, HMAC key,
+     * and AES IV, from the key material passed to encrypt/decrypt.
+     */
     uint8_t const * kdf_info;
+
+    /** length of context string kdf_info */
     size_t kdf_info_length;
 };
 
+extern const struct _olm_cipher_ops _olm_cipher_aes_sha_256_ops;
 
 /**
- * initialises a cipher type which uses AES256 for encryption and SHA256 for
- * authentication.
+ * get an initializer for an instance of struct _olm_cipher_aes_sha_256.
  *
- * cipher: structure to be initialised
+ * To use it, declare:
  *
- * kdf_info: context string for the HKDF used for deriving the AES256 key, HMAC
- * key, and AES IV, from the key material passed to encrypt/decrypt. Note that
- * this is NOT copied so must have a lifetime at least as long as the cipher
- * instance.
- *
- * kdf_info_length: length of context string kdf_info
+ *   struct _olm_cipher_aes_sha_256 MY_CIPHER =
+ *        OLM_CIPHER_INIT_AES_SHA_256("MY_KDF");
+ *   struct _olm_cipher *cipher = OLM_CIPHER_BASE(&MY_CIPHER);
  */
-struct _olm_cipher *_olm_cipher_aes_sha_256_init(
-    struct _olm_cipher_aes_sha_256 *cipher,
-    uint8_t const * kdf_info,
-    size_t kdf_info_length);
+#define OLM_CIPHER_INIT_AES_SHA_256(KDF_INFO) {     \
+    .base_cipher = { &_olm_cipher_aes_sha_256_ops },\
+    .kdf_info = (uint8_t *)(KDF_INFO),              \
+    .kdf_info_length = sizeof(KDF_INFO) - 1         \
+}
+#define OLM_CIPHER_BASE(CIPHER) \
+    (&((CIPHER)->base_cipher))
 
 
 #ifdef __cplusplus
