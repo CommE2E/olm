@@ -19,7 +19,7 @@
 
 olm::Account::Account(
 ) : next_one_time_key_id(0),
-    last_error(olm::ErrorCode::SUCCESS) {
+    last_error(OlmErrorCode::OLM_SUCCESS) {
 }
 
 
@@ -56,7 +56,7 @@ std::size_t olm::Account::new_account(
     uint8_t const * random, std::size_t random_length
 ) {
     if (random_length < new_account_random_length()) {
-        last_error = olm::ErrorCode::NOT_ENOUGH_RANDOM;
+        last_error = OlmErrorCode::OLM_NOT_ENOUGH_RANDOM;
         return std::size_t(-1);
     }
 
@@ -110,7 +110,7 @@ std::size_t olm::Account::get_identity_json(
     size_t expected_length = get_identity_json_length();
 
     if (identity_json_length < expected_length) {
-        last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
 
@@ -146,7 +146,7 @@ std::size_t olm::Account::sign(
     std::uint8_t * signature, std::size_t signature_length
 ) {
     if (signature_length < this->signature_length()) {
-        last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
     olm::ed25519_sign(
@@ -185,7 +185,7 @@ std::size_t olm::Account::get_one_time_keys_json(
 ) {
     std::uint8_t * pos = one_time_json;
     if (one_time_json_length < get_one_time_keys_json_length()) {
-        last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
     *(pos++) = '{';
@@ -246,7 +246,7 @@ std::size_t olm::Account::generate_one_time_keys(
     std::uint8_t const * random, std::size_t random_length
 ) {
     if (random_length < generate_one_time_keys_random_length(number_of_keys)) {
-        last_error = olm::ErrorCode::NOT_ENOUGH_RANDOM;
+        last_error = OlmErrorCode::OLM_NOT_ENOUGH_RANDOM;
         return std::size_t(-1);
     }
     for (unsigned i = 0; i < number_of_keys; ++i) {
@@ -361,7 +361,7 @@ std::uint8_t const * olm::unpickle(
     uint32_t pickle_version;
     pos = olm::unpickle(pos, end, pickle_version);
     if (pickle_version != ACCOUNT_PICKLE_VERSION) {
-        value.last_error = olm::ErrorCode::UNKNOWN_PICKLE_VERSION;
+        value.last_error = OlmErrorCode::OLM_UNKNOWN_PICKLE_VERSION;
         return end;
     }
     pos = olm::unpickle(pos, end, value.identity_keys);

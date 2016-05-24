@@ -13,7 +13,13 @@
  * limitations under the License.
  */
 #include "olm/memory.hh"
+#include "olm/memory.h"
 
+void _olm_unset(
+    void volatile * buffer, size_t buffer_length
+) {
+    olm::unset(buffer, buffer_length);
+}
 
 void olm::unset(
     void volatile * buffer, std::size_t buffer_length

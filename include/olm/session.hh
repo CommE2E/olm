@@ -31,7 +31,7 @@ struct Session {
     Session();
 
     Ratchet ratchet;
-    ErrorCode last_error;
+    OlmErrorCode last_error;
 
     bool received_message;
 

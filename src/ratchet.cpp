@@ -15,7 +15,7 @@
 #include "olm/ratchet.hh"
 #include "olm/message.hh"
 #include "olm/memory.hh"
-#include "olm/cipher.hh"
+#include "olm/cipher.h"
 #include "olm/pickle.hh"
 
 #include <cstring>
@@ -50,7 +50,7 @@ static void create_chain_key(
     olm::SharedKey secret;
     olm::curve25519_shared_secret(our_key, their_key, secret);
     std::uint8_t derived_secrets[2 * olm::KEY_LENGTH];
-    olm::hkdf_sha256(
+    _olm_crypto_hkdf_sha256(
         secret, sizeof(secret),
         root_key, sizeof(root_key),
         info.ratchet_info, info.ratchet_info_length,
@@ -70,7 +70,7 @@ static void advance_chain_key(
     olm::ChainKey const & chain_key,
     olm::ChainKey & new_chain_key
 ) {
-    olm::hmac_sha256(
+    _olm_crypto_hmac_sha256(
         chain_key.key, sizeof(chain_key.key),
         CHAIN_KEY_SEED, sizeof(CHAIN_KEY_SEED),
         new_chain_key.key
@@ -84,7 +84,7 @@ static void create_message_keys(
     olm::ChainKey const & chain_key,
     olm::KdfInfo const & info,
     olm::MessageKey & message_key) {
-    olm::hmac_sha256(
+    _olm_crypto_hmac_sha256(
         chain_key.key, sizeof(chain_key.key),
         MESSAGE_KEY_SEED, sizeof(MESSAGE_KEY_SEED),
         message_key.key
@@ -94,12 +94,13 @@ static void create_message_keys(
 
 
 static std::size_t verify_mac_and_decrypt(
-    olm::Cipher const & cipher,
+    _olm_cipher const *cipher,
     olm::MessageKey const & message_key,
     olm::MessageReader const & reader,
     std::uint8_t * plaintext, std::size_t max_plaintext_length
 ) {
-    return cipher.decrypt(
+    return cipher->ops->decrypt(
+        cipher,
         message_key.key, sizeof(message_key.key),
         reader.input, reader.input_length,
         reader.ciphertext, reader.ciphertext_length,
@@ -183,10 +184,10 @@ static std::size_t verify_mac_and_decrypt_for_new_chain(
 
 olm::Ratchet::Ratchet(
     olm::KdfInfo const & kdf_info,
-    Cipher const & ratchet_cipher
+    _olm_cipher const * ratchet_cipher
 ) : kdf_info(kdf_info),
     ratchet_cipher(ratchet_cipher),
-    last_error(olm::ErrorCode::SUCCESS) {
+    last_error(OlmErrorCode::OLM_SUCCESS) {
 }
 
 
@@ -195,7 +196,7 @@ void olm::Ratchet::initialise_as_bob(
     olm::Curve25519PublicKey const & their_ratchet_key
 ) {
     std::uint8_t derived_secrets[2 * olm::KEY_LENGTH];
-    olm::hkdf_sha256(
+    _olm_crypto_hkdf_sha256(
         shared_secret, shared_secret_length,
         nullptr, 0,
         kdf_info.root_info, kdf_info.root_info_length,
@@ -217,7 +218,7 @@ void olm::Ratchet::initialise_as_alice(
     olm::Curve25519KeyPair const & our_ratchet_key
 ) {
     std::uint8_t derived_secrets[2 * olm::KEY_LENGTH];
-    olm::hkdf_sha256(
+    _olm_crypto_hkdf_sha256(
         shared_secret, shared_secret_length,
         nullptr, 0,
         kdf_info.root_info, kdf_info.root_info_length,
@@ -405,11 +406,12 @@ std::size_t olm::Ratchet::encrypt_output_length(
     if (!sender_chain.empty()) {
         counter = sender_chain[0].chain_key.index;
     }
-    std::size_t padded = ratchet_cipher.encrypt_ciphertext_length(
+    std::size_t padded = ratchet_cipher->ops->encrypt_ciphertext_length(
+        ratchet_cipher,
         plaintext_length
     );
     return olm::encode_message_length(
-        counter, olm::KEY_LENGTH, padded, ratchet_cipher.mac_length()
+        counter, olm::KEY_LENGTH, padded, ratchet_cipher->ops->mac_length(ratchet_cipher)
     );
 }
 
@@ -427,11 +429,11 @@ std::size_t olm::Ratchet::encrypt(
     std::size_t output_length = encrypt_output_length(plaintext_length);
 
     if (random_length < encrypt_random_length()) {
-        last_error = olm::ErrorCode::NOT_ENOUGH_RANDOM;
+        last_error = OlmErrorCode::OLM_NOT_ENOUGH_RANDOM;
         return std::size_t(-1);
     }
     if (max_output_length < output_length) {
-        last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
 
@@ -452,7 +454,8 @@ std::size_t olm::Ratchet::encrypt(
     create_message_keys(chain_index, sender_chain[0].chain_key, kdf_info, keys);
     advance_chain_key(chain_index, sender_chain[0].chain_key, sender_chain[0].chain_key);
 
-    std::size_t ciphertext_length = ratchet_cipher.encrypt_ciphertext_length(
+    std::size_t ciphertext_length = ratchet_cipher->ops->encrypt_ciphertext_length(
+        ratchet_cipher,
         plaintext_length
     );
     std::uint32_t counter = keys.index;
@@ -467,7 +470,8 @@ std::size_t olm::Ratchet::encrypt(
 
     olm::store_array(writer.ratchet_key, ratchet_key.public_key);
 
-    ratchet_cipher.encrypt(
+    ratchet_cipher->ops->encrypt(
+        ratchet_cipher,
         keys.key, sizeof(keys.key),
         plaintext, plaintext_length,
         writer.ciphertext, ciphertext_length,
@@ -484,15 +488,17 @@ std::size_t olm::Ratchet::decrypt_max_plaintext_length(
 ) {
     olm::MessageReader reader;
     olm::decode_message(
-        reader, input, input_length, ratchet_cipher.mac_length()
+        reader, input, input_length,
+        ratchet_cipher->ops->mac_length(ratchet_cipher)
     );
 
     if (!reader.ciphertext) {
-        last_error = olm::ErrorCode::BAD_MESSAGE_FORMAT;
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }
 
-    return ratchet_cipher.decrypt_max_plaintext_length(reader.ciphertext_length);
+    return ratchet_cipher->ops->decrypt_max_plaintext_length(
+        ratchet_cipher, reader.ciphertext_length);
 }
 
 
@@ -502,30 +508,32 @@ std::size_t olm::Ratchet::decrypt(
 ) {
     olm::MessageReader reader;
     olm::decode_message(
-        reader, input, input_length, ratchet_cipher.mac_length()
+        reader, input, input_length,
+        ratchet_cipher->ops->mac_length(ratchet_cipher)
     );
 
     if (reader.version != PROTOCOL_VERSION) {
-        last_error = olm::ErrorCode::BAD_MESSAGE_VERSION;
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_VERSION;
         return std::size_t(-1);
     }
 
     if (!reader.has_counter || !reader.ratchet_key || !reader.ciphertext) {
-        last_error = olm::ErrorCode::BAD_MESSAGE_FORMAT;
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }
 
-    std::size_t max_length = ratchet_cipher.decrypt_max_plaintext_length(
+    std::size_t max_length = ratchet_cipher->ops->decrypt_max_plaintext_length(
+        ratchet_cipher,
         reader.ciphertext_length
     );
 
     if (max_plaintext_length < max_length) {
-        last_error = olm::ErrorCode::OUTPUT_BUFFER_TOO_SMALL;
+        last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
 
     if (reader.ratchet_key_length != olm::KEY_LENGTH) {
-        last_error = olm::ErrorCode::BAD_MESSAGE_FORMAT;
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }
 
@@ -588,7 +596,7 @@ std::size_t olm::Ratchet::decrypt(
     }
 
     if (result == std::size_t(-1)) {
-        last_error = olm::ErrorCode::BAD_MESSAGE_MAC;
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_MAC;
         return std::size_t(-1);
     }
 
