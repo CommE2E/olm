@@ -92,9 +92,6 @@ struct _olm_cipher_ops {
         uint8_t const * ciphertext, size_t ciphertext_length,
         uint8_t * plaintext, size_t max_plaintext_length
     );
-
-    /** destroy any private data associated with this cipher */
-    void (*destruct)(struct _olm_cipher *cipher);
 };
 
 struct _olm_cipher {

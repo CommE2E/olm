@@ -131,17 +131,12 @@ size_t aes_sha_256_cipher_decrypt(
 }
 
 
-void aes_sha_256_cipher_destruct(struct _olm_cipher *cipher) {
-}
-
-
 const _olm_cipher_ops aes_sha_256_cipher_ops = {
   aes_sha_256_cipher_mac_length,
   aes_sha_256_cipher_encrypt_ciphertext_length,
   aes_sha_256_cipher_encrypt,
   aes_sha_256_cipher_decrypt_max_plaintext_length,
   aes_sha_256_cipher_decrypt,
-  aes_sha_256_cipher_destruct
 };
 
 } // namespace
