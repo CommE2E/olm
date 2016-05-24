@@ -53,8 +53,10 @@ size_t _olm_encode_group_message_length(
  *                     olm_encode_group_message_length() bytes long.
  * ciphertext_ptr:     returns the address that the ciphertext
  *                     should be written to, followed by the MAC.
+ *
+ * Returns the size of the message, up to the MAC.
  */
-void _olm_encode_group_message(
+size_t _olm_encode_group_message(
     uint8_t version,
     const uint8_t *session_id,
     size_t session_id_length,

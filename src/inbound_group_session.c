@@ -163,18 +163,14 @@ size_t olm_unpickle_inbound_group_session(
     return pickled_length;
 }
 
-size_t olm_group_decrypt_max_plaintext_length(
+/**
+ * get the max plaintext length in an un-base64-ed message
+ */
+static size_t _decrypt_max_plaintext_length(
     OlmInboundGroupSession *session,
     uint8_t * message, size_t message_length
 ) {
-    size_t r;
     struct _OlmDecodeGroupMessageResults decoded_results;
-
-    r = _olm_decode_base64(message, message_length, message);
-    if (r == (size_t)-1) {
-        session->last_error = OLM_INVALID_BASE64;
-        return r;
-    }
 
     _olm_decode_group_message(
         message, message_length,
@@ -195,25 +191,38 @@ size_t olm_group_decrypt_max_plaintext_length(
         megolm_cipher, decoded_results.ciphertext_length);
 }
 
+size_t olm_group_decrypt_max_plaintext_length(
+    OlmInboundGroupSession *session,
+    uint8_t * message, size_t message_length
+) {
+    size_t raw_length;
 
-size_t olm_group_decrypt(
+    raw_length = _olm_decode_base64(message, message_length, message);
+    if (raw_length == (size_t)-1) {
+        session->last_error = OLM_INVALID_BASE64;
+        return (size_t)-1;
+    }
+
+    return _decrypt_max_plaintext_length(
+        session, message, raw_length
+    );
+}
+
+/**
+ * decrypt an un-base64-ed message
+ */
+static size_t _decrypt(
     OlmInboundGroupSession *session,
     uint8_t * message, size_t message_length,
     uint8_t * plaintext, size_t max_plaintext_length
 ) {
     struct _OlmDecodeGroupMessageResults decoded_results;
-    size_t max_length, raw_message_length, r;
+    size_t max_length, r;
     Megolm *megolm;
     Megolm tmp_megolm;
 
-    raw_message_length = _olm_decode_base64(message, message_length, message);
-    if (raw_message_length == (size_t)-1) {
-        session->last_error = OLM_INVALID_BASE64;
-        return (size_t)-1;
-    }
-
     _olm_decode_group_message(
-        message, raw_message_length,
+        message, message_length,
         megolm_cipher->ops->mac_length(megolm_cipher),
         &decoded_results);
 
@@ -259,7 +268,7 @@ size_t olm_group_decrypt(
     r = megolm_cipher->ops->decrypt(
         megolm_cipher,
         megolm_get_data(megolm), MEGOLM_RATCHET_LENGTH,
-        message, raw_message_length,
+        message, message_length,
         decoded_results.ciphertext, decoded_results.ciphertext_length,
         plaintext, max_plaintext_length
     );
@@ -271,4 +280,23 @@ size_t olm_group_decrypt(
     }
 
     return r;
+}
+
+size_t olm_group_decrypt(
+    OlmInboundGroupSession *session,
+    uint8_t * message, size_t message_length,
+    uint8_t * plaintext, size_t max_plaintext_length
+) {
+    size_t raw_message_length;
+
+    raw_message_length = _olm_decode_base64(message, message_length, message);
+    if (raw_message_length == (size_t)-1) {
+        session->last_error = OLM_INVALID_BASE64;
+        return (size_t)-1;
+    }
+
+    return _decrypt(
+        session, message, raw_message_length,
+        plaintext, max_plaintext_length
+    );
 }

@@ -347,7 +347,7 @@ size_t _olm_encode_group_message_length(
 }
 
 
-void _olm_encode_group_message(
+size_t _olm_encode_group_message(
     uint8_t version,
     const uint8_t *session_id,
     size_t session_id_length,
@@ -364,6 +364,7 @@ void _olm_encode_group_message(
     std::memcpy(session_id_pos, session_id, session_id_length);
     pos = encode(pos, GROUP_MESSAGE_INDEX_TAG, message_index);
     pos = encode(pos, GROUP_CIPHERTEXT_TAG, *ciphertext_ptr, ciphertext_length);
+    return pos-output;
 }
 
 void _olm_decode_group_message(

@@ -199,51 +199,41 @@ size_t olm_group_encrypt_message_length(
     return _olm_encode_base64_length(message_length);
 }
 
-
-size_t olm_group_encrypt(
-    OlmOutboundGroupSession *session,
-    uint8_t const * plaintext, size_t plaintext_length,
-    uint8_t * message, size_t max_message_length
+/** write an un-base64-ed message to the buffer */
+static size_t _encrypt(
+    OlmOutboundGroupSession *session, uint8_t const * plaintext, size_t plaintext_length,
+    uint8_t * buffer
 ) {
-    size_t ciphertext_length;
-    size_t rawmsglen;
+    size_t ciphertext_length, mac_length, message_length;
     size_t result;
-    uint8_t *ciphertext_ptr, *message_pos;
-
-    rawmsglen = raw_message_length(session, plaintext_length);
-
-    if (max_message_length < _olm_encode_base64_length(rawmsglen)) {
-        session->last_error = OLM_OUTPUT_BUFFER_TOO_SMALL;
-        return (size_t)-1;
-    }
+    uint8_t *ciphertext_ptr;
 
     ciphertext_length = megolm_cipher->ops->encrypt_ciphertext_length(
         megolm_cipher,
         plaintext_length
     );
 
-    /* we construct the message at the end of the buffer, so that
-     * we have room to base64-encode it once we're done.
-     */
-    message_pos = message + _olm_encode_base64_length(rawmsglen) - rawmsglen;
+    mac_length = megolm_cipher->ops->mac_length(megolm_cipher);
 
     /* first we build the message structure, then we encrypt
      * the plaintext into it.
      */
-    _olm_encode_group_message(
+    message_length = _olm_encode_group_message(
         OLM_PROTOCOL_VERSION,
         session->session_id, GROUP_SESSION_ID_LENGTH,
         session->ratchet.counter,
         ciphertext_length,
-        message_pos,
+        buffer,
         &ciphertext_ptr);
+
+    message_length += mac_length;
 
     result = megolm_cipher->ops->encrypt(
         megolm_cipher,
         megolm_get_data(&(session->ratchet)), MEGOLM_RATCHET_LENGTH,
         plaintext, plaintext_length,
         ciphertext_ptr, ciphertext_length,
-        message_pos, rawmsglen
+        buffer, message_length
     );
 
     if (result == (size_t)-1) {
@@ -252,6 +242,37 @@ size_t olm_group_encrypt(
 
     megolm_advance(&(session->ratchet));
 
+    return result;
+}
+
+size_t olm_group_encrypt(
+    OlmOutboundGroupSession *session,
+    uint8_t const * plaintext, size_t plaintext_length,
+    uint8_t * message, size_t max_message_length
+) {
+    size_t rawmsglen;
+    size_t result;
+    uint8_t *message_pos;
+
+    rawmsglen = raw_message_length(session, plaintext_length);
+
+    if (max_message_length < _olm_encode_base64_length(rawmsglen)) {
+        session->last_error = OLM_OUTPUT_BUFFER_TOO_SMALL;
+        return (size_t)-1;
+    }
+
+    /* we construct the message at the end of the buffer, so that
+     * we have room to base64-encode it once we're done.
+     */
+    message_pos = message + _olm_encode_base64_length(rawmsglen) - rawmsglen;
+
+    /* write the message, and encrypt it, at message_pos */
+    result = _encrypt(session, plaintext, plaintext_length, message_pos);
+    if (result == (size_t)-1) {
+        return result;
+    }
+
+    /* bas64-encode it */
     return _olm_encode_base64(
         message_pos, rawmsglen, message
     );
