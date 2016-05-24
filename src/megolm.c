@@ -105,26 +105,21 @@ void megolm_advance_to(Megolm *megolm, uint32_t advance_to) {
     /* starting with R0, see if we need to update each part of the hash */
     for (j = 0; j < (int)MEGOLM_RATCHET_PARTS; j++) {
         int shift = (MEGOLM_RATCHET_PARTS-j-1) * 8;
-        uint32_t increment = 1 << shift;
-        uint32_t next_counter;
+        uint32_t mask = (~(uint32_t)0) << shift;
 
         /* how many times to we need to rehash this part? */
         int steps = (advance_to >> shift) - (megolm->counter >> shift);
+
         if (steps == 0) {
             continue;
         }
-
-        megolm->counter = megolm->counter & ~(increment - 1);
-        next_counter = megolm->counter + increment;
 
         /* for all but the last step, we can just bump R(j) without regard
          * to R(j+1)...R(3).
          */
         while (steps > 1) {
             rehash_part(megolm->data, j, j);
-            megolm->counter = next_counter;
             steps --;
-            next_counter = megolm->counter + increment;
         }
 
         /* on the last step (except for j=3), we need to bump at least R(j+1);
@@ -152,6 +147,6 @@ void megolm_advance_to(Megolm *megolm, uint32_t advance_to) {
             rehash_part(megolm->data, j, k);
             k--;
         }
-        megolm->counter = next_counter;
+        megolm->counter = advance_to & mask;
     }
 }
