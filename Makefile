@@ -24,7 +24,8 @@ JS_PRE := $(wildcard javascript/*pre.js)
 JS_POST := $(wildcard javascript/*post.js)
 
 CPPFLAGS += -Iinclude -Ilib
-CFLAGS += -Wall -Werror -std=c89 -fPIC
+# we rely on <stdint.h>, which was introduced in C99
+CFLAGS += -Wall -Werror -std=c99 -fPIC
 CXXFLAGS += -Wall -Werror -std=c++11 -fPIC
 LDFLAGS += -Wall -Werror
 
