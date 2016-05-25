@@ -23,3 +23,20 @@ Example:
     bob_session.create_inbound(bob, bob_message);
     var plaintext = bob_session.decrypt(message_1.type, bob_message);
     bob.remove_one_time_keys(bob_session);
+
+
+Group chat:
+
+    var outbound_session = new Olm.OutboundGroupSession();
+    outbound_session.create();
+
+    // exchange these over a secure channel
+    var session_id = group_session.session_id();
+    var session_key = group_session.session_key();
+    var message_index = group_session.message_index();
+
+    var inbound_session = new Olm.InboundGroupSession();
+    inbound_session.create(message_index, session_key);
+
+    var ciphertext = outbound_session.encrypt("Hello");
+    var plaintext = inbound_session.decrypt(ciphertext);

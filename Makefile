@@ -15,7 +15,7 @@ JS_TARGET := javascript/olm.js
 
 JS_EXPORTED_FUNCTIONS := javascript/exported_functions.json
 
-PUBLIC_HEADERS := include/olm/olm.h
+PUBLIC_HEADERS := include/olm/olm.h include/olm/outbound_group_session.h include/olm/inbound_group_session.h
 
 SOURCES := $(wildcard src/*.cpp) $(wildcard src/*.c) \
     lib/crypto-algorithms/sha256.c \
@@ -34,7 +34,9 @@ FUZZER_DEBUG_BINARIES := $(patsubst $(BUILD_DIR)/fuzzers/fuzz_%,$(BUILD_DIR)/fuz
 TEST_BINARIES := $(patsubst tests/%,$(BUILD_DIR)/tests/%,$(basename $(TEST_SOURCES)))
 JS_OBJECTS := $(addprefix $(BUILD_DIR)/javascript/,$(OBJECTS))
 JS_PRE := $(wildcard javascript/*pre.js)
-JS_POST := $(wildcard javascript/*post.js)
+JS_POST := javascript/olm_outbound_group_session.js \
+    javascript/olm_inbound_group_session.js \
+    javascript/olm_post.js
 
 CPPFLAGS += -Iinclude -Ilib
 # we rely on <stdint.h>, which was introduced in C99
@@ -106,7 +108,8 @@ js: $(JS_TARGET)
 
 $(JS_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS)
 	$(EMCC_LINK) \
-               --pre-js $(JS_PRE) --post-js $(JS_POST) \
+               $(foreach f,$(JS_PRE),--pre-js $(f)) \
+               $(foreach f,$(JS_POST),--post-js $(f)) \
                -s "EXPORTED_FUNCTIONS=@$(JS_EXPORTED_FUNCTIONS)" \
                $(JS_OBJECTS) -o $@
 
@@ -122,7 +125,7 @@ fuzzers: $(FUZZER_BINARIES) $(FUZZER_DEBUG_BINARIES)
 .PHONY: fuzzers
 
 $(JS_EXPORTED_FUNCTIONS): $(PUBLIC_HEADERS)
-	perl -MJSON -ne '/(olm_[^( ]*)\(/ && push @f, "_$$1"; END { print encode_json \@f }' $^ > $@.tmp
+	perl -MJSON -ne '$$f{"_$$1"}=1 if /(olm_[^( ]*)\(/; END { @f=sort keys %f; print encode_json \@f }' $^ > $@.tmp
 	mv $@.tmp $@
 
 all: test js lib debug
