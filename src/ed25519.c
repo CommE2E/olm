@@ -12,9 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "crypto-algorithms/sha256.c"
-#include "crypto-algorithms/aes.c"
-#include "curve25519-donna/curve25519-donna.c"
 #define select ed25519_select
 #include "ed25519/src/fe.c"
 #include "ed25519/src/sc.c"
