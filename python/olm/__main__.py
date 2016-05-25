@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
+
 import argparse
 import json
 import os
@@ -7,6 +9,7 @@ import sys
 import yaml
 
 from . import *
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -50,6 +53,39 @@ if __name__ == '__main__':
             pass
 
     keys.set_defaults(func=do_keys)
+
+    def do_id_key(args):
+        account = Account()
+        with open(args.account_file, "rb") as f:
+            account.unpickle(args.key, f.read())
+        print(account.identity_keys()['curve25519'])
+
+    id_key = commands.add_parser("identity_key", help="Get the identity key for an account")
+    id_key.add_argument("account_file", help="Local account file")
+    id_key.set_defaults(func=do_id_key)
+
+    def do_one_time_key(args):
+        account = Account()
+        with open(args.account_file, "rb") as f:
+            account.unpickle(args.key, f.read())
+        keys = account.one_time_keys()['curve25519'].values()
+        key_num = args.key_num
+        if key_num < 1 or key_num > len(keys):
+            print(
+                "Invalid key number %i: %i keys available" %
+                   (key_num, len(keys)),
+                file=sys.stderr
+            )
+            sys.exit(1)
+        print (keys[key_num-1])
+
+    one_time_key = commands.add_parser("one_time_key",
+                                       help="Get a one-time key for the account")
+    one_time_key.add_argument("account_file", help="Local account file")
+    one_time_key.add_argument("--key-num", "-n", type=int, default=1,
+                              help="Index of key to retrieve (default: 1)")
+    one_time_key.set_defaults(func=do_one_time_key)
+
 
     sign = commands.add_parser("sign", help="Sign a message")
     sign.add_argument("account_file", help="Local account file")

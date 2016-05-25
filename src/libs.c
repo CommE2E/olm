@@ -1,4 +1,4 @@
-/* Copyright 2015 OpenMarket Ltd
+/* Copyright 2015-6 OpenMarket Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-extern "C" {
 #include "crypto-algorithms/sha256.c"
 #include "crypto-algorithms/aes.c"
 #include "curve25519-donna/curve25519-donna.c"
@@ -24,4 +23,3 @@ extern "C" {
 #include "ed25519/src/verify.c"
 #include "ed25519/src/sign.c"
 #include "ed25519_additions.c"
-}
