@@ -116,6 +116,11 @@ void megolm_advance_to(Megolm *megolm, uint32_t advance_to) {
             ((advance_to >> shift) - (megolm->counter >> shift)) & 0xff;
 
         if (steps == 0) {
+            /* deal with the edge case where megolm->counter is slightly larger
+             * than advance_to. This should only happen for R(0), and implies
+             * that advance_to has wrapped around and we need to advance R(0)
+             * 256 times.
+             */
             if (advance_to < megolm->counter) {
                 steps = 0x100;
             } else {
