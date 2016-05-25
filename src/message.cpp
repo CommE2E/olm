@@ -1,4 +1,4 @@
-/* Copyright 2015 OpenMarket Ltd
+/* Copyright 2015-2016 OpenMarket Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -324,4 +324,87 @@ void olm::decode_one_time_key_message(
         }
         unknown = pos;
     }
+}
+
+
+
+static const std::uint8_t GROUP_SESSION_ID_TAG = 012;
+static const std::uint8_t GROUP_MESSAGE_INDEX_TAG = 020;
+static const std::uint8_t GROUP_CIPHERTEXT_TAG = 032;
+
+size_t _olm_encode_group_message_length(
+    size_t group_session_id_length,
+    uint32_t message_index,
+    size_t ciphertext_length,
+    size_t mac_length
+) {
+    size_t length = VERSION_LENGTH;
+    length += 1 + varstring_length(group_session_id_length);
+    length += 1 + varint_length(message_index);
+    length += 1 + varstring_length(ciphertext_length);
+    length += mac_length;
+    return length;
+}
+
+
+size_t _olm_encode_group_message(
+    uint8_t version,
+    const uint8_t *session_id,
+    size_t session_id_length,
+    uint32_t message_index,
+    size_t ciphertext_length,
+    uint8_t *output,
+    uint8_t **ciphertext_ptr
+) {
+    std::uint8_t * pos = output;
+    std::uint8_t * session_id_pos;
+
+    *(pos++) = version;
+    pos = encode(pos, GROUP_SESSION_ID_TAG, session_id_pos, session_id_length);
+    std::memcpy(session_id_pos, session_id, session_id_length);
+    pos = encode(pos, GROUP_MESSAGE_INDEX_TAG, message_index);
+    pos = encode(pos, GROUP_CIPHERTEXT_TAG, *ciphertext_ptr, ciphertext_length);
+    return pos-output;
+}
+
+void _olm_decode_group_message(
+    const uint8_t *input, size_t input_length,
+    size_t mac_length,
+    struct _OlmDecodeGroupMessageResults *results
+) {
+    std::uint8_t const * pos = input;
+    std::uint8_t const * end = input + input_length - mac_length;
+    std::uint8_t const * unknown = nullptr;
+
+    results->session_id = nullptr;
+    results->session_id_length = 0;
+    bool has_message_index = false;
+    results->message_index = 0;
+    results->ciphertext = nullptr;
+    results->ciphertext_length = 0;
+
+    if (pos == end) return;
+    if (input_length < mac_length) return;
+    results->version = *(pos++);
+
+    while (pos != end) {
+        pos = decode(
+            pos, end, GROUP_SESSION_ID_TAG,
+            results->session_id, results->session_id_length
+        );
+        pos = decode(
+            pos, end, GROUP_MESSAGE_INDEX_TAG,
+            results->message_index, has_message_index
+        );
+        pos = decode(
+            pos, end, GROUP_CIPHERTEXT_TAG,
+            results->ciphertext, results->ciphertext_length
+        );
+        if (unknown == pos) {
+            pos = skip_unknown(pos, end);
+        }
+        unknown = pos;
+    }
+
+    results->has_message_index = (int)has_message_index;
 }

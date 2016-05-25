@@ -16,6 +16,7 @@
 #include "olm/session.hh"
 #include "olm/account.hh"
 #include "olm/cipher.h"
+#include "olm/pickle_encoding.h"
 #include "olm/utility.hh"
 #include "olm/base64.hh"
 #include "olm/memory.hh"
@@ -57,78 +58,6 @@ static std::uint8_t const * from_c(void const * bytes) {
     return reinterpret_cast<std::uint8_t const *>(bytes);
 }
 
-static const struct _olm_cipher_aes_sha_256 PICKLE_CIPHER =
-    OLM_CIPHER_INIT_AES_SHA_256("Pickle");
-
-std::size_t enc_output_length(
-    size_t raw_length
-) {
-    auto *cipher = OLM_CIPHER_BASE(&PICKLE_CIPHER);
-    std::size_t length = cipher->ops->encrypt_ciphertext_length(cipher, raw_length);
-    length += cipher->ops->mac_length(cipher);
-    return olm::encode_base64_length(length);
-}
-
-
-std::uint8_t * enc_output_pos(
-    std::uint8_t * output,
-    size_t raw_length
-) {
-    auto *cipher = OLM_CIPHER_BASE(&PICKLE_CIPHER);
-    std::size_t length = cipher->ops->encrypt_ciphertext_length(cipher, raw_length);
-    length += cipher->ops->mac_length(cipher);
-    return output + olm::encode_base64_length(length) - length;
-}
-
-std::size_t enc_output(
-    std::uint8_t const * key, std::size_t key_length,
-    std::uint8_t * output, size_t raw_length
-) {
-    auto *cipher = OLM_CIPHER_BASE(&PICKLE_CIPHER);
-    std::size_t ciphertext_length = cipher->ops->encrypt_ciphertext_length(
-        cipher, raw_length
-    );
-    std::size_t length = ciphertext_length + cipher->ops->mac_length(cipher);
-    std::size_t base64_length = olm::encode_base64_length(length);
-    std::uint8_t * raw_output = output + base64_length - length;
-    cipher->ops->encrypt(
-        cipher,
-        key, key_length,
-        raw_output, raw_length,
-        raw_output, ciphertext_length,
-        raw_output, length
-    );
-    olm::encode_base64(raw_output, length, output);
-    return raw_length;
-}
-
-std::size_t enc_input(
-    std::uint8_t const * key, std::size_t key_length,
-    std::uint8_t * input, size_t b64_length,
-    OlmErrorCode & last_error
-) {
-    std::size_t enc_length = olm::decode_base64_length(b64_length);
-    if (enc_length == std::size_t(-1)) {
-        last_error = OlmErrorCode::OLM_INVALID_BASE64;
-        return std::size_t(-1);
-    }
-    olm::decode_base64(input, b64_length, input);
-    auto *cipher = OLM_CIPHER_BASE(&PICKLE_CIPHER);
-    std::size_t raw_length = enc_length - cipher->ops->mac_length(cipher);
-    std::size_t result = cipher->ops->decrypt(
-        cipher,
-        key, key_length,
-        input, enc_length,
-        input, raw_length,
-        input, raw_length
-    );
-    if (result == std::size_t(-1)) {
-        last_error = OlmErrorCode::OLM_BAD_ACCOUNT_KEY;
-    }
-    return result;
-}
-
-
 std::size_t b64_output_length(
     size_t raw_length
 ) {
@@ -164,20 +93,6 @@ std::size_t b64_input(
     return raw_length;
 }
 
-static const char * ERRORS[11] {
-    "SUCCESS",
-    "NOT_ENOUGH_RANDOM",
-    "OUTPUT_BUFFER_TOO_SMALL",
-    "BAD_MESSAGE_VERSION",
-    "BAD_MESSAGE_FORMAT",
-    "BAD_MESSAGE_MAC",
-    "BAD_MESSAGE_KEY_ID",
-    "INVALID_BASE64",
-    "BAD_ACCOUNT_KEY",
-    "UNKNOWN_PICKLE_VERSION",
-    "CORRUPTED_PICKLE",
-};
-
 } // namespace
 
 
@@ -192,35 +107,23 @@ size_t olm_error() {
 const char * olm_account_last_error(
     OlmAccount * account
 ) {
-    unsigned error = unsigned(from_c(account)->last_error);
-    if (error < (sizeof(ERRORS)/sizeof(ERRORS[0]))) {
-        return ERRORS[error];
-    } else {
-        return "UNKNOWN_ERROR";
-    }
+    auto error = from_c(account)->last_error;
+    return _olm_error_to_string(error);
 }
 
 
 const char * olm_session_last_error(
     OlmSession * session
 ) {
-    unsigned error = unsigned(from_c(session)->last_error);
-    if (error < (sizeof(ERRORS)/sizeof(ERRORS[0]))) {
-        return ERRORS[error];
-    } else {
-        return "UNKNOWN_ERROR";
-    }
+    auto error = from_c(session)->last_error;
+    return _olm_error_to_string(error);
 }
 
 const char * olm_utility_last_error(
     OlmUtility * utility
 ) {
-    unsigned error = unsigned(from_c(utility)->last_error);
-    if (error < (sizeof(ERRORS)/sizeof(ERRORS[0]))) {
-        return ERRORS[error];
-    } else {
-        return "UNKNOWN_ERROR";
-    }
+    auto error = from_c(utility)->last_error;
+    return _olm_error_to_string(error);
 }
 
 size_t olm_account_size() {
@@ -296,14 +199,14 @@ size_t olm_clear_utility(
 size_t olm_pickle_account_length(
     OlmAccount * account
 ) {
-    return enc_output_length(pickle_length(*from_c(account)));
+    return _olm_enc_output_length(pickle_length(*from_c(account)));
 }
 
 
 size_t olm_pickle_session_length(
     OlmSession * session
 ) {
-    return enc_output_length(pickle_length(*from_c(session)));
+    return _olm_enc_output_length(pickle_length(*from_c(session)));
 }
 
 
@@ -314,12 +217,12 @@ size_t olm_pickle_account(
 ) {
     olm::Account & object = *from_c(account);
     std::size_t raw_length = pickle_length(object);
-    if (pickled_length < enc_output_length(raw_length)) {
+    if (pickled_length < _olm_enc_output_length(raw_length)) {
         object.last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return size_t(-1);
     }
-    pickle(enc_output_pos(from_c(pickled), raw_length), object);
-    return enc_output(from_c(key), key_length, from_c(pickled), raw_length);
+    pickle(_olm_enc_output_pos(from_c(pickled), raw_length), object);
+    return _olm_enc_output(from_c(key), key_length, from_c(pickled), raw_length);
 }
 
 
@@ -330,12 +233,12 @@ size_t olm_pickle_session(
 ) {
     olm::Session & object = *from_c(session);
     std::size_t raw_length = pickle_length(object);
-    if (pickled_length < enc_output_length(raw_length)) {
+    if (pickled_length < _olm_enc_output_length(raw_length)) {
         object.last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return size_t(-1);
     }
-    pickle(enc_output_pos(from_c(pickled), raw_length), object);
-    return enc_output(from_c(key), key_length, from_c(pickled), raw_length);
+    pickle(_olm_enc_output_pos(from_c(pickled), raw_length), object);
+    return _olm_enc_output(from_c(key), key_length, from_c(pickled), raw_length);
 }
 
 
@@ -346,8 +249,8 @@ size_t olm_unpickle_account(
 ) {
     olm::Account & object = *from_c(account);
     std::uint8_t * const pos = from_c(pickled);
-    std::size_t raw_length = enc_input(
-        from_c(key), key_length, pos, pickled_length, object.last_error
+    std::size_t raw_length = _olm_enc_input(
+        from_c(key), key_length, pos, pickled_length, &object.last_error
     );
     if (raw_length == std::size_t(-1)) {
         return std::size_t(-1);
@@ -374,8 +277,8 @@ size_t olm_unpickle_session(
 ) {
     olm::Session & object = *from_c(session);
     std::uint8_t * const pos = from_c(pickled);
-    std::size_t raw_length = enc_input(
-        from_c(key), key_length, pos, pickled_length, object.last_error
+    std::size_t raw_length = _olm_enc_input(
+        from_c(key), key_length, pos, pickled_length, &object.last_error
     );
     if (raw_length == std::size_t(-1)) {
         return std::size_t(-1);

@@ -19,6 +19,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "olm/inbound_group_session.h"
+#include "olm/outbound_group_session.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
