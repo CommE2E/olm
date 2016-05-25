@@ -116,7 +116,11 @@ void megolm_advance_to(Megolm *megolm, uint32_t advance_to) {
             ((advance_to >> shift) - (megolm->counter >> shift)) & 0xff;
 
         if (steps == 0) {
-            continue;
+            if (advance_to < megolm->counter) {
+                steps = 0x100;
+            } else {
+                continue;
+            }
         }
 
         /* for all but the last step, we can just bump R(j) without regard
