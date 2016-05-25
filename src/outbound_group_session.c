@@ -187,7 +187,7 @@ static size_t raw_message_length(
     mac_length = megolm_cipher->ops->mac_length(megolm_cipher);
 
     return _olm_encode_group_message_length(
-        GROUP_SESSION_ID_LENGTH, session->ratchet.counter,
+        session->ratchet.counter,
         ciphertext_length, mac_length);
 }
 
@@ -220,7 +220,6 @@ static size_t _encrypt(
      */
     message_length = _olm_encode_group_message(
         OLM_PROTOCOL_VERSION,
-        session->session_id, GROUP_SESSION_ID_LENGTH,
         session->ratchet.counter,
         ciphertext_length,
         buffer,
