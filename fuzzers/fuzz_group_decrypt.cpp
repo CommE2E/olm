@@ -4,9 +4,8 @@
 
 int main(int argc, const char *argv[]) {
     size_t ignored;
-    if (argc <= 3) {
-        const char * message = "Usage: decrypt: <session_key> <session_file>"
-            " <message_type>\n";
+    if (argc <= 2) {
+        const char * message = "Usage: decrypt <pickle_key> <group_session>\n";
         ignored = write(STDERR_FILENO, message, strlen(message));
         exit(3);
     }
@@ -18,8 +17,6 @@ int main(int argc, const char *argv[]) {
     int session_fd = check_errno(
         "Error opening session file", open(argv[2], O_RDONLY)
     );
-
-    int message_type = atoi(argv[3]);
 
     uint8_t *session_buffer;
     ssize_t session_length = check_errno(
@@ -35,25 +32,34 @@ int main(int argc, const char *argv[]) {
     uint8_t * tmp_buffer = (uint8_t *) malloc(message_length);
     memcpy(tmp_buffer, message_buffer, message_length);
 
-    uint8_t session_memory[olm_session_size()];
-    OlmSession * session = olm_session(session_memory);
-    check_session(session, "Error unpickling session", olm_unpickle_session(
-        session, key, key_length, session_buffer, session_length
-    ));
+    uint8_t session_memory[olm_inbound_group_session_size()];
+    OlmInboundGroupSession * session = olm_inbound_group_session(session_memory);
+    check_error(
+        olm_inbound_group_session_last_error,
+        session,
+        "Error unpickling session",
+        olm_unpickle_inbound_group_session(
+            session, key, key_length, session_buffer, session_length
+        )
+    );
 
-    size_t max_length = check_session(
+    size_t max_length = check_error(
+        olm_inbound_group_session_last_error,
         session,
         "Error getting plaintext length",
-        olm_decrypt_max_plaintext_length(
-            session, message_type, tmp_buffer, message_length
+        olm_group_decrypt_max_plaintext_length(
+            session, tmp_buffer, message_length
         )
     );
 
     uint8_t plaintext[max_length];
 
-    size_t length = check_session(
-        session, "Error decrypting message", olm_decrypt(
-            session, message_type,
+    size_t length = check_error(
+        olm_inbound_group_session_last_error,
+        session,
+        "Error decrypting message",
+        olm_group_decrypt(
+            session,
             message_buffer, message_length,
             plaintext, max_length
         )

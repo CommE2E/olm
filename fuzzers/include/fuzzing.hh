@@ -53,13 +53,15 @@ T check_errno(
     return value;
 }
 
-size_t check_session(
-    OlmSession * session,
+template<typename T, typename F>
+size_t check_error(
+    F f,
+    T * object,
     const char * message,
     size_t value
 ) {
     if (value == olm_error()) {
-        const char * olm_message = olm_session_last_error(session);
+        const char * olm_message = f(object);
         ssize_t ignored;
         ignored = write(STDERR_FILENO, message, strlen(message));
         ignored = write(STDERR_FILENO, ": ", 2);
@@ -69,4 +71,12 @@ size_t check_session(
         return ignored;
     }
     return value;
+}
+
+size_t check_session(
+    OlmSession * session,
+    const char * message,
+    size_t value
+) {
+    return check_error(olm_session_last_error, session, message, value);
 }
