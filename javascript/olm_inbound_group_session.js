@@ -69,7 +69,7 @@ InboundGroupSession.prototype['decrypt'] = restore_stack(function(
     var plaintext_buffer = stack(max_plaintext_length);
     var plaintext_length = session_method(Module["_olm_group_decrypt"])(
         this.ptr,
-        message_buffer, message.length,
+        message_buffer, message_array.length,
         plaintext_buffer, max_plaintext_length
     );
     return Pointer_stringify(plaintext_buffer, plaintext_length);
