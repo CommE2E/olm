@@ -2,12 +2,23 @@
  * browser.
  */
 
-function buttonAndTextElement(buttonLabel, textContent, clickHandler) {
-    var el = document.createElement("div");
-
+function buttonElement(buttonLabel, clickHandler) {
     var button = document.createElement("button");
-    el.appendChild(button);
     button.appendChild(document.createTextNode(buttonLabel));
+    button.addEventListener("click", clickHandler, false);
+    return button;
+}
+
+function buttonsAndText(textContent, buttonLabelToHandlerMap) {
+    var el = document.createElement("div");
+    for (var label in buttonLabelToHandlerMap) {
+        if (!buttonLabelToHandlerMap.hasOwnProperty(label)) {
+            continue;
+        }
+        var handler = buttonLabelToHandlerMap[label];
+        var button = buttonElement(label, handler);
+        el.appendChild(button);
+    }
 
     var message_element = document.createElement("tt");
     el.appendChild(message_element);
@@ -15,8 +26,13 @@ function buttonAndTextElement(buttonLabel, textContent, clickHandler) {
     var content = document.createTextNode(textContent);
     message_element.appendChild(content);
 
-    el.addEventListener("click", clickHandler, false);
     return el;
+}
+
+function buttonAndTextElement(buttonLabel, textContent, clickHandler) {
+    var buttonMap = {};
+    buttonMap[buttonLabel] = clickHandler;
+    return buttonsAndText(textContent, buttonMap);
 }
 
 function DemoUser(name) {
@@ -24,13 +40,19 @@ function DemoUser(name) {
     this.olmAccount = new Olm.Account();
     this.olmAccount.create();
 
+    this.idKey = this.getIdKeys()["curve25519"];
+
     /* the people in our chat, indexed by their Curve25519 identity key.
      */
     this.peers = {};
 
+    /* the Ed25519 signing key for each peer, indexed by their Curve25519 id key
+     */
+    this.peerSigningKeys = {};
+
     /* for each peer, a one-to-one session - indexed by id key and created on
      * demand */
-    this.peerSessions = {}
+    this.peerSessions = {};
 
     /* for each peer, info on their sender session - indexed by id key and
      * session id */
@@ -45,7 +67,7 @@ function DemoUser(name) {
 
     /* the operations our peers are allowed to do on us */
     var publicOps = [
-        "getIdKey", "getOneTimeKey",
+        "getIdKeys", "getOneTimeKey",
         "receiveOneToOne", "receiveGroup",
     ];
 
@@ -135,13 +157,14 @@ DemoUser.prototype.addTask = function(description, task, callback) {
 };
 
 DemoUser.prototype.addPeer = function(peerOps) {
-    var id = peerOps.getIdKey();
+    var keys = peerOps.getIdKeys();
+    var id = keys["curve25519"];
     this.peers[id] = peerOps;
+    this.peerSigningKeys[id] = keys["ed25519"];
 };
 
-DemoUser.prototype.getIdKey = function() {
-    var keys = JSON.parse(this.olmAccount.identity_keys());
-    return keys.curve25519;
+DemoUser.prototype.getIdKeys = function() {
+    return JSON.parse(this.olmAccount.identity_keys());
 };
 
 DemoUser.prototype.generateKeys = function(callback) {
@@ -203,7 +226,7 @@ DemoUser.prototype.sendToPeer = function(peerId, message, callback) {
         self.addTask("encrypt one-to-one message", function(done) {
             var encrypted = session.encrypt(message);
             var packet = {
-                sender_key: self.getIdKey(),
+                sender_key: self.idKey,
                 ciphertext: encrypted,
             };
             var json = JSON.stringify(packet);
@@ -357,6 +380,16 @@ DemoUser.prototype.decryptGroup = function(jsonpacket, callback) {
         var sender = packet.sender_key;
         var session_id = packet.session_id;
 
+        var sender_signing_key = self.peerSigningKeys[sender];
+        if (!sender_signing_key) {
+            throw new Error("No known signing key for sender "+sender);
+        }
+
+        var olmUtility = new Olm.Utility();
+        olmUtility.ed25519_verify(
+            sender_signing_key, packet.body, packet.signature
+        );
+
         var peer_sessions = self.peerGroupSessions[sender];
         if (!peer_sessions) {
             throw new Error("No sessions for sender "+sender);
@@ -383,22 +416,37 @@ DemoUser.prototype.encrypt = function(message) {
     var self = this;
     var session = this.getGroupSession();
 
+    function sendJsonToPeers(json) {
+        for (var peer in self.peers) {
+            if (!self.peers.hasOwnProperty(peer)) {
+                continue;
+            }
+            self.peers[peer].receiveGroup(json);
+        }
+    }
+
+
     self.addTask("encrypt group message", function(done) {
         var encrypted = session.encrypt(message);
+        var signature = self.olmAccount.sign(encrypted);
+
         var packet = {
-            sender_key: self.getIdKey(),
+            sender_key: self.idKey,
             session_id: session.session_id(),
             body: encrypted,
+            signature: signature,
         };
         var json = JSON.stringify(packet);
 
-        var el = buttonAndTextElement("send", json, function(ev) {
-            for (var peer in self.peers) {
-                if (!self.peers.hasOwnProperty(peer)) {
-                    continue;
-                }
-                self.peers[peer].receiveGroup(json);
-            }
+        var el = buttonsAndText(json, {
+            send: function(ev) {
+                sendJsonToPeers(json);
+            },
+            "send corrupted": function(ev) {
+                var p = JSON.parse(json);
+                p.body += " ";
+                sendJsonToPeers(JSON.stringify(p));
+            },
         });
         self.groupOutputDiv.appendChild(el);
         done();
@@ -406,6 +454,7 @@ DemoUser.prototype.encrypt = function(message) {
 };
 
 
+/* ************************************************************************** */
 
 function initUserDiv(demoUser, div) {
     demoUser.progressElement = div.getElementsByClassName("user_progress")[0];
