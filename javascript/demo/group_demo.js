@@ -24,8 +24,9 @@ function DemoUser(name) {
     this.olmAccount = new Olm.Account();
     this.olmAccount.create();
 
-    /* a list of the people in our chat */
-    this.peers = [];
+    /* the people in our chat, indexed by their Curve25519 identity key.
+     */
+    this.peers = {};
 
     /* for each peer, a one-to-one session - indexed by id key and created on
      * demand */
@@ -41,6 +42,18 @@ function DemoUser(name) {
     /* a list of pending tasks */
     this.tasks = [];
     this.taskWorker = undefined;
+
+    /* the operations our peers are allowed to do on us */
+    var publicOps = [
+        "getIdKey", "getOneTimeKey",
+        "receiveOneToOne", "receiveGroup",
+    ];
+
+    this.remoteOps = {};
+    for (var i=0; i<publicOps.length; i++) {
+        var op = publicOps[i];
+        this.remoteOps[op] = this[op].bind(this);
+    }
 }
 
 DemoUser.prototype._progress = function(message) {
@@ -121,8 +134,9 @@ DemoUser.prototype.addTask = function(description, task, callback) {
     }
 };
 
-DemoUser.prototype.addPeer = function(peer) {
-    this.peers.push(peer);
+DemoUser.prototype.addPeer = function(peerOps) {
+    var id = peerOps.getIdKey();
+    this.peers[id] = peerOps;
 };
 
 DemoUser.prototype.getIdKey = function() {
@@ -158,14 +172,15 @@ DemoUser.prototype.getOneTimeKey = function() {
 /**
  * retrieve, or initiate, a one-to-one session to a given peer
  */
-DemoUser.prototype.getPeerSession = function(peer, callback) {
+DemoUser.prototype.getPeerSession = function(peerId, callback) {
     var self = this;
-    var peerId = peer.getIdKey();
+
     if (this.peerSessions[peerId]) {
         callback(this.peerSessions[peerId]);
         return;
     }
 
+    var peer = this.peers[peerId];
     this.addTask("get peer keys", function(done) {
         key = peer.getOneTimeKey();
         done(key);
@@ -182,9 +197,9 @@ DemoUser.prototype.getPeerSession = function(peer, callback) {
 /**
  * encrypt a one-to-one message and prepare it for sending to a peer
  */
-DemoUser.prototype.sendToPeer = function(peer, message, callback) {
+DemoUser.prototype.sendToPeer = function(peerId, message, callback) {
     var self = this;
-    this.getPeerSession(peer, function(session) {
+    this.getPeerSession(peerId, function(session) {
         self.addTask("encrypt one-to-one message", function(done) {
             var encrypted = session.encrypt(message);
             var packet = {
@@ -194,7 +209,7 @@ DemoUser.prototype.sendToPeer = function(peer, message, callback) {
             var json = JSON.stringify(packet);
 
             var el = buttonAndTextElement("send", json, function(ev) {
-                peer.receiveOneToOne(json);
+                self.peers[peerId].receiveOneToOne(json);
             });
             self.cipherOutputDiv.appendChild(el);
             done();
@@ -285,8 +300,10 @@ DemoUser.prototype.getGroupSession = function() {
     };
     var jsonmsg = JSON.stringify(keymsg);
 
-    for (var i = 0; i < this.peers.length; i++) {
-        var peer = this.peers[i];
+    for (var peer in this.peers) {
+        if (!this.peers.hasOwnProperty(peer)) {
+            continue;
+        }
         this.sendToPeer(peer, jsonmsg);
     }
 
@@ -376,9 +393,11 @@ DemoUser.prototype.encrypt = function(message) {
         var json = JSON.stringify(packet);
 
         var el = buttonAndTextElement("send", json, function(ev) {
-            for (var i = 0; i < self.peers.length; i++) {
-                var peer = self.peers[i];
-                peer.receiveGroup(json);
+            for (var peer in self.peers) {
+                if (!self.peers.hasOwnProperty(peer)) {
+                    continue;
+                }
+                self.peers[peer].receiveGroup(json);
             }
         });
         self.groupOutputDiv.appendChild(el);
@@ -413,8 +432,8 @@ function startDemo() {
     initUserDiv(user2, document.getElementById("user2"));
     user2.generateKeys();
 
-    user1.addPeer(user2);
-    user2.addPeer(user1);
+    user1.addPeer(user2.remoteOps);
+    user2.addPeer(user1.remoteOps);
 }
 
 
