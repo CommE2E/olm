@@ -231,9 +231,7 @@ static size_t _decrypt(
         return (size_t)-1;
     }
 
-    if (!decoded_results.has_message_index || !decoded_results.session_id
-        || !decoded_results.ciphertext
-    ) {
+    if (!decoded_results.has_message_index || !decoded_results.ciphertext ) {
         session->last_error = OLM_BAD_MESSAGE_FORMAT;
         return (size_t)-1;
     }

@@ -328,18 +328,15 @@ void olm::decode_one_time_key_message(
 
 
 
-static const std::uint8_t GROUP_SESSION_ID_TAG = 012;
-static const std::uint8_t GROUP_MESSAGE_INDEX_TAG = 020;
-static const std::uint8_t GROUP_CIPHERTEXT_TAG = 032;
+static const std::uint8_t GROUP_MESSAGE_INDEX_TAG = 010;
+static const std::uint8_t GROUP_CIPHERTEXT_TAG = 022;
 
 size_t _olm_encode_group_message_length(
-    size_t group_session_id_length,
     uint32_t message_index,
     size_t ciphertext_length,
     size_t mac_length
 ) {
     size_t length = VERSION_LENGTH;
-    length += 1 + varstring_length(group_session_id_length);
     length += 1 + varint_length(message_index);
     length += 1 + varstring_length(ciphertext_length);
     length += mac_length;
@@ -349,19 +346,14 @@ size_t _olm_encode_group_message_length(
 
 size_t _olm_encode_group_message(
     uint8_t version,
-    const uint8_t *session_id,
-    size_t session_id_length,
     uint32_t message_index,
     size_t ciphertext_length,
     uint8_t *output,
     uint8_t **ciphertext_ptr
 ) {
     std::uint8_t * pos = output;
-    std::uint8_t * session_id_pos;
 
     *(pos++) = version;
-    pos = encode(pos, GROUP_SESSION_ID_TAG, session_id_pos, session_id_length);
-    std::memcpy(session_id_pos, session_id, session_id_length);
     pos = encode(pos, GROUP_MESSAGE_INDEX_TAG, message_index);
     pos = encode(pos, GROUP_CIPHERTEXT_TAG, *ciphertext_ptr, ciphertext_length);
     return pos-output;
@@ -376,8 +368,6 @@ void _olm_decode_group_message(
     std::uint8_t const * end = input + input_length - mac_length;
     std::uint8_t const * unknown = nullptr;
 
-    results->session_id = nullptr;
-    results->session_id_length = 0;
     bool has_message_index = false;
     results->message_index = 0;
     results->ciphertext = nullptr;
@@ -388,10 +378,6 @@ void _olm_decode_group_message(
     results->version = *(pos++);
 
     while (pos != end) {
-        pos = decode(
-            pos, end, GROUP_SESSION_ID_TAG,
-            results->session_id, results->session_id_length
-        );
         pos = decode(
             pos, end, GROUP_MESSAGE_INDEX_TAG,
             results->message_index, has_message_index
