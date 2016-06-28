@@ -81,16 +81,6 @@ struct Ratchet {
     /** The last error that happened encrypting or decrypting a message. */
     OlmErrorCode last_error;
 
-    /**
-     * A count of the number of times the root key has been advanced; this is
-     * maintained purely for diagnostics.
-     *
-     * If sender_chain is empty, this will be the index of the current receiver
-     * chain (odd for Alice, even for Bob); otherwise, the index of the current
-     * sender chain (even for Alice, odd for Bob).
-     */
-    std::uint32_t chain_index;
-
     /** The root key is used to generate chain keys from the ephemeral keys.
      * A new root_key derived each time a new chain is started. */
     SharedKey root_key;
