@@ -396,7 +396,7 @@ std::size_t olm::Session::decrypt(
 }
 
 namespace {
-static const std::uint32_t SESSION_PICKLE_VERSION = 1;
+static const std::uint32_t SESSION_PICKLE_VERSION = 2;
 }
 
 std::size_t olm::pickle_length(
@@ -433,14 +433,26 @@ std::uint8_t const * olm::unpickle(
 ) {
     uint32_t pickle_version;
     pos = olm::unpickle(pos, end, pickle_version);
-    if (pickle_version != SESSION_PICKLE_VERSION) {
-        value.last_error = OlmErrorCode::OLM_UNKNOWN_PICKLE_VERSION;
-        return end;
+
+    bool includes_chain_index;
+    switch (pickle_version) {
+        case 1:
+            includes_chain_index = false;
+            break;
+
+        case 2:
+            includes_chain_index = true;
+            break;
+
+        default:
+            value.last_error = OlmErrorCode::OLM_UNKNOWN_PICKLE_VERSION;
+            return end;
     }
+
     pos = olm::unpickle(pos, end, value.received_message);
     pos = olm::unpickle(pos, end, value.alice_identity_key);
     pos = olm::unpickle(pos, end, value.alice_base_key);
     pos = olm::unpickle(pos, end, value.bob_one_time_key);
-    pos = olm::unpickle(pos, end, value.ratchet);
+    pos = olm::unpickle(pos, end, value.ratchet, includes_chain_index);
     return pos;
 }

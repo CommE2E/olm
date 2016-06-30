@@ -169,7 +169,8 @@ std::uint8_t * pickle(
 
 std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    Ratchet & value
+    Ratchet & value,
+    bool includes_chain_index
 );
 
 
