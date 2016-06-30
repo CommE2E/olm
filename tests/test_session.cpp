@@ -116,13 +116,13 @@ int main() {
     TestCase test_case("V2 session pickle");
 
     const uint8_t *PICKLE_KEY=(uint8_t *)"secret_key";
-    uint8_t pickled[1024] =
-        "XTc0/aHUZIVjq257h6sCI1f4/EFJ42QYSOp6SDn88FSXRkO9dfrxGk8gPvZiNCnXFYWggX"
-        "UkTkaiSd9MFuj6kB49COlLU1zKw3caJmEIgud7umbYrAXhaBMCTl8T3XFVJK5gXThOE3sI"
-        "QCRy4RP4zAVJMTwnvNTzobi3N0aCxEDC+RIol6cEv+bV04zs8wbivdBDVJ7WIDVBF42dzQ"
-        "qPhL4KC5TLB9FYn/eUvrn56tHa5B3udjm1dbPynkjzkRy7Mbp5zUe6XhHDesKo0VxaHhOl"
-        "t117bSOKdf72wK/bStaWTpNdAA9h0AFuj2Rgp7E42yJTHY0tv23lMH1Hd+IHdsMsgMcfvL"
-        "Si";
+    uint8_t pickled[] =
+        "m+DS/q34MXpw2xp50ZD0B7val1mlMpQXo0mx+VPje0weFYRRuuZQBdJgcFPEpi2MVSpA4c"
+        "qgqHyj2/bU7/lz+BXkEBrCFVx0BJidxXfOLDW4TNtRhLS1YHJNGP8GvTg1+dCytBTLsCdm"
+        "5f945Eq1U/pY3Cg96YTUufFP6EYrfRoDbAsRHc+h+wKKftQv+W44yUmRhcCemGHtpxk3UQ"
+        "AMCI7EBv9BvveyZMy3p9qZ3xvFK34Hef+R7gjtFycz7Nk/4UF46sT3cTmUlXz9iFW4uz2F"
+        "rTI1Wjym+l0DadsbSpHSUjmp9zt4qRP2UjwfZ5QNLv+cdObIfqFsiThGu/PlKigdF4SLHr"
+        "nG";
 
     size_t pickle_len = _olm_enc_input(
         PICKLE_KEY, strlen((char *)PICKLE_KEY),
