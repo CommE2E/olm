@@ -1,5 +1,9 @@
 #!/usr/bin/make -f
 
+MAJOR := 0
+MINOR := 1
+PATCH := 0
+VERSION := $(MAJOR).$(MINOR).$(PATCH)
 BUILD_DIR := build
 RELEASE_OPTIMIZE_FLAGS ?= -g -O3
 DEBUG_OPTIMIZE_FLAGS ?= -g -O0
@@ -9,8 +13,10 @@ CC = gcc
 EMCC = emcc
 AFL_CC = afl-gcc
 AFL_CXX = afl-g++
-RELEASE_TARGET := $(BUILD_DIR)/libolm.so
-DEBUG_TARGET := $(BUILD_DIR)/libolm_debug.so
+RELEASE_TARGET := $(BUILD_DIR)/libolm.so.$(VERSION)
+RELEASE_SYMLINKS := $(BUILD_DIR)/libolm.so.$(MAJOR) $(BUILD_DIR)/libolm.so
+DEBUG_TARGET := $(BUILD_DIR)/libolm_debug.so.$(VERSION)
+DEBUG_SYMLINKS := $(BUILD_DIR)/libolm_debug.so.$(MAJOR) $(BUILD_DIR)/libolm_debug.so
 JS_TARGET := javascript/olm.js
 
 JS_EXPORTED_FUNCTIONS := javascript/exported_functions.json
@@ -87,21 +93,29 @@ $(JS_TARGET): LDFLAGS += $(JS_OPTIMIZE_FLAGS)
 
 ### top-level targets
 
-lib: $(RELEASE_TARGET)
+lib: $(RELEASE_TARGET) $(RELEASE_SYMLINKS)
 .PHONY: lib
 
 $(RELEASE_TARGET): $(RELEASE_OBJECTS)
 	$(CXX) $(LDFLAGS) --shared -fPIC \
+            -Wl,-soname,libolm.so.$(MAJOR) \
             -Wl,--version-script,version_script.ver \
             $(OUTPUT_OPTION) $(RELEASE_OBJECTS)
 
-debug: $(DEBUG_TARGET)
+$(RELEASE_SYMLINKS):
+	ln -s libolm.so.$(VERSION) $@
+
+debug: $(DEBUG_TARGET) $(DEBUG_SYMLINKS)
 .PHONY: debug
 
 $(DEBUG_TARGET): $(DEBUG_OBJECTS)
 	$(CXX) $(LDFLAGS) --shared -fPIC \
+            -Wl,-soname,libolm_debug.so.$(MAJOR) \
             -Wl,--version-script,version_script.ver \
             $(OUTPUT_OPTION) $(DEBUG_OBJECTS)
+
+$(DEBUG_SYMLINKS):
+	ln -s libolm_debug.so.$(VERSION) $@
 
 js: $(JS_TARGET)
 .PHONY: js
