@@ -4,6 +4,7 @@ MAJOR := 0
 MINOR := 1
 PATCH := 0
 VERSION := $(MAJOR).$(MINOR).$(PATCH)
+PREFIX ?= /usr/local
 BUILD_DIR := build
 RELEASE_OPTIMIZE_FLAGS ?= -g -O3
 DEBUG_OPTIMIZE_FLAGS ?= -g -O0
@@ -144,6 +145,22 @@ $(JS_EXPORTED_FUNCTIONS): $(PUBLIC_HEADERS)
 
 all: test js lib debug
 .PHONY: all
+
+install-debug: debug
+	test -d $(DESTDIR)$(PREFIX) || mkdir -p $(DESTDIR)$(PREFIX)
+	test -d $(DESTDIR)$(PREFIX)/lib || mkdir $(DESTDIR)$(PREFIX)/lib
+	install -Dm755 $(DEBUG_TARGET) $(DESTDIR)$(PREFIX)/lib/libolm_debug.so.$(VERSION)
+	ln -s libolm_debug.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm_debug.so.$(MAJOR)
+	ln -s libolm_debug.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm_debug.so
+.PHONY: install-debug
+
+install: lib
+	test -d $(DESTDIR)$(PREFIX) || mkdir -p $(DESTDIR)$(PREFIX)
+	test -d $(DESTDIR)$(PREFIX)/lib || mkdir $(DESTDIR)$(PREFIX)/lib
+	install -Dm755 $(RELEASE_TARGET) $(DESTDIR)$(PREFIX)/lib/libolm.so.$(VERSION)
+	ln -s libolm.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm.so.$(MAJOR)
+	ln -s libolm.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm.so
+.PHONY: install
 
 clean:;
 	rm -rf $(BUILD_DIR)
