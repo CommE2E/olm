@@ -4,6 +4,16 @@ var free = Module['_free'];
 var Pointer_stringify = Module['Pointer_stringify'];
 var OLM_ERROR = Module['_olm_error']();
 
+/* The 'length' argument to Pointer_stringify doesn't work if the input includes
+ * cahracters >= 128; we therefore need to add a NULL character to all of our
+ * strings. This acts as a symbolic constant to help show what we're doing.
+ */
+var NULL_BYTE_PADDING_LENGTH = 1;
+
+/* allocate a number of bytes of storage on the stack.
+ *
+ * If size_or_array is a Number, allocates that number of zero-initialised bytes.
+ */
 function stack(size_or_array) {
     return Module['allocate'](size_or_array, 'i8', Module['ALLOC_STACK']);
 }
@@ -68,11 +78,11 @@ Account.prototype['identity_keys'] = restore_stack(function() {
     var keys_length = account_method(
         Module['_olm_account_identity_keys_length']
     )(this.ptr);
-    var keys = stack(keys_length);
+    var keys = stack(keys_length + NULL_BYTE_PADDING_LENGTH);
     account_method(Module['_olm_account_identity_keys'])(
         this.ptr, keys, keys_length
     );
-    return Pointer_stringify(keys, keys_length);
+    return Pointer_stringify(keys);
 });
 
 Account.prototype['sign'] = restore_stack(function(message) {
@@ -81,24 +91,24 @@ Account.prototype['sign'] = restore_stack(function(message) {
     )(this.ptr);
     var message_array = array_from_string(message);
     var message_buffer = stack(message_array);
-    var signature_buffer = stack(signature_length);
+    var signature_buffer = stack(signature_length + NULL_BYTE_PADDING_LENGTH);
     account_method(Module['_olm_account_sign'])(
         this.ptr,
         message_buffer, message_array.length,
         signature_buffer, signature_length
     );
-    return Pointer_stringify(signature_buffer, signature_length);
+    return Pointer_stringify(signature_buffer);
 });
 
 Account.prototype['one_time_keys'] = restore_stack(function() {
     var keys_length = account_method(
         Module['_olm_account_one_time_keys_length']
     )(this.ptr);
-    var keys = stack(keys_length);
+    var keys = stack(keys_length + NULL_BYTE_PADDING_LENGTH);
     account_method(Module['_olm_account_one_time_keys'])(
         this.ptr, keys, keys_length
     );
-    return Pointer_stringify(keys, keys_length);
+    return Pointer_stringify(keys);
 });
 
 Account.prototype['mark_keys_as_published'] = restore_stack(function() {
@@ -135,11 +145,11 @@ Account.prototype['pickle'] = restore_stack(function(key) {
         Module['_olm_pickle_account_length']
     )(this.ptr);
     var key_buffer = stack(key_array);
-    var pickle_buffer = stack(pickle_length);
+    var pickle_buffer = stack(pickle_length + NULL_BYTE_PADDING_LENGTH);
     account_method(Module['_olm_pickle_account'])(
         this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
     );
-    return Pointer_stringify(pickle_buffer, pickle_length);
+    return Pointer_stringify(pickle_buffer);
 });
 
 Account.prototype['unpickle'] = restore_stack(function(key, pickle) {
@@ -183,11 +193,11 @@ Session.prototype['pickle'] = restore_stack(function(key) {
         Module['_olm_pickle_session_length']
     )(this.ptr);
     var key_buffer = stack(key_array);
-    var pickle_buffer = stack(pickle_length);
+    var pickle_buffer = stack(pickle_length + NULL_BYTE_PADDING_LENGTH);
     session_method(Module['_olm_pickle_session'])(
         this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
     );
-    return Pointer_stringify(pickle_buffer, pickle_length);
+    return Pointer_stringify(pickle_buffer);
 });
 
 Session.prototype['unpickle'] = restore_stack(function(key, pickle) {
@@ -246,11 +256,11 @@ Session.prototype['create_inbound_from'] = restore_stack(function(
 
 Session.prototype['session_id'] = restore_stack(function() {
     var id_length = session_method(Module['_olm_session_id_length'])(this.ptr);
-    var id_buffer = stack(id_length);
+    var id_buffer = stack(id_length + NULL_BYTE_PADDING_LENGTH);
     session_method(Module['_olm_session_id'])(
         this.ptr, id_buffer, id_length
     );
-    return Pointer_stringify(id_buffer, id_length);
+    return Pointer_stringify(id_buffer);
 });
 
 Session.prototype['matches_inbound'] = restore_stack(function(
@@ -292,7 +302,7 @@ Session.prototype['encrypt'] = restore_stack(function(
     )(this.ptr, plaintext_array.length);
     var random = random_stack(random_length);
     var plaintext_buffer = stack(plaintext_array);
-    var message_buffer = stack(message_length);
+    var message_buffer = stack(message_length + NULL_BYTE_PADDING_LENGTH);
     session_method(Module['_olm_encrypt'])(
         this.ptr,
         plaintext_buffer, plaintext_array.length,
@@ -301,7 +311,7 @@ Session.prototype['encrypt'] = restore_stack(function(
     );
     return {
         "type": message_type,
-        "body": Pointer_stringify(message_buffer, message_length)
+        "body": Pointer_stringify(message_buffer)
     };
 });
 
@@ -316,13 +326,23 @@ Session.prototype['decrypt'] = restore_stack(function(
     // caculating the length destroys the input buffer.
     // So we copy the array to a new buffer
     var message_buffer = stack(message_array);
-    var plaintext_buffer = stack(max_plaintext_length);
+    var plaintext_buffer = stack(
+        max_plaintext_length + NULL_BYTE_PADDING_LENGTH
+    );
     var plaintext_length = session_method(Module["_olm_decrypt"])(
         this.ptr, message_type,
         message_buffer, message.length,
         plaintext_buffer, max_plaintext_length
     );
-    return Pointer_stringify(plaintext_buffer, plaintext_length);
+
+    // Pointer_stringify requires a null-terminated argument (the optional
+    // 'len' argument doesn't work for UTF-8 data).
+    Module['setValue'](
+        plaintext_buffer+plaintext_length,
+        0, "i8"
+    );
+
+    return Pointer_stringify(plaintext_buffer);
 });
 
 function Utility() {
@@ -353,13 +373,13 @@ Utility.prototype['sha256'] = restore_stack(function(input) {
     var output_length = utility_method(Module['_olm_sha256_length'])(this.ptr);
     var input_array = array_from_string(input);
     var input_buffer = stack(input_array);
-    var output_buffer = stack(output_length);
+    var output_buffer = stack(output_length + NULL_BYTE_PADDING_LENGTH);
     utility_method(Module['_olm_sha2516'])(
         this.ptr,
         input_buffer, input_array.length(),
         output_buffer, output_length
     );
-    return Pointer_stringify(output_buffer, output_length);
+    return Pointer_stringify(output_buffer);
 });
 
 Utility.prototype['ed25519_verify'] = restore_stack(function(
