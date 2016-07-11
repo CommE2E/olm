@@ -1,2 +1,6 @@
-build
+/build
+/CHANGELOG.html
+/docs/olm.html
 /olm-*.tgz
+/README.html
+/tracing/README.html

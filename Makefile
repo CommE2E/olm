@@ -44,6 +44,10 @@ JS_PRE := $(wildcard javascript/*pre.js)
 JS_POST := javascript/olm_outbound_group_session.js \
     javascript/olm_inbound_group_session.js \
     javascript/olm_post.js
+DOCS := tracing/README.html \
+    docs/olm.html \
+    README.html \
+    CHANGELOG.html
 
 CPPFLAGS += -Iinclude -Ilib
 # we rely on <stdint.h>, which was introduced in C99
@@ -143,7 +147,7 @@ $(JS_EXPORTED_FUNCTIONS): $(PUBLIC_HEADERS)
 	perl -MJSON -ne '$$f{"_$$1"}=1 if /(olm_[^( ]*)\(/; END { @f=sort keys %f; print encode_json \@f }' $^ > $@.tmp
 	mv $@.tmp $@
 
-all: test js lib debug
+all: test js lib debug doc
 .PHONY: all
 
 install-debug: debug
@@ -163,8 +167,11 @@ install: lib
 .PHONY: install
 
 clean:;
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR) $(DOCS)
 .PHONY: clean
+
+doc: $(DOCS)
+.PHONY: doc
 
 ### rules for building objects
 $(BUILD_DIR)/release/%.o: %.c
@@ -218,6 +225,9 @@ $(BUILD_DIR)/fuzzers/debug_%: fuzzers/fuzz_%.c $(DEBUG_OBJECTS)
 
 $(BUILD_DIR)/fuzzers/debug_%: fuzzers/fuzz_%.cpp $(DEBUG_OBJECTS)
 	$(LINK.cc) $< $(DEBUG_OBJECTS) $(LOADLIBES) $(LDLIBS) -o $@
+
+%.html: %.rst
+	rst2html $< $@
 
 ### dependencies
 
