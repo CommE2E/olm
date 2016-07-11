@@ -27,14 +27,23 @@ To build the javascript bindings, install emscripten from http://kripken.github.
 .. code:: bash
 
     make js
-    npm pack javascript  # packages olm.js into olm-x.y.z.tgz
 
-Remember to make a tag after releasing a tarball:
+Release process
+---------------
 
-.. code:: bash
+# Bump version numbers in ``Makefile`` and ``javascript/package.json``
+# Prepare changelog
+# ``git commit``
+# ``make test``
+# ``make js``
+# ``npm pack javascript``
+# ``scp olm-x.y.z.tgz packages@ldc-prd-matrix-001:/sites/matrix/packages/npm/olm/``
+# ``git tag x.y.z``
+# ``git push --tags``
 
-    git tag x.y.z
-    git push --tags
+It's probably sensible to do the above on a release branch (``release-vx.y.z``
+by convention), and merge back to master once complete.
+
 
 Design
 ------
