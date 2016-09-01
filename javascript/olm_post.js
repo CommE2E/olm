@@ -402,4 +402,14 @@ Utility.prototype['ed25519_verify'] = restore_stack(function(
 olm_exports["Account"] = Account;
 olm_exports["Session"] = Session;
 olm_exports["Utility"] = Utility;
+
+olm_exports["get_library_version"] = restore_stack(function() {
+    var buf = stack(3);
+    Module['_olm_get_library_version'](buf, buf+1, buf+2);
+    return [
+        getValue(buf, 'i8'),
+        getValue(buf+1, 'i8'),
+        getValue(buf+2, 'i8'),
+    ];
+});
 }();

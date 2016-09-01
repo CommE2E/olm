@@ -7,7 +7,7 @@ def read_random(n):
         return f.read(n)
 
 lib = cdll.LoadLibrary(os.path.join(
-    os.path.dirname(__file__), "..", "..", "build", "libolm.so")
+    os.path.dirname(__file__), "..", "..", "build", "libolm.so.1")
 )
 
 lib.olm_error.argtypes = []

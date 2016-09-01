@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 MAJOR := 1
-MINOR := 0
+MINOR := 1
 PATCH := 0
 VERSION := $(MAJOR).$(MINOR).$(PATCH)
 PREFIX ?= /usr/local
@@ -15,9 +15,7 @@ EMCC = emcc
 AFL_CC = afl-gcc
 AFL_CXX = afl-g++
 RELEASE_TARGET := $(BUILD_DIR)/libolm.so.$(VERSION)
-RELEASE_SYMLINKS := $(BUILD_DIR)/libolm.so.$(MAJOR) $(BUILD_DIR)/libolm.so
 DEBUG_TARGET := $(BUILD_DIR)/libolm_debug.so.$(VERSION)
-DEBUG_SYMLINKS := $(BUILD_DIR)/libolm_debug.so.$(MAJOR) $(BUILD_DIR)/libolm_debug.so
 JS_TARGET := javascript/olm.js
 
 JS_EXPORTED_FUNCTIONS := javascript/exported_functions.json
@@ -49,7 +47,10 @@ DOCS := tracing/README.html \
     README.html \
     CHANGELOG.html
 
-CPPFLAGS += -Iinclude -Ilib
+CPPFLAGS += -Iinclude -Ilib \
+    -DOLMLIB_VERSION_MAJOR=$(MAJOR) -DOLMLIB_VERSION_MINOR=$(MINOR) \
+    -DOLMLIB_VERSION_PATCH=$(PATCH)
+
 # we rely on <stdint.h>, which was introduced in C99
 CFLAGS += -Wall -Werror -std=c99 -fPIC
 CXXFLAGS += -Wall -Werror -std=c++11 -fPIC
@@ -98,7 +99,7 @@ $(JS_TARGET): LDFLAGS += $(JS_OPTIMIZE_FLAGS)
 
 ### top-level targets
 
-lib: $(RELEASE_TARGET) $(RELEASE_SYMLINKS)
+lib: $(RELEASE_TARGET)
 .PHONY: lib
 
 $(RELEASE_TARGET): $(RELEASE_OBJECTS)
@@ -106,11 +107,9 @@ $(RELEASE_TARGET): $(RELEASE_OBJECTS)
             -Wl,-soname,libolm.so.$(MAJOR) \
             -Wl,--version-script,version_script.ver \
             $(OUTPUT_OPTION) $(RELEASE_OBJECTS)
+	ldconfig -l $@
 
-$(RELEASE_SYMLINKS):
-	ln -s libolm.so.$(VERSION) $@
-
-debug: $(DEBUG_TARGET) $(DEBUG_SYMLINKS)
+debug: $(DEBUG_TARGET)
 .PHONY: debug
 
 $(DEBUG_TARGET): $(DEBUG_OBJECTS)
@@ -118,9 +117,7 @@ $(DEBUG_TARGET): $(DEBUG_OBJECTS)
             -Wl,-soname,libolm_debug.so.$(MAJOR) \
             -Wl,--version-script,version_script.ver \
             $(OUTPUT_OPTION) $(DEBUG_OBJECTS)
-
-$(DEBUG_SYMLINKS):
-	ln -s libolm_debug.so.$(VERSION) $@
+	ldconfig -l $@
 
 js: $(JS_TARGET)
 .PHONY: js

@@ -83,35 +83,6 @@ assert_equals(expected_agreement, actual_agreement, 32);
 } /* Curve25529 Test Case 1 */
 
 
-{ /* Curve25519 Signature Test Case 1 */
-TestCase test_case("Curve25519 Signature Test Case 1");
-
-std::uint8_t private_key[33] = "This key is a string of 32 bytes";
-std::uint8_t message[] = "message";
-std::size_t message_length = sizeof(message) - 1;
-
-olm::Curve25519KeyPair key_pair;
-olm::curve25519_generate_key(private_key, key_pair);
-
-std::uint8_t signature[64];
-
-olm::curve25519_sign(
-    key_pair, message, message_length, signature
-);
-
-bool result = olm::curve25519_verify(
-    key_pair, message, message_length, signature
-);
-assert_equals(true, result);
-
-message[0] = 'n';
-result = olm::curve25519_verify(
-    key_pair, message, message_length, signature
-);
-assert_equals(false, result);
-
-} /* Curve25519 Signature Test Case 1 */
-
 {
 TestCase test_case("Ed25519 Signature Test Case 1");
 std::uint8_t private_key[33] = "This key is a string of 32 bytes";
