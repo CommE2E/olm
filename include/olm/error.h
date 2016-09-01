@@ -39,6 +39,13 @@ enum OlmErrorCode {
                                       * known session key.
                                       */
 
+    /**
+     * Attempt to unpickle an account which uses pickle version 1 (which did
+     * not save enough space for the Ed25519 key; the key should be considered
+     * compromised. We don't let the user reload the account.
+     */
+    OLM_BAD_LEGACY_ACCOUNT_PICKLE = 13,
+
     /* remember to update the list of string constants in error.c when updating
      * this list. */
 };

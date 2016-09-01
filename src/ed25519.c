@@ -16,7 +16,7 @@
 #include "ed25519/src/fe.c"
 #include "ed25519/src/sc.c"
 #include "ed25519/src/ge.c"
+#include "ed25519/src/keypair.c"
 #include "ed25519/src/sha512.c"
 #include "ed25519/src/verify.c"
 #include "ed25519/src/sign.c"
-#include "ed25519_additions.c"

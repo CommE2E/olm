@@ -326,7 +326,9 @@ static std::uint8_t const * unpickle(
 } // namespace olm
 
 namespace {
-static const std::uint32_t ACCOUNT_PICKLE_VERSION = 1;
+// pickle version 1 used only 32 bytes for the ed25519 private key.
+// Any keys thus used should be considered compromised.
+static const std::uint32_t ACCOUNT_PICKLE_VERSION = 2;
 }
 
 
@@ -360,9 +362,15 @@ std::uint8_t const * olm::unpickle(
 ) {
     uint32_t pickle_version;
     pos = olm::unpickle(pos, end, pickle_version);
-    if (pickle_version != ACCOUNT_PICKLE_VERSION) {
-        value.last_error = OlmErrorCode::OLM_UNKNOWN_PICKLE_VERSION;
-        return end;
+    switch (pickle_version) {
+        case ACCOUNT_PICKLE_VERSION:
+            break;
+        case 1:
+            value.last_error = OlmErrorCode::OLM_BAD_LEGACY_ACCOUNT_PICKLE;
+            return end;
+        default:
+            value.last_error = OlmErrorCode::OLM_UNKNOWN_PICKLE_VERSION;
+            return end;
     }
     pos = olm::unpickle(pos, end, value.identity_keys);
     pos = olm::unpickle(pos, end, value.one_time_keys);

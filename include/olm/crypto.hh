@@ -25,6 +25,7 @@
 
 namespace olm {
 
+static const std::size_t ED25519_PRIVATE_KEY_LENGTH = 64;
 static const std::size_t KEY_LENGTH = 32;
 static const std::size_t SIGNATURE_LENGTH = 64;
 static const std::size_t IV_LENGTH = 16;
@@ -45,7 +46,7 @@ struct Ed25519PublicKey {
 
 
 struct Ed25519KeyPair : public Ed25519PublicKey {
-    std::uint8_t private_key[KEY_LENGTH];
+    std::uint8_t private_key[ED25519_PRIVATE_KEY_LENGTH];
 };
 
 
@@ -64,24 +65,6 @@ void curve25519_shared_secret(
     std::uint8_t * output
 );
 
-
-/** Signs the message using our private key.
- * The output buffer must be at least 64 bytes long. */
-void curve25519_sign(
-    Curve25519KeyPair const & our_key,
-    std::uint8_t const * message, std::size_t message_length,
-    std::uint8_t * output
-);
-
-
-/** Verify their message using their public key.
- * The signature input buffer must be 64 bytes long.
- * Returns true if the signature is valid. */
-bool curve25519_verify(
-    Curve25519PublicKey const & their_key,
-    std::uint8_t const * message, std::size_t message_length,
-    std::uint8_t const * signature
-);
 
 /** Generate a curve25519 key pair from 32 random bytes. */
 void ed25519_generate_key(

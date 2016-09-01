@@ -25,7 +25,6 @@ extern "C" {
 }
 
 #include "ed25519/src/ed25519.h"
-#include "ed25519_additions.h"
 #include "curve25519-donna.h"
 
 namespace {
@@ -121,48 +120,14 @@ void olm::curve25519_shared_secret(
 }
 
 
-void olm::curve25519_sign(
-    olm::Curve25519KeyPair const & our_key,
-    std::uint8_t const * message, std::size_t message_length,
-    std::uint8_t * output
-) {
-    std::uint8_t private_key[KEY_LENGTH];
-    std::uint8_t public_key[KEY_LENGTH];
-    std::memcpy(private_key, our_key.private_key, KEY_LENGTH);
-    ::ed25519_keypair(private_key, public_key);
-    ::ed25519_sign(
-        output,
-        message, message_length,
-        public_key, private_key
-    );
-    ::convert_ed25519_to_curve25519(public_key, output);
-}
-
-
-bool olm::curve25519_verify(
-    olm::Curve25519PublicKey const & their_key,
-    std::uint8_t const * message, std::size_t message_length,
-    std::uint8_t const * signature
-) {
-    std::uint8_t public_key[KEY_LENGTH];
-    std::uint8_t signature_buffer[SIGNATURE_LENGTH];
-    std::memcpy(public_key, their_key.public_key, KEY_LENGTH);
-    std::memcpy(signature_buffer, signature, SIGNATURE_LENGTH);
-    ::convert_curve25519_to_ed25519(public_key, signature_buffer);
-    return 0 != ::ed25519_verify(
-        signature,
-        message, message_length,
-        public_key
-    );
-}
-
-
 void olm::ed25519_generate_key(
     std::uint8_t const * random_32_bytes,
     olm::Ed25519KeyPair & key_pair
 ) {
-    std::memcpy(key_pair.private_key, random_32_bytes, KEY_LENGTH);
-    ::ed25519_keypair(key_pair.private_key, key_pair.public_key);
+    ::ed25519_create_keypair(
+        key_pair.public_key, key_pair.private_key,
+        random_32_bytes
+    );
 }
 
 

@@ -33,6 +33,11 @@ typedef struct OlmAccount OlmAccount;
 typedef struct OlmSession OlmSession;
 typedef struct OlmUtility OlmUtility;
 
+/** Get the version number of the library.
+ * Arguments will be updated if non-null.
+ */
+void olm_get_library_version(uint8_t *major, uint8_t *minor, uint8_t *patch);
+
 /** The size of an account object in bytes */
 size_t olm_account_size();
 

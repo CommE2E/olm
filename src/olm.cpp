@@ -98,6 +98,11 @@ std::size_t b64_input(
 
 extern "C" {
 
+void olm_get_library_version(uint8_t *major, uint8_t *minor, uint8_t *patch) {
+    if (major != NULL) *major = OLMLIB_VERSION_MAJOR;
+    if (minor != NULL) *minor = OLMLIB_VERSION_MINOR;
+    if (patch != NULL) *patch = OLMLIB_VERSION_PATCH;
+}
 
 size_t olm_error() {
     return std::size_t(-1);

@@ -65,6 +65,33 @@ assert_equals(pickle1, pickle2, pickle_length);
 
 }
 
+
+{
+    TestCase test_case("Old account unpickle test");
+
+    // this uses the old pickle format, which did not use enough space
+    // for the Ed25519 key. We should reject it.
+    std::uint8_t pickle[] =
+        "x3h9er86ygvq56pM1yesdAxZou4ResPQC9Rszk/fhEL9JY/umtZ2N/foL/SUgVXS"
+        "v0IxHHZTafYjDdzJU9xr8dQeBoOTGfV9E/lCqDGBnIlu7SZndqjEKXtzGyQr4sP4"
+        "K/A/8TOu9iK2hDFszy6xETiousHnHgh2ZGbRUh4pQx+YMm8ZdNZeRnwFGLnrWyf9"
+        "O5TmXua1FcU";
+
+    std::uint8_t account_buffer[::olm_account_size()];
+    ::OlmAccount *account = ::olm_account(account_buffer);
+    assert_equals(
+        std::size_t(-1),
+        ::olm_unpickle_account(
+            account, "", 0, pickle, sizeof(pickle)-1
+        )
+    );
+    assert_equals(
+        std::string("BAD_LEGACY_ACCOUNT_PICKLE"),
+        std::string(::olm_account_last_error(account))
+    );
+}
+
+
 { /** Pickle session test */
 
 TestCase test_case("Pickle session test");
