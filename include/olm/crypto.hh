@@ -25,23 +25,18 @@
 
 namespace olm {
 
-static const std::size_t ED25519_PRIVATE_KEY_LENGTH = 64;
-static const std::size_t KEY_LENGTH = 32;
-static const std::size_t SIGNATURE_LENGTH = 64;
-static const std::size_t IV_LENGTH = 16;
-
 struct Curve25519PublicKey {
-    std::uint8_t public_key[KEY_LENGTH];
+    std::uint8_t public_key[CURVE25519_KEY_LENGTH];
 };
 
 
 struct Curve25519KeyPair : public Curve25519PublicKey {
-    std::uint8_t private_key[KEY_LENGTH];
+    std::uint8_t private_key[CURVE25519_KEY_LENGTH];
 };
 
 
 struct Ed25519PublicKey {
-    std::uint8_t public_key[KEY_LENGTH];
+    std::uint8_t public_key[ED25519_PUBLIC_KEY_LENGTH];
 };
 
 
@@ -93,12 +88,12 @@ bool ed25519_verify(
 
 
 struct Aes256Key {
-    std::uint8_t key[KEY_LENGTH];
+    std::uint8_t key[AES256_KEY_LENGTH];
 };
 
 
 struct Aes256Iv {
-    std::uint8_t iv[IV_LENGTH];
+    std::uint8_t iv[AES256_IV_LENGTH];
 };
 
 

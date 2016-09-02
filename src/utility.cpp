@@ -45,7 +45,7 @@ size_t olm::Utility::ed25519_verify(
     std::uint8_t const * message, std::size_t message_length,
     std::uint8_t const * signature, std::size_t signature_length
 ) {
-    if (signature_length < olm::SIGNATURE_LENGTH) {
+    if (signature_length < ED25519_SIGNATURE_LENGTH) {
         last_error = OlmErrorCode::OLM_BAD_MESSAGE_MAC;
         return std::size_t(-1);
     }

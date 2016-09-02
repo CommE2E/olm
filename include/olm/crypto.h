@@ -27,7 +27,36 @@
 extern "C" {
 #endif
 
-const size_t SHA256_OUTPUT_LENGTH = 32;
+/** length of a sha256 hash */
+#define SHA256_OUTPUT_LENGTH 32
+
+/** length of a public or private Curve25519 key */
+#define CURVE25519_KEY_LENGTH 32
+
+/** length of the shared secret created by a Curve25519 ECDH operation */
+#define CURVE25519_SHARED_SECRET_LENGTH 32
+
+/** amount of random data required to create a Curve25519 keypair */
+#define CURVE25519_RANDOM_LENGTH CURVE25519_KEY_LENGTH
+
+/** length of a public Ed25519 key */
+#define ED25519_PUBLIC_KEY_LENGTH 32
+
+/** length of a private Ed25519 key */
+#define ED25519_PRIVATE_KEY_LENGTH 64
+
+/** amount of random data required to create a Ed25519 keypair */
+#define ED25519_RANDOM_LENGTH 32
+
+/** length of an Ed25519 signature */
+#define ED25519_SIGNATURE_LENGTH 64
+
+/** length of an aes256 key */
+#define AES256_KEY_LENGTH 32
+
+/** length of an aes256 initialisation vector */
+#define AES256_IV_LENGTH 16
+
 
 /** Computes SHA-256 of the input. The output buffer must be a least 32
  * bytes long. */

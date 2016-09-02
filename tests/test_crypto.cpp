@@ -70,7 +70,7 @@ olm::curve25519_generate_key(bob_private, bob_pair);
 assert_equals(bob_private, bob_pair.private_key, 32);
 assert_equals(bob_public, bob_pair.public_key, 32);
 
-std::uint8_t actual_agreement[olm::KEY_LENGTH] = {};
+std::uint8_t actual_agreement[CURVE25519_SHARED_SECRET_LENGTH] = {};
 
 olm::curve25519_shared_secret(alice_pair, bob_pair, actual_agreement);
 

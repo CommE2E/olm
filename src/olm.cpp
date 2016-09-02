@@ -436,8 +436,8 @@ size_t olm_create_outbound_session(
     std::size_t id_key_length = their_identity_key_length;
     std::size_t ot_key_length = their_one_time_key_length;
 
-    if (olm::decode_base64_length(id_key_length) != olm::KEY_LENGTH
-            || olm::decode_base64_length(ot_key_length) != olm::KEY_LENGTH
+    if (olm::decode_base64_length(id_key_length) != CURVE25519_KEY_LENGTH
+            || olm::decode_base64_length(ot_key_length) != CURVE25519_KEY_LENGTH
     ) {
         from_c(session)->last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
@@ -483,7 +483,7 @@ size_t olm_create_inbound_session_from(
     std::uint8_t const * id_key = from_c(their_identity_key);
     std::size_t id_key_length = their_identity_key_length;
 
-    if (olm::decode_base64_length(id_key_length) != olm::KEY_LENGTH) {
+    if (olm::decode_base64_length(id_key_length) != CURVE25519_KEY_LENGTH) {
         from_c(session)->last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
     }
@@ -554,7 +554,7 @@ size_t olm_matches_inbound_session_from(
     std::uint8_t const * id_key = from_c(their_identity_key);
     std::size_t id_key_length = their_identity_key_length;
 
-    if (olm::decode_base64_length(id_key_length) != olm::KEY_LENGTH) {
+    if (olm::decode_base64_length(id_key_length) != CURVE25519_KEY_LENGTH) {
         from_c(session)->last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
     }
@@ -710,7 +710,7 @@ size_t olm_ed25519_verify(
     void const * message, size_t message_length,
     void * signature, size_t signature_length
 ) {
-    if (olm::decode_base64_length(key_length) != olm::KEY_LENGTH) {
+    if (olm::decode_base64_length(key_length) != CURVE25519_KEY_LENGTH) {
         from_c(utility)->last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
     }

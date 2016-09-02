@@ -49,7 +49,7 @@ olm::Session::Session(
 
 
 std::size_t olm::Session::new_outbound_session_random_length() {
-    return olm::KEY_LENGTH * 2;
+    return CURVE25519_RANDOM_LENGTH * 2;
 }
 
 
@@ -68,7 +68,7 @@ std::size_t olm::Session::new_outbound_session(
     olm::curve25519_generate_key(random, base_key);
 
     olm::Curve25519KeyPair ratchet_key;
-    olm::curve25519_generate_key(random + olm::KEY_LENGTH, ratchet_key);
+    olm::curve25519_generate_key(random + CURVE25519_RANDOM_LENGTH, ratchet_key);
 
     olm::Curve25519KeyPair const & alice_identity_key_pair = (
         local_account.identity_keys.curve25519_key
@@ -79,13 +79,13 @@ std::size_t olm::Session::new_outbound_session(
     alice_base_key = base_key;
     bob_one_time_key = one_time_key;
 
-    std::uint8_t secret[3 * olm::KEY_LENGTH];
+    // Calculate the shared secret S via triple DH
+    std::uint8_t secret[3 * CURVE25519_SHARED_SECRET_LENGTH];
     std::uint8_t * pos = secret;
-
     olm::curve25519_shared_secret(alice_identity_key_pair, one_time_key, pos);
-    pos += olm::KEY_LENGTH;
+    pos += CURVE25519_SHARED_SECRET_LENGTH;
     olm::curve25519_shared_secret(base_key, identity_key, pos);
-    pos += olm::KEY_LENGTH;
+    pos += CURVE25519_SHARED_SECRET_LENGTH;
     olm::curve25519_shared_secret(base_key, one_time_key, pos);
 
     ratchet.initialise_as_alice(secret, sizeof(secret), ratchet_key);
@@ -105,13 +105,13 @@ static bool check_message_fields(
     bool ok = true;
     ok = ok && (have_their_identity_key || reader.identity_key);
     if (reader.identity_key) {
-        ok = ok && reader.identity_key_length == olm::KEY_LENGTH;
+        ok = ok && reader.identity_key_length == CURVE25519_KEY_LENGTH;
     }
     ok = ok && reader.message;
     ok = ok && reader.base_key;
-    ok = ok && reader.base_key_length == olm::KEY_LENGTH;
+    ok = ok && reader.base_key_length == CURVE25519_KEY_LENGTH;
     ok = ok && reader.one_time_key;
-    ok = ok && reader.one_time_key_length == olm::KEY_LENGTH;
+    ok = ok && reader.one_time_key_length == CURVE25519_KEY_LENGTH;
     return ok;
 }
 
@@ -133,7 +133,7 @@ std::size_t olm::Session::new_inbound_session(
 
     if (reader.identity_key && their_identity_key) {
         bool same = 0 == std::memcmp(
-            their_identity_key->public_key, reader.identity_key, olm::KEY_LENGTH
+            their_identity_key->public_key, reader.identity_key, CURVE25519_KEY_LENGTH
         );
         if (!same) {
             last_error = OlmErrorCode::OLM_BAD_MESSAGE_KEY_ID;
@@ -152,7 +152,7 @@ std::size_t olm::Session::new_inbound_session(
     );
 
     if (!message_reader.ratchet_key
-            || message_reader.ratchet_key_length != olm::KEY_LENGTH) {
+            || message_reader.ratchet_key_length != CURVE25519_KEY_LENGTH) {
         last_error = OlmErrorCode::OLM_BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }
@@ -174,12 +174,13 @@ std::size_t olm::Session::new_inbound_session(
     );
     olm::Curve25519KeyPair const & bob_one_time_key = our_one_time_key->key;
 
-    std::uint8_t secret[olm::KEY_LENGTH * 3];
+    // Calculate the shared secret S via triple DH
+    std::uint8_t secret[CURVE25519_SHARED_SECRET_LENGTH * 3];
     std::uint8_t * pos = secret;
     olm::curve25519_shared_secret(bob_one_time_key, alice_identity_key, pos);
-    pos += olm::KEY_LENGTH;
+    pos += CURVE25519_SHARED_SECRET_LENGTH;
     olm::curve25519_shared_secret(bob_identity_key, alice_base_key, pos);
-    pos += olm::KEY_LENGTH;
+    pos += CURVE25519_SHARED_SECRET_LENGTH;
     olm::curve25519_shared_secret(bob_one_time_key, alice_base_key, pos);
 
     ratchet.initialise_as_bob(secret, sizeof(secret), ratchet_key);
@@ -202,7 +203,7 @@ std::size_t olm::Session::session_id(
         last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
-    std::uint8_t tmp[olm::KEY_LENGTH * 3];
+    std::uint8_t tmp[CURVE25519_KEY_LENGTH * 3];
     std::uint8_t * pos = tmp;
     pos = olm::store_array(pos, alice_identity_key.public_key);
     pos = olm::store_array(pos, alice_base_key.public_key);
@@ -226,20 +227,20 @@ bool olm::Session::matches_inbound_session(
     bool same = true;
     if (reader.identity_key) {
         same = same && 0 == std::memcmp(
-            reader.identity_key, alice_identity_key.public_key, olm::KEY_LENGTH
+            reader.identity_key, alice_identity_key.public_key, CURVE25519_KEY_LENGTH
         );
     }
     if (their_identity_key) {
         same = same && 0 == std::memcmp(
             their_identity_key->public_key, alice_identity_key.public_key,
-            olm::KEY_LENGTH
+            CURVE25519_KEY_LENGTH
         );
     }
     same = same && 0 == std::memcmp(
-        reader.base_key, alice_base_key.public_key, olm::KEY_LENGTH
+        reader.base_key, alice_base_key.public_key, CURVE25519_KEY_LENGTH
     );
     same = same && 0 == std::memcmp(
-        reader.one_time_key, bob_one_time_key.public_key, olm::KEY_LENGTH
+        reader.one_time_key, bob_one_time_key.public_key, CURVE25519_KEY_LENGTH
     );
     return same;
 }
@@ -266,9 +267,9 @@ std::size_t olm::Session::encrypt_message_length(
     }
 
     return encode_one_time_key_message_length(
-        olm::KEY_LENGTH,
-        olm::KEY_LENGTH,
-        olm::KEY_LENGTH,
+        CURVE25519_KEY_LENGTH,
+        CURVE25519_KEY_LENGTH,
+        CURVE25519_KEY_LENGTH,
         message_length
     );
 }
@@ -300,9 +301,9 @@ std::size_t olm::Session::encrypt(
         encode_one_time_key_message(
             writer,
             PROTOCOL_VERSION,
-            olm::KEY_LENGTH,
-            olm::KEY_LENGTH,
-            olm::KEY_LENGTH,
+            CURVE25519_KEY_LENGTH,
+            CURVE25519_KEY_LENGTH,
+            CURVE25519_KEY_LENGTH,
             message_body_length,
             message
         );
