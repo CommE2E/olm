@@ -14,7 +14,7 @@
  */
 
 #include "olm/utility.hh"
-#include "olm/crypto.hh"
+#include "olm/crypto.h"
 
 
 olm::Utility::Utility(

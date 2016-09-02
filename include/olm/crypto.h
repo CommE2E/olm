@@ -57,6 +57,15 @@ extern "C" {
 /** length of an aes256 initialisation vector */
 #define AES256_IV_LENGTH 16
 
+struct _olm_aes256_key {
+    uint8_t key[AES256_KEY_LENGTH];
+};
+
+struct _olm_aes256_iv {
+    uint8_t iv[AES256_IV_LENGTH];
+};
+
+
 struct _olm_curve25519_public_key {
     uint8_t public_key[CURVE25519_KEY_LENGTH];
 };
@@ -82,6 +91,32 @@ struct _olm_ed25519_key_pair {
     struct _olm_ed25519_public_key public_key;
     struct _olm_ed25519_private_key private_key;
 };
+
+
+/** The length of output the aes_encrypt_cbc function will write */
+size_t _olm_crypto_aes_encrypt_cbc_length(
+    size_t input_length
+);
+
+/** Encrypts the input using AES256 in CBC mode with PKCS#7 padding.
+ * The output buffer must be big enough to hold the output including padding */
+void _olm_crypto_aes_encrypt_cbc(
+    const struct _olm_aes256_key *key,
+    const struct _olm_aes256_iv *iv,
+    const uint8_t *input, size_t input_length,
+    uint8_t *output
+);
+
+/** Decrypts the input using AES256 in CBC mode. The output buffer must be at
+ * least the same size as the input buffer. Returns the length of the plaintext
+ * without padding on success or std::size_t(-1) if the padding is invalid.
+ */
+size_t _olm_crypto_aes_decrypt_cbc(
+    const struct _olm_aes256_key *key,
+    const struct _olm_aes256_iv *iv,
+    uint8_t const * input, size_t input_length,
+    uint8_t * output
+);
 
 
 /** Computes SHA-256 of the input. The output buffer must be a least

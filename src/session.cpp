@@ -14,7 +14,7 @@
  */
 #include "olm/session.hh"
 #include "olm/cipher.h"
-#include "olm/crypto.hh"
+#include "olm/crypto.h"
 #include "olm/account.hh"
 #include "olm/memory.hh"
 #include "olm/message.hh"

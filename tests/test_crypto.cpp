@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "olm/crypto.hh"
+#include "olm/crypto.h"
 
 #include "unittest.hh"
 
@@ -115,8 +115,8 @@ assert_equals(false, result);
 
 TestCase test_case("AES Test Case 1");
 
-olm::Aes256Key key = {};
-olm::Aes256Iv iv = {};
+_olm_aes256_key key = {};
+_olm_aes256_iv iv = {};
 std::uint8_t input[16] = {};
 
 std::uint8_t expected[32] = {
@@ -126,16 +126,16 @@ std::uint8_t expected[32] = {
     0x4B, 0xAE, 0xDF, 0xFC, 0x3D, 0x21, 0x4C, 0x38
 };
 
-std::size_t length = olm::aes_encrypt_cbc_length(sizeof(input));
+std::size_t length = _olm_crypto_aes_encrypt_cbc_length(sizeof(input));
 assert_equals(std::size_t(32), length);
 
 
 std::uint8_t actual[32] = {};
 
-olm::aes_encrypt_cbc(key, iv, input, sizeof(input), actual);
+_olm_crypto_aes_encrypt_cbc(&key, &iv, input, sizeof(input), actual);
 assert_equals(expected, actual, 32);
 
-length = olm::aes_decrypt_cbc(key, iv, expected, sizeof(expected), actual);
+length = _olm_crypto_aes_decrypt_cbc(&key, &iv, expected, sizeof(expected), actual);
 assert_equals(std::size_t(16), length);
 assert_equals(input, actual, length);
 

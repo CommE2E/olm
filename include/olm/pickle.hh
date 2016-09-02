@@ -16,7 +16,7 @@
 #define OLM_PICKLE_HH_
 
 #include "olm/list.hh"
-#include "olm/crypto.hh"
+#include "olm/crypto.h"
 
 #include <cstring>
 #include <cstdint>

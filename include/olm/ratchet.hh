@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
-#include "olm/crypto.hh"
+#include <cstdint>
+
+#include "olm/crypto.h"
 #include "olm/list.hh"
 #include "olm/error.h"
 
