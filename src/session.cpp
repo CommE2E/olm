@@ -55,8 +55,8 @@ std::size_t olm::Session::new_outbound_session_random_length() {
 
 std::size_t olm::Session::new_outbound_session(
     olm::Account const & local_account,
-    olm::Curve25519PublicKey const & identity_key,
-    olm::Curve25519PublicKey const & one_time_key,
+    _olm_curve25519_public_key const & identity_key,
+    _olm_curve25519_public_key const & one_time_key,
     std::uint8_t const * random, std::size_t random_length
 ) {
     if (random_length < new_outbound_session_random_length()) {
@@ -64,29 +64,30 @@ std::size_t olm::Session::new_outbound_session(
         return std::size_t(-1);
     }
 
-    olm::Curve25519KeyPair base_key;
-    olm::curve25519_generate_key(random, base_key);
+    _olm_curve25519_key_pair base_key;
+    _olm_crypto_curve25519_generate_key(random, &base_key);
 
-    olm::Curve25519KeyPair ratchet_key;
-    olm::curve25519_generate_key(random + CURVE25519_RANDOM_LENGTH, ratchet_key);
+    _olm_curve25519_key_pair ratchet_key;
+    _olm_crypto_curve25519_generate_key(random + CURVE25519_RANDOM_LENGTH, &ratchet_key);
 
-    olm::Curve25519KeyPair const & alice_identity_key_pair = (
+    _olm_curve25519_key_pair const & alice_identity_key_pair = (
         local_account.identity_keys.curve25519_key
     );
 
     received_message = false;
-    alice_identity_key = alice_identity_key_pair;
-    alice_base_key = base_key;
+    alice_identity_key = alice_identity_key_pair.public_key;
+    alice_base_key = base_key.public_key;
     bob_one_time_key = one_time_key;
 
     // Calculate the shared secret S via triple DH
     std::uint8_t secret[3 * CURVE25519_SHARED_SECRET_LENGTH];
     std::uint8_t * pos = secret;
-    olm::curve25519_shared_secret(alice_identity_key_pair, one_time_key, pos);
+
+    _olm_crypto_curve25519_shared_secret(&alice_identity_key_pair, &one_time_key, pos);
     pos += CURVE25519_SHARED_SECRET_LENGTH;
-    olm::curve25519_shared_secret(base_key, identity_key, pos);
+    _olm_crypto_curve25519_shared_secret(&base_key, &identity_key, pos);
     pos += CURVE25519_SHARED_SECRET_LENGTH;
-    olm::curve25519_shared_secret(base_key, one_time_key, pos);
+    _olm_crypto_curve25519_shared_secret(&base_key, &one_time_key, pos);
 
     ratchet.initialise_as_alice(secret, sizeof(secret), ratchet_key);
 
@@ -120,7 +121,7 @@ static bool check_message_fields(
 
 std::size_t olm::Session::new_inbound_session(
     olm::Account & local_account,
-    olm::Curve25519PublicKey const * their_identity_key,
+    _olm_curve25519_public_key const * their_identity_key,
     std::uint8_t const * one_time_key_message, std::size_t message_length
 ) {
     olm::PreKeyMessageReader reader;
@@ -157,7 +158,7 @@ std::size_t olm::Session::new_inbound_session(
         return std::size_t(-1);
     }
 
-    olm::Curve25519PublicKey ratchet_key;
+    _olm_curve25519_public_key ratchet_key;
     olm::load_array(ratchet_key.public_key, message_reader.ratchet_key);
 
     olm::OneTimeKey const * our_one_time_key = local_account.lookup_key(
@@ -169,19 +170,19 @@ std::size_t olm::Session::new_inbound_session(
         return std::size_t(-1);
     }
 
-    olm::Curve25519KeyPair const & bob_identity_key = (
+    _olm_curve25519_key_pair const & bob_identity_key = (
         local_account.identity_keys.curve25519_key
     );
-    olm::Curve25519KeyPair const & bob_one_time_key = our_one_time_key->key;
+    _olm_curve25519_key_pair const & bob_one_time_key = our_one_time_key->key;
 
     // Calculate the shared secret S via triple DH
     std::uint8_t secret[CURVE25519_SHARED_SECRET_LENGTH * 3];
     std::uint8_t * pos = secret;
-    olm::curve25519_shared_secret(bob_one_time_key, alice_identity_key, pos);
+    _olm_crypto_curve25519_shared_secret(&bob_one_time_key, &alice_identity_key, pos);
     pos += CURVE25519_SHARED_SECRET_LENGTH;
-    olm::curve25519_shared_secret(bob_identity_key, alice_base_key, pos);
+    _olm_crypto_curve25519_shared_secret(&bob_identity_key, &alice_base_key, pos);
     pos += CURVE25519_SHARED_SECRET_LENGTH;
-    olm::curve25519_shared_secret(bob_one_time_key, alice_base_key, pos);
+    _olm_crypto_curve25519_shared_secret(&bob_one_time_key, &alice_base_key, pos);
 
     ratchet.initialise_as_bob(secret, sizeof(secret), ratchet_key);
 
@@ -214,7 +215,7 @@ std::size_t olm::Session::session_id(
 
 
 bool olm::Session::matches_inbound_session(
-    olm::Curve25519PublicKey const * their_identity_key,
+    _olm_curve25519_public_key const * their_identity_key,
     std::uint8_t const * one_time_key_message, std::size_t message_length
 ) {
     olm::PreKeyMessageReader reader;

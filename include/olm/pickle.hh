@@ -109,70 +109,70 @@ std::uint8_t const * unpickle_bytes(
 
 
 std::size_t pickle_length(
-    const Curve25519PublicKey & value
+    const _olm_curve25519_public_key & value
 );
 
 
 std::uint8_t * pickle(
     std::uint8_t * pos,
-    const Curve25519PublicKey & value
+    const _olm_curve25519_public_key & value
 );
 
 
 std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    Curve25519PublicKey & value
+    _olm_curve25519_public_key & value
 );
 
 
 std::size_t pickle_length(
-    const Curve25519KeyPair & value
+    const _olm_curve25519_key_pair & value
 );
 
 
 std::uint8_t * pickle(
     std::uint8_t * pos,
-    const Curve25519KeyPair & value
+    const _olm_curve25519_key_pair & value
 );
 
 
 std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    Curve25519KeyPair & value
+    _olm_curve25519_key_pair & value
 );
 
 
 std::size_t pickle_length(
-    const Ed25519PublicKey & value
+    const _olm_ed25519_public_key & value
 );
 
 
 std::uint8_t * pickle(
     std::uint8_t * pos,
-    const Ed25519PublicKey & value
+    const _olm_ed25519_public_key & value
 );
 
 
 std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    Ed25519PublicKey & value
+    _olm_ed25519_public_key & value
 );
 
 
 std::size_t pickle_length(
-    const Ed25519KeyPair & value
+    const _olm_ed25519_key_pair & value
 );
 
 
 std::uint8_t * pickle(
     std::uint8_t * pos,
-    const Ed25519KeyPair & value
+    const _olm_ed25519_key_pair & value
 );
 
 
 std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
-    Ed25519KeyPair & value
+    _olm_ed25519_key_pair & value
 );
 
 } // namespace olm

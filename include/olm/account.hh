@@ -25,14 +25,14 @@ namespace olm {
 
 
 struct IdentityKeys {
-    Ed25519KeyPair ed25519_key;
-    Curve25519KeyPair curve25519_key;
+    _olm_ed25519_key_pair ed25519_key;
+    _olm_curve25519_key_pair curve25519_key;
 };
 
 struct OneTimeKey {
     std::uint32_t id;
     bool published;
-    Curve25519KeyPair key;
+    _olm_curve25519_key_pair key;
 };
 
 
@@ -128,12 +128,12 @@ struct Account {
 
     /** Lookup a one time key with the given public key */
     OneTimeKey const * lookup_key(
-        Curve25519PublicKey const & public_key
+        _olm_curve25519_public_key const & public_key
     );
 
     /** Remove a one time key with the given public key */
     std::size_t remove_key(
-        Curve25519PublicKey const & public_key
+        _olm_curve25519_public_key const & public_key
     );
 };
 

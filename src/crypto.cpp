@@ -100,59 +100,65 @@ inline static void hmac_sha256_final(
 
 } // namespace
 
-void olm::curve25519_generate_key(
-    std::uint8_t const * random_32_bytes,
-    olm::Curve25519KeyPair & key_pair
+void _olm_crypto_curve25519_generate_key(
+    uint8_t const * random_32_bytes,
+    struct _olm_curve25519_key_pair *key_pair
 ) {
-    std::memcpy(key_pair.private_key, random_32_bytes, CURVE25519_KEY_LENGTH);
+    std::memcpy(
+        key_pair->private_key.private_key, random_32_bytes,
+        CURVE25519_KEY_LENGTH
+    );
     ::curve25519_donna(
-        key_pair.public_key, key_pair.private_key, CURVE25519_BASEPOINT
+        key_pair->public_key.public_key,
+        key_pair->private_key.private_key,
+        CURVE25519_BASEPOINT
     );
 }
 
 
-void olm::curve25519_shared_secret(
-    olm::Curve25519KeyPair const & our_key,
-    olm::Curve25519PublicKey const & their_key,
+void _olm_crypto_curve25519_shared_secret(
+    const struct _olm_curve25519_key_pair *our_key,
+    const struct _olm_curve25519_public_key * their_key,
     std::uint8_t * output
 ) {
-    ::curve25519_donna(output, our_key.private_key, their_key.public_key);
+    ::curve25519_donna(output, our_key->private_key.private_key, their_key->public_key);
 }
 
 
-void olm::ed25519_generate_key(
+void _olm_crypto_ed25519_generate_key(
     std::uint8_t const * random_32_bytes,
-    olm::Ed25519KeyPair & key_pair
+    struct _olm_ed25519_key_pair *key_pair
 ) {
     ::ed25519_create_keypair(
-        key_pair.public_key, key_pair.private_key,
+        key_pair->public_key.public_key, key_pair->private_key.private_key,
         random_32_bytes
     );
 }
 
 
-void olm::ed25519_sign(
-    olm::Ed25519KeyPair const & our_key,
+void _olm_crypto_ed25519_sign(
+    const struct _olm_ed25519_key_pair *our_key,
     std::uint8_t const * message, std::size_t message_length,
     std::uint8_t * output
 ) {
     ::ed25519_sign(
         output,
         message, message_length,
-        our_key.public_key, our_key.private_key
+        our_key->public_key.public_key,
+        our_key->private_key.private_key
     );
 }
 
 
-bool olm::ed25519_verify(
-    olm::Ed25519PublicKey const & their_key,
+int _olm_crypto_ed25519_verify(
+    const struct _olm_ed25519_public_key *their_key,
     std::uint8_t const * message, std::size_t message_length,
     std::uint8_t const * signature
 ) {
     return 0 != ::ed25519_verify(
         signature,
         message, message_length,
-        their_key.public_key
+        their_key->public_key
     );
 }
 

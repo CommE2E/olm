@@ -442,8 +442,8 @@ size_t olm_create_outbound_session(
         from_c(session)->last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
     }
-    olm::Curve25519PublicKey identity_key;
-    olm::Curve25519PublicKey one_time_key;
+    _olm_curve25519_public_key identity_key;
+    _olm_curve25519_public_key one_time_key;
 
     olm::decode_base64(id_key, id_key_length, identity_key.public_key);
     olm::decode_base64(ot_key, ot_key_length, one_time_key.public_key);
@@ -487,7 +487,7 @@ size_t olm_create_inbound_session_from(
         from_c(session)->last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
     }
-    olm::Curve25519PublicKey identity_key;
+    _olm_curve25519_public_key identity_key;
     olm::decode_base64(id_key, id_key_length, identity_key.public_key);
 
     std::size_t raw_length = b64_input(
@@ -564,7 +564,7 @@ size_t olm_matches_inbound_session_from(
         from_c(session)->last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
     }
-    olm::Curve25519PublicKey identity_key;
+    _olm_curve25519_public_key identity_key;
     olm::decode_base64(id_key, id_key_length, identity_key.public_key);
 
     std::size_t raw_length = b64_input(
@@ -720,7 +720,7 @@ size_t olm_ed25519_verify(
         from_c(utility)->last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
     }
-    olm::Ed25519PublicKey verify_key;
+    _olm_ed25519_public_key verify_key;
     olm::decode_base64(from_c(key), key_length, verify_key.public_key);
     std::size_t raw_signature_length = b64_input(
         from_c(signature), signature_length, from_c(utility)->last_error

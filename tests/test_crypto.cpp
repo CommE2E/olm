@@ -58,25 +58,25 @@ std::uint8_t expected_agreement[32] = {
     0x76, 0xF0, 0x9B, 0x3C, 0x1E, 0x16, 0x17, 0x42
 };
 
-olm::Curve25519KeyPair alice_pair;
-olm::curve25519_generate_key(alice_private, alice_pair);
+_olm_curve25519_key_pair alice_pair;
+_olm_crypto_curve25519_generate_key(alice_private, &alice_pair);
 
-assert_equals(alice_private, alice_pair.private_key, 32);
-assert_equals(alice_public, alice_pair.public_key, 32);
+assert_equals(alice_private, alice_pair.private_key.private_key, 32);
+assert_equals(alice_public, alice_pair.public_key.public_key, 32);
 
-olm::Curve25519KeyPair bob_pair;
-olm::curve25519_generate_key(bob_private, bob_pair);
+_olm_curve25519_key_pair bob_pair;
+_olm_crypto_curve25519_generate_key(bob_private, &bob_pair);
 
-assert_equals(bob_private, bob_pair.private_key, 32);
-assert_equals(bob_public, bob_pair.public_key, 32);
+assert_equals(bob_private, bob_pair.private_key.private_key, 32);
+assert_equals(bob_public, bob_pair.public_key.public_key, 32);
 
 std::uint8_t actual_agreement[CURVE25519_SHARED_SECRET_LENGTH] = {};
 
-olm::curve25519_shared_secret(alice_pair, bob_pair, actual_agreement);
+_olm_crypto_curve25519_shared_secret(&alice_pair, &bob_pair.public_key, actual_agreement);
 
 assert_equals(expected_agreement, actual_agreement, 32);
 
-olm::curve25519_shared_secret(bob_pair, alice_pair, actual_agreement);
+_olm_crypto_curve25519_shared_secret(&bob_pair, &alice_pair.public_key, actual_agreement);
 
 assert_equals(expected_agreement, actual_agreement, 32);
 
@@ -90,22 +90,22 @@ std::uint8_t private_key[33] = "This key is a string of 32 bytes";
 std::uint8_t message[] = "Hello, World";
 std::size_t message_length = sizeof(message) - 1;
 
-olm::Ed25519KeyPair key_pair;
-olm::ed25519_generate_key(private_key, key_pair);
+_olm_ed25519_key_pair key_pair;
+_olm_crypto_ed25519_generate_key(private_key, &key_pair);
 
 std::uint8_t signature[64];
-olm::ed25519_sign(
-    key_pair, message, message_length, signature
+_olm_crypto_ed25519_sign(
+    &key_pair, message, message_length, signature
 );
 
-bool result = olm::ed25519_verify(
-    key_pair, message, message_length, signature
+bool result = _olm_crypto_ed25519_verify(
+    &key_pair.public_key, message, message_length, signature
 );
 assert_equals(true, result);
 
 message[0] = 'n';
-result = olm::ed25519_verify(
-    key_pair, message, message_length, signature
+result = _olm_crypto_ed25519_verify(
+    &key_pair.public_key, message, message_length, signature
 );
 assert_equals(false, result);
 }

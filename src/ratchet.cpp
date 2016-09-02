@@ -41,14 +41,14 @@ static const std::size_t MAX_MESSAGE_GAP = 2000;
  */
 static void create_chain_key(
     olm::SharedKey const & root_key,
-    olm::Curve25519KeyPair const & our_key,
-    olm::Curve25519PublicKey const & their_key,
+    _olm_curve25519_key_pair const & our_key,
+    _olm_curve25519_public_key const & their_key,
     olm::KdfInfo const & info,
     olm::SharedKey & new_root_key,
     olm::ChainKey & new_chain_key
 ) {
     olm::SharedKey secret;
-    olm::curve25519_shared_secret(our_key, their_key, secret);
+    _olm_crypto_curve25519_shared_secret(&our_key, &their_key, secret);
     std::uint8_t derived_secrets[2 * olm::OLM_SHARED_KEY_LENGTH];
     _olm_crypto_hkdf_sha256(
         secret, sizeof(secret),
@@ -189,7 +189,7 @@ olm::Ratchet::Ratchet(
 
 void olm::Ratchet::initialise_as_bob(
     std::uint8_t const * shared_secret, std::size_t shared_secret_length,
-    olm::Curve25519PublicKey const & their_ratchet_key
+    _olm_curve25519_public_key const & their_ratchet_key
 ) {
     std::uint8_t derived_secrets[2 * olm::OLM_SHARED_KEY_LENGTH];
     _olm_crypto_hkdf_sha256(
@@ -210,7 +210,7 @@ void olm::Ratchet::initialise_as_bob(
 
 void olm::Ratchet::initialise_as_alice(
     std::uint8_t const * shared_secret, std::size_t shared_secret_length,
-    olm::Curve25519KeyPair const & our_ratchet_key
+    _olm_curve25519_key_pair const & our_ratchet_key
 ) {
     std::uint8_t derived_secrets[2 * olm::OLM_SHARED_KEY_LENGTH];
     _olm_crypto_hkdf_sha256(
@@ -437,7 +437,7 @@ std::size_t olm::Ratchet::encrypt(
 
     if (sender_chain.empty()) {
         sender_chain.insert();
-        olm::curve25519_generate_key(random, sender_chain[0].ratchet_key);
+        _olm_crypto_curve25519_generate_key(random, &sender_chain[0].ratchet_key);
         create_chain_key(
             root_key,
             sender_chain[0].ratchet_key,
@@ -456,7 +456,8 @@ std::size_t olm::Ratchet::encrypt(
         plaintext_length
     );
     std::uint32_t counter = keys.index;
-    Curve25519PublicKey const & ratchet_key = sender_chain[0].ratchet_key;
+    _olm_curve25519_public_key const & ratchet_key =
+        sender_chain[0].ratchet_key.public_key;
 
     olm::MessageWriter writer;
 

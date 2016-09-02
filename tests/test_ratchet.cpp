@@ -32,8 +32,8 @@ _olm_cipher_aes_sha_256 cipher0 = OLM_CIPHER_INIT_AES_SHA_256(message_info);
 _olm_cipher *cipher = OLM_CIPHER_BASE(&cipher0);
 
 std::uint8_t random_bytes[] = "0123456789ABDEF0123456789ABCDEF";
-olm::Curve25519KeyPair alice_key;
-olm::curve25519_generate_key(random_bytes, alice_key);
+_olm_curve25519_key_pair alice_key;
+_olm_crypto_curve25519_generate_key(random_bytes, &alice_key);
 
 std::uint8_t shared_secret[] = "A secret";
 
@@ -44,7 +44,7 @@ olm::Ratchet alice(kdf_info, cipher);
 olm::Ratchet bob(kdf_info, cipher);
 
 alice.initialise_as_alice(shared_secret, sizeof(shared_secret) - 1, alice_key);
-bob.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, alice_key);
+bob.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, alice_key.public_key);
 
 std::uint8_t plaintext[] = "Message";
 std::size_t plaintext_length = sizeof(plaintext) - 1;
@@ -113,7 +113,7 @@ olm::Ratchet alice(kdf_info, cipher);
 olm::Ratchet bob(kdf_info, cipher);
 
 alice.initialise_as_alice(shared_secret, sizeof(shared_secret) - 1, alice_key);
-bob.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, alice_key);
+bob.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, alice_key.public_key);
 
 std::uint8_t plaintext_1[] = "First Message";
 std::size_t plaintext_1_length = sizeof(plaintext_1) - 1;
@@ -185,7 +185,7 @@ olm::Ratchet alice(kdf_info, cipher);
 olm::Ratchet bob(kdf_info, cipher);
 
 alice.initialise_as_alice(shared_secret, sizeof(shared_secret) - 1, alice_key);
-bob.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, alice_key);
+bob.initialise_as_bob(shared_secret, sizeof(shared_secret) - 1, alice_key.public_key);
 
 std::uint8_t plaintext[] = "These 15 bytes";
 assert_equals(std::size_t(15), sizeof(plaintext));
