@@ -5,7 +5,7 @@ var Pointer_stringify = Module['Pointer_stringify'];
 var OLM_ERROR = Module['_olm_error']();
 
 /* The 'length' argument to Pointer_stringify doesn't work if the input includes
- * cahracters >= 128; we therefore need to add a NULL character to all of our
+ * characters >= 128; we therefore need to add a NULL character to all of our
  * strings. This acts as a symbolic constant to help show what we're doing.
  */
 var NULL_BYTE_PADDING_LENGTH = 1;
