@@ -300,6 +300,10 @@ size_t olm_session_id(
     void * id, size_t id_length
 );
 
+int olm_session_has_received_message(
+    OlmSession *session
+);
+
 /** Checks if the PRE_KEY message is for this in-bound session. This can happen
  * if multiple messages are sent to this account before this account sends a
  * message in reply. Returns olm_error() on failure. If the base64
