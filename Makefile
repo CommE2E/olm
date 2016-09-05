@@ -14,6 +14,7 @@ CC = gcc
 EMCC = emcc
 AFL_CC = afl-gcc
 AFL_CXX = afl-g++
+
 RELEASE_TARGET := $(BUILD_DIR)/libolm.so.$(VERSION)
 DEBUG_TARGET := $(BUILD_DIR)/libolm_debug.so.$(VERSION)
 JS_TARGET := javascript/olm.js
@@ -107,7 +108,7 @@ $(RELEASE_TARGET): $(RELEASE_OBJECTS)
             -Wl,-soname,libolm.so.$(MAJOR) \
             -Wl,--version-script,version_script.ver \
             $(OUTPUT_OPTION) $(RELEASE_OBJECTS)
-	ldconfig -l $@
+	ln -sf libolm.so.$(VERSION) $(BUILD_DIR)/libolm.so.$(MAJOR)
 
 debug: $(DEBUG_TARGET)
 .PHONY: debug
@@ -117,7 +118,7 @@ $(DEBUG_TARGET): $(DEBUG_OBJECTS)
             -Wl,-soname,libolm_debug.so.$(MAJOR) \
             -Wl,--version-script,version_script.ver \
             $(OUTPUT_OPTION) $(DEBUG_OBJECTS)
-	ldconfig -l $@
+	ln -sf libolm_debug.so.$(VERSION) $(BUILD_DIR)/libolm_debug.so.$(MAJOR)
 
 js: $(JS_TARGET)
 .PHONY: js
