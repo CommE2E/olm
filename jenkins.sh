@@ -3,6 +3,8 @@
 set -e
 
 make clean
+rm olm-*.tgz
+
 make lib
 make test
 ./python/test_olm.sh
