@@ -54,7 +54,7 @@ OutboundGroupSession.prototype['unpickle'] = restore_stack(function(key, pickle)
 });
 
 OutboundGroupSession.prototype['create'] = restore_stack(function(key) {
-    var random_length = session_method(
+    var random_length = outbound_group_session_method(
         Module['_olm_init_outbound_group_session_random_length']
     )(this.ptr);
     var random = random_stack(random_length);

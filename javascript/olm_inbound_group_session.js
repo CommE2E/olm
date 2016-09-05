@@ -66,14 +66,14 @@ InboundGroupSession.prototype['decrypt'] = restore_stack(function(
 ) {
     var message_array = array_from_string(message);
     var message_buffer = stack(message_array);
-    var max_plaintext_length = session_method(
+    var max_plaintext_length = inbound_group_session_method(
         Module['_olm_group_decrypt_max_plaintext_length']
     )(this.ptr, message_buffer, message_array.length);
     // caculating the length destroys the input buffer.
     // So we copy the array to a new buffer
     var message_buffer = stack(message_array);
     var plaintext_buffer = stack(max_plaintext_length + NULL_BYTE_PADDING_LENGTH);
-    var plaintext_length = session_method(Module["_olm_group_decrypt"])(
+    var plaintext_length = inbound_group_session_method(Module["_olm_group_decrypt"])(
         this.ptr,
         message_buffer, message_array.length,
         plaintext_buffer, max_plaintext_length
