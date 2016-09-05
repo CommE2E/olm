@@ -24,10 +24,10 @@ olm::Account::Account(
 
 
 olm::OneTimeKey const * olm::Account::lookup_key(
-    olm::Curve25519PublicKey const & public_key
+    _olm_curve25519_public_key const & public_key
 ) {
     for (olm::OneTimeKey const & key : one_time_keys) {
-        if (olm::array_equal(key.key.public_key, public_key.public_key)) {
+        if (olm::array_equal(key.key.public_key.public_key, public_key.public_key)) {
             return &key;
         }
     }
@@ -35,11 +35,11 @@ olm::OneTimeKey const * olm::Account::lookup_key(
 }
 
 std::size_t olm::Account::remove_key(
-    olm::Curve25519PublicKey const & public_key
+    _olm_curve25519_public_key const & public_key
 ) {
     OneTimeKey * i;
     for (i = one_time_keys.begin(); i != one_time_keys.end(); ++i) {
-        if (olm::array_equal(i->key.public_key, public_key.public_key)) {
+        if (olm::array_equal(i->key.public_key.public_key, public_key.public_key)) {
             std::uint32_t id = i->id;
             one_time_keys.erase(i);
             return id;
@@ -60,9 +60,9 @@ std::size_t olm::Account::new_account(
         return std::size_t(-1);
     }
 
-    olm::ed25519_generate_key(random, identity_keys.ed25519_key);
+    _olm_crypto_ed25519_generate_key(random, &identity_keys.ed25519_key);
     random += ED25519_RANDOM_LENGTH;
-    olm::curve25519_generate_key(random, identity_keys.curve25519_key);
+    _olm_crypto_curve25519_generate_key(random, &identity_keys.curve25519_key);
 
     return 0;
 }
@@ -118,16 +118,16 @@ std::size_t olm::Account::get_identity_json(
     pos = write_string(pos, KEY_JSON_CURVE25519);
     *(pos++) = '\"';
     pos = olm::encode_base64(
-        identity_keys.curve25519_key.public_key,
-        sizeof(identity_keys.curve25519_key.public_key),
+        identity_keys.curve25519_key.public_key.public_key,
+        sizeof(identity_keys.curve25519_key.public_key.public_key),
         pos
     );
     *(pos++) = '\"'; *(pos++) = ',';
     pos = write_string(pos, KEY_JSON_ED25519);
     *(pos++) = '\"';
     pos = olm::encode_base64(
-        identity_keys.ed25519_key.public_key,
-        sizeof(identity_keys.ed25519_key.public_key),
+        identity_keys.ed25519_key.public_key.public_key,
+        sizeof(identity_keys.ed25519_key.public_key.public_key),
         pos
     );
     *(pos++) = '\"'; *(pos++) = '}';
@@ -149,8 +149,8 @@ std::size_t olm::Account::sign(
         last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
-    olm::ed25519_sign(
-        identity_keys.ed25519_key, message, message_length, signature
+    _olm_crypto_ed25519_sign(
+        &identity_keys.ed25519_key, message, message_length, signature
     );
     return this->signature_length();
 }
@@ -202,7 +202,7 @@ std::size_t olm::Account::get_one_time_keys_json(
         pos = olm::encode_base64(key_id, sizeof(key_id), pos);
         *(pos++) = '\"'; *(pos++) = ':'; *(pos++) = '\"';
         pos = olm::encode_base64(
-            key.key.public_key, sizeof(key.key.public_key), pos
+            key.key.public_key.public_key, sizeof(key.key.public_key.public_key), pos
         );
         *(pos++) = '\"';
         sep = ',';
@@ -253,7 +253,7 @@ std::size_t olm::Account::generate_one_time_keys(
         OneTimeKey & key = *one_time_keys.insert(one_time_keys.begin());
         key.id = ++next_one_time_key_id;
         key.published = false;
-        olm::curve25519_generate_key(random, key.key);
+        _olm_crypto_curve25519_generate_key(random, &key.key);
         random += CURVE25519_RANDOM_LENGTH;
     }
     return number_of_keys;

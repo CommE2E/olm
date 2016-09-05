@@ -57,9 +57,70 @@ extern "C" {
 /** length of an aes256 initialisation vector */
 #define AES256_IV_LENGTH 16
 
+struct _olm_aes256_key {
+    uint8_t key[AES256_KEY_LENGTH];
+};
 
-/** Computes SHA-256 of the input. The output buffer must be a least 32
- * bytes long. */
+struct _olm_aes256_iv {
+    uint8_t iv[AES256_IV_LENGTH];
+};
+
+
+struct _olm_curve25519_public_key {
+    uint8_t public_key[CURVE25519_KEY_LENGTH];
+};
+
+struct _olm_curve25519_private_key {
+    uint8_t private_key[CURVE25519_KEY_LENGTH];
+};
+
+struct _olm_curve25519_key_pair {
+    struct _olm_curve25519_public_key public_key;
+    struct _olm_curve25519_private_key private_key;
+};
+
+struct _olm_ed25519_public_key {
+    uint8_t public_key[ED25519_PUBLIC_KEY_LENGTH];
+};
+
+struct _olm_ed25519_private_key {
+    uint8_t private_key[ED25519_PRIVATE_KEY_LENGTH];
+};
+
+struct _olm_ed25519_key_pair {
+    struct _olm_ed25519_public_key public_key;
+    struct _olm_ed25519_private_key private_key;
+};
+
+
+/** The length of output the aes_encrypt_cbc function will write */
+size_t _olm_crypto_aes_encrypt_cbc_length(
+    size_t input_length
+);
+
+/** Encrypts the input using AES256 in CBC mode with PKCS#7 padding.
+ * The output buffer must be big enough to hold the output including padding */
+void _olm_crypto_aes_encrypt_cbc(
+    const struct _olm_aes256_key *key,
+    const struct _olm_aes256_iv *iv,
+    const uint8_t *input, size_t input_length,
+    uint8_t *output
+);
+
+/** Decrypts the input using AES256 in CBC mode. The output buffer must be at
+ * least the same size as the input buffer. Returns the length of the plaintext
+ * without padding on success or std::size_t(-1) if the padding is invalid.
+ */
+size_t _olm_crypto_aes_decrypt_cbc(
+    const struct _olm_aes256_key *key,
+    const struct _olm_aes256_iv *iv,
+    uint8_t const * input, size_t input_length,
+    uint8_t * output
+);
+
+
+/** Computes SHA-256 of the input. The output buffer must be a least
+ * SHA256_OUTPUT_LENGTH (32) bytes long. */
 void _olm_crypto_sha256(
     uint8_t const * input, size_t input_length,
     uint8_t * output
@@ -68,7 +129,7 @@ void _olm_crypto_sha256(
 /** HMAC: Keyed-Hashing for Message Authentication
  * http://tools.ietf.org/html/rfc2104
  * Computes HMAC-SHA-256 of the input for the key. The output buffer must
- * be at least 32 bytes long. */
+ * be at least SHA256_OUTPUT_LENGTH (32) bytes long. */
 void _olm_crypto_hmac_sha256(
     uint8_t const * key, size_t key_length,
     uint8_t const * input, size_t input_length,
@@ -85,6 +146,53 @@ void _olm_crypto_hkdf_sha256(
     uint8_t const * salt, size_t salt_length,
     uint8_t * output, size_t output_length
 );
+
+
+/** Generate a curve25519 key pair
+ * random_32_bytes should be CURVE25519_RANDOM_LENGTH (32) bytes long.
+ */
+void _olm_crypto_curve25519_generate_key(
+    uint8_t const * random_32_bytes,
+    struct _olm_curve25519_key_pair *output
+);
+
+
+/** Create a shared secret using our private key and their public key.
+ * The output buffer must be at least CURVE25519_SHARED_SECRET_LENGTH (32) bytes long.
+ */
+void _olm_crypto_curve25519_shared_secret(
+    const struct _olm_curve25519_key_pair *our_key,
+    const struct _olm_curve25519_public_key *their_key,
+    uint8_t * output
+);
+
+/** Generate an ed25519 key pair
+ * random_32_bytes should be ED25519_RANDOM_LENGTH (32) bytes long.
+ */
+void _olm_crypto_ed25519_generate_key(
+    uint8_t const * random_bytes,
+    struct _olm_ed25519_key_pair *output
+);
+
+/** Signs the message using our private key.
+ *
+ * The output buffer must be at least ED25519_SIGNATURE_LENGTH (64) bytes
+ * long. */
+void _olm_crypto_ed25519_sign(
+    const struct _olm_ed25519_key_pair *our_key,
+    const uint8_t * message, size_t message_length,
+    uint8_t * output
+);
+
+/** Verify an ed25519 signature
+ * The signature input buffer must be ED25519_SIGNATURE_LENGTH (64) bytes long.
+ * Returns non-zero if the signature is valid. */
+int _olm_crypto_ed25519_verify(
+    const struct _olm_ed25519_public_key *their_key,
+    const uint8_t * message, size_t message_length,
+    const uint8_t * signature
+);
+
 
 
 #ifdef __cplusplus

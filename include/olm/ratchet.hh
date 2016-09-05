@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
-#include "olm/crypto.hh"
+#include <cstdint>
+
+#include "olm/crypto.h"
 #include "olm/list.hh"
 #include "olm/error.h"
 
@@ -41,19 +43,19 @@ struct MessageKey {
 
 
 struct SenderChain {
-    Curve25519KeyPair ratchet_key;
+    _olm_curve25519_key_pair ratchet_key;
     ChainKey chain_key;
 };
 
 
 struct ReceiverChain {
-    Curve25519PublicKey ratchet_key;
+    _olm_curve25519_public_key ratchet_key;
     ChainKey chain_key;
 };
 
 
 struct SkippedMessageKey {
-    Curve25519PublicKey ratchet_key;
+    _olm_curve25519_public_key ratchet_key;
     MessageKey message_key;
 };
 
@@ -108,14 +110,14 @@ struct Ratchet {
      * remote's first ratchet key */
     void initialise_as_bob(
         std::uint8_t const * shared_secret, std::size_t shared_secret_length,
-        Curve25519PublicKey const & their_ratchet_key
+        _olm_curve25519_public_key const & their_ratchet_key
     );
 
     /** Initialise the session using a shared secret and the public/private key
      * pair for the first ratchet key */
     void initialise_as_alice(
         std::uint8_t const * shared_secret, std::size_t shared_secret_length,
-        Curve25519KeyPair const & our_ratchet_key
+        _olm_curve25519_key_pair const & our_ratchet_key
     );
 
     /** The number of bytes of output the encrypt method will write for

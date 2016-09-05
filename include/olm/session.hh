@@ -35,9 +35,9 @@ struct Session {
 
     bool received_message;
 
-    Curve25519PublicKey alice_identity_key;
-    Curve25519PublicKey alice_base_key;
-    Curve25519PublicKey bob_one_time_key;
+    _olm_curve25519_public_key alice_identity_key;
+    _olm_curve25519_public_key alice_base_key;
+    _olm_curve25519_public_key bob_one_time_key;
 
     /** The number of random bytes that are needed to create a new outbound
      * session. This will be 64 bytes since two ephemeral keys are needed. */
@@ -48,8 +48,8 @@ struct Session {
      * NOT_ENOUGH_RANDOM if the number of random bytes was too small. */
     std::size_t new_outbound_session(
         Account const & local_account,
-        Curve25519PublicKey const & identity_key,
-        Curve25519PublicKey const & one_time_key,
+        _olm_curve25519_public_key const & identity_key,
+        _olm_curve25519_public_key const & one_time_key,
         std::uint8_t const * random, std::size_t random_length
     );
 
@@ -59,7 +59,7 @@ struct Session {
      * the message headers could not be decoded. */
     std::size_t new_inbound_session(
         Account & local_account,
-        Curve25519PublicKey const * their_identity_key,
+        _olm_curve25519_public_key const * their_identity_key,
         std::uint8_t const * pre_key_message, std::size_t message_length
     );
 
@@ -82,7 +82,7 @@ struct Session {
      * session does not match or the pre-key message could not be decoded.
      */
     bool matches_inbound_session(
-        Curve25519PublicKey const * their_identity_key,
+        _olm_curve25519_public_key const * their_identity_key,
         std::uint8_t const * pre_key_message, std::size_t message_length
     );
 

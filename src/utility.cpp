@@ -14,7 +14,7 @@
  */
 
 #include "olm/utility.hh"
-#include "olm/crypto.hh"
+#include "olm/crypto.h"
 
 
 olm::Utility::Utility(
@@ -41,7 +41,7 @@ size_t olm::Utility::sha256(
 
 
 size_t olm::Utility::ed25519_verify(
-    Ed25519PublicKey const & key,
+    _olm_ed25519_public_key const & key,
     std::uint8_t const * message, std::size_t message_length,
     std::uint8_t const * signature, std::size_t signature_length
 ) {
@@ -49,7 +49,7 @@ size_t olm::Utility::ed25519_verify(
         last_error = OlmErrorCode::OLM_BAD_MESSAGE_MAC;
         return std::size_t(-1);
     }
-    if (!olm::ed25519_verify(key, message, message_length, signature)) {
+    if (!_olm_crypto_ed25519_verify(&key, message, message_length, signature)) {
         last_error = OlmErrorCode::OLM_BAD_MESSAGE_MAC;
         return std::size_t(-1);
     }

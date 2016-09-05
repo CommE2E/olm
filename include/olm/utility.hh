@@ -21,9 +21,9 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace olm {
+struct _olm_ed25519_public_key;
 
-struct Ed25519PublicKey;
+namespace olm {
 
 struct Utility {
 
@@ -48,7 +48,7 @@ struct Utility {
      * last_error will be set with an error code. If the signature was too short
      * or was not a valid signature then last_error will be BAD_MESSAGE_MAC. */
     std::size_t ed25519_verify(
-        Ed25519PublicKey const & key,
+        _olm_ed25519_public_key const & key,
         std::uint8_t const * message, std::size_t message_length,
         std::uint8_t const * signature, std::size_t signature_length
     );
