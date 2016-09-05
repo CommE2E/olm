@@ -1,3 +1,9 @@
+/* The 'length' argument to Pointer_stringify doesn't work if the input includes
+ * characters >= 128; we therefore need to add a NULL character to all of our
+ * strings. This acts as a symbolic constant to help show what we're doing.
+ */
+var NULL_BYTE_PADDING_LENGTH = 1;
+
 function InboundGroupSession() {
     var size = Module['_olm_inbound_group_session_size']();
     this.buf = malloc(size);
@@ -28,11 +34,11 @@ InboundGroupSession.prototype['pickle'] = restore_stack(function(key) {
         Module['_olm_pickle_inbound_group_session_length']
     )(this.ptr);
     var key_buffer = stack(key_array);
-    var pickle_buffer = stack(pickle_length);
+    var pickle_buffer = stack(pickle_length + NULL_BYTE_PADDING_LENGTH);
     inbound_group_session_method(Module['_olm_pickle_inbound_group_session'])(
         this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
     );
-    return Pointer_stringify(pickle_buffer, pickle_length);
+    return Pointer_stringify(pickle_buffer);
 });
 
 InboundGroupSession.prototype['unpickle'] = restore_stack(function(key, pickle) {
@@ -66,13 +72,21 @@ InboundGroupSession.prototype['decrypt'] = restore_stack(function(
     // caculating the length destroys the input buffer.
     // So we copy the array to a new buffer
     var message_buffer = stack(message_array);
-    var plaintext_buffer = stack(max_plaintext_length);
+    var plaintext_buffer = stack(max_plaintext_length + NULL_BYTE_PADDING_LENGTH);
     var plaintext_length = session_method(Module["_olm_group_decrypt"])(
         this.ptr,
         message_buffer, message_array.length,
         plaintext_buffer, max_plaintext_length
     );
-    return Pointer_stringify(plaintext_buffer, plaintext_length);
+
+    // Pointer_stringify requires a null-terminated argument (the optional
+    // 'len' argument doesn't work for UTF-8 data).
+    Module['setValue'](
+        plaintext_buffer+plaintext_length,
+        0, "i8"
+    );
+
+    return Pointer_stringify(plaintext_buffer);
 });
 
 olm_exports['InboundGroupSession'] = InboundGroupSession;

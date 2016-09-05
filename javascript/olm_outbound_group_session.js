@@ -1,3 +1,9 @@
+/* The 'length' argument to Pointer_stringify doesn't work if the input includes
+ * characters >= 128; we therefore need to add a NULL character to all of our
+ * strings. This acts as a symbolic constant to help show what we're doing.
+ */
+var NULL_BYTE_PADDING_LENGTH = 1;
+
 
 function OutboundGroupSession() {
     var size = Module['_olm_outbound_group_session_size']();
@@ -29,11 +35,11 @@ OutboundGroupSession.prototype['pickle'] = restore_stack(function(key) {
         Module['_olm_pickle_outbound_group_session_length']
     )(this.ptr);
     var key_buffer = stack(key_array);
-    var pickle_buffer = stack(pickle_length);
+    var pickle_buffer = stack(pickle_length + NULL_BYTE_PADDING_LENGTH);
     outbound_group_session_method(Module['_olm_pickle_outbound_group_session'])(
         this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
     );
-    return Pointer_stringify(pickle_buffer, pickle_length);
+    return Pointer_stringify(pickle_buffer);
 });
 
 OutboundGroupSession.prototype['unpickle'] = restore_stack(function(key, pickle) {
@@ -63,35 +69,35 @@ OutboundGroupSession.prototype['encrypt'] = restore_stack(function(plaintext) {
         Module['_olm_group_encrypt_message_length']
     )(this.ptr, plaintext_array.length);
     var plaintext_buffer = stack(plaintext_array);
-    var message_buffer = stack(message_length);
+    var message_buffer = stack(message_length + NULL_BYTE_PADDING_LENGTH);
     outbound_group_session_method(Module['_olm_group_encrypt'])(
         this.ptr,
         plaintext_buffer, plaintext_array.length,
         message_buffer, message_length
     );
-    return Pointer_stringify(message_buffer, message_length);
+    return Pointer_stringify(message_buffer);
 });
 
 OutboundGroupSession.prototype['session_id'] = restore_stack(function(key) {
     var length = outbound_group_session_method(
         Module['_olm_outbound_group_session_id_length']
     )(this.ptr);
-    var session_id = stack(length);
+    var session_id = stack(length + NULL_BYTE_PADDING_LENGTH);
     outbound_group_session_method(Module['_olm_outbound_group_session_id'])(
         this.ptr, session_id, length
     );
-    return Pointer_stringify(session_id, length);
+    return Pointer_stringify(session_id);
 });
 
 OutboundGroupSession.prototype['session_key'] = restore_stack(function(key) {
     var key_length = outbound_group_session_method(
         Module['_olm_outbound_group_session_key_length']
     )(this.ptr);
-    var key = stack(key_length);
+    var key = stack(key_length + NULL_BYTE_PADDING_LENGTH);
     outbound_group_session_method(Module['_olm_outbound_group_session_key'])(
         this.ptr, key, key_length
     );
-    return Pointer_stringify(key, key_length);
+    return Pointer_stringify(key);
 });
 
 OutboundGroupSession.prototype['message_index'] = function() {
