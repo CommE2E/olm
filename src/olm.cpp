@@ -529,6 +529,12 @@ size_t olm_session_id(
 }
 
 
+int olm_session_has_received_message(
+    OlmSession * session
+) {
+    return from_c(session)->received_message;
+}
+
 size_t olm_matches_inbound_session(
     OlmSession * session,
     void * one_time_key_message, size_t message_length

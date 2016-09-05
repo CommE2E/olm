@@ -263,6 +263,13 @@ Session.prototype['session_id'] = restore_stack(function() {
     return Pointer_stringify(id_buffer);
 });
 
+Session.prototype['has_received_message'] = function() {
+    return session_method(Module['_olm_session_has_received_message'])(
+        this.ptr
+    ) ? true : false;
+};
+
+
 Session.prototype['matches_inbound'] = restore_stack(function(
     one_time_key_message
 ) {
