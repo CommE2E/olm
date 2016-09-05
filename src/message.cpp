@@ -334,12 +334,14 @@ static const std::uint8_t GROUP_CIPHERTEXT_TAG = 022;
 size_t _olm_encode_group_message_length(
     uint32_t message_index,
     size_t ciphertext_length,
-    size_t mac_length
+    size_t mac_length,
+    size_t signature_length
 ) {
     size_t length = VERSION_LENGTH;
     length += 1 + varint_length(message_index);
     length += 1 + varstring_length(ciphertext_length);
     length += mac_length;
+    length += signature_length;
     return length;
 }
 
@@ -361,11 +363,12 @@ size_t _olm_encode_group_message(
 
 void _olm_decode_group_message(
     const uint8_t *input, size_t input_length,
-    size_t mac_length,
+    size_t mac_length, size_t signature_length,
     struct _OlmDecodeGroupMessageResults *results
 ) {
     std::uint8_t const * pos = input;
-    std::uint8_t const * end = input + input_length - mac_length;
+    std::size_t trailer_length = mac_length + signature_length;
+    std::uint8_t const * end = input + input_length - trailer_length;
     std::uint8_t const * unknown = nullptr;
 
     bool has_message_index = false;
@@ -373,8 +376,7 @@ void _olm_decode_group_message(
     results->ciphertext = nullptr;
     results->ciphertext_length = 0;
 
-    if (pos == end) return;
-    if (input_length < mac_length) return;
+    if (input_length < trailer_length) return;
     results->version = *(pos++);
 
     while (pos != end) {

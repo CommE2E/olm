@@ -80,11 +80,11 @@ int main() {
     assert_equals(pickle1, pickle2, pickle_length);
 }
 
-
 {
     TestCase test_case("Group message send/receive");
 
     uint8_t random_bytes[] =
+        "0123456789ABDEF0123456789ABCDEF"
         "0123456789ABDEF0123456789ABCDEF"
         "0123456789ABDEF0123456789ABCDEF"
         "0123456789ABDEF0123456789ABCDEF"
@@ -97,7 +97,7 @@ int main() {
     uint8_t memory[size];
     OlmOutboundGroupSession *session = olm_outbound_group_session(memory);
 
-    assert_equals((size_t)132,
+    assert_equals((size_t)164,
                   olm_init_outbound_group_session_random_length(session));
 
     size_t res = olm_init_outbound_group_session(
@@ -108,7 +108,6 @@ int main() {
     size_t session_key_len = olm_outbound_group_session_key_length(session);
     uint8_t session_key[session_key_len];
     olm_outbound_group_session_key(session, session_key, session_key_len);
-
 
     /* encode the message */
     uint8_t plaintext[] = "Message";
@@ -147,5 +146,74 @@ int main() {
     assert_equals(plaintext_length, res);
     assert_equals(plaintext, plaintext_buf, res);
 }
+
+{
+    TestCase test_case("Invalid signature group message");
+
+    uint8_t plaintext[] = "Message";
+    size_t plaintext_length = sizeof(plaintext) - 1;
+
+    uint8_t session_key[] =
+        "ATAxMjM0NTY3ODlBQkRFRjAxMjM0NTY3ODlBQkNERUYwMTIzNDU2Nzg5QUJERUYw"
+        "MTIzNDU2Nzg5QUJDREVGMDEyMzQ1Njc4OUFCREVGMDEyMzQ1Njc4OUFCQ0RFRjAx"
+        "MjM0NTY3ODlBQkRFRjAxMjM0NTY3ODlBQkNERUYwMTIzDRt2DUEOrg/H+yUGjDTq"
+        "ryf8H1YF/BZjI04HwOVSZcY";
+
+    uint8_t message[] =
+        "AwgAEhAcbh6UpbByoyZxufQ+h2B+8XHMjhR69G8F4+qjMaFlnIXusJZX3r8LnROR"
+        "G9T3DXFdbVuvIWrLyRfm4i8QRbe8VPwGRFG57B1CtmxanuP8bHtnnYqlwPsD";
+    size_t msglen = sizeof(message)-1;
+
+    /* build the inbound session */
+    size_t size = olm_inbound_group_session_size();
+    uint8_t inbound_session_memory[size];
+    OlmInboundGroupSession *inbound_session =
+        olm_inbound_group_session(inbound_session_memory);
+
+    size_t res = olm_init_inbound_group_session(
+        inbound_session, 0U, session_key, sizeof(session_key)-1
+    );
+    assert_equals((size_t)0, res);
+
+    /* decode the message */
+
+    /* olm_group_decrypt_max_plaintext_length destroys the input so we have to
+       copy it. */
+    uint8_t msgcopy[msglen];
+    memcpy(msgcopy, message, msglen);
+    size = olm_group_decrypt_max_plaintext_length(
+        inbound_session, msgcopy, msglen
+    );
+
+    memcpy(msgcopy, message, msglen);
+    uint8_t plaintext_buf[size];
+    res = olm_group_decrypt(
+        inbound_session, msgcopy, msglen, plaintext_buf, size
+    );
+    assert_equals(plaintext_length, res);
+    assert_equals(plaintext, plaintext_buf, res);
+
+    /* now twiddle the signature */
+    message[msglen-1] = 'E';
+    memcpy(msgcopy, message, msglen);
+    assert_equals(
+        size,
+        olm_group_decrypt_max_plaintext_length(
+            inbound_session, msgcopy, msglen
+        )
+    );
+
+    memcpy(msgcopy, message, msglen);
+    res = olm_group_decrypt(
+        inbound_session, msgcopy, msglen,
+        plaintext_buf, size
+    );
+    assert_equals((size_t)-1, res);
+    assert_equals(
+        std::string("BAD_SIGNATURE"),
+        std::string(olm_inbound_group_session_last_error(inbound_session))
+    );
+}
+
 
 }

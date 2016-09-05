@@ -37,7 +37,8 @@ extern "C" {
 size_t _olm_encode_group_message_length(
     uint32_t chain_index,
     size_t ciphertext_length,
-    size_t mac_length
+    size_t mac_length,
+    size_t signature_length
 );
 
 /**
@@ -49,7 +50,8 @@ size_t _olm_encode_group_message_length(
  * output:             where to write the output. Should be at least
  *                     olm_encode_group_message_length() bytes long.
  * ciphertext_ptr:     returns the address that the ciphertext
- *                     should be written to, followed by the MAC.
+ *                     should be written to, followed by the MAC and the
+ *                     signature.
  *
  * Returns the size of the message, up to the MAC.
  */
@@ -76,7 +78,7 @@ struct _OlmDecodeGroupMessageResults {
  */
 void _olm_decode_group_message(
     const uint8_t *input, size_t input_length,
-    size_t mac_length,
+    size_t mac_length, size_t signature_length,
 
     /* output structure: updated with results */
     struct _OlmDecodeGroupMessageResults *results

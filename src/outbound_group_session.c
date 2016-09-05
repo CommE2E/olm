@@ -20,6 +20,7 @@
 
 #include "olm/base64.h"
 #include "olm/cipher.h"
+#include "olm/crypto.h"
 #include "olm/error.h"
 #include "olm/megolm.h"
 #include "olm/memory.h"
@@ -31,10 +32,14 @@
 #define SESSION_ID_RANDOM_BYTES  4
 #define GROUP_SESSION_ID_LENGTH (sizeof(struct timeval) + SESSION_ID_RANDOM_BYTES)
 #define PICKLE_VERSION           1
+#define SESSION_KEY_VERSION      1
 
 struct OlmOutboundGroupSession {
     /** the Megolm ratchet providing the encryption keys */
     Megolm ratchet;
+
+    /** The ed25519 keypair used for signing the messages */
+    struct _olm_ed25519_key_pair signing_key;
 
     /** unique identifier for this session */
     uint8_t session_id[GROUP_SESSION_ID_LENGTH];
@@ -74,6 +79,7 @@ static size_t raw_pickle_length(
     size_t length = 0;
     length += _olm_pickle_uint32_length(PICKLE_VERSION);
     length += megolm_pickle_length(&(session->ratchet));
+    length += _olm_pickle_ed25519_key_pair_length(&(session->signing_key));
     length += _olm_pickle_bytes_length(session->session_id,
                                        GROUP_SESSION_ID_LENGTH);
     return length;
@@ -101,6 +107,7 @@ size_t olm_pickle_outbound_group_session(
     pos = _olm_enc_output_pos(pickled, raw_length);
     pos = _olm_pickle_uint32(pos, PICKLE_VERSION);
     pos = megolm_pickle(&(session->ratchet), pos);
+    pos = _olm_pickle_ed25519_key_pair(pos, &(session->signing_key));
     pos = _olm_pickle_bytes(pos, session->session_id, GROUP_SESSION_ID_LENGTH);
 
     return _olm_enc_output(key, key_length, pickled, raw_length);
@@ -130,6 +137,7 @@ size_t olm_unpickle_outbound_group_session(
         return (size_t)-1;
     }
     pos = megolm_unpickle(&(session->ratchet), pos, end);
+    pos = _olm_unpickle_ed25519_key_pair(pos, end, &(session->signing_key));
     pos = _olm_unpickle_bytes(pos, end, session->session_id, GROUP_SESSION_ID_LENGTH);
 
     if (end != pos) {
@@ -148,7 +156,9 @@ size_t olm_init_outbound_group_session_random_length(
     /* we need data to initialize the megolm ratchet, plus some more for the
      * session id.
      */
-    return MEGOLM_RATCHET_LENGTH + SESSION_ID_RANDOM_BYTES;
+    return MEGOLM_RATCHET_LENGTH +
+        ED25519_RANDOM_LENGTH +
+        SESSION_ID_RANDOM_BYTES;
 }
 
 size_t olm_init_outbound_group_session(
@@ -163,6 +173,9 @@ size_t olm_init_outbound_group_session(
 
     megolm_init(&(session->ratchet), random, 0);
     random += MEGOLM_RATCHET_LENGTH;
+
+    _olm_crypto_ed25519_generate_key(random, &(session->signing_key));
+    random += ED25519_RANDOM_LENGTH;
 
     /* initialise the session id. This just has to be unique. We use the
      * current time plus some random data.
@@ -188,7 +201,8 @@ static size_t raw_message_length(
 
     return _olm_encode_group_message_length(
         session->ratchet.counter,
-        ciphertext_length, mac_length);
+        ciphertext_length, mac_length, ED25519_SIGNATURE_LENGTH
+    );
 }
 
 size_t olm_group_encrypt_message_length(
@@ -240,6 +254,13 @@ static size_t _encrypt(
     }
 
     megolm_advance(&(session->ratchet));
+
+    /* sign the whole thing with the ed25519 key. */
+    _olm_crypto_ed25519_sign(
+        &(session->signing_key),
+        buffer, message_length,
+        buffer + message_length
+    );
 
     return result;
 }
@@ -302,23 +323,40 @@ uint32_t olm_outbound_group_session_message_index(
     return session->ratchet.counter;
 }
 
+#define SESSION_KEY_RAW_LENGTH \
+    (1 + MEGOLM_RATCHET_LENGTH + ED25519_PUBLIC_KEY_LENGTH)
+
 size_t olm_outbound_group_session_key_length(
     const OlmOutboundGroupSession *session
 ) {
-    return _olm_encode_base64_length(MEGOLM_RATCHET_LENGTH);
+    return _olm_encode_base64_length(SESSION_KEY_RAW_LENGTH);
 }
 
 size_t olm_outbound_group_session_key(
     OlmOutboundGroupSession *session,
     uint8_t * key, size_t key_length
 ) {
-    if (key_length < olm_outbound_group_session_key_length(session)) {
+    uint8_t *raw;
+    uint8_t *ptr;
+    size_t encoded_length = olm_outbound_group_session_key_length(session);
+
+    if (key_length < encoded_length) {
         session->last_error = OLM_OUTPUT_BUFFER_TOO_SMALL;
         return (size_t)-1;
     }
 
-    return _olm_encode_base64(
-        megolm_get_data(&session->ratchet),
-        MEGOLM_RATCHET_LENGTH, key
+    /* put the raw data at the end of the output buffer. */
+    raw = ptr = key + encoded_length - SESSION_KEY_RAW_LENGTH;
+    *ptr++ = SESSION_KEY_VERSION;
+
+    memcpy(ptr, megolm_get_data(&session->ratchet), MEGOLM_RATCHET_LENGTH);
+    ptr += MEGOLM_RATCHET_LENGTH;
+
+    memcpy(
+        ptr, session->signing_key.public_key.public_key,
+        ED25519_PUBLIC_KEY_LENGTH
     );
+    ptr += ED25519_PUBLIC_KEY_LENGTH;
+
+    return _olm_encode_base64(raw, SESSION_KEY_RAW_LENGTH, key);
 }

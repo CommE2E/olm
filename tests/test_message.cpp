@@ -67,8 +67,8 @@ assert_equals(message2, output, 35);
 
     TestCase test_case("Group message encode test");
 
-    size_t length = _olm_encode_group_message_length(200, 10, 8);
-    size_t expected_length = 1 + (1+2) + (2+10) + 8;
+    size_t length = _olm_encode_group_message_length(200, 10, 8, 64);
+    size_t expected_length = 1 + (1+2) + (2+10) + 8 + 64;
     assert_equals(expected_length, length);
 
     uint8_t output[50];
@@ -99,9 +99,10 @@ assert_equals(message2, output, 35);
         "\x03"
         "\x08\xC8\x01"
         "\x12\x0A" "ciphertext"
-        "hmacsha2";
+        "hmacsha2"
+        "ed25519signature";
 
-    _olm_decode_group_message(message, sizeof(message)-1, 8, &results);
+    _olm_decode_group_message(message, sizeof(message)-1, 8, 16, &results);
     assert_equals(std::uint8_t(3), results.version);
     assert_equals(1, results.has_message_index);
     assert_equals(std::uint32_t(200), results.message_index);
