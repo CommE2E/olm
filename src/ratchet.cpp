@@ -49,7 +49,7 @@ static void create_chain_key(
 ) {
     olm::SharedKey secret;
     olm::curve25519_shared_secret(our_key, their_key, secret);
-    std::uint8_t derived_secrets[2 * olm::KEY_LENGTH];
+    std::uint8_t derived_secrets[2 * olm::OLM_SHARED_KEY_LENGTH];
     _olm_crypto_hkdf_sha256(
         secret, sizeof(secret),
         root_key, sizeof(root_key),
@@ -191,7 +191,7 @@ void olm::Ratchet::initialise_as_bob(
     std::uint8_t const * shared_secret, std::size_t shared_secret_length,
     olm::Curve25519PublicKey const & their_ratchet_key
 ) {
-    std::uint8_t derived_secrets[2 * olm::KEY_LENGTH];
+    std::uint8_t derived_secrets[2 * olm::OLM_SHARED_KEY_LENGTH];
     _olm_crypto_hkdf_sha256(
         shared_secret, shared_secret_length,
         nullptr, 0,
@@ -212,7 +212,7 @@ void olm::Ratchet::initialise_as_alice(
     std::uint8_t const * shared_secret, std::size_t shared_secret_length,
     olm::Curve25519KeyPair const & our_ratchet_key
 ) {
-    std::uint8_t derived_secrets[2 * olm::KEY_LENGTH];
+    std::uint8_t derived_secrets[2 * olm::OLM_SHARED_KEY_LENGTH];
     _olm_crypto_hkdf_sha256(
         shared_secret, shared_secret_length,
         nullptr, 0,
@@ -234,7 +234,7 @@ namespace olm {
 static std::size_t pickle_length(
     const olm::SharedKey & value
 ) {
-    return olm::KEY_LENGTH;
+    return olm::OLM_SHARED_KEY_LENGTH;
 }
 
 
@@ -242,7 +242,7 @@ static std::uint8_t * pickle(
     std::uint8_t * pos,
     const olm::SharedKey & value
 ) {
-    return olm::pickle_bytes(pos, value, olm::KEY_LENGTH);
+    return olm::pickle_bytes(pos, value, olm::OLM_SHARED_KEY_LENGTH);
 }
 
 
@@ -250,7 +250,7 @@ static std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
     olm::SharedKey & value
 ) {
-    return olm::unpickle_bytes(pos, end, value, olm::KEY_LENGTH);
+    return olm::unpickle_bytes(pos, end, value, olm::OLM_SHARED_KEY_LENGTH);
 }
 
 
@@ -359,7 +359,7 @@ std::size_t olm::pickle_length(
     olm::Ratchet const & value
 ) {
     std::size_t length = 0;
-    length += olm::KEY_LENGTH;
+    length += olm::OLM_SHARED_KEY_LENGTH;
     length += olm::pickle_length(value.sender_chain);
     length += olm::pickle_length(value.receiver_chains);
     length += olm::pickle_length(value.skipped_message_keys);
@@ -409,13 +409,13 @@ std::size_t olm::Ratchet::encrypt_output_length(
         plaintext_length
     );
     return olm::encode_message_length(
-        counter, olm::KEY_LENGTH, padded, ratchet_cipher->ops->mac_length(ratchet_cipher)
+        counter, CURVE25519_KEY_LENGTH, padded, ratchet_cipher->ops->mac_length(ratchet_cipher)
     );
 }
 
 
 std::size_t olm::Ratchet::encrypt_random_length() {
-    return sender_chain.empty() ? olm::KEY_LENGTH : 0;
+    return sender_chain.empty() ? CURVE25519_RANDOM_LENGTH : 0;
 }
 
 
@@ -461,7 +461,8 @@ std::size_t olm::Ratchet::encrypt(
     olm::MessageWriter writer;
 
     olm::encode_message(
-        writer, PROTOCOL_VERSION, counter, olm::KEY_LENGTH, ciphertext_length,
+        writer, PROTOCOL_VERSION, counter, CURVE25519_KEY_LENGTH,
+        ciphertext_length,
         output
     );
 
@@ -529,7 +530,7 @@ std::size_t olm::Ratchet::decrypt(
         return std::size_t(-1);
     }
 
-    if (reader.ratchet_key_length != olm::KEY_LENGTH) {
+    if (reader.ratchet_key_length != CURVE25519_KEY_LENGTH) {
         last_error = OlmErrorCode::OLM_BAD_MESSAGE_FORMAT;
         return std::size_t(-1);
     }
@@ -539,7 +540,7 @@ std::size_t olm::Ratchet::decrypt(
     for (olm::ReceiverChain & receiver_chain : receiver_chains) {
         if (0 == std::memcmp(
                 receiver_chain.ratchet_key.public_key, reader.ratchet_key,
-                olm::KEY_LENGTH
+                CURVE25519_KEY_LENGTH
         )) {
             chain = &receiver_chain;
             break;
@@ -559,7 +560,7 @@ std::size_t olm::Ratchet::decrypt(
             if (reader.counter == skipped.message_key.index
                     && 0 == std::memcmp(
                         skipped.ratchet_key.public_key, reader.ratchet_key,
-                        olm::KEY_LENGTH
+                        CURVE25519_KEY_LENGTH
                     )
             ) {
                 /* Found the key for this message. Check the MAC. */

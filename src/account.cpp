@@ -49,7 +49,7 @@ std::size_t olm::Account::remove_key(
 }
 
 std::size_t olm::Account::new_account_random_length() {
-    return 2 * olm::KEY_LENGTH;
+    return ED25519_RANDOM_LENGTH + CURVE25519_RANDOM_LENGTH;
 }
 
 std::size_t olm::Account::new_account(
@@ -61,7 +61,7 @@ std::size_t olm::Account::new_account(
     }
 
     olm::ed25519_generate_key(random, identity_keys.ed25519_key);
-    random += KEY_LENGTH;
+    random += ED25519_RANDOM_LENGTH;
     olm::curve25519_generate_key(random, identity_keys.curve25519_key);
 
     return 0;
@@ -137,7 +137,7 @@ std::size_t olm::Account::get_identity_json(
 
 std::size_t olm::Account::signature_length(
 ) {
-    return olm::SIGNATURE_LENGTH;
+    return ED25519_SIGNATURE_LENGTH;
 }
 
 
@@ -238,7 +238,7 @@ std::size_t olm::Account::max_number_of_one_time_keys(
 std::size_t olm::Account::generate_one_time_keys_random_length(
     std::size_t number_of_keys
 ) {
-    return olm::KEY_LENGTH * number_of_keys;
+    return CURVE25519_RANDOM_LENGTH * number_of_keys;
 }
 
 std::size_t olm::Account::generate_one_time_keys(
@@ -254,7 +254,7 @@ std::size_t olm::Account::generate_one_time_keys(
         key.id = ++next_one_time_key_id;
         key.published = false;
         olm::curve25519_generate_key(random, key.key);
-        random += olm::KEY_LENGTH;
+        random += CURVE25519_RANDOM_LENGTH;
     }
     return number_of_keys;
 }

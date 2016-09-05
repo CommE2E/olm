@@ -17,11 +17,13 @@
 #include "olm/memory.hh"
 #include <cstring>
 
+const std::size_t HMAC_KEY_LENGTH = 32;
+
 namespace {
 
 struct DerivedKeys {
     olm::Aes256Key aes_key;
-    std::uint8_t mac_key[olm::KEY_LENGTH];
+    std::uint8_t mac_key[HMAC_KEY_LENGTH];
     olm::Aes256Iv aes_iv;
 };
 
@@ -31,7 +33,9 @@ static void derive_keys(
     std::uint8_t const * key, std::size_t key_length,
     DerivedKeys & keys
 ) {
-    std::uint8_t derived_secrets[2 * olm::KEY_LENGTH + olm::IV_LENGTH];
+    std::uint8_t derived_secrets[
+        AES256_KEY_LENGTH + HMAC_KEY_LENGTH + AES256_IV_LENGTH
+    ];
     _olm_crypto_hkdf_sha256(
         key, key_length,
         nullptr, 0,
@@ -81,7 +85,7 @@ size_t aes_sha_256_cipher_encrypt(
     );
 
     _olm_crypto_hmac_sha256(
-        keys.mac_key, olm::KEY_LENGTH, output, output_length - MAC_LENGTH, mac
+        keys.mac_key, HMAC_KEY_LENGTH, output, output_length - MAC_LENGTH, mac
     );
 
     std::memcpy(output + output_length - MAC_LENGTH, mac, MAC_LENGTH);
@@ -113,7 +117,7 @@ size_t aes_sha_256_cipher_decrypt(
     derive_keys(c->kdf_info, c->kdf_info_length, key, key_length, keys);
 
     _olm_crypto_hmac_sha256(
-        keys.mac_key, olm::KEY_LENGTH, input, input_length - MAC_LENGTH, mac
+        keys.mac_key, HMAC_KEY_LENGTH, input, input_length - MAC_LENGTH, mac
     );
 
     std::uint8_t const * input_mac = input + input_length - MAC_LENGTH;

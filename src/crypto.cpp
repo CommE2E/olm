@@ -31,7 +31,7 @@ namespace {
 
 static const std::uint8_t CURVE25519_BASEPOINT[32] = {9};
 static const std::size_t AES_KEY_SCHEDULE_LENGTH = 60;
-static const std::size_t AES_KEY_BITS = 8 * olm::KEY_LENGTH;
+static const std::size_t AES_KEY_BITS = 8 * AES256_KEY_LENGTH;
 static const std::size_t AES_BLOCK_LENGTH = 16;
 static const std::size_t SHA256_BLOCK_LENGTH = 64;
 static const std::uint8_t HKDF_DEFAULT_SALT[32] = {};
@@ -104,7 +104,7 @@ void olm::curve25519_generate_key(
     std::uint8_t const * random_32_bytes,
     olm::Curve25519KeyPair & key_pair
 ) {
-    std::memcpy(key_pair.private_key, random_32_bytes, KEY_LENGTH);
+    std::memcpy(key_pair.private_key, random_32_bytes, CURVE25519_KEY_LENGTH);
     ::curve25519_donna(
         key_pair.public_key, key_pair.private_key, CURVE25519_BASEPOINT
     );

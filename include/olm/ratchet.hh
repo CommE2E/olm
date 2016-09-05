@@ -21,8 +21,13 @@ struct _olm_cipher;
 
 namespace olm {
 
-typedef std::uint8_t SharedKey[olm::KEY_LENGTH];
+/** length of a shared key: the root key R(i), chain key C(i,j), and message key
+ * M(i,j)). They are all only used to stuff into HMACs, so could be any length
+ * for that. The chain key and message key are both derived from SHA256
+ * operations, so their length is determined by that. */
+const std::size_t OLM_SHARED_KEY_LENGTH = SHA256_OUTPUT_LENGTH;
 
+typedef std::uint8_t SharedKey[OLM_SHARED_KEY_LENGTH];
 
 struct ChainKey {
     std::uint32_t index;
