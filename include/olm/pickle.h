@@ -21,6 +21,10 @@
 extern "C" {
 #endif
 
+struct _olm_ed25519_public_key;
+struct _olm_ed25519_key_pair;
+
+
 #define _olm_pickle_uint32_length(value) 4
 uint8_t * _olm_pickle_uint32(uint8_t * pos, uint32_t value);
 uint8_t const * _olm_unpickle_uint32(
@@ -42,6 +46,42 @@ uint8_t * _olm_pickle_bytes(uint8_t * pos, uint8_t const * bytes,
 uint8_t const * _olm_unpickle_bytes(uint8_t const * pos, uint8_t const * end,
                                    uint8_t * bytes, size_t bytes_length);
 
+
+/** Get the number of bytes needed to pickle an ed25519 public key */
+size_t _olm_pickle_ed25519_public_key_length(
+    const struct _olm_ed25519_public_key * value
+);
+
+/** Pickle the ed25519 public key. Returns a pointer to the next free space in
+ * the buffer. */
+uint8_t * _olm_pickle_ed25519_public_key(
+    uint8_t *pos, const struct _olm_ed25519_public_key * value
+);
+
+/** Unpickle the ed25519 public key. Returns a pointer to the next item in the
+ * buffer. */
+const uint8_t * _olm_unpickle_ed25519_public_key(
+    const uint8_t *pos, const uint8_t *end,
+    struct _olm_ed25519_public_key * value
+);
+
+/** Get the number of bytes needed to pickle an ed25519 key pair */
+size_t _olm_pickle_ed25519_key_pair_length(
+    const struct _olm_ed25519_key_pair * value
+);
+
+/** Pickle the ed25519 key pair. Returns a pointer to the next free space in
+ * the buffer. */
+uint8_t * _olm_pickle_ed25519_key_pair(
+    uint8_t *pos, const struct _olm_ed25519_key_pair * value
+);
+
+/** Unpickle the ed25519 key pair. Returns a pointer to the next item in the
+ * buffer. */
+const uint8_t * _olm_unpickle_ed25519_key_pair(
+    const uint8_t *pos, const uint8_t *end,
+    struct _olm_ed25519_key_pair * value
+);
 
 #ifdef __cplusplus
 } // extern "C"

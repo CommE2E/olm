@@ -14,6 +14,7 @@
  */
 #include "olm/account.hh"
 #include "olm/base64.hh"
+#include "olm/pickle.h"
 #include "olm/pickle.hh"
 #include "olm/memory.hh"
 
@@ -265,7 +266,7 @@ static std::size_t pickle_length(
     olm::IdentityKeys const & value
 ) {
     size_t length = 0;
-    length += olm::pickle_length(value.ed25519_key);
+    length += _olm_pickle_ed25519_key_pair_length(&value.ed25519_key);
     length += olm::pickle_length(value.curve25519_key);
     return length;
 }
@@ -275,7 +276,7 @@ static std::uint8_t * pickle(
     std::uint8_t * pos,
     olm::IdentityKeys const & value
 ) {
-    pos = olm::pickle(pos, value.ed25519_key);
+    pos = _olm_pickle_ed25519_key_pair(pos, &value.ed25519_key);
     pos = olm::pickle(pos, value.curve25519_key);
     return pos;
 }
@@ -285,7 +286,7 @@ static std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
     olm::IdentityKeys & value
 ) {
-    pos = olm::unpickle(pos, end, value.ed25519_key);
+    pos = _olm_unpickle_ed25519_key_pair(pos, end, &value.ed25519_key);
     pos = olm::unpickle(pos, end, value.curve25519_key);
     return pos;
 }
