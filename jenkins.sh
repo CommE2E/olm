@@ -9,3 +9,4 @@ make test
 
 . ~/.emsdk_set_env.sh
 make js
+npm pack javascript
