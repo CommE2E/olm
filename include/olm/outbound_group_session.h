@@ -160,7 +160,7 @@ size_t olm_outbound_group_session_key_length(
 /**
  * Get the base64-encoded current ratchet key for this session.
  *
- * Each message is sent with a diffent ratchet key. This function returns the
+ * Each message is sent with a different ratchet key. This function returns the
  * ratchet key that will be used for the next message.
  *
  * Returns the length of the ratchet key on success or olm_error() on

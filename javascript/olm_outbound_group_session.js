@@ -53,7 +53,7 @@ OutboundGroupSession.prototype['unpickle'] = restore_stack(function(key, pickle)
     );
 });
 
-OutboundGroupSession.prototype['create'] = restore_stack(function(key) {
+OutboundGroupSession.prototype['create'] = restore_stack(function() {
     var random_length = outbound_group_session_method(
         Module['_olm_init_outbound_group_session_random_length']
     )(this.ptr);
@@ -78,7 +78,7 @@ OutboundGroupSession.prototype['encrypt'] = restore_stack(function(plaintext) {
     return Pointer_stringify(message_buffer);
 });
 
-OutboundGroupSession.prototype['session_id'] = restore_stack(function(key) {
+OutboundGroupSession.prototype['session_id'] = restore_stack(function() {
     var length = outbound_group_session_method(
         Module['_olm_outbound_group_session_id_length']
     )(this.ptr);
@@ -89,7 +89,7 @@ OutboundGroupSession.prototype['session_id'] = restore_stack(function(key) {
     return Pointer_stringify(session_id);
 });
 
-OutboundGroupSession.prototype['session_key'] = restore_stack(function(key) {
+OutboundGroupSession.prototype['session_key'] = restore_stack(function() {
     var key_length = outbound_group_session_method(
         Module['_olm_outbound_group_session_key_length']
     )(this.ptr);
