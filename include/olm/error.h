@@ -46,6 +46,11 @@ enum OlmErrorCode {
      */
     OLM_BAD_LEGACY_ACCOUNT_PICKLE = 13,
 
+    /**
+     * Received message had a bad signature
+     */
+    OLM_BAD_SIGNATURE = 14,
+
     /* remember to update the list of string constants in error.c when updating
      * this list. */
 };
