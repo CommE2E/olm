@@ -141,40 +141,6 @@ std::uint8_t const * unpickle(
     _olm_curve25519_key_pair & value
 );
 
-
-std::size_t pickle_length(
-    const _olm_ed25519_public_key & value
-);
-
-
-std::uint8_t * pickle(
-    std::uint8_t * pos,
-    const _olm_ed25519_public_key & value
-);
-
-
-std::uint8_t const * unpickle(
-    std::uint8_t const * pos, std::uint8_t const * end,
-    _olm_ed25519_public_key & value
-);
-
-
-std::size_t pickle_length(
-    const _olm_ed25519_key_pair & value
-);
-
-
-std::uint8_t * pickle(
-    std::uint8_t * pos,
-    const _olm_ed25519_key_pair & value
-);
-
-
-std::uint8_t const * unpickle(
-    std::uint8_t const * pos, std::uint8_t const * end,
-    _olm_ed25519_key_pair & value
-);
-
 } // namespace olm
 
 

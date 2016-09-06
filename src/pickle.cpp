@@ -139,76 +139,75 @@ std::uint8_t const * olm::unpickle(
     return pos;
 }
 
-std::size_t olm::pickle_length(
-    const _olm_ed25519_public_key & value
-) {
-    return sizeof(value.public_key);
-}
-
-
-std::uint8_t * olm::pickle(
-    std::uint8_t * pos,
-    const _olm_ed25519_public_key & value
-) {
-    pos = olm::pickle_bytes(
-        pos, value.public_key, sizeof(value.public_key)
-    );
-    return pos;
-}
-
-
-std::uint8_t const * olm::unpickle(
-    std::uint8_t const * pos, std::uint8_t const * end,
-    _olm_ed25519_public_key & value
-) {
-    pos = olm::unpickle_bytes(
-        pos, end, value.public_key, sizeof(value.public_key)
-    );
-    return pos;
-
-}
-
-
-std::size_t olm::pickle_length(
-    const _olm_ed25519_key_pair & value
-) {
-    return sizeof(value.public_key.public_key)
-        + sizeof(value.private_key.private_key);
-}
-
-
-std::uint8_t * olm::pickle(
-    std::uint8_t * pos,
-    const _olm_ed25519_key_pair & value
-) {
-    pos = olm::pickle_bytes(
-        pos, value.public_key.public_key,
-        sizeof(value.public_key.public_key)
-    );
-    pos = olm::pickle_bytes(
-        pos, value.private_key.private_key,
-        sizeof(value.private_key.private_key)
-    );
-    return pos;
-}
-
-
-std::uint8_t const * olm::unpickle(
-    std::uint8_t const * pos, std::uint8_t const * end,
-    _olm_ed25519_key_pair & value
-) {
-    pos = olm::unpickle_bytes(
-        pos, end, value.public_key.public_key,
-        sizeof(value.public_key.public_key)
-    );
-    pos = olm::unpickle_bytes(
-        pos, end, value.private_key.private_key,
-        sizeof(value.private_key.private_key)
-    );
-    return pos;
-}
-
 ////// pickle.h implementations
+
+std::size_t _olm_pickle_ed25519_public_key_length(
+    const _olm_ed25519_public_key * value
+) {
+    return sizeof(value->public_key);
+}
+
+
+std::uint8_t * _olm_pickle_ed25519_public_key(
+    std::uint8_t * pos,
+    const _olm_ed25519_public_key *value
+) {
+    pos = olm::pickle_bytes(
+        pos, value->public_key, sizeof(value->public_key)
+    );
+    return pos;
+}
+
+
+std::uint8_t const * _olm_unpickle_ed25519_public_key(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    _olm_ed25519_public_key * value
+) {
+    pos = olm::unpickle_bytes(
+        pos, end, value->public_key, sizeof(value->public_key)
+    );
+    return pos;
+}
+
+
+std::size_t _olm_pickle_ed25519_key_pair_length(
+    const _olm_ed25519_key_pair *value
+) {
+    return sizeof(value->public_key.public_key)
+        + sizeof(value->private_key.private_key);
+}
+
+
+std::uint8_t * _olm_pickle_ed25519_key_pair(
+    std::uint8_t * pos,
+    const _olm_ed25519_key_pair *value
+) {
+    pos = olm::pickle_bytes(
+        pos, value->public_key.public_key,
+        sizeof(value->public_key.public_key)
+    );
+    pos = olm::pickle_bytes(
+        pos, value->private_key.private_key,
+        sizeof(value->private_key.private_key)
+    );
+    return pos;
+}
+
+
+std::uint8_t const * _olm_unpickle_ed25519_key_pair(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    _olm_ed25519_key_pair *value
+) {
+    pos = olm::unpickle_bytes(
+        pos, end, value->public_key.public_key,
+        sizeof(value->public_key.public_key)
+    );
+    pos = olm::unpickle_bytes(
+        pos, end, value->private_key.private_key,
+        sizeof(value->private_key.private_key)
+    );
+    return pos;
+}
 
 uint8_t * _olm_pickle_uint32(uint8_t * pos, uint32_t value) {
     return olm::pickle(pos, value);
