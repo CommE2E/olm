@@ -1,3 +1,25 @@
+Changes in `1.2.0 <http://matrix.org/git/olm/commit/?h=1.2.0>`_
+===============================================================
+
+This release updates the implementation of group session communications, to
+include Ed25519 signatures on group messages, to ensure that participants in
+group sessions cannot masquerade as each other.
+
+These changes necessitate changes to the pickle format of inbound and outbound
+group sessions, as well as the session_keys exchanged between them. No attempt
+has been made to preserve backwards-compatibility:
+
+* Attempting to restore old pickles will give ``OLM_CORRUPTED_PICKLE``.
+* Attempting to send session_keys between old and new versions will give
+  ``OLM_BAD_SESSION_KEY``.
+* Attempting to send messages between old and new versions will give one of a
+  number of errors.
+
+There were also a number of implementation changes made as part of this
+release, aimed at making the codebase more consistent, and to help with the
+implementation of the group message signatures.
+
+
 Changes in `1.1.0 <http://matrix.org/git/olm/commit/?h=1.1.0>`_
 ===============================================================
 
