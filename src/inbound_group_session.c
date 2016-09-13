@@ -88,10 +88,10 @@ static size_t _init_group_session_keys(
     }
 
     uint32_t counter = 0;
-    counter <<= 8; counter |= *ptr++;
-    counter <<= 8; counter |= *ptr++;
-    counter <<= 8; counter |= *ptr++;
-    counter <<= 8; counter |= *ptr++;
+    // Decode counter as a big endian 32-bit number.
+    for (unsigned i = 0; i < 4; i++) {
+        counter <<= 8; counter |= *ptr++;
+    }
 
     megolm_init(&session->initial_ratchet, ptr, counter);
     megolm_init(&session->latest_ratchet, ptr, counter);

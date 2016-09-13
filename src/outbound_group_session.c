@@ -337,10 +337,10 @@ size_t olm_outbound_group_session_key(
     *ptr++ = SESSION_KEY_VERSION;
 
     uint32_t counter = session->ratchet.counter;
-    *ptr++ = 0xFF & (counter >> 24); counter <<= 8;
-    *ptr++ = 0xFF & (counter >> 24); counter <<= 8;
-    *ptr++ = 0xFF & (counter >> 24); counter <<= 8;
-    *ptr++ = 0xFF & (counter >> 24); counter <<= 8;
+    // Encode counter as a big endian 32-bit number.
+    if (unsigned i = 0; i < 4; i++) {
+        *ptr++ = 0xFF & (counter >> 24); counter <<= 8;
+    }
 
     memcpy(ptr, megolm_get_data(&session->ratchet), MEGOLM_RATCHET_LENGTH);
     ptr += MEGOLM_RATCHET_LENGTH;
