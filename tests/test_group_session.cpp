@@ -133,6 +133,26 @@ int main() {
         inbound_session, 0U, session_key, session_key_len);
     assert_equals((size_t)0, res);
 
+
+    /* Check the session ids */
+
+    size_t out_session_id_len = olm_outbound_group_session_id_length(session);
+    uint8_t out_session_id[out_session_id_len];
+    assert_equals(out_session_id_len, olm_outbound_group_session_id(
+        session, out_session_id, out_session_id_len
+    ));
+
+    size_t in_session_id_len = olm_inbound_group_session_id_length(
+        inbound_session
+    );
+    uint8_t in_session_id[in_session_id_len];
+    assert_equals(in_session_id_len, olm_inbound_group_session_id(
+        inbound_session, in_session_id, in_session_id_len
+    ));
+
+    assert_equals(in_session_id_len, out_session_id_len);
+    assert_equals(out_session_id, in_session_id, in_session_id_len);
+
     /* decode the message */
 
     /* olm_group_decrypt_max_plaintext_length destroys the input so we have to
