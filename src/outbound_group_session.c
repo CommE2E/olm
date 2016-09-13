@@ -338,7 +338,7 @@ size_t olm_outbound_group_session_key(
 
     uint32_t counter = session->ratchet.counter;
     // Encode counter as a big endian 32-bit number.
-    if (unsigned i = 0; i < 4; i++) {
+    for (unsigned i = 0; i < 4; i++) {
         *ptr++ = 0xFF & (counter >> 24); counter <<= 8;
     }
 
