@@ -113,7 +113,6 @@ static size_t _init_group_session_keys(
 
 size_t olm_init_inbound_group_session(
     OlmInboundGroupSession *session,
-    uint32_t message_index,
     const uint8_t * session_key, size_t session_key_length
 ) {
     uint8_t key_buf[SESSION_KEY_RAW_LENGTH];

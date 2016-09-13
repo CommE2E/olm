@@ -52,12 +52,12 @@ InboundGroupSession.prototype['unpickle'] = restore_stack(function(key, pickle) 
     );
 });
 
-InboundGroupSession.prototype['create'] = restore_stack(function(message_index, session_key) {
+InboundGroupSession.prototype['create'] = restore_stack(function(session_key) {
     var key_array = array_from_string(session_key);
     var key_buffer = stack(key_array);
 
     inbound_group_session_method(Module['_olm_init_inbound_group_session'])(
-        this.ptr, message_index, key_buffer, key_array.length
+        this.ptr, key_buffer, key_array.length
     );
 });
 

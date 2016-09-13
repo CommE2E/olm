@@ -130,7 +130,7 @@ int main() {
         olm_inbound_group_session(inbound_session_memory);
 
     res = olm_init_inbound_group_session(
-        inbound_session, 0U, session_key, session_key_len);
+        inbound_session, session_key, session_key_len);
     assert_equals((size_t)0, res);
 
     /* decode the message */
@@ -172,7 +172,7 @@ int main() {
         olm_inbound_group_session(inbound_session_memory);
 
     size_t res = olm_init_inbound_group_session(
-        inbound_session, 0U, session_key, sizeof(session_key)-1
+        inbound_session, session_key, sizeof(session_key)-1
     );
     assert_equals((size_t)0, res);
 
