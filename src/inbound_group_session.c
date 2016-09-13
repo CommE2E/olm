@@ -30,7 +30,7 @@
 
 #define OLM_PROTOCOL_VERSION     3
 #define PICKLE_VERSION           1
-#define SESSION_KEY_VERSION      1
+#define SESSION_KEY_VERSION      2
 
 struct OlmInboundGroupSession {
     /** our earliest known ratchet value */
@@ -71,12 +71,12 @@ size_t olm_clear_inbound_group_session(
 }
 
 #define SESSION_KEY_RAW_LENGTH \
-    (1 + MEGOLM_RATCHET_LENGTH + ED25519_PUBLIC_KEY_LENGTH)
+    (1 + 4 + MEGOLM_RATCHET_LENGTH + ED25519_PUBLIC_KEY_LENGTH\
+        + ED25519_SIGNATURE_LENGTH)
 
 /** init the session keys from the un-base64-ed session keys */
 static size_t _init_group_session_keys(
     OlmInboundGroupSession *session,
-    uint32_t message_index,
     const uint8_t *key_buf
 ) {
     const uint8_t *ptr = key_buf;
@@ -87,13 +87,27 @@ static size_t _init_group_session_keys(
         return (size_t)-1;
     }
 
-    megolm_init(&session->initial_ratchet, ptr, message_index);
-    megolm_init(&session->latest_ratchet, ptr, message_index);
+    uint32_t counter = 0;
+    counter <<= 8; counter |= *ptr++;
+    counter <<= 8; counter |= *ptr++;
+    counter <<= 8; counter |= *ptr++;
+    counter <<= 8; counter |= *ptr++;
+
+    megolm_init(&session->initial_ratchet, ptr, counter);
+    megolm_init(&session->latest_ratchet, ptr, counter);
+
     ptr += MEGOLM_RATCHET_LENGTH;
     memcpy(
         session->signing_key.public_key, ptr, ED25519_PUBLIC_KEY_LENGTH
     );
     ptr += ED25519_PUBLIC_KEY_LENGTH;
+
+    if (!_olm_crypto_ed25519_verify(
+        &session->signing_key, key_buf, ptr - key_buf, ptr
+    )) {
+        session->last_error = OLM_BAD_SIGNATURE;
+        return (size_t)-1;
+    }
     return 0;
 }
 
@@ -117,7 +131,7 @@ size_t olm_init_inbound_group_session(
     }
 
     _olm_decode_base64(session_key, session_key_length, key_buf);
-    result = _init_group_session_keys(session, message_index, key_buf);
+    result = _init_group_session_keys(session, key_buf);
     _olm_unset(key_buf, SESSION_KEY_RAW_LENGTH);
     return result;
 }
@@ -287,7 +301,6 @@ static size_t _decrypt(
         session->last_error = OLM_BAD_SIGNATURE;
         return (size_t)-1;
     }
-
 
     max_length = megolm_cipher->ops->decrypt_max_plaintext_length(
         megolm_cipher,

@@ -97,7 +97,7 @@ int main() {
     uint8_t memory[size];
     OlmOutboundGroupSession *session = olm_outbound_group_session(memory);
 
-    assert_equals((size_t)164,
+    assert_equals((size_t)160,
                   olm_init_outbound_group_session_random_length(session));
 
     size_t res = olm_init_outbound_group_session(
@@ -154,14 +154,15 @@ int main() {
     size_t plaintext_length = sizeof(plaintext) - 1;
 
     uint8_t session_key[] =
-        "ATAxMjM0NTY3ODlBQkRFRjAxMjM0NTY3ODlBQkNERUYwMTIzNDU2Nzg5QUJERUYw"
-        "MTIzNDU2Nzg5QUJDREVGMDEyMzQ1Njc4OUFCREVGMDEyMzQ1Njc4OUFCQ0RFRjAx"
-        "MjM0NTY3ODlBQkRFRjAxMjM0NTY3ODlBQkNERUYwMTIzDRt2DUEOrg/H+yUGjDTq"
-        "ryf8H1YF/BZjI04HwOVSZcY";
+        "AgAAAAAwMTIzNDU2Nzg5QUJERUYwMTIzNDU2Nzg5QUJDREVGMDEyMzQ1Njc4OUFCREVGM"
+        "DEyMzQ1Njc4OUFCQ0RFRjAxMjM0NTY3ODlBQkRFRjAxMjM0NTY3ODlBQkNERUYwMTIzND"
+        "U2Nzg5QUJERUYwMTIzNDU2Nzg5QUJDREVGMDEyMztqJ7zOtqQtYqOo0CpvDXNlMhV3HeJ"
+        "DpjrASKGLWdop4lx1cSN3Xv1TgfLPW8rhGiW+hHiMxd36nRuxscNv9k4oJA/KP+o0mi1w"
+        "v44StrEJ1wwx9WZHBUIWkQbaBSuBDw";
 
     uint8_t message[] =
-        "AwgAEhAcbh6UpbByoyZxufQ+h2B+8XHMjhR69G8F4+qjMaFlnIXusJZX3r8LnROR"
-        "G9T3DXFdbVuvIWrLyRfm4i8QRbe8VPwGRFG57B1CtmxanuP8bHtnnYqlwPsD";
+        "AwgAEhAcbh6UpbByoyZxufQ+h2B+8XHMjhR69G8nP4pNZGl/3QMgrzCZPmP+F2aPLyKPz"
+        "xRPBMUkeXRJ6Iqm5NeOdx2eERgTW7P20CM+lL3Xpk+ZUOOPvsSQNaAL";
     size_t msglen = sizeof(message)-1;
 
     /* build the inbound session */
