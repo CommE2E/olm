@@ -146,6 +146,27 @@ size_t olm_group_decrypt(
 );
 
 
+/**
+ * Get the number of bytes returned by olm_inbound_group_session_id()
+ */
+size_t olm_inbound_group_session_id_length(
+    const OlmInboundGroupSession *session
+);
+
+/**
+ * Get a base64-encoded identifier for this session.
+ *
+ * Returns the length of the session id on success or olm_error() on
+ * failure. On failure last_error will be set with an error code. The
+ * last_error will be OUTPUT_BUFFER_TOO_SMALL if the id buffer was too
+ * small.
+ */
+size_t olm_inbound_group_session_id(
+    OlmInboundGroupSession *session,
+    uint8_t * id, size_t id_length
+);
+
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

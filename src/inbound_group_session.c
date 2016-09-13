@@ -29,6 +29,7 @@
 
 
 #define OLM_PROTOCOL_VERSION     3
+#define GROUP_SESSION_ID_LENGTH  ED25519_PUBLIC_KEY_LENGTH
 #define PICKLE_VERSION           1
 #define SESSION_KEY_VERSION      2
 
@@ -362,5 +363,25 @@ size_t olm_group_decrypt(
     return _decrypt(
         session, message, raw_message_length,
         plaintext, max_plaintext_length
+    );
+}
+
+size_t olm_inbound_group_session_id_length(
+    const OlmInboundGroupSession *session
+) {
+    return _olm_encode_base64_length(GROUP_SESSION_ID_LENGTH);
+}
+
+size_t olm_inbound_group_session_id(
+    OlmInboundGroupSession *session,
+    uint8_t * id, size_t id_length
+) {
+    if (id_length < olm_inbound_group_session_id_length(session)) {
+        session->last_error = OLM_OUTPUT_BUFFER_TOO_SMALL;
+        return (size_t)-1;
+    }
+
+    return _olm_encode_base64(
+        session->signing_key.public_key, GROUP_SESSION_ID_LENGTH, id
     );
 }

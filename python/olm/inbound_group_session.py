@@ -45,6 +45,9 @@ inbound_group_session_function(
     c_void_p, c_size_t, # plaintext
 )
 
+inbound_group_session_function(lib.olm_inbound_group_session_id_length)
+inbound_group_session_function(lib.olm_inbound_group_session_id, c_void_p, c_size_t)
+
 class InboundGroupSession(object):
     def __init__(self):
         self.buf = create_string_buffer(lib.olm_inbound_group_session_size())
@@ -84,3 +87,9 @@ class InboundGroupSession(object):
             plaintext_buffer, max_plaintext_length
         )
         return plaintext_buffer.raw[:plaintext_length]
+
+    def session_id(self):
+        id_length = lib.olm_inbound_group_session_id_length(self.ptr)
+        id_buffer = create_string_buffer(id_length)
+        lib.olm_inbound_group_session_id(self.ptr, id_buffer, id_length);
+        return id_buffer.raw
