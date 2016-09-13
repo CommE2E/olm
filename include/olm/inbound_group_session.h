@@ -95,8 +95,6 @@ size_t olm_unpickle_inbound_group_session(
  */
 size_t olm_init_inbound_group_session(
     OlmInboundGroupSession *session,
-    uint32_t message_index,
-
     /* base64-encoded keys */
     uint8_t const * session_key, size_t session_key_length
 );

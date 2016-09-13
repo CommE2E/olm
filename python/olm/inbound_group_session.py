@@ -33,7 +33,7 @@ inbound_group_session_function(
 )
 
 inbound_group_session_function(
-    lib.olm_init_inbound_group_session, c_uint32, c_void_p, c_size_t
+    lib.olm_init_inbound_group_session, c_void_p, c_size_t
 )
 
 inbound_group_session_function(
@@ -69,10 +69,10 @@ class InboundGroupSession(object):
             self.ptr, key_buffer, len(key), pickle_buffer, len(pickle)
         )
 
-    def init(self, message_index, session_key):
+    def init(self, session_key):
         key_buffer = create_string_buffer(session_key)
         lib.olm_init_inbound_group_session(
-            self.ptr, message_index, key_buffer, len(session_key)
+            self.ptr, key_buffer, len(session_key)
         )
 
     def decrypt(self, message):
