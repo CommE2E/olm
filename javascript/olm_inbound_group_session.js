@@ -89,4 +89,15 @@ InboundGroupSession.prototype['decrypt'] = restore_stack(function(
     return Pointer_stringify(plaintext_buffer);
 });
 
+InboundGroupSession.prototype['session_id'] = restore_stack(function() {
+    var length = inbound_group_session_method(
+        Module['_olm_inbound_group_session_id_length']
+    )(this.ptr);
+    var session_id = stack(length + NULL_BYTE_PADDING_LENGTH);
+    inbound_group_session_method(Module['_olm_inbound_group_session_id'])(
+        this.ptr, session_id, length
+    );
+    return Pointer_stringify(session_id);
+});
+
 olm_exports['InboundGroupSession'] = InboundGroupSession;
