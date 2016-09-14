@@ -1,3 +1,19 @@
+Changes in `1.3.0 <http://matrix.org/git/olm/commit/?h=1.3.0>`_
+===============================================================
+
+The release updates the group session identifier to avoid collisions.
+The group sessions are now identified by their ed25519 public key.
+
+These changes alter the pickle format of outbound group sessions, attempting
+to unpickle an outbound group session created with a previous version of olm
+will give ``OLM_CORRUPTED_PICKLE``. Inbound sessions are unaffected.
+
+This release alters the format of group session_key messages to include the
+ratchet counter. The session_key messages are now self signed with their
+ed25519 key. No attempt was made to preserve backwards-compatibility.
+Attempting to send session_keys between old and new versions will give
+``OLM_BAD_SESSION_KEY``.
+
 Changes in `1.2.0 <http://matrix.org/git/olm/commit/?h=1.2.0>`_
 ===============================================================
 
