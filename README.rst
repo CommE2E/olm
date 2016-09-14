@@ -42,8 +42,8 @@ Release process
     make js
     npm pack javascript
     VERSION=x.y.z
-    scp olm-$VERSION.tgz packages@ldc-prd-matrix-001:/sites/matrix/packages/npm/olm/``
-    git tag $VERSION
+    scp olm-$VERSION.tgz packages@ldc-prd-matrix-001:/sites/matrix/packages/npm/olm/
+    git tag $VERSION -s
     git push --tags
 
 It's probably sensible to do the above on a release branch (``release-vx.y.z``
