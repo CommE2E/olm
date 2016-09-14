@@ -32,15 +32,19 @@ To build the javascript bindings, install emscripten from http://kripken.github.
 Release process
 ---------------
 
-# Bump version numbers in ``Makefile`` and ``javascript/package.json``
-# Prepare changelog
-# ``git commit``
-# ``make test``
-# ``make js``
-# ``npm pack javascript``
-# ``scp olm-x.y.z.tgz packages@ldc-prd-matrix-001:/sites/matrix/packages/npm/olm/``
-# ``git tag x.y.z``
-# ``git push --tags``
+.. code:: bash
+
+    # Bump version numbers in ``Makefile`` and ``javascript/package.json``
+    # Prepare changelog
+    git commit
+    make clean
+    make test
+    make js
+    npm pack javascript
+    VERSION=x.y.z
+    scp olm-$VERSION.tgz packages@ldc-prd-matrix-001:/sites/matrix/packages/npm/olm/``
+    git tag $VERSION
+    git push --tags
 
 It's probably sensible to do the above on a release branch (``release-vx.y.z``
 by convention), and merge back to master once complete.
