@@ -261,7 +261,7 @@ DemoUser.prototype.receiveOneToOne = function(jsonpacket) {
             if (!self.peerGroupSessions[sender] ||
                    !self.peerGroupSessions[sender][body.session_id]) {
                 self.createInboundSession(
-                    sender, body.session_id, body.message_index, body.session_key
+                    sender, body.session_id, body.session_key
                 );
             }
         });
@@ -337,14 +337,17 @@ DemoUser.prototype.getGroupSession = function() {
  * add a task to create an inbound group session
  */
 DemoUser.prototype.createInboundSession = function(
-    peer_id, session_id, message_index, session_key, callback
+    peer_id, session_id, session_key, callback
 ) {
     var self = this;
     this.addTask("init inbound session", function(done) {
         session = new Olm.InboundGroupSession();
-        session.create(message_index, session_key);
+        session.create(session_key);
         if (!self.peerGroupSessions[peer_id]) {
             self.peerGroupSessions[peer_id] = {};
+        }
+        if (session_id != session.session_id()) {
+            throw new Error("Mismatched session_ids");
         }
         self.peerGroupSessions[peer_id][session_id] = session;
         done(session);
