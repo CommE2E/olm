@@ -327,7 +327,7 @@ def do_inbound_group(args):
             sys.exit(1);
 
     session = InboundGroupSession()
-    session.init(credentials['message_index'], credentials['session_key'])
+    session.init(credentials['session_key'])
     with open(args.session_file, "wb") as f:
         f.write(session.pickle(args.key))
 

@@ -3,7 +3,7 @@
 set -e
 
 make clean
-rm olm-*.tgz
+rm -f olm-*.tgz
 
 make lib
 make test
