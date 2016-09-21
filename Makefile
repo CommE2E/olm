@@ -149,17 +149,19 @@ $(JS_EXPORTED_FUNCTIONS): $(PUBLIC_HEADERS)
 all: test js lib debug doc
 .PHONY: all
 
-install-debug: debug
-	test -d $(DESTDIR)$(PREFIX) || mkdir -p $(DESTDIR)$(PREFIX)
-	test -d $(DESTDIR)$(PREFIX)/lib || mkdir $(DESTDIR)$(PREFIX)/lib
+install-headers: $(PUBLIC_HEADERS)
+	test -d $(DESTDIR)$(PREFIX)/include/olm || mkdir -p $(DESTDIR)$(PREFIX)/include/olm
+	install -Dm644 $(PUBLIC_HEADERS) $(DESTDIR)$(PREFIX)/include/olm/
+
+install-debug: debug install-headers
+	test -d $(DESTDIR)$(PREFIX)/lib || mkdir -p $(DESTDIR)$(PREFIX)/lib
 	install -Dm755 $(DEBUG_TARGET) $(DESTDIR)$(PREFIX)/lib/libolm_debug.so.$(VERSION)
 	ln -s libolm_debug.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm_debug.so.$(MAJOR)
 	ln -s libolm_debug.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm_debug.so
 .PHONY: install-debug
 
-install: lib
-	test -d $(DESTDIR)$(PREFIX) || mkdir -p $(DESTDIR)$(PREFIX)
-	test -d $(DESTDIR)$(PREFIX)/lib || mkdir $(DESTDIR)$(PREFIX)/lib
+install: lib install-headers
+	test -d $(DESTDIR)$(PREFIX)/lib || mkdir -p $(DESTDIR)$(PREFIX)/lib
 	install -Dm755 $(RELEASE_TARGET) $(DESTDIR)$(PREFIX)/lib/libolm.so.$(VERSION)
 	ln -s libolm.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm.so.$(MAJOR)
 	ln -s libolm.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm.so
