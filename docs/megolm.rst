@@ -3,6 +3,8 @@ Megolm group ratchet
 
 An AES-based cryptographic ratchet intended for group communications.
 
+.. contents::
+
 Background
 ----------
 
@@ -18,13 +20,12 @@ Overview
 --------
 
 Each participant in a conversation uses their own session, which consists of a
-ratchet, and an `Ed25519`_ keypair.
+ratchet and an `Ed25519`_ keypair.
 
-Secrecy is provided by the ratchet, which can be wound forwards, via hash
-functions, but not backwards, and is used to derive a distinct message key
-for each message.
+Secrecy is provided by the ratchet, which can be wound forwards but not
+backwards, and is used to derive a distinct message key for each message.
 
-Authenticity is provided via the Ed25519 key.
+Authenticity is provided via Ed25519 signatures.
 
 The value of the ratchet, and the public part of the Ed25519 key, are shared
 with other participants in the conversation via secure peer-to-peer
@@ -32,10 +33,68 @@ channels. Provided that peer-to-peer channel provides authenticity of the
 messages to the participants and deniability of the messages to third parties,
 the Megolm session will inherit those properties.
 
-The Megolm algorithm
---------------------
+The Megolm ratchet algorithm
+----------------------------
 
-Initial setup
+The Megolm ratchet :math:`R_i` consists of four parts, :math:`R_{i,j}` for
+:math:`j \in {0,1,2,3}`. The length of each part depends on the hash function
+in use (256 bits for this version of Megolm).
+
+The ratchet is initialised with cryptographically-secure random data, and
+advanced as follows:
+
+.. math::
+    \begin{align}
+    R_{i,0} &=
+      \begin{cases}
+        H_0\left(R_{2^24(n-1),0}\right) &\text{if }\exists n | i = 2^24n\\
+        R_{i-1,0} &\text{otherwise}
+      \end{cases}\\
+    R_{i,1} &=
+      \begin{cases}
+        H_1\left(R_{2^24(n-1),0}\right) &\text{if }\exists n | i = 2^24n\\
+        H_1\left(R_{2^16(m-1),1}\right) &\text{if }\exists m | i = 2^16m\\
+        R_{i-1,1} &\text{otherwise}
+      \end{cases}\\
+    R_{i,2} &=
+      \begin{cases}
+        H_2\left(R_{2^24(n-1),0}\right) &\text{if }\exists n | i = 2^24n\\
+        H_2\left(R_{2^16(m-1),1}\right) &\text{if }\exists m | i = 2^16m\\
+        H_2\left(R_{2^8(p-1),2}\right) &\text{if }\exists p | i = 2^8p\\
+        R_{i-1,2} &\text{otherwise}
+      \end{cases}\\
+    R_{i,3} &=
+      \begin{cases}
+        H_3\left(R_{2^24(n-1),0}\right) &\text{if }\exists n | i = 2^24n\\
+        H_3\left(R_{2^16(m-1),1}\right) &\text{if }\exists m | i = 2^16m\\
+        H_3\left(R_{2^8(p-1),2}\right) &\text{if }\exists p | i = 2^8p\\
+        H_3\left(R_{i-1,3}\right) &\text{otherwise}
+      \end{cases}
+    \end{align}
+
+where :math:`H_0`, :math:`H_1`, :math:`H_2`, and :math:`H_3` are different hash
+functions. In summary: every :math:`2^8` iterations, :math:`R_{i,3}` is
+reseeded from :math:`R_{i,2}`. Every :math:`2^16` iterations, :math:`R_{i,2}`
+and :math:`R_{i,3}` are reseeded from :math:`R_{i,1}`. Every :math:`2^24`
+iterations, :math:`R_{i,1}`, :math:`R_{i,2}` and :math:`R_{i,3}` are reseeded
+from :math:`R_{i,0}`.
+
+The complete ratchet value, :math:`R_{i}`, is hashed to generate the keys used
+to encrypt each mesage.  This scheme allows the ratchet to be advanced an
+arbitrary amount forwards while needing at most 1023 hash computations.  A
+client can decrypt chat history onwards from the earliest value of the ratchet
+it is aware of, but cannot decrypt history from before that point without
+reversing the hash function.
+
+This allows a participant to share its ability to decrypt chat history with
+another from a point in the conversation onwards by giving a copy of the
+ratchet at that point in the conversation.
+
+
+The Megolm protocol
+-------------------
+
+Session setup
 ~~~~~~~~~~~~~
 
 Each participant in a conversation generates their own Megolm session. A
@@ -66,9 +125,9 @@ copy of the counter, ratchet, and public key.
 Message encryption
 ~~~~~~~~~~~~~~~~~~
 
-Megolm uses AES-256_ in CBC_ mode with `PCKS#7`_ padding for and HMAC-SHA-256_
-(truncated to 64 bits).  The 256 bit AES key, 256 bit HMAC key, and 128 bit AES
-IV are derived from the megolm ratchet :math:`R_i`:
+This version of Megolm uses AES-256_ in CBC_ mode with `PCKS#7`_ padding and
+HMAC-SHA-256_ (truncated to 64 bits). The 256 bit AES key, 256 bit HMAC key,
+and 128 bit AES IV are derived from the megolm ratchet :math:`R_i`:
 
 .. math::
 
@@ -104,59 +163,18 @@ Advancing the ratchet
 ~~~~~~~~~~~~~~~~~~~~~
 
 After each message is encrypted, the ratchet is advanced. This is done as
-follows:
+described in `The Megolm ratchet algorithm`_, using the following definitions:
 
 .. math::
     \begin{align}
-    R_{i,0} &=
-      \begin{cases}
-        HMAC\left(R_{2^24(n-1),0}, \text{"\textbackslash x00"}\right)
-          &\text{if }\exists n | i = 2^24n\\
-        R_{i-1,0} &\text{otherwise}
-      \end{cases}\\
-    R_{i,1} &=
-      \begin{cases}
-        HMAC\left(R_{2^24(n-1),0}, \text{"\textbackslash x01"}\right)
-          &\text{if }\exists n | i = 2^24n\\
-        HMAC\left(R_{2^16(m-1),1}, \text{"\textbackslash x01"}\right)
-          &\text{if }\exists m | i = 2^16m\\
-        R_{i-1,1} &\text{otherwise}
-      \end{cases}\\
-    R_{i,2} &=
-      \begin{cases}
-        HMAC\left(R_{2^24(n-1),0}, \text{"\textbackslash x02"}\right)
-          &\text{if }\exists n | i = 2^24n\\
-        HMAC\left(R_{2^16(m-1),1}, \text{"\textbackslash x02"}\right)
-          &\text{if }\exists m | i = 2^16m\\
-        HMAC\left(R_{2^8(p-1),2}, \text{"\textbackslash x02"}\right)
-          &\text{if }\exists p | i = 2^8p\\
-        R_{i-1,2} &\text{otherwise}
-      \end{cases}\\
-    R_{i,3} &=
-      \begin{cases}
-        HMAC\left(R_{2^24(n-1),0}, \text{"\textbackslash x03"}\right)
-          &\text{if }\exists n | i = 2^24n\\
-        HMAC\left(R_{2^16(m-1),1}, \text{"\textbackslash x03"}\right)
-          &\text{if }\exists m | i = 2^16m\\
-        HMAC\left(R_{2^8(p-1),2}, \text{"\textbackslash x03"}\right)
-          &\text{if }\exists p | i = 2^8p\\
-        HMAC\left(R_{i-1,3}, \text{"\textbackslash x03"}\right)
-          &\text{otherwise}
-      \end{cases}
+        H_0(A) &\equiv HMAC(A,\text{"\textbackslash x00"}) \\
+        H_1(A) &\equiv HMAC(A,\text{"\textbackslash x01"}) \\
+        H_2(A) &\equiv HMAC(A,\text{"\textbackslash x02"}) \\
+        H_3(A) &\equiv HMAC(A,\text{"\textbackslash x03"}) \\
     \end{align}
 
-where :math:`HMAC(K, T)` is the HMAC-SHA-256_ of ``T``, using ``K`` as the
-key. In summary: every :math:`2^8` iterations, :math:`R_{i,3}` is reseeded from
-:math:`R_{i,2}`. Every :math:`2^16` iterations, :math:`R_{i,2}` and
-:math:`R_{i,3}` are reseeded from :math:`R_{i,1}`. Every :math:`2^24`
-iterations, :math:`R_{i,1}`, :math:`R_{i,2}` and :math:`R_{i,3}` are reseeded
-from :math:`R_{i,0}`.
-
-This scheme allows the ratchet to be advanced an arbitrary amount forwards
-while needing at most 1023 hash computations. A recipient can decrypt
-conversation history onwards from the earliest value of the ratchet it is aware
-of, but cannot decrypt history from before that point without reversing the
-hash function.
+where :math:`HMAC(A, T)` is the HMAC-SHA-256_ of ``T``, using ``A`` as the
+key.
 
 For outbound sessions, the updated ratchet and counter are stored in the
 session.
@@ -215,8 +233,8 @@ followed by the value encoded as a variable length integer. If the value is
 a string then the tag is followed by the length of the string encoded as
 a variable length integer followed by the string itself.
 
-Olm uses a variable length encoding for integers. Each integer is encoded as a
-sequence of bytes with the high bit set followed by a byte with the high bit
+Megolm uses a variable length encoding for integers. Each integer is encoded as
+a sequence of bytes with the high bit set followed by a byte with the high bit
 clear. The seven low bits of each byte store the bits of the integer. The least
 significant bits are stored in the first byte.
 
