@@ -1,3 +1,18 @@
+.. Copyright 2016 OpenMarket Ltd
+..
+.. Licensed under the Apache License, Version 2.0 (the "License");
+.. you may not use this file except in compliance with the License.
+.. You may obtain a copy of the License at
+..
+..     http://www.apache.org/licenses/LICENSE-2.0
+..
+.. Unless required by applicable law or agreed to in writing, software
+.. distributed under the License is distributed on an "AS IS" BASIS,
+.. WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+.. See the License for the specific language governing permissions and
+.. limitations under the License.
+
+
 Megolm group ratchet
 ====================
 
@@ -19,8 +34,8 @@ on the (untrusted) server, while the client need only store the session keys.
 Overview
 --------
 
-Each participant in a conversation uses their own session, which consists of a
-ratchet and an `Ed25519`_ keypair.
+Each participant in a conversation uses their own outbound session for
+encrypting messages. A session consists of a ratchet and an `Ed25519`_ keypair.
 
 Secrecy is provided by the ratchet, which can be wound forwards but not
 backwards, and is used to derive a distinct message key for each message.
@@ -80,7 +95,7 @@ iterations, :math:`R_{i,1}`, :math:`R_{i,2}` and :math:`R_{i,3}` are reseeded
 from :math:`R_{i,0}`.
 
 The complete ratchet value, :math:`R_{i}`, is hashed to generate the keys used
-to encrypt each mesage.  This scheme allows the ratchet to be advanced an
+to encrypt each message.  This scheme allows the ratchet to be advanced an
 arbitrary amount forwards while needing at most 1023 hash computations.  A
 client can decrypt chat history onwards from the earliest value of the ratchet
 it is aware of, but cannot decrypt history from before that point without
@@ -98,9 +113,12 @@ Session setup
 ~~~~~~~~~~~~~
 
 Each participant in a conversation generates their own Megolm session. A
-session consists of three parts: a 32 bit counter, :math:`i`; an `Ed25519`_
-keypair, :math:`K`; and a ratchet, :math:`R_i`. The ratchet consists of four
-256-bit values, :math:`R_{i,j}` for :math:`j \in {0,1,2,3}`.
+session consists of three parts:
+
+* a 32 bit counter, :math:`i`.
+* an `Ed25519`_ keypair, :math:`K`.
+* a ratchet, :math:`R_i`, which consists of four 256-bit values,
+  :math:`R_{i,j}` for :math:`j \in {0,1,2,3}`.
 
 The counter :math:`i` is initialised to :math:`0`. A new Ed25519 keypair is
 generated for :math:`K`. The ratchet is simply initialised with 1024 bits of
@@ -180,7 +198,7 @@ For outbound sessions, the updated ratchet and counter are stored in the
 session.
 
 In order to maintain the ability to decrypt conversation history, inbound
-sessions should store a copy of their earliet known ratchet value (unless they
+sessions should store a copy of their earliest known ratchet value (unless they
 explicitly want to drop the ability to decrypt that history). They may also
 choose to cache calculated ratchet values, but the decision of which ratchet
 states to cache is left to the application.
@@ -198,7 +216,7 @@ The Megolm key-sharing format is as follows:
     +---+----+--------+--------+--------+--------+------+-----------+
     | V | i  | R(i,0) | R(i,1) | R(i,2) | R(i,3) | Kpub | Signature |
     +---+----+--------+--------+--------+--------+------+-----------+
-    0   1    5        37       69      101      133    165         229
+    0   1    5        37       69      101      133    165         229   bytes
 
 The version byte, ``V``, is ``"\x02"``.
 
@@ -221,22 +239,11 @@ signature.
    +---+------------------------------------+-----------+------------------+
    | V | Payload Bytes                      | MAC Bytes | Signature Bytes  |
    +---+------------------------------------+-----------+------------------+
-   0   1                                    N          N+8                N+72
+   0   1                                    N          N+8                N+72   bytes
 
 The version byte, ``V``, is ``"\x03"``.
 
-The payload consists of key-value pairs where the keys are integers and the
-values are integers and strings. The keys are encoded as a variable length
-integer tag where the 3 lowest bits indicates the type of the value:
-0 for integers, 2 for strings. If the value is an integer then the tag is
-followed by the value encoded as a variable length integer. If the value is
-a string then the tag is followed by the length of the string encoded as
-a variable length integer followed by the string itself.
-
-Megolm uses a variable length encoding for integers. Each integer is encoded as
-a sequence of bytes with the high bit set followed by a byte with the high bit
-clear. The seven low bits of each byte store the bits of the integer. The least
-significant bits are stored in the first byte.
+The payload consists of the following key-value pairs:
 
 ============= ===== ======== ================================================
     Name       Tag    Type                     Meaning
@@ -245,23 +252,29 @@ Message-Index  0x08 Integer  The index of the ratchet, :math:`i`
 Cipher-Text    0x12 String   The cipher-text, :math:`X_{i}`, of the message
 ============= ===== ======== ================================================
 
-The length of the MAC is determined by the authenticated encryption algorithm
-being used (8 bytes in this version of the protocol). The MAC protects all of
-the bytes preceding the MAC.
+Within the payload, integers are encoded using a variable length encoding. Each
+integer is encoded as a sequence of bytes with the high bit set followed by a
+byte with the high bit clear. The seven low bits of each byte store the bits of
+the integer. The least significant bits are stored in the first byte.
+
+Strings are encoded as a variable-length integer followed by the string itself.
+
+Each key-value pair is encoded as a variable-length integer giving the tag,
+followed by a string or variable-length integer giving the value.
+
+The payload is followed by the MAC. The length of the MAC is determined by the
+authenticated encryption algorithm being used (8 bytes in this version of the
+protocol). The MAC protects all of the bytes preceding the MAC.
 
 The length of the signature is determined by the signing algorithm being used
 (64 bytes in this version of the protocol). The signature covers all of the
 bytes preceding the signaure.
 
-IPR
----
+License
+-------
 
-The Megolm specification (this document) is hereby placed in the public domain.
-
-Feedback
---------
-
-Can be sent to richard at matrix.org.
+The Megolm specification (this document) is licensed under the `Apache License,
+Version 2.0 <http://www.apache.org/licenses/LICENSE-2.0>`_.
 
 
 .. _`Ed25519`: http://ed25519.cr.yp.to/
