@@ -18,7 +18,7 @@ Overview
 --------
 
 Each participant in a conversation uses their own session, which consists of a
-ratchet, and an Ed25519 keypair.
+ratchet, and an `Ed25519`_ keypair.
 
 Secrecy is provided by the ratchet, which can be wound forwards, via hash
 functions, but not backwards, and is used to derive a distinct message key
