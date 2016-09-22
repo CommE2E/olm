@@ -314,13 +314,13 @@ def do_inbound_group(args):
         ))
         sys.exit(1)
     credentials = json.load(args.credentials_file)
-    for k in ('message_index', 'session_key'):
+    for k in ('session_key', ):
         if not k in credentials:
             sys.stderr.write("Credentials file is missing %s\n" % k)
             sys.exit(1);
 
     session = InboundGroupSession()
-    session.init(credentials['message_index'], credentials['session_key'])
+    session.init(credentials['session_key'])
     with open(args.session_file, "wb") as f:
         f.write(session.pickle(args.key))
 
