@@ -3,6 +3,35 @@ Megolm group ratchet
 
 An AES-based cryptographic ratchet intended for group communications.
 
+Background
+----------
+
+The Megolm ratchet is intended for encrypted messaging applications where there
+may be a large number of recipients of each message, thus precluding the use of
+peer-to-peer encryption systems such as `Olm`_.
+
+It also allows a receipient to decrypt received messages multiple times. For
+instance, in client/server applications, a copy of the ciphertext can be stored
+on the (untrusted) server, while the client need only store the session keys.
+
+Overview
+--------
+
+Each participant in a conversation uses their own session, which consists of a
+ratchet, and an Ed25519 keypair.
+
+Secrecy is provided by the ratchet, which can be wound forwards, via hash
+functions, but not backwards, and is used to derive a distinct message key
+for each message.
+
+Authenticity is provided via the Ed25519 key.
+
+The value of the ratchet, and the public part of the Ed25519 key, are shared
+with other participants in the conversation via secure peer-to-peer
+channels. Provided that peer-to-peer channel provides authenticity of the
+messages to the participants and deniability of the messages to third parties,
+the Megolm session will inherit those properties.
+
 The Megolm algorithm
 --------------------
 
@@ -205,6 +234,16 @@ the bytes preceding the MAC.
 The length of the signature is determined by the signing algorithm being used
 (64 bytes in this version of the protocol). The signature covers all of the
 bytes preceding the signaure.
+
+IPR
+---
+
+The Megolm specification (this document) is hereby placed in the public domain.
+
+Feedback
+--------
+
+Can be sent to richard at matrix.org.
 
 
 .. _`Ed25519`: http://ed25519.cr.yp.to/
