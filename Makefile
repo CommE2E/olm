@@ -152,6 +152,7 @@ all: test js lib debug doc
 install-headers: $(PUBLIC_HEADERS)
 	test -d $(DESTDIR)$(PREFIX)/include/olm || mkdir -p $(DESTDIR)$(PREFIX)/include/olm
 	install -Dm644 $(PUBLIC_HEADERS) $(DESTDIR)$(PREFIX)/include/olm/
+.PHONY: install-headers
 
 install-debug: debug install-headers
 	test -d $(DESTDIR)$(PREFIX)/lib || mkdir -p $(DESTDIR)$(PREFIX)/lib
