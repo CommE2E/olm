@@ -7,7 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
-@import OLMKit;
+#import <OLMKit/OLMKit.h>
 
 @interface OLMKitTests : XCTestCase
 

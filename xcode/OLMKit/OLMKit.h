@@ -17,7 +17,7 @@ FOUNDATION_EXPORT const unsigned char OLMKitVersionString[];
 // In this header, you should import all the public headers of your framework using statements like #import <OLMKit/PublicHeader.h>
 
 
-#import "OLMAccount.h"
-#import "OLMSession.h"
-#import "OLMMessage.h"
-#import "OLMUtility.h"
+#import <OLMKit/OLMAccount.h>
+#import <OLMKit/OLMSession.h>
+#import <OLMKit/OLMMessage.h>
+#import <OLMKit/OLMUtility.h>

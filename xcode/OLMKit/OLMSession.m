@@ -10,7 +10,7 @@
 #import "OLMUtility.h"
 #import "OLMAccount_Private.h"
 #import "OLMSession_Private.h"
-@import olm;
+#include "olm/olm.h"
 
 @implementation OLMSession
 

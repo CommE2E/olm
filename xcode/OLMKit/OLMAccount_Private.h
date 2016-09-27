@@ -6,7 +6,7 @@
 //
 //
 
-@import olm;
+#include "olm/olm.h"
 
 @interface OLMAccount()
 

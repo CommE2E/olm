@@ -1,6 +1,7 @@
-# Uncomment this line to define a global platform for your project
-platform :ios, '8.0'
-# Uncomment this line if you're using Swift
-use_frameworks!
+target "OLMKit" do
+pod 'OLMKit', :path => '../OLMKit.podspec'
+end
 
-pod 'olm', :path => '../olm.podspec'
+target "OLMKitTests" do
+pod 'OLMKit', :path => '../OLMKit.podspec'
+end
