@@ -1,0 +1,561 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D9401CDC1CBF10BD003DD078 /* OLMSession_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D9401CDB1CBF10BD003DD078 /* OLMSession_Private.h */; };
+		D976E4411CB852E000F5C124 /* OLMKit.h in Headers */ = {isa = PBXBuildFile; fileRef = D976E4401CB852E000F5C124 /* OLMKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D976E4481CB852E000F5C124 /* OLMKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D976E43E1CB852E000F5C124 /* OLMKit.framework */; };
+		D976E44D1CB852E000F5C124 /* OLMKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D976E44C1CB852E000F5C124 /* OLMKitTests.m */; };
+		D976E4571CB8536500F5C124 /* OLMAccount.h in Headers */ = {isa = PBXBuildFile; fileRef = D976E4551CB8536500F5C124 /* OLMAccount.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D976E4581CB8536500F5C124 /* OLMAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = D976E4561CB8536500F5C124 /* OLMAccount.m */; };
+		D976E45B1CB8538300F5C124 /* OLMSession.h in Headers */ = {isa = PBXBuildFile; fileRef = D976E4591CB8538300F5C124 /* OLMSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D976E45C1CB8538300F5C124 /* OLMSession.m in Sources */ = {isa = PBXBuildFile; fileRef = D976E45A1CB8538300F5C124 /* OLMSession.m */; };
+		D976E45F1CB8538E00F5C124 /* OLMUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = D976E45D1CB8538E00F5C124 /* OLMUtility.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D976E4601CB8538E00F5C124 /* OLMUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = D976E45E1CB8538E00F5C124 /* OLMUtility.m */; };
+		D976E4621CB860E200F5C124 /* OLMSerializable.h in Headers */ = {isa = PBXBuildFile; fileRef = D976E4611CB860E200F5C124 /* OLMSerializable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D976E4651CB8674900F5C124 /* OLMMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = D976E4631CB8674900F5C124 /* OLMMessage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D976E4661CB8674900F5C124 /* OLMMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = D976E4641CB8674900F5C124 /* OLMMessage.m */; };
+		D976E4681CB8787D00F5C124 /* OLMAccount_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D976E4671CB8696100F5C124 /* OLMAccount_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		DE4C8FA4266B10FC69A1C762 /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 235C5A0B708438C11BCE552C /* Pods.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D976E4491CB852E000F5C124 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D9679C4D1C87B53E007F67AA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D976E43D1CB852E000F5C124;
+			remoteInfo = OLMKit;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0A0809C67039D4BDCE9CE9AF /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		235C5A0B708438C11BCE552C /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		81B8A7B31F3BA6548ACC45DE /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		D9401CDB1CBF10BD003DD078 /* OLMSession_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLMSession_Private.h; sourceTree = "<group>"; };
+		D976E43E1CB852E000F5C124 /* OLMKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OLMKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D976E4401CB852E000F5C124 /* OLMKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OLMKit.h; sourceTree = "<group>"; };
+		D976E4421CB852E000F5C124 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D976E4471CB852E000F5C124 /* OLMKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OLMKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D976E44C1CB852E000F5C124 /* OLMKitTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OLMKitTests.m; sourceTree = "<group>"; };
+		D976E44E1CB852E000F5C124 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D976E4551CB8536500F5C124 /* OLMAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLMAccount.h; sourceTree = "<group>"; };
+		D976E4561CB8536500F5C124 /* OLMAccount.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OLMAccount.m; sourceTree = "<group>"; };
+		D976E4591CB8538300F5C124 /* OLMSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLMSession.h; sourceTree = "<group>"; };
+		D976E45A1CB8538300F5C124 /* OLMSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OLMSession.m; sourceTree = "<group>"; };
+		D976E45D1CB8538E00F5C124 /* OLMUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLMUtility.h; sourceTree = "<group>"; };
+		D976E45E1CB8538E00F5C124 /* OLMUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OLMUtility.m; sourceTree = "<group>"; };
+		D976E4611CB860E200F5C124 /* OLMSerializable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLMSerializable.h; sourceTree = "<group>"; };
+		D976E4631CB8674900F5C124 /* OLMMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLMMessage.h; sourceTree = "<group>"; };
+		D976E4641CB8674900F5C124 /* OLMMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OLMMessage.m; sourceTree = "<group>"; };
+		D976E4671CB8696100F5C124 /* OLMAccount_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OLMAccount_Private.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D976E43A1CB852E000F5C124 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE4C8FA4266B10FC69A1C762 /* Pods.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D976E4441CB852E000F5C124 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D976E4481CB852E000F5C124 /* OLMKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C125031A628591D7E1C25FD8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				235C5A0B708438C11BCE552C /* Pods.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D9679C4C1C87B53E007F67AA = {
+			isa = PBXGroup;
+			children = (
+				D96991B7CDE3F0F8C3A52C54 /* Pods */,
+				D976E43F1CB852E000F5C124 /* OLMKit */,
+				D976E44B1CB852E000F5C124 /* OLMKitTests */,
+				C125031A628591D7E1C25FD8 /* Frameworks */,
+				D976E43E1CB852E000F5C124 /* OLMKit.framework */,
+				D976E4471CB852E000F5C124 /* OLMKitTests.xctest */,
+			);
+			sourceTree = "<group>";
+		};
+		D96991B7CDE3F0F8C3A52C54 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				0A0809C67039D4BDCE9CE9AF /* Pods.debug.xcconfig */,
+				81B8A7B31F3BA6548ACC45DE /* Pods.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		D976E43F1CB852E000F5C124 /* OLMKit */ = {
+			isa = PBXGroup;
+			children = (
+				D976E4631CB8674900F5C124 /* OLMMessage.h */,
+				D976E4641CB8674900F5C124 /* OLMMessage.m */,
+				D976E4401CB852E000F5C124 /* OLMKit.h */,
+				D976E4611CB860E200F5C124 /* OLMSerializable.h */,
+				D976E4551CB8536500F5C124 /* OLMAccount.h */,
+				D976E4671CB8696100F5C124 /* OLMAccount_Private.h */,
+				D976E4561CB8536500F5C124 /* OLMAccount.m */,
+				D976E4591CB8538300F5C124 /* OLMSession.h */,
+				D9401CDB1CBF10BD003DD078 /* OLMSession_Private.h */,
+				D976E45A1CB8538300F5C124 /* OLMSession.m */,
+				D976E45D1CB8538E00F5C124 /* OLMUtility.h */,
+				D976E45E1CB8538E00F5C124 /* OLMUtility.m */,
+				D976E4421CB852E000F5C124 /* Info.plist */,
+			);
+			path = OLMKit;
+			sourceTree = "<group>";
+		};
+		D976E44B1CB852E000F5C124 /* OLMKitTests */ = {
+			isa = PBXGroup;
+			children = (
+				D976E44C1CB852E000F5C124 /* OLMKitTests.m */,
+				D976E44E1CB852E000F5C124 /* Info.plist */,
+			);
+			path = OLMKitTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		D976E43B1CB852E000F5C124 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9401CDC1CBF10BD003DD078 /* OLMSession_Private.h in Headers */,
+				D976E45B1CB8538300F5C124 /* OLMSession.h in Headers */,
+				D976E4681CB8787D00F5C124 /* OLMAccount_Private.h in Headers */,
+				D976E4651CB8674900F5C124 /* OLMMessage.h in Headers */,
+				D976E4621CB860E200F5C124 /* OLMSerializable.h in Headers */,
+				D976E45F1CB8538E00F5C124 /* OLMUtility.h in Headers */,
+				D976E4571CB8536500F5C124 /* OLMAccount.h in Headers */,
+				D976E4411CB852E000F5C124 /* OLMKit.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		D976E43D1CB852E000F5C124 /* OLMKit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D976E44F1CB852E000F5C124 /* Build configuration list for PBXNativeTarget "OLMKit" */;
+			buildPhases = (
+				5DFDEA7662CDB902F5544BBD /* Check Pods Manifest.lock */,
+				D976E4391CB852E000F5C124 /* Sources */,
+				D976E43A1CB852E000F5C124 /* Frameworks */,
+				D976E43B1CB852E000F5C124 /* Headers */,
+				D976E43C1CB852E000F5C124 /* Resources */,
+				DC41A6806320B8867B32F48B /* Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OLMKit;
+			productName = OLMKit;
+			productReference = D976E43E1CB852E000F5C124 /* OLMKit.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		D976E4461CB852E000F5C124 /* OLMKitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D976E4521CB852E000F5C124 /* Build configuration list for PBXNativeTarget "OLMKitTests" */;
+			buildPhases = (
+				D976E4431CB852E000F5C124 /* Sources */,
+				D976E4441CB852E000F5C124 /* Frameworks */,
+				D976E4451CB852E000F5C124 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D976E44A1CB852E000F5C124 /* PBXTargetDependency */,
+			);
+			name = OLMKitTests;
+			productName = OLMKitTests;
+			productReference = D976E4471CB852E000F5C124 /* OLMKitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D9679C4D1C87B53E007F67AA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0730;
+				TargetAttributes = {
+					D976E43D1CB852E000F5C124 = {
+						CreatedOnToolsVersion = 7.3;
+					};
+					D976E4461CB852E000F5C124 = {
+						CreatedOnToolsVersion = 7.3;
+					};
+				};
+			};
+			buildConfigurationList = D9679C501C87B53E007F67AA /* Build configuration list for PBXProject "olm" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = D9679C4C1C87B53E007F67AA;
+			productRefGroup = D9679C4C1C87B53E007F67AA;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D976E43D1CB852E000F5C124 /* OLMKit */,
+				D976E4461CB852E000F5C124 /* OLMKitTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D976E43C1CB852E000F5C124 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D976E4451CB852E000F5C124 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		5DFDEA7662CDB902F5544BBD /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		DC41A6806320B8867B32F48B /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D976E4391CB852E000F5C124 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D976E4661CB8674900F5C124 /* OLMMessage.m in Sources */,
+				D976E4581CB8536500F5C124 /* OLMAccount.m in Sources */,
+				D976E45C1CB8538300F5C124 /* OLMSession.m in Sources */,
+				D976E4601CB8538E00F5C124 /* OLMUtility.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D976E4431CB852E000F5C124 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D976E44D1CB852E000F5C124 /* OLMKitTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D976E44A1CB852E000F5C124 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D976E43D1CB852E000F5C124 /* OLMKit */;
+			targetProxy = D976E4491CB852E000F5C124 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		D9679C511C87B53E007F67AA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				ONLY_ACTIVE_ARCH = YES;
+			};
+			name = Debug;
+		};
+		D9679C521C87B53E007F67AA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		D976E4501CB852E000F5C124 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0A0809C67039D4BDCE9CE9AF /* Pods.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = OLMKit/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.ballinger.OLMKit;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		D976E4511CB852E000F5C124 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 81B8A7B31F3BA6548ACC45DE /* Pods.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = OLMKit/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = io.ballinger.OLMKit;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		D976E4531CB852E000F5C124 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = OLMKitTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.ballinger.OLMKitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		D976E4541CB852E000F5C124 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = OLMKitTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = io.ballinger.OLMKitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D9679C501C87B53E007F67AA /* Build configuration list for PBXProject "olm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D9679C511C87B53E007F67AA /* Debug */,
+				D9679C521C87B53E007F67AA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D976E44F1CB852E000F5C124 /* Build configuration list for PBXNativeTarget "OLMKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D976E4501CB852E000F5C124 /* Debug */,
+				D976E4511CB852E000F5C124 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D976E4521CB852E000F5C124 /* Build configuration list for PBXNativeTarget "OLMKitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D976E4531CB852E000F5C124 /* Debug */,
+				D976E4541CB852E000F5C124 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D9679C4D1C87B53E007F67AA /* Project object */;
+}

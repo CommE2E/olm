@@ -1,0 +1,14 @@
+PODS:
+  - olm (0.1.0)
+
+DEPENDENCIES:
+  - olm (from `../olm.podspec`)
+
+EXTERNAL SOURCES:
+  olm:
+    :path: "../olm.podspec"
+
+SPEC CHECKSUMS:
+  olm: ba8c1a7ca04486ec1ad958ec9feef73c0939ae27
+
+COCOAPODS: 0.39.0
