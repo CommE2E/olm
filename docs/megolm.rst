@@ -27,7 +27,7 @@ The Megolm ratchet is intended for encrypted messaging applications where there
 may be a large number of recipients of each message, thus precluding the use of
 peer-to-peer encryption systems such as `Olm`_.
 
-It also allows a receipient to decrypt received messages multiple times. For
+It also allows a recipient to decrypt received messages multiple times. For
 instance, in client/server applications, a copy of the ciphertext can be stored
 on the (untrusted) server, while the client need only store the session keys.
 
