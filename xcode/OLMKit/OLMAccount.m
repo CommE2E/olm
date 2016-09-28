@@ -92,6 +92,25 @@
     return keysDictionary;
 }
 
+- (NSString *)signMessage:(NSData *)messageData {
+    size_t signatureLength = olm_account_signature_length(_account);
+    uint8_t *signatureBytes = malloc(signatureLength);
+    if (!signatureBytes) {
+        return nil;
+    }
+
+    size_t result = olm_account_sign(_account, messageData.bytes, messageData.length, signatureBytes, signatureLength);
+    if (result == olm_error()) {
+        const char *error = olm_account_last_error(_account);
+        NSLog(@"error signing message: %s", error);
+        free(signatureBytes);
+        return nil;
+    }
+
+    NSData *signatureData = [NSData dataWithBytesNoCopy:signatureBytes length:signatureLength freeWhenDone:YES];
+    return [[NSString alloc] initWithData:signatureData encoding:NSUTF8StringEncoding];
+}
+
 - (NSDictionary*) oneTimeKeys {
     size_t otkLength = olm_account_one_time_keys_length(_account);
     uint8_t *otkBytes = malloc(otkLength);
