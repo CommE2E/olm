@@ -150,7 +150,7 @@
     }
     size_t result = olm_remove_one_time_keys(self.account, session.session);
     if (result == olm_error()) {
-        const char *error = olm_session_last_error(session.session);
+        const char *error = olm_account_last_error(_account);
         NSAssert(NO, @"olm_remove_one_time_keys error: %s", error);
         return NO;
     }
