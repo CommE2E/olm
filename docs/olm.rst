@@ -279,7 +279,7 @@ Olm Authenticated Encryption
 Version 1
 ~~~~~~~~~
 
-Version 1 of Olm uses AES-256_ in CBC_ mode with `PCKS#7`_ padding for
+Version 1 of Olm uses AES-256_ in CBC_ mode with `PKCS#7`_ padding for
 encryption and HMAC-SHA-256_ (truncated to 64 bits) for authentication.  The
 256 bit AES key, 256 bit HMAC key, and 128 bit AES IV are derived from the
 message key using HKDF-SHA-256_ using the default salt and an info of
@@ -323,4 +323,4 @@ an entirely new implementation written by the Matrix.org team.
 .. _`SHA-256`: https://tools.ietf.org/html/rfc6234
 .. _`AES-256`: http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf
 .. _`CBC`: http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
-.. _`PCKS#7`: https://tools.ietf.org/html/rfc2315
+.. _`PKCS#7`: https://tools.ietf.org/html/rfc2315
