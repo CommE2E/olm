@@ -143,7 +143,7 @@ copy of the counter, ratchet, and public key.
 Message encryption
 ~~~~~~~~~~~~~~~~~~
 
-This version of Megolm uses AES-256_ in CBC_ mode with `PCKS#7`_ padding and
+This version of Megolm uses AES-256_ in CBC_ mode with `PKCS#7`_ padding and
 HMAC-SHA-256_ (truncated to 64 bits). The 256 bit AES key, 256 bit HMAC key,
 and 128 bit AES IV are derived from the megolm ratchet :math:`R_i`:
 
@@ -285,6 +285,6 @@ Version 2.0 <http://www.apache.org/licenses/LICENSE-2.0>`_.
 .. _`SHA-256`: https://tools.ietf.org/html/rfc6234
 .. _`AES-256`: http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf
 .. _`CBC`: http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
-.. _`PCKS#7`: https://tools.ietf.org/html/rfc2315
+.. _`PKCS#7`: https://tools.ietf.org/html/rfc2315
 .. _`Olm`: ./olm.html
 .. _`Protocol Buffers encoding`: https://developers.google.com/protocol-buffers/docs/encoding
