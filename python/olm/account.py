@@ -41,6 +41,7 @@ account_function(lib.olm_account_one_time_keys_length)
 account_function(lib.olm_account_one_time_keys, c_void_p, c_size_t)
 account_function(lib.olm_account_mark_keys_as_published)
 account_function(lib.olm_account_max_number_of_one_time_keys)
+account_function(lib.olm_pickle_account_length)
 account_function(
     lib.olm_account_generate_one_time_keys_random_length,
     c_size_t
