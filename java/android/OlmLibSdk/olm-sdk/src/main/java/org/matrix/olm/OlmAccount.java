@@ -26,7 +26,10 @@ public class OlmAccount {
 
     // JSON keys used in the JSON objects returned by JNI
     public static String JSON_KEY_ONE_TIME_KEY = "curve25519";
+    public static String JSON_KEY_IDENTITY_KEY = "curve25519";
     public static String JSON_KEY_FINGER_PRINT_KEY = "ed25519";
+    public static String JSON_KEY_ONE_TIME_KEY_GENERATED_A = "AAAAAA";
+    public static String JSON_KEY_ONE_TIME_KEY_GENERATED_B = "AAAAAB";
 
     /** instance unique identifier, used in JNI to match the corresponding native class **/
     private int mJavaInstanceId;
@@ -99,7 +102,7 @@ public class OlmAccount {
     private native byte[] identityKeysJni();
 
     /**
-     * Return the identity keys in a JSON array.<br>
+     * Return the identity keys (identity & fingerprint keys) in a JSON array.<br>
      * Public API for {@link #identityKeysJni()}.
      * @return identity keys in JSON array format if operation succeed, null otherwise
      */
