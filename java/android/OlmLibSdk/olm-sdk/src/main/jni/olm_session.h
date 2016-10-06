@@ -24,6 +24,8 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_initInboundSessionFromIdKe
 JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_matchesInboundSessionJni(JNIEnv *env, jobject thiz, jstring aOneTimeKeyMsg);
 JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_matchesInboundSessionFromIdKeyJni(JNIEnv *env, jobject thiz, jstring aTheirIdentityKey, jstring aOneTimeKeyMsg);
 
+JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_encryptMessageJni(JNIEnv *env, jobject thiz, jstring aClearMsg, jobject aEncryptedMsg);
+
 JNIEXPORT jstring JNICALL Java_org_matrix_olm_OlmSession_getSessionIdentifierJni(JNIEnv *env, jobject thiz);
 
 

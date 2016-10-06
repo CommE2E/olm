@@ -55,7 +55,6 @@ public class OlmAccountTest {
         }
     }
 
-
     @After
     public void tearDown() {
         // TBD
@@ -63,30 +62,25 @@ public class OlmAccountTest {
 
     @Test
     public void test1CreateAccount() {
-        Log.d(LOG_TAG,"## testInitNewAccount");
         mOlmAccount = new OlmAccount();
         assertNotNull(mOlmAccount);
     }
 
     @Test
     public void test2InitNewAccount() {
-        Log.d(LOG_TAG,"## testInitNewAccount");
         assertTrue(mOlmAccount.initNewAccount());
         mIsAccountCreated = true;
     }
 
     @Test
     public void test3GetOlmAccountId() {
-        Log.d(LOG_TAG,"## testGetOlmAccountId");
-
         long olmNativeInstance = mOlmAccount.getOlmAccountId();
+        Log.d(LOG_TAG,"## testGetOlmAccountId olmNativeInstance="+olmNativeInstance);
         assertTrue(0!=olmNativeInstance);
     }
 
     @Test
     public void test4IdentityKeys() {
-        Log.d(LOG_TAG,"## testIdentityKeys");
-
         JSONObject identityKeysJson = mOlmAccount.identityKeys();
         assertNotNull(identityKeysJson);
         Log.d(LOG_TAG,"## testIdentityKeys Keys="+identityKeysJson);
@@ -115,8 +109,6 @@ public class OlmAccountTest {
     //****************************************************
     @Test
     public void test5MaxOneTimeKeys() {
-        Log.d(LOG_TAG,"## testMaxOneTimeKeys");
-
         long maxOneTimeKeys = mOlmAccount.maxOneTimeKeys();
         Log.d(LOG_TAG,"## testMaxOneTimeKeys(): maxOneTimeKeys="+maxOneTimeKeys);
 
@@ -125,14 +117,12 @@ public class OlmAccountTest {
 
     @Test
     public void test6GenerateOneTimeKeys() {
-        Log.d(LOG_TAG,"## testGenerateOneTimeKeys");
         int retValue = mOlmAccount.generateOneTimeKeys(GENERATION_ONE_TIME_KEYS_NUMBER);
         assertTrue(0==retValue);
     }
 
     @Test
     public void test7OneTimeKeysJsonFormat() {
-        Log.d(LOG_TAG,"## test7OneTimeKeysJsonFormat");
         int oneTimeKeysCount = 0;
         JSONObject generatedKeysJsonObj;
         JSONObject oneTimeKeysJson = mOlmAccount.oneTimeKeys();
@@ -169,8 +159,6 @@ public class OlmAccountTest {
 
     @Test
     public void test8MarkOneTimeKeysAsPublished() {
-        Log.d(LOG_TAG,"## testMarkOneTimeKeysAsPublished");
-
         int retCode = mOlmAccount.markOneTimeKeysAsPublished();
         // if OK => retCode=0
         assertTrue(0 == retCode);
@@ -178,8 +166,6 @@ public class OlmAccountTest {
 
     @Test
     public void test9SignMessage() {
-        Log.d(LOG_TAG,"## testMarkOneTimeKeysAsPublished");
-
         String clearMsg = "String to be signed by olm";
         String signedMsg  = mOlmAccount.signMessage(clearMsg);
         assertNotNull(signedMsg);

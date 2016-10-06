@@ -146,12 +146,12 @@ public class OlmSession {
 
     /**
      * Create a new in-bound session for sending/receiving messages from an
-     * incoming PRE_KEY message based on the sender identity key TODO TBC!.<br>
+     * incoming PRE_KEY message based on the sender identity key.<br>
      * Public API for {@link #initInboundSessionFromIdKeyJni(long, String, String)}.
      * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
      * @param aAccount the account to associate with this session
      * @param aTheirIdentityKey the sender identity key
-     * @param aOneTimeKeyMsg PRE KEY message TODO TBC
+     * @param aOneTimeKeyMsg PRE KEY message
      * @return this if operation succeed, null otherwise
      */
     public OlmSession initInboundSessionWithAccountFrom(OlmAccount aAccount, String aTheirIdentityKey, String aOneTimeKeyMsg) {
@@ -173,6 +173,18 @@ public class OlmSession {
 
     private native int initInboundSessionFromIdKeyJni(long aOlmAccountId, String aTheirIdentityKey, String aOneTimeKeyMsg);
 
+    /**
+     * Get the session identifier.<br> Will be the same for both ends of the
+     * conversation. The session identifier is returned as a String object.
+     * Session Id sample: "session_id":"M4fOVwD6AABrkTKl"
+     * Public API for {@link #getSessionIdentifierJni()}.
+     * @return the session ID as a String if operation succeed, null otherwise
+     */
+    public String sessionIdentifier() {
+        return getSessionIdentifierJni();
+    }
+
+    private native String getSessionIdentifierJni();
 
     /**
      * Checks if the PRE_KEY message is for this in-bound session.<br>
@@ -194,129 +206,43 @@ public class OlmSession {
 
 
     /**
-     * Get the session identifier.<br> Will be the same for both ends of the
-     * conversation. The session identifier is returned as a String object.
-     * Session Id sample: "session_id":"M4fOVwD6AABrkTKl"
-     * Public API for {@link #getSessionIdentifierJni()}.
-     * @return the session ID as a String if operation succeed, null otherwise
+     * Checks if the PRE_KEY message is for this in-bound session based on the sender identity key.<br>
+     * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
+     * Public API for {@link #matchesInboundSessionJni(String)}.
+     * @param aTheirIdentityKey the sender identity key
+     * @param aOneTimeKeyMsg PRE KEY message
+     * @return this if operation succeed, null otherwise
      */
-    public String sessionIdentifier() {
-        return getSessionIdentifierJni();
+    public boolean matchesInboundSessionFrom(String aTheirIdentityKey, String aOneTimeKeyMsg) {
+        boolean retCode = false;
+
+        if(0 == matchesInboundSessionFromIdKeyJni(aTheirIdentityKey, aOneTimeKeyMsg)){
+            retCode = true;
+        }
+        return retCode;
     }
 
-    private native String getSessionIdentifierJni();
-
-/*
-- (BOOL) matchesInboundSession:(NSString*)oneTimeKeyMessage;
-- (BOOL) matchesInboundSessionFrom:(NSString*)theirIdentityKey oneTimeKeyMessage:(NSString *)oneTimeKeyMessage;
-
-// UTF-8 plaintext -> base64 ciphertext
-- (OLMMessage*) encryptMessage:(NSString*)message;
-
-// base64 ciphertext -> UTF-8 plaintext
-- (NSString*) decryptMessage:(OLMMessage*)message;
-*/
+    private native int matchesInboundSessionFromIdKeyJni(String aTheirIdentityKey, String aOneTimeKeyMsg);
 
 
     /**
-     * Get the public identity keys (Ed25519 fingerprint key and Curve25519 identity key).<br>
-     * Keys are Base64 encoded.
-     * These keys must be published on the server.
-     * @return byte array containing the identity keys if operation succeed, null otherwise
+     * Encrypt a message using the session.<br>
+     * Public API for {@link #encryptMessageJni(String, OlmMessage)}.
+     * @param aClearMsg message to encrypted
+     * @return the encrypted message if operation succeed, null otherwise
      */
-    private native byte[] identityKeysJni();
+    public OlmMessage encryptMessage(String aClearMsg) {
+        OlmMessage encryptedMsgRetValue = new OlmMessage();
 
-    /**
-     * Return the identity keys in a JSON array.<br>
-     * Public API for {@link #identityKeysJni()}.
-     * @return identity keys in JSON array format if operation succeed, null otherwise
-     */
-    public JSONObject identityKeys() {
-        JSONObject identityKeysJsonObj = null;
-        byte identityKeysBuffer[];
-
-        if( null != (identityKeysBuffer = identityKeysJni())) {
-            try {
-                identityKeysJsonObj = new JSONObject(new String(identityKeysBuffer));
-                Log.d(LOG_TAG, "## identityKeys(): Identity Json keys=" + identityKeysJsonObj.toString());
-            } catch (JSONException e) {
-                identityKeysJsonObj = null;
-                Log.e(LOG_TAG, "## identityKeys(): Exception - Msg=" + e.getMessage());
-            }
-        } else {
-            Log.e(LOG_TAG, "## identityKeys(): Failure - identityKeysJni()=null");
+        if(0 != encryptMessageJni(aClearMsg, encryptedMsgRetValue)){
+            encryptedMsgRetValue = null;
         }
 
-        return identityKeysJsonObj;
+        return encryptedMsgRetValue;
     }
 
-    /**
-     * Return the largest number of "one time keys" this account can store.
-     * @return the max number of "one time keys", -1 otherwise
-     */
-    public native long maxOneTimeKeys();
+    private native int encryptMessageJni(String aClearMsg, OlmMessage aEncryptedMsg);
 
-    /**
-     * Generate a number of new one time keys.<br> If total number of keys stored
-     * by this account exceeds {@link #maxOneTimeKeys()}, the old keys are discarded.
-     * @param aNumberOfKeys number of keys to generate
-     * @return 0 if operation succeed, -1 otherwise
-     */
-    public native int generateOneTimeKeys(int aNumberOfKeys);
-
-    /**
-     * Get the public parts of the unpublished "one time keys" for the account.<br>
-     * The returned data is a JSON-formatted object with the single property
-     * <tt>curve25519</tt>, which is itself an object mapping key id to
-     * base64-encoded Curve25519 key.
-     * These keys must be published on the server.
-     * @return byte array containing the one time keys if operation succeed, null otherwise
-     */
-    private native byte[] oneTimeKeysJni();
-
-    /**
-     * Return the "one time keys" in a JSON array.<br>
-     * Public API for {@link #oneTimeKeysJni()}.
-     * @return one time keys in JSON array format if operation succeed, null otherwise
-     */
-    public JSONObject oneTimeKeys() {
-        byte identityKeysBuffer[];
-        JSONObject identityKeysJsonObj = null;
-
-        if( null != (identityKeysBuffer = oneTimeKeysJni())) {
-            try {
-                identityKeysJsonObj = new JSONObject(new String(identityKeysBuffer));
-                Log.d(LOG_TAG, "## oneTimeKeys(): Identity Json keys=" + identityKeysJsonObj.toString());
-            } catch (JSONException e) {
-                identityKeysJsonObj = null;
-                Log.e(LOG_TAG, "## oneTimeKeys(): Exception - Msg=" + e.getMessage());
-            }
-        } else {
-            Log.e(LOG_TAG, "## oneTimeKeys(): Failure - identityKeysJni()=null");
-        }
-
-        return identityKeysJsonObj;
-    }
-
-    /**
-     * Remove the "one time keys" that the session used from the account.
-     * @param aNativeOlmSessionId native session instance identifier
-     * @return 0 if operation succeed, 1 if no matching keys in the sessions to be removed, -1 if operation failed
-     */
-    public native int removeOneTimeKeysForSession(long aNativeOlmSessionId);
-
-    /**
-     * Marks the current set of "one time keys" as being published.
-     * @return 0 if operation succeed, -1 otherwise
-     */
-    public native int markOneTimeKeysAsPublished();
-
-    /**
-     * Sign a message with the ed25519 fingerprint key for this account.
-     * @param aMessage message to sign
-     * @return the signed message if operation succeed, null otherwise
-     */
-    public native String signMessage(String aMessage);
 
     @Override
     public String toString() {

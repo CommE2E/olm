@@ -15,6 +15,7 @@
  */
 
 #include "olm_session.h"
+#include "olm_utility.h"
 
 
 /**
@@ -95,7 +96,9 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_initOutboundSessionJni(JNI
     jint retCode = ERROR_CODE_KO;
     OlmSession* sessionPtr = NULL;
     OlmAccount* accountPtr = NULL;
-    void *randomBuffPtr;
+    const char* theirIdentityKeyPtr = NULL;
+    const char* theirOneTimeKeyPtr = NULL;
+    uint8_t *randomBuffPtr = NULL;
     size_t sessionResult;
 
     if(NULL == (sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
@@ -113,15 +116,12 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_initOutboundSessionJni(JNI
     else
     {   // allocate random buffer
         size_t randomSize = olm_create_outbound_session_random_length(sessionPtr);
-        if(NULL == (randomBuffPtr = (void*)malloc(randomSize*sizeof(void*))))
+        if(false == setRandomInBuffer(&randomBuffPtr, randomSize))
         {
-            LOGE("## initOutboundSessionJni(): failure - random buffer OOM");
+            LOGE("## initOutboundSessionJni(): failure - random buffer init");
         }
         else
         {   // convert identity & one time keys to C strings
-            const char* theirIdentityKeyPtr = NULL;
-            const char* theirOneTimeKeyPtr = NULL;
-
             if(NULL == (theirIdentityKeyPtr = env->GetStringUTFChars(aTheirIdentityKey, 0)))
             {
                 LOGE("## initOutboundSessionJni(): failure - identityKey JNI allocation OOM");
@@ -136,7 +136,14 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_initOutboundSessionJni(JNI
                 int theirOneTimeKeyLength  = env->GetStringUTFLength(aTheirOneTimeKey);
                 LOGD("## initOutboundSessionJni(): identityKey=%s oneTimeKey=%s",theirIdentityKeyPtr,theirOneTimeKeyPtr);
 
-                sessionResult = olm_create_outbound_session(sessionPtr, accountPtr, theirIdentityKeyPtr, theirIdentityKeyLength, theirOneTimeKeyPtr, theirOneTimeKeyLength, randomBuffPtr, randomSize);
+                sessionResult = olm_create_outbound_session(sessionPtr,
+                                                            accountPtr,
+                                                            theirIdentityKeyPtr,
+                                                            theirIdentityKeyLength,
+                                                            theirOneTimeKeyPtr,
+                                                            theirOneTimeKeyLength,
+                                                            (void*)randomBuffPtr,
+                                                            randomSize);
                 if(sessionResult == olm_error()) {
                     const char *errorMsgPtr = olm_session_last_error(sessionPtr);
                     LOGE("## initOutboundSessionJni(): failure - session creation  Msg=%s",errorMsgPtr);
@@ -147,19 +154,24 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_initOutboundSessionJni(JNI
                     LOGD("## initOutboundSessionJni(): success - result=%ld", sessionResult);
                 }
             }
-
-            // free local alloc
-            free(randomBuffPtr);
-            if(NULL!= theirIdentityKeyPtr)
-            {
-                env->ReleaseStringUTFChars(aTheirIdentityKey, theirIdentityKeyPtr);
-            }
-            if(NULL!= theirOneTimeKeyPtr)
-            {
-                env->ReleaseStringUTFChars(aTheirOneTimeKey, theirOneTimeKeyPtr);
-            }
         }
     }
+
+     // **** free mem alloc ***
+     if(NULL!= randomBuffPtr)
+     {
+         free(randomBuffPtr);
+     }
+
+     if(NULL!= theirIdentityKeyPtr)
+     {
+         env->ReleaseStringUTFChars(aTheirIdentityKey, theirIdentityKeyPtr);
+     }
+
+     if(NULL!= theirOneTimeKeyPtr)
+     {
+         env->ReleaseStringUTFChars(aTheirOneTimeKey, theirOneTimeKeyPtr);
+     }
 
     return retCode;
 }
@@ -172,7 +184,7 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_initOutboundSessionJni(JNI
  * Create a new in-bound session for sending/receiving messages from an
  * incoming PRE_KEY message.<br>
  * @param aOlmAccountId account instance
- * @param aOneTimeKeyMsg PRE_KEY message TODO TBC
+ * @param aOneTimeKeyMsg PRE_KEY message
  * @return ERROR_CODE_OK if operation succeed, ERROR_CODE_KO otherwise
  */
 JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_initInboundSessionJni(JNIEnv *env, jobject thiz, jlong aOlmAccountId, jstring aOneTimeKeyMsg)
@@ -337,6 +349,12 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_matchesInboundSessionJni(J
         }
     }
 
+    // free local alloc
+    if(NULL!= messagePtr)
+    {
+     env->ReleaseStringUTFChars(aOneTimeKeyMsg, messagePtr);
+    }
+
     return retCode;
 }
 
@@ -392,9 +410,127 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_matchesInboundSessionFromI
         }
     }
 
+    // free local alloc
+    if(NULL!= theirIdentityKeyPtr)
+    {
+     env->ReleaseStringUTFChars(aTheirIdentityKey, theirIdentityKeyPtr);
+    }
+
+    if(NULL!= messagePtr)
+    {
+     env->ReleaseStringUTFChars(aOneTimeKeyMsg, messagePtr);
+    }
+
     return retCode;
 }
 
+
+/**
+ * Encrypt a message using the session. to a base64 ciphertext.<br>
+ * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
+ * @param aTheirIdentityKey the identity key of the sender
+ * @param aOneTimeKeyMsg PRE KEY message
+ * @return ERROR_CODE_OK if match, ERROR_CODE_KO otherwise
+ */
+JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_encryptMessageJni(JNIEnv *env, jobject thiz, jstring aClearMsg, jobject aEncryptedMsg)
+{
+    jint retCode = ERROR_CODE_KO;
+    OlmSession *sessionPtr = NULL;
+    const char *clearMsgPtr = NULL;
+    uint8_t *randomBuffPtr = NULL;
+    void *encryptedMsgPtr = NULL;
+    jclass encryptedMsgJClass;
+    jfieldID encryptedMsgFieldId;
+    jfieldID typeMsgFieldId;
+
+
+    if(NULL == (sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
+    {
+        LOGE("## encryptMessageJni(): failure - invalid Session ptr=NULL");
+    }
+    else if(0 == aClearMsg)
+    {
+        LOGE("## encryptMessageJni(): failure - invalid clear message");
+    }
+    else if(0 == aEncryptedMsg)
+    {
+        LOGE("## encryptMessageJni(): failure - invalid clear message");
+    }
+    else if(NULL == (clearMsgPtr = env->GetStringUTFChars(aClearMsg, 0)))
+    {
+        LOGE("## encryptMessageJni(): failure - clear message JNI allocation OOM");
+    }
+    else if(0 == (encryptedMsgJClass = env->GetObjectClass(aEncryptedMsg)))
+    {
+        LOGE("## encryptMessageJni(): failure - unable to get crypted message class");
+    }
+    else if(0 == (encryptedMsgFieldId = env->GetFieldID(encryptedMsgJClass,"mCipherText","Ljava/lang/String;")))
+    {
+        LOGE("## encryptMessageJni(): failure - unable to get message field");
+    }
+    else if(0 == (typeMsgFieldId = env->GetFieldID(encryptedMsgJClass,"mType","I")))
+    {
+        LOGE("## encryptMessageJni(): failure - unable to get message type field");
+    }
+    else
+    {
+        // compute random buffer
+        size_t randomLength = olm_encrypt_random_length(sessionPtr);
+        if(false == setRandomInBuffer(&randomBuffPtr, randomLength))
+        {
+            LOGE("## encryptMessageJni(): failure - random buffer init");
+        }
+        else
+        {
+            // alloc buffer for encrypted message
+            size_t clearMsgLength = env->GetStringUTFLength(aClearMsg);
+            size_t encryptedMsgLength = olm_encrypt_message_length(sessionPtr, clearMsgLength);
+            if(NULL == (encryptedMsgPtr = (void*)malloc(encryptedMsgLength*sizeof(void*))))
+            {
+                LOGE("## encryptMessageJni(): failure - random buffer OOM");
+            }
+
+            size_t result = olm_encrypt(sessionPtr,
+                                        (void const *)clearMsgPtr,
+                                        clearMsgLength,
+                                        randomBuffPtr,
+                                        randomLength,
+                                        encryptedMsgPtr,
+                                        encryptedMsgLength);
+            if(result == olm_error())
+            {
+                const char *errorMsgPtr = olm_session_last_error(sessionPtr);
+                LOGE("## encryptMessageJni(): failure - Msg=%s",errorMsgPtr);
+            }
+            else
+            {
+                // update type: PRE KEY message or normal message
+                size_t messageType = olm_encrypt_message_type(sessionPtr);
+                env->SetLongField(aEncryptedMsg, typeMsgFieldId, (jlong)messageType);
+
+                // update message
+                jstring encryptedStr = env->NewStringUTF((const char*)encryptedMsgPtr);
+                env->SetObjectField(aEncryptedMsg, encryptedMsgFieldId, (jobject)encryptedStr);
+
+                retCode = ERROR_CODE_OK;
+                LOGD("## encryptMessageJni(): success - result=%lu Type=%lu encryptedMsg=%s", result, messageType, (const char*)encryptedMsgPtr);
+            }
+        }
+    }
+
+    // free alloc
+    if(NULL != clearMsgPtr)
+    {
+     env->ReleaseStringUTFChars(aClearMsg, clearMsgPtr);
+    }
+
+    if(NULL != randomBuffPtr)
+    {
+        free(randomBuffPtr);
+    }
+
+    return retCode;
+}
 
 /**
 * Get the session identifier for this session.

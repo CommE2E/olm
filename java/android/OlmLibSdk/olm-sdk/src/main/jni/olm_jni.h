@@ -34,7 +34,7 @@ static const int ERROR_CODE_NO_MATCHING_ONE_TIME_KEYS = ERROR_CODE_OK+1;
 static const int ERROR_CODE_KO = -1;
 
 // constants
-static const int ACCOUNT_CREATION_RANDOM_MODULO = 500;
+static const int ACCOUNT_CREATION_RANDOM_MODULO = 256;
 
 
 typedef struct _AccountContext

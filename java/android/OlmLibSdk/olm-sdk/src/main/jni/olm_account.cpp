@@ -15,7 +15,7 @@
  */
 
 #include "olm_account.h"
-
+#include "olm_utility.h"
 
 /**
 * Init memory allocation for account creation.
@@ -70,10 +70,10 @@ JNIEXPORT void JNICALL Java_org_matrix_olm_OlmAccount_releaseAccountJni(JNIEnv *
 **/
 JNIEXPORT jlong JNICALL Java_org_matrix_olm_OlmAccount_initNewAccountJni(JNIEnv *env, jobject thiz)
 {
-    OlmAccount* accountPtr = NULL;
+    OlmAccount *accountPtr = NULL;
+    uint8_t *randomBuffPtr = NULL;
     size_t accountRetCode;
-    uint8_t* randomBuffPtr = NULL;
-    int randomSize;
+    size_t randomSize;
 
     // init account memory allocation
     if(NULL == (accountPtr = initializeAccountMemory()))
@@ -84,35 +84,33 @@ JNIEXPORT jlong JNICALL Java_org_matrix_olm_OlmAccount_initNewAccountJni(JNIEnv 
     {
         // allocate random buffer
         randomSize = olm_create_account_random_length(accountPtr);
-        if(NULL == (randomBuffPtr = (std::uint8_t*)malloc(randomSize*sizeof(std::uint8_t))))
+        if(false == setRandomInBuffer(&randomBuffPtr, randomSize))
         {
-            LOGE("## initNewAccount(): failure - random buffer OOM");
+            LOGE("## initNewAccount(): failure - random buffer init");
         }
         else
-        {    // create random buffer
-            LOGD("## initNewAccount(): randomSize=%d",randomSize);
-
-            srand(time(NULL)); // init seed
-            for(int i=0;i<randomSize;i++)
-            {
-                randomBuffPtr[i] = (std::uint8_t)(rand()%ACCOUNT_CREATION_RANDOM_MODULO);;
-            }
-
+        {
             // create account
-            accountRetCode = olm_create_account(accountPtr, randomBuffPtr, randomSize);
+            accountRetCode = olm_create_account(accountPtr, (void*)randomBuffPtr, randomSize);
             if(accountRetCode == olm_error()) {
                 const char *errorMsgPtr = olm_account_last_error(accountPtr);
                 LOGE("## initNewAccount(): failure - account creation failed Msg=%s", errorMsgPtr);
              }
 
-            free(randomBuffPtr);
             LOGD("## initNewAccount(): success - OLM account created");
             LOGD("## initNewAccount(): success - accountPtr=%p (jlong)(intptr_t)accountPtr=%lld",accountPtr,(jlong)(intptr_t)accountPtr);
         }
     }
 
+    if(NULL != randomBuffPtr)
+    {
+        free(randomBuffPtr);
+    }
+
     return (jlong)(intptr_t)accountPtr;
 }
+
+
 
 // *********************************************************************
 // ************************* IDENTITY KEYS API *************************
@@ -202,10 +200,10 @@ JNIEXPORT jlong JNICALL Java_org_matrix_olm_OlmAccount_maxOneTimeKeys(JNIEnv *en
 **/
 JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmAccount_generateOneTimeKeys(JNIEnv *env, jobject thiz, jint aNumberOfKeys)
 {
-    OlmAccount* accountPtr = NULL;;
+    OlmAccount *accountPtr = NULL;
+    uint8_t *randomBufferPtr = NULL;
     jint retCode = ERROR_CODE_KO;
-    size_t length;
-    void* keysBytesPtr; // TODO check type: or uint8_t?
+    size_t randomLength;
     size_t result;
 
     LOGD("## generateOneTimeKeys(): accountPtr =%p aNumberOfKeys=%d",accountPtr, aNumberOfKeys);
@@ -216,15 +214,16 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmAccount_generateOneTimeKeys(JNIEnv
     }
     else
     {   // keys memory allocation
-        length = olm_account_generate_one_time_keys_random_length(accountPtr, aNumberOfKeys);
-        LOGD("## generateOneTimeKeys(): randomLength=%ld", length);
-        if(NULL == (keysBytesPtr=(void*)malloc(length*sizeof(void*))))
+        randomLength = olm_account_generate_one_time_keys_random_length(accountPtr, aNumberOfKeys);
+        LOGD("## generateOneTimeKeys(): randomLength=%ld", randomLength);
+
+        if(false == setRandomInBuffer(&randomBufferPtr, randomLength))
         {
-            LOGE("## generateOneTimeKeys(): failure - random allocation OOM");
+            LOGE("## generateOneTimeKeys(): failure - random buffer init");
         }
         else
         {   // retrieve key pairs in keysBytesPtr
-            result = olm_account_generate_one_time_keys(accountPtr, aNumberOfKeys, keysBytesPtr, length);
+            result = olm_account_generate_one_time_keys(accountPtr, aNumberOfKeys, (void*)randomBufferPtr, randomLength);
             if(result == olm_error()) {
                 const char *errorMsgPtr = olm_account_last_error(accountPtr);
                 LOGE("## generateOneTimeKeys(): failure - error generating one time keys Msg=%s",errorMsgPtr);
@@ -234,9 +233,12 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmAccount_generateOneTimeKeys(JNIEnv
                 retCode = ERROR_CODE_OK;
                 LOGD("## generateOneTimeKeys(): success - result=%ld", result);
             }
-
-            free(keysBytesPtr);
         }
+    }
+
+    if(NULL != randomBufferPtr)
+    {
+        free(randomBufferPtr);
     }
 
     return retCode;

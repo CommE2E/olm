@@ -24,9 +24,16 @@ android {
         jni.srcDirs = []
     }
 
-    task ndkBuildNative(type: Exec, description: 'NDK building..') {
+    task ndkBuildNativeRelease(type: Exec, description: 'NDK building..') {
+        println 'ndkBuildNativeRelease starts..'
         workingDir file('src/main')
-        commandLine getNdkBuildCmd() //, '-B', 'NDK_DEBUG=1'
+        commandLine getNdkBuildCmd(), 'NDK_DEBUG=0'
+    }
+
+    task ndkBuildNativeDebug(type: Exec, description: 'NDK building..') {
+        println 'ndkBuildNativeDebug starts..'
+        workingDir file('src/main')
+        commandLine getNdkBuildCmd(), 'NDK_DEBUG=1'
     }
 
     task cleanNative(type: Exec, description: 'Clean NDK build') {
@@ -34,9 +41,20 @@ android {
         commandLine getNdkBuildCmd(), 'clean'
     }
 
-    tasks.withType(JavaCompile) {
+    /*tasks.withType(JavaCompile) {
         compileTask -> compileTask.dependsOn ndkBuildNative
+    }*/
+
+    tasks.withType(JavaCompile) {
+        compileTask -> if (compileTask.name.startsWith('compileDebugJava')) {
+            println 'test compile: Debug'
+            compileTask.dependsOn ndkBuildNativeDebug
+        } else if (compileTask.name.startsWith('compileReleaseJava')) {
+            println 'test compile: Release'
+            compileTask.dependsOn ndkBuildNativeRelease
+        }
     }
+
 
     clean.dependsOn cleanNative
 
