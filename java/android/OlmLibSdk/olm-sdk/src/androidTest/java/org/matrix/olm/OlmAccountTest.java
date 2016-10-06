@@ -15,9 +15,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
-import static org.junit.Assert.assertFalse;
+import java.util.Iterator;
+
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
@@ -93,7 +93,7 @@ public class OlmAccountTest {
 
         try {
             String fingerPrintKey = identityKeysJson.getString(OlmAccount.JSON_KEY_FINGER_PRINT_KEY);
-            assertFalse("fingerprint key missing",TextUtils.isEmpty(fingerPrintKey));
+            assertTrue("fingerprint key missing",!TextUtils.isEmpty(fingerPrintKey));
         } catch (JSONException e) {
             e.printStackTrace();
             assertTrue("Exception MSg="+e.getMessage(), false);
@@ -101,7 +101,7 @@ public class OlmAccountTest {
 
         try {
             String identityKey = identityKeysJson.getString(OlmAccount.JSON_KEY_IDENTITY_KEY);
-            assertFalse("identity key missing",TextUtils.isEmpty(identityKey));
+            assertTrue("identity key missing",!TextUtils.isEmpty(identityKey));
         } catch (JSONException e) {
             e.printStackTrace();
             assertTrue("Exception MSg="+e.getMessage(), false);
@@ -109,7 +109,6 @@ public class OlmAccountTest {
 
 
     }
-
 
     //****************************************************
     //** ************** One time keys TESTS **************
@@ -133,20 +132,24 @@ public class OlmAccountTest {
 
     @Test
     public void test7OneTimeKeysJsonFormat() {
-        Log.d(LOG_TAG,"## testIdentityKeys");
+        Log.d(LOG_TAG,"## test7OneTimeKeysJsonFormat");
+        int oneTimeKeysCount = 0;
         JSONObject generatedKeysJsonObj;
         JSONObject oneTimeKeysJson = mOlmAccount.oneTimeKeys();
         assertNotNull(oneTimeKeysJson);
 
         try {
             generatedKeysJsonObj = oneTimeKeysJson.getJSONObject(OlmAccount.JSON_KEY_ONE_TIME_KEY);
-            assertFalse(OlmAccount.JSON_KEY_ONE_TIME_KEY +" object is missing", null==generatedKeysJsonObj);
+            assertTrue(OlmAccount.JSON_KEY_ONE_TIME_KEY +" object is missing", null!=generatedKeysJsonObj);
 
-            /*String oneTimeKeyA = generatedKeysJsonObj.getString(OlmAccount.JSON_KEY_ONE_TIME_KEY_GENERATED_A);
-            assertFalse(" one time KeyA object is missing", TextUtils.isEmpty(oneTimeKeyA));
+            // test the count of the generated one time keys:
+            Iterator<String> generatedKeysIt = generatedKeysJsonObj.keys();
+            while(generatedKeysIt.hasNext()){
+                generatedKeysIt.next();
+                oneTimeKeysCount++;
+            }
+            assertTrue("Expected count="+GENERATION_ONE_TIME_KEYS_NUMBER+" found="+oneTimeKeysCount,GENERATION_ONE_TIME_KEYS_NUMBER==oneTimeKeysCount);
 
-            String oneTimeKeyB = generatedKeysJsonObj.getString(OlmAccount.JSON_KEY_ONE_TIME_KEY_GENERATED_B);
-            assertFalse(" one time KeyA object is missing", TextUtils.isEmpty(oneTimeKeyA));*/
         } catch (JSONException e) {
             assertTrue("Exception MSg="+e.getMessage(), false);
         }
