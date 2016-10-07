@@ -19,7 +19,8 @@
 
 
 /**
-* Init memory allocation for session creation.
+* Init memory allocation for a session creation.<br>
+* Make sure releaseSessionJni() is called when one is done with the session instance.
 * @return valid memory allocation, NULL otherwise
 **/
 OlmSession* initializeSessionMemory()
@@ -192,6 +193,7 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_initInboundSessionJni(JNIE
     jint retCode = ERROR_CODE_KO;
     OlmSession *sessionPtr = NULL;
     OlmAccount *accountPtr = NULL;
+    const char *messagePtr = NULL;
     size_t sessionResult;
 
     if(NULL == (sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
@@ -208,7 +210,6 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_initInboundSessionJni(JNIE
     }
     else
     {   // convert message to C strings
-        const char *messagePtr = NULL;
         if(NULL == (messagePtr = env->GetStringUTFChars(aOneTimeKeyMsg, 0)))
         {
             LOGE("## initInboundSessionJni(): failure - message JNI allocation OOM");
@@ -426,11 +427,10 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_matchesInboundSessionFromI
 
 
 /**
- * Encrypt a message using the session. to a base64 ciphertext.<br>
- * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
- * @param aTheirIdentityKey the identity key of the sender
- * @param aOneTimeKeyMsg PRE KEY message
- * @return ERROR_CODE_OK if match, ERROR_CODE_KO otherwise
+ * Encrypt a message using the session.<br>
+ * @param aClearMsg clear text message
+ * @param [out] aEncryptedMsg ciphered message
+ * @return ERROR_CODE_OK if encrypt operation succeed, ERROR_CODE_KO otherwise
  */
 JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_encryptMessageJni(JNIEnv *env, jobject thiz, jstring aClearMsg, jobject aEncryptedMsg)
 {
@@ -439,10 +439,9 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_encryptMessageJni(JNIEnv *
     const char *clearMsgPtr = NULL;
     uint8_t *randomBuffPtr = NULL;
     void *encryptedMsgPtr = NULL;
-    jclass encryptedMsgJClass;
+    jclass encryptedMsgJClass = 0;
     jfieldID encryptedMsgFieldId;
     jfieldID typeMsgFieldId;
-
 
     if(NULL == (sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
     {
@@ -485,35 +484,38 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_encryptMessageJni(JNIEnv *
             // alloc buffer for encrypted message
             size_t clearMsgLength = env->GetStringUTFLength(aClearMsg);
             size_t encryptedMsgLength = olm_encrypt_message_length(sessionPtr, clearMsgLength);
-            if(NULL == (encryptedMsgPtr = (void*)malloc(encryptedMsgLength*sizeof(void*))))
+            if(NULL == (encryptedMsgPtr = (void*)malloc(encryptedMsgLength*sizeof(uint8_t))))
             {
                 LOGE("## encryptMessageJni(): failure - random buffer OOM");
             }
-
-            size_t result = olm_encrypt(sessionPtr,
-                                        (void const *)clearMsgPtr,
-                                        clearMsgLength,
-                                        randomBuffPtr,
-                                        randomLength,
-                                        encryptedMsgPtr,
-                                        encryptedMsgLength);
-            if(result == olm_error())
-            {
-                const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-                LOGE("## encryptMessageJni(): failure - Msg=%s",errorMsgPtr);
-            }
             else
-            {
-                // update type: PRE KEY message or normal message
-                size_t messageType = olm_encrypt_message_type(sessionPtr);
-                env->SetLongField(aEncryptedMsg, typeMsgFieldId, (jlong)messageType);
+            {   // encrypt message
+                size_t result = olm_encrypt(sessionPtr,
+                                            (void const *)clearMsgPtr,
+                                            clearMsgLength,
+                                            randomBuffPtr,
+                                            randomLength,
+                                            encryptedMsgPtr,
+                                            encryptedMsgLength);
+                if(result == olm_error())
+                {
+                    const char *errorMsgPtr = olm_session_last_error(sessionPtr);
+                    LOGE("## encryptMessageJni(): failure - Msg=%s",errorMsgPtr);
+                }
+                else
+                {
+                    // update message type: PRE KEY or normal
+                    size_t messageType = olm_encrypt_message_type(sessionPtr);
+                    env->SetLongField(aEncryptedMsg, typeMsgFieldId, (jlong)messageType);
 
-                // update message
-                jstring encryptedStr = env->NewStringUTF((const char*)encryptedMsgPtr);
-                env->SetObjectField(aEncryptedMsg, encryptedMsgFieldId, (jobject)encryptedStr);
+                    // update message: encryptedMsgPtr => encryptedJstring
+                    jstring encryptedJstring = env->NewStringUTF((const char*)encryptedMsgPtr);
+                    env->SetObjectField(aEncryptedMsg, encryptedMsgFieldId, (jobject)encryptedJstring);
+                    // TODO mem leak: check if free(encryptedMsgPtr); does not interfer with line above
 
-                retCode = ERROR_CODE_OK;
-                LOGD("## encryptMessageJni(): success - result=%lu Type=%lu encryptedMsg=%s", result, messageType, (const char*)encryptedMsgPtr);
+                    retCode = ERROR_CODE_OK;
+                    LOGD("## encryptMessageJni(): success - result=%lu Type=%lu encryptedMsg=%s", result, messageType, (const char*)encryptedMsgPtr);
+                }
             }
         }
     }
@@ -529,8 +531,133 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_encryptMessageJni(JNIEnv *
         free(randomBuffPtr);
     }
 
+    if(NULL != encryptedMsgPtr)
+    {
+        free(encryptedMsgPtr);
+    }
+
     return retCode;
 }
+
+
+/**
+ * Decrypt a message using the session. to a base64 ciphertext.<br>
+ * @param aEncryptedMsg message to decrypt
+ * @return decrypted message if operation succeed, null otherwise
+ */
+JNIEXPORT jstring JNICALL Java_org_matrix_olm_OlmSession_decryptMessageJni(JNIEnv *env, jobject thiz, jobject aEncryptedMsg)
+{
+    jstring decryptedMsgRetValue = 0;
+    jclass encryptedMsgJclass = 0;
+    jstring encryptedMsgJstring = 0; // <= obtained from encryptedMsgFieldId
+    // field IDs
+    jfieldID encryptedMsgFieldId;
+    jfieldID typeMsgFieldId;
+    // ptrs
+    OlmSession *sessionPtr = NULL;
+    const char *encryptedMsgPtr = NULL; // <= obtained from encryptedMsgJstring
+    void *decryptedMsgPtr = NULL;
+    char *tempEncryptedPtr = NULL;
+
+
+    if(NULL == (sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
+    {
+        LOGE("## decryptMessageJni(): failure - invalid Session ptr=NULL");
+    }
+    else if(0 == aEncryptedMsg)
+    {
+        LOGE("## decryptMessageJni(): failure - invalid clear message");
+    }
+    else if(0 == (encryptedMsgJclass = env->GetObjectClass(aEncryptedMsg)))
+    {
+        LOGE("## decryptMessageJni(): failure - unable to get crypted message class");
+    }
+    else if(0 == (encryptedMsgFieldId = env->GetFieldID(encryptedMsgJclass,"mCipherText","Ljava/lang/String;")))
+    {
+        LOGE("## decryptMessageJni(): failure - unable to get message field");
+    }
+    else if(0 == (typeMsgFieldId = env->GetFieldID(encryptedMsgJclass,"mType","I")))
+    {
+        LOGE("## decryptMessageJni(): failure - unable to get message type field");
+    }
+    else if(0 == (encryptedMsgJstring = (jstring)env->GetObjectField(aEncryptedMsg, encryptedMsgFieldId)))
+    {
+        LOGE("## decryptMessageJni(): failure - JNI encrypted object ");
+    }
+    else if(0 == (encryptedMsgPtr = env->GetStringUTFChars(encryptedMsgJstring, 0)))
+    {
+        LOGE("## decryptMessageJni(): failure - encrypted message JNI allocation OOM");
+    }
+    else
+    {
+        // get message type
+        jlong encryptedMsgType = env->GetLongField(aEncryptedMsg, typeMsgFieldId);
+        // get encrypted message length
+        size_t encryptedMsgLength = env->GetStringUTFLength(encryptedMsgJstring);
+
+        // create a dedicated temp buffer to be used in next Olm API calls
+        tempEncryptedPtr = (char*)malloc(encryptedMsgLength*sizeof(uint8_t));
+        memcpy(tempEncryptedPtr, encryptedMsgPtr, encryptedMsgLength);
+        LOGD("## decryptMessageJni(): encryptedMsgType=%lld encryptedMsgLength=%lu encryptedMsg=%s",encryptedMsgType,encryptedMsgLength,encryptedMsgPtr);
+
+        // get max plaintext length
+        size_t maxPlaintextLength = olm_decrypt_max_plaintext_length(sessionPtr,
+                                                                     encryptedMsgType,
+                                                                     (void*)tempEncryptedPtr,
+                                                                     encryptedMsgLength);
+        // Note: tempEncryptedPtr was destroyed by olm_decrypt_max_plaintext_length()
+
+        if(maxPlaintextLength == olm_error())
+        {
+            const char *errorMsgPtr = olm_session_last_error(sessionPtr);
+            LOGE("## decryptMessageJni(): failure - olm_decrypt_max_plaintext_length Msg=%s",errorMsgPtr);
+        }
+        else
+        {
+            // allocate output decrypted message
+            decryptedMsgPtr = (void*)malloc(maxPlaintextLength*sizeof(uint8_t));
+
+            // decrypt but before reload encrypted buffer (previous one was destroyed)
+            memcpy(tempEncryptedPtr, encryptedMsgPtr, encryptedMsgLength);
+            size_t plaintextLength = olm_decrypt(sessionPtr,
+                                                 encryptedMsgType,
+                                                 (void*)encryptedMsgPtr,
+                                                 encryptedMsgLength,
+                                                 (void*)decryptedMsgPtr,
+                                                 maxPlaintextLength);
+            if(plaintextLength == olm_error())
+            {
+                const char *errorMsgPtr = olm_session_last_error(sessionPtr);
+                LOGE("## decryptMessageJni(): failure - olm_decrypt Msg=%s",errorMsgPtr);
+            }
+            else
+            {
+                decryptedMsgRetValue = env->NewStringUTF((const char*)decryptedMsgPtr);
+            }
+        }
+    }
+
+    // free alloc
+    if(NULL != encryptedMsgPtr)
+    {
+        env->ReleaseStringUTFChars(encryptedMsgJstring, encryptedMsgPtr);
+    }
+
+    if(NULL != tempEncryptedPtr)
+    {
+        free(tempEncryptedPtr);
+    }
+
+    if(NULL != decryptedMsgPtr)
+    {
+        free(decryptedMsgPtr);
+    }
+
+    return decryptedMsgRetValue;
+}
+
+
+
 
 /**
 * Get the session identifier for this session.
@@ -549,7 +676,7 @@ JNIEXPORT jstring JNICALL Java_org_matrix_olm_OlmSession_getSessionIdentifierJni
     {
         LOGE("## getSessionIdentifierJni(): failure - invalid Session ptr=NULL");
     }
-    else if(NULL == (sessionIdPtr = (void*)malloc(lengthSessId*sizeof(void*))))
+    else if(NULL == (sessionIdPtr = (void*)malloc(lengthSessId*sizeof(uint8_t))))
     {
        LOGE("## getSessionIdentifierJni(): failure - identifier allocation OOM");
     }
@@ -571,42 +698,3 @@ JNIEXPORT jstring JNICALL Java_org_matrix_olm_OlmSession_getSessionIdentifierJni
     return returnValueStr;
 }
 
-/**
-* Read the account instance ID of the calling object (aJavaObject) passed in parameter.
-* @param aJniEnv pointer pointing on the JNI function table
-* @param aJavaObject reference to the object on which the method is invoked
-* @return the instance ID if read succeed, -1 otherwise.
-**/
-jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
-{
-  jlong instanceId=-1;
-  jfieldID instanceIdField;
-  jclass loaderClass;
-
-  if(NULL!=aJniEnv)
-  {
-    if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
-    {
-      if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmSessionId", "J")))
-      {
-        instanceId = aJniEnv->GetIntField(aJavaObject, instanceIdField);
-        aJniEnv->DeleteLocalRef(loaderClass);
-      }
-      else
-      {
-        LOGD("## getSessionInstanceId() ERROR! GetFieldID=null");
-      }
-    }
-    else
-    {
-      LOGD("## getSessionInstanceId() ERROR! GetObjectClass=null");
-    }
-  }
-  else
-  {
-    LOGD("## getSessionInstanceId() ERROR! aJniEnv=NULL");
-  }
-
-  LOGD("## getSessionInstanceId() success - instanceId=%lld",instanceId);
-  return instanceId;
-}

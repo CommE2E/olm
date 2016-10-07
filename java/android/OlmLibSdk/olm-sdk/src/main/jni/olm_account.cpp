@@ -137,7 +137,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_matrix_olm_OlmAccount_identityKeysJni(JNIE
     else
     {   // identity keys allocation
         identityKeysLength = olm_account_identity_keys_length(accountPtr);
-        if(NULL == (identityKeysBytesPtr=(uint8_t *)malloc(identityKeysLength*sizeof(std::uint8_t))))
+        if(NULL == (identityKeysBytesPtr=(uint8_t*)malloc(identityKeysLength*sizeof(uint8_t))))
         {
             LOGE("## identityKeys(): failure - identity keys array OOM");
         }
@@ -245,7 +245,7 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmAccount_generateOneTimeKeys(JNIEnv
 }
 
 /**
- * Get "one time keys".
+ * Get "one time keys".<br>
  * Return the public parts of the unpublished "one time keys" for the account
  * @return a valid byte array if operation succeed, null otherwise
 **/
@@ -372,15 +372,16 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmAccount_markOneTimeKeysAsPublished
 }
 
 /**
- * Sign a message with the ed25519 key (fingerprint) for this account.
+ * Sign a message with the ed25519 key (fingerprint) for this account.<br>
+ * The signed message is returned by the function.
  * @param aMessage message to sign
- * @return the corresponding signed message, null otherwise
+ * @return the signed message, null otherwise
 **/
 JNIEXPORT jstring JNICALL Java_org_matrix_olm_OlmAccount_signMessage(JNIEnv *env, jobject thiz, jstring aMessage)
 {
     OlmAccount* accountPtr = NULL;
     size_t signatureLength;
-    void* signaturePtr;
+    void* signedMsgPtr;
     size_t resultSign;
     jstring signedMsgRetValue = NULL;
 
@@ -406,13 +407,13 @@ JNIEXPORT jstring JNICALL Java_org_matrix_olm_OlmAccount_signMessage(JNIEnv *env
 
             // signature memory allocation
             signatureLength = olm_account_signature_length(accountPtr);
-            if(NULL == (signaturePtr=(void *)malloc(signatureLength*sizeof(void*))))
+            if(NULL == (signedMsgPtr = (void*)malloc(signatureLength*sizeof(uint8_t))))
             {
                 LOGE("## signMessage(): failure - signature allocation OOM");
             }
             else
             {   // sign message
-                resultSign = olm_account_sign(accountPtr, (void*)messageToSign, messageLength, signaturePtr, signatureLength);
+                resultSign = olm_account_sign(accountPtr, (void*)messageToSign, messageLength, signedMsgPtr, signatureLength);
                 if(resultSign == olm_error())
                 {
                     const char *errorMsgPtr = olm_account_last_error(accountPtr);
@@ -422,11 +423,11 @@ JNIEXPORT jstring JNICALL Java_org_matrix_olm_OlmAccount_signMessage(JNIEnv *env
                 {   // convert to jstring
                     // TODO check how UTF conversion can impact the content?
                     // why not consider return jbyteArray? and convert in JAVA side..
-                    signedMsgRetValue = env->NewStringUTF((const char*)signaturePtr); // UTF8
+                    signedMsgRetValue = env->NewStringUTF((const char*)signedMsgPtr); // UTF8
                     LOGD("## signMessage(): success - retCode=%ld",resultSign);
                 }
 
-                free(signaturePtr);
+                free(signedMsgPtr);
             }
 
             // release messageToSign
@@ -454,40 +455,3 @@ JNIEXPORT jstring JNICALL Java_org_matrix_olm_OlmManager_getOlmLibVersion(JNIEnv
 }
 
 
-/**
-* Read the account instance ID of the calling object.
-* @return the instance ID if read succeed, -1 otherwise.
-**/
-jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
-{
-  jlong instanceId=-1;
-  jfieldID instanceIdField;
-  jclass loaderClass;
-
-  if(NULL!=aJniEnv)
-  {
-    if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
-    {
-      if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmAccountId", "J")))
-      {
-        instanceId = aJniEnv->GetLongField(aJavaObject, instanceIdField);
-        aJniEnv->DeleteLocalRef(loaderClass);
-        LOGD("## getAccountInstanceId(): read from java instanceId=%lld",instanceId);
-      }
-      else
-      {
-        LOGD("## getAccountInstanceId() ERROR! GetFieldID=null");
-      }
-    }
-    else
-    {
-      LOGD("## getAccountInstanceId() ERROR! GetObjectClass=null");
-    }
-  }
-  else
-  {
-    LOGD("## getAccountInstanceId() ERROR! aJniEnv=NULL");
-  }
-  LOGD("## getAccountInstanceId() success - instanceId=%lld",instanceId);
-  return instanceId;
-}

@@ -131,7 +131,8 @@ public class OlmAccount {
 
     /**
      * Generate a number of new one time keys.<br> If total number of keys stored
-     * by this account exceeds {@link #maxOneTimeKeys()}, the old keys are discarded.
+     * by this account exceeds {@link #maxOneTimeKeys()}, the old keys are discarded.<br>
+     * The corresponding keys are retrieved by {@link #oneTimeKeys()}.
      * @param aNumberOfKeys number of keys to generate
      * @return 0 if operation succeed, -1 otherwise
      */
@@ -141,15 +142,16 @@ public class OlmAccount {
      * Get the public parts of the unpublished "one time keys" for the account.<br>
      * The returned data is a JSON-formatted object with the single property
      * <tt>curve25519</tt>, which is itself an object mapping key id to
-     * base64-encoded Curve25519 key.
-     * These keys must be published on the server.
+     * base64-encoded Curve25519 key.<br>
      * @return byte array containing the one time keys if operation succeed, null otherwise
      */
     private native byte[] oneTimeKeysJni();
 
     /**
      * Return the "one time keys" in a JSON array.<br>
-     * Public API for {@link #oneTimeKeysJni()}.
+     * The number of "one time keys", is specified by {@link #generateOneTimeKeys(int)}<br>
+     * Public API for {@link #oneTimeKeysJni()}.<br>
+     * Note: these keys are to be published on the server.
      * @return one time keys in JSON array format if operation succeed, null otherwise
      */
     public JSONObject oneTimeKeys() {

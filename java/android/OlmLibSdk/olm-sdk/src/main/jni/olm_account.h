@@ -7,7 +7,6 @@
 extern "C" {
 #endif
 
-jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 JNIEXPORT jstring JNICALL Java_org_matrix_olm_OlmManager_getOlmLibVersion(JNIEnv *env, jobject thiz);
 
 // account creation/destruction

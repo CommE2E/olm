@@ -50,11 +50,92 @@ bool setRandomInBuffer(uint8_t **aBuffer2Ptr, size_t aRandomSize)
         {
             (*aBuffer2Ptr)[i] = (uint8_t)(rand()%ACCOUNT_CREATION_RANDOM_MODULO);
 
-            // TODO debug purpose - remove asap
-            LOGD("## setRandomInBuffer(): randomBuffPtr[%ld]=%d",i, (*aBuffer2Ptr)[i]);
+            // debug purpose
+            //LOGD("## setRandomInBuffer(): randomBuffPtr[%ld]=%d",i, (*aBuffer2Ptr)[i]);
         }
 
         retCode = true;
     }
     return retCode;
+}
+
+
+/**
+* Read the account instance ID of the calling object.
+* @param aJniEnv pointer pointing on the JNI function table
+* @param aJavaObject reference to the object on which the method is invoked
+* @return the instance ID if operation succeed, -1 if instance ID was not found.
+**/
+jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
+{
+  jlong instanceId=-1;
+  jfieldID instanceIdField;
+  jclass loaderClass;
+
+  if(NULL!=aJniEnv)
+  {
+    if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
+    {
+      if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmAccountId", "J")))
+      {
+        instanceId = aJniEnv->GetLongField(aJavaObject, instanceIdField);
+        aJniEnv->DeleteLocalRef(loaderClass);
+        LOGD("## getAccountInstanceId(): read from java instanceId=%lld",instanceId);
+      }
+      else
+      {
+        LOGD("## getAccountInstanceId() ERROR! GetFieldID=null");
+      }
+    }
+    else
+    {
+      LOGD("## getAccountInstanceId() ERROR! GetObjectClass=null");
+    }
+  }
+  else
+  {
+    LOGD("## getAccountInstanceId() ERROR! aJniEnv=NULL");
+  }
+  LOGD("## getAccountInstanceId() success - instanceId=%lld",instanceId);
+  return instanceId;
+}
+
+/**
+* Read the account instance ID of the calling object (aJavaObject).<br>
+* @param aJniEnv pointer pointing on the JNI function table
+* @param aJavaObject reference to the object on which the method is invoked
+* @return the instance ID if read succeed, -1 otherwise.
+**/
+jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
+{
+  jlong instanceId=-1;
+  jfieldID instanceIdField;
+  jclass loaderClass;
+
+  if(NULL!=aJniEnv)
+  {
+    if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
+    {
+      if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmSessionId", "J")))
+      {
+        instanceId = aJniEnv->GetIntField(aJavaObject, instanceIdField);
+        aJniEnv->DeleteLocalRef(loaderClass);
+      }
+      else
+      {
+        LOGD("## getSessionInstanceId() ERROR! GetFieldID=null");
+      }
+    }
+    else
+    {
+      LOGD("## getSessionInstanceId() ERROR! GetObjectClass=null");
+    }
+  }
+  else
+  {
+    LOGD("## getSessionInstanceId() ERROR! aJniEnv=NULL");
+  }
+
+  LOGD("## getSessionInstanceId() success - instanceId=%lld",instanceId);
+  return instanceId;
 }
