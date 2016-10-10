@@ -17,3 +17,5 @@ NSString *OLMKitVersionString();
 #import <OLMKit/OLMSession.h>
 #import <OLMKit/OLMMessage.h>
 #import <OLMKit/OLMUtility.h>
+#import <OLMKit/OLMInboundGroupSession.h>
+#import <OLMKit/OLMOutboundGroupSession.h>
