@@ -10,6 +10,7 @@
 		3274F6021D9A633A005282E4 /* OLMKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3274F5F81D9A633A005282E4 /* OLMKit.framework */; };
 		3274F6071D9A633A005282E4 /* OLMKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3274F6061D9A633A005282E4 /* OLMKitTests.m */; };
 		3274F6131D9A698E005282E4 /* OLMKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 3274F6121D9A698E005282E4 /* OLMKit.h */; };
+		32A151311DABDD4300400192 /* OLMKitGroupTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A151301DABDD4300400192 /* OLMKitGroupTests.m */; };
 		7DBAD311AEA85CF6DB80DCFA /* libPods-OLMKitTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7123FABE917D0FB140E036B7 /* libPods-OLMKitTests.a */; };
 		D667051A0BA47E17CCC4E5D7 /* libPods-OLMKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2F22FE8F173AF845B882805 /* libPods-OLMKit.a */; };
 /* End PBXBuildFile section */
@@ -32,6 +33,7 @@
 		3274F6061D9A633A005282E4 /* OLMKitTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OLMKitTests.m; sourceTree = "<group>"; };
 		3274F6081D9A633A005282E4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3274F6121D9A698E005282E4 /* OLMKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLMKit.h; sourceTree = "<group>"; };
+		32A151301DABDD4300400192 /* OLMKitGroupTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OLMKitGroupTests.m; sourceTree = "<group>"; };
 		7123FABE917D0FB140E036B7 /* libPods-OLMKitTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OLMKitTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		875BA7A520258EA15A31DD82 /* Pods-OLMKitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OLMKitTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OLMKitTests/Pods-OLMKitTests.debug.xcconfig"; sourceTree = "<group>"; };
 		D48E486DAE1F59F4F7EA8C25 /* Pods-OLMKitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OLMKitTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-OLMKitTests/Pods-OLMKitTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -104,6 +106,7 @@
 			isa = PBXGroup;
 			children = (
 				3274F6061D9A633A005282E4 /* OLMKitTests.m */,
+				32A151301DABDD4300400192 /* OLMKitGroupTests.m */,
 				3274F6081D9A633A005282E4 /* Info.plist */,
 			);
 			path = OLMKitTests;
@@ -318,6 +321,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3274F6071D9A633A005282E4 /* OLMKitTests.m in Sources */,
+				32A151311DABDD4300400192 /* OLMKitGroupTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
