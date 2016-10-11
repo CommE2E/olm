@@ -3,6 +3,9 @@
 
 #include "olm_jni.h"
 
+#define OLM_ACCOUNT_FUNC_DEF(func_name) FUNC_DEF(OlmAccount,func_name)
+#define OLM_MANAGER_FUNC_DEF(func_name) FUNC_DEF(OlmManager,func_name)
+
 #ifdef __cplusplus
 extern "C" {
 #endif

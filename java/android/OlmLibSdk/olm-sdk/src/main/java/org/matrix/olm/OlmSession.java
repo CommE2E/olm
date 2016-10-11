@@ -19,11 +19,9 @@ package org.matrix.olm;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 public class OlmSession {
     private static final String LOG_TAG = "OlmSession";
+
     /** session raw pointer value (OlmSession*) returned by JNI.
      * this value uniquely identifies the native session instance.
      **/
@@ -42,6 +40,14 @@ public class OlmSession {
      */
     public long getOlmSessionId(){
         return mNativeOlmSessionId;
+    }
+
+    /**
+     * Getter on the session ID.
+     * @return native session ID
+     */
+    public OlmAccount getOlmAccountId(){
+        return mOlmAccount;
     }
 
     /**
@@ -105,8 +111,9 @@ public class OlmSession {
             // set the account of this session
             mOlmAccount = aAccount;
 
-            int retCode = initOutboundSessionJni(mOlmAccount.getOlmAccountId(), aTheirIdentityKey, aTheirOneTimeKey);
-            retObj = this;
+            if(0 == initOutboundSessionJni(mOlmAccount.getOlmAccountId(), aTheirIdentityKey, aTheirOneTimeKey)) {
+                retObj = this;
+            }
         }
 
         return retObj;
@@ -121,7 +128,7 @@ public class OlmSession {
      * Public API for {@link #initInboundSessionJni(long, String)}.
      * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
      * @param aAccount the account to associate with this session
-     * @param aOneTimeKeyMsg PRE KEY message TODO TBC
+     * @param aOneTimeKeyMsg PRE KEY message
      * @return this if operation succeed, null otherwise
      */
     public OlmSession initInboundSessionWithAccount(OlmAccount aAccount, String aOneTimeKeyMsg) {
@@ -227,6 +234,7 @@ public class OlmSession {
 
     /**
      * Encrypt a message using the session.<br>
+     * The encrypted message is returned in a OlmMessage object.
      * Public API for {@link #encryptMessageJni(String, OlmMessage)}.
      * @param aClearMsg message to encrypted
      * @return the encrypted message if operation succeed, null otherwise
@@ -243,11 +251,12 @@ public class OlmSession {
 
     private native int encryptMessageJni(String aClearMsg, OlmMessage aEncryptedMsg);
 
-
-    @Override
-    public String toString() {
-        return super.toString();
-    }
-
+    /**
+     * Decrypt a message using the session.<br>
+     * The encrypted message is given as a OlmMessage object.
+     * @param aEncryptedMsg message to decrypt
+     * @return the decrypted message if operation succeed, null otherwise
+     */
+    public native String decryptMessage(OlmMessage aEncryptedMsg);
 }
 

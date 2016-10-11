@@ -44,7 +44,7 @@ OlmAccount* initializeAccountMemory()
  * This method MUST be called when java counter part account instance is done.
  *
  */
-JNIEXPORT void JNICALL Java_org_matrix_olm_OlmAccount_releaseAccountJni(JNIEnv *env, jobject thiz)
+JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(releaseAccountJni)(JNIEnv *env, jobject thiz)
 {
   OlmAccount* accountPtr = NULL;
 
@@ -55,8 +55,11 @@ JNIEXPORT void JNICALL Java_org_matrix_olm_OlmAccount_releaseAccountJni(JNIEnv *
       LOGE("## releaseAccountJni(): failure - invalid Account ptr=NULL");
   }
   else
-  { // even if free(NULL) does not crash, a test is performed for debug purpose
+  {
+    olm_clear_account(accountPtr);
+
     LOGD("## releaseAccountJni(): IN");
+    // even if free(NULL) does not crash, logs are performed for debug purpose
     free(accountPtr);
     LOGD("## releaseAccountJni(): OUT");
   }
@@ -68,7 +71,7 @@ JNIEXPORT void JNICALL Java_org_matrix_olm_OlmAccount_releaseAccountJni(JNIEnv *
 * to make the cast (OlmAccount* => jlong) platform independant.
 * @return the initialized OlmAccount* instance if init succeed, NULL otherwise
 **/
-JNIEXPORT jlong JNICALL Java_org_matrix_olm_OlmAccount_initNewAccountJni(JNIEnv *env, jobject thiz)
+JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(initNewAccountJni)(JNIEnv *env, jobject thiz)
 {
     OlmAccount *accountPtr = NULL;
     uint8_t *randomBuffPtr = NULL;
@@ -120,7 +123,7 @@ JNIEXPORT jlong JNICALL Java_org_matrix_olm_OlmAccount_initNewAccountJni(JNIEnv 
 * The keys are returned in the byte array.
 * @return a valid byte array if operation succeed, null otherwise
 **/
-JNIEXPORT jbyteArray JNICALL Java_org_matrix_olm_OlmAccount_identityKeysJni(JNIEnv *env, jobject thiz)
+JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(identityKeysJni)(JNIEnv *env, jobject thiz)
 {
     OlmAccount* accountPtr = NULL;
     size_t identityKeysLength;
@@ -175,7 +178,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_matrix_olm_OlmAccount_identityKeysJni(JNIE
  * Get the maximum number of "one time keys" the account can store.
  *
 **/
-JNIEXPORT jlong JNICALL Java_org_matrix_olm_OlmAccount_maxOneTimeKeys(JNIEnv *env, jobject thiz)
+JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(maxOneTimeKeys)(JNIEnv *env, jobject thiz)
 {
     OlmAccount* accountPtr = NULL;
     size_t maxKeys = -1;
@@ -198,7 +201,7 @@ JNIEXPORT jlong JNICALL Java_org_matrix_olm_OlmAccount_maxOneTimeKeys(JNIEnv *en
  * @param aNumberOfKeys number of keys to generate
  * @return ERROR_CODE_OK if operation succeed, ERROR_CODE_KO otherwise
 **/
-JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmAccount_generateOneTimeKeys(JNIEnv *env, jobject thiz, jint aNumberOfKeys)
+JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeys)(JNIEnv *env, jobject thiz, jint aNumberOfKeys)
 {
     OlmAccount *accountPtr = NULL;
     uint8_t *randomBufferPtr = NULL;
@@ -206,7 +209,6 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmAccount_generateOneTimeKeys(JNIEnv
     size_t randomLength;
     size_t result;
 
-    LOGD("## generateOneTimeKeys(): accountPtr =%p aNumberOfKeys=%d",accountPtr, aNumberOfKeys);
 
     if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
     {
@@ -222,7 +224,10 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmAccount_generateOneTimeKeys(JNIEnv
             LOGE("## generateOneTimeKeys(): failure - random buffer init");
         }
         else
-        {   // retrieve key pairs in keysBytesPtr
+        {
+            LOGD("## generateOneTimeKeys(): accountPtr =%p aNumberOfKeys=%d",accountPtr, aNumberOfKeys);
+
+            // retrieve key pairs in keysBytesPtr
             result = olm_account_generate_one_time_keys(accountPtr, aNumberOfKeys, (void*)randomBufferPtr, randomLength);
             if(result == olm_error()) {
                 const char *errorMsgPtr = olm_account_last_error(accountPtr);
@@ -249,7 +254,7 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmAccount_generateOneTimeKeys(JNIEnv
  * Return the public parts of the unpublished "one time keys" for the account
  * @return a valid byte array if operation succeed, null otherwise
 **/
-JNIEXPORT jbyteArray JNICALL Java_org_matrix_olm_OlmAccount_oneTimeKeysJni(JNIEnv *env, jobject thiz)
+JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(oneTimeKeysJni)(JNIEnv *env, jobject thiz)
 {
     OlmAccount* accountPtr = NULL;
     size_t keysLength;
@@ -303,7 +308,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_matrix_olm_OlmAccount_oneTimeKeysJni(JNIEn
  * @param aNativeOlmSessionId session instance
  * @return ERROR_CODE_OK if operation succeed, ERROR_CODE_NO_MATCHING_ONE_TIME_KEYS if no matching keys, ERROR_CODE_KO otherwise
 **/
-JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmAccount_removeOneTimeKeysForSession(JNIEnv *env, jobject thiz, jlong aNativeOlmSessionId)
+JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysForSession)(JNIEnv *env, jobject thiz, jlong aNativeOlmSessionId)
 {
     jint retCode = ERROR_CODE_KO;
     OlmAccount* accountPtr = NULL;
@@ -342,7 +347,7 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmAccount_removeOneTimeKeysForSessio
  * Mark the current set of "one time keys" as being published.
  * @return ERROR_CODE_OK if operation succeed, ERROR_CODE_KO otherwise
 **/
-JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmAccount_markOneTimeKeysAsPublished(JNIEnv *env, jobject thiz)
+JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublished)(JNIEnv *env, jobject thiz)
 {
     jint retCode = ERROR_CODE_OK;
     OlmAccount* accountPtr = NULL;
@@ -377,7 +382,7 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmAccount_markOneTimeKeysAsPublished
  * @param aMessage message to sign
  * @return the signed message, null otherwise
 **/
-JNIEXPORT jstring JNICALL Java_org_matrix_olm_OlmAccount_signMessage(JNIEnv *env, jobject thiz, jstring aMessage)
+JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessage)(JNIEnv *env, jobject thiz, jstring aMessage)
 {
     OlmAccount* accountPtr = NULL;
     size_t signatureLength;
@@ -439,7 +444,7 @@ JNIEXPORT jstring JNICALL Java_org_matrix_olm_OlmAccount_signMessage(JNIEnv *env
 }
 
 
-JNIEXPORT jstring JNICALL Java_org_matrix_olm_OlmManager_getOlmLibVersion(JNIEnv* env, jobject thiz)
+JNIEXPORT jstring OLM_MANAGER_FUNC_DEF(getOlmLibVersion)(JNIEnv* env, jobject thiz)
 {
   uint8_t majorVer=0, minorVer=0, patchVer=0;
   jstring returnValueStr=0;

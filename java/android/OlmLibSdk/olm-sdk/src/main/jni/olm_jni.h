@@ -28,6 +28,8 @@
     #define LOGE(...)
 #endif
 
+#define FUNC_DEF(class_name,func_name) JNICALL Java_org_matrix_olm_##class_name##_##func_name
+
 // Error codes definition
 static const int ERROR_CODE_OK = 0;
 static const int ERROR_CODE_NO_MATCHING_ONE_TIME_KEYS = ERROR_CODE_OK+1;

@@ -118,7 +118,7 @@ jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
     {
       if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmSessionId", "J")))
       {
-        instanceId = aJniEnv->GetIntField(aJavaObject, instanceIdField);
+        instanceId = aJniEnv->GetLongField(aJavaObject, instanceIdField);
         aJniEnv->DeleteLocalRef(loaderClass);
       }
       else

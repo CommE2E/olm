@@ -3,6 +3,8 @@
 
 #include "olm_jni.h"
 
+#define OLM_SESSION_FUNC_DEF(func_name) FUNC_DEF(OlmSession,func_name)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -24,7 +26,7 @@ JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_matchesInboundSessionFromI
 
 // encrypt/decrypt
 JNIEXPORT jint JNICALL Java_org_matrix_olm_OlmSession_encryptMessageJni(JNIEnv *env, jobject thiz, jstring aClearMsg, jobject aEncryptedMsg);
-JNIEXPORT jstring JNICALL Java_org_matrix_olm_OlmSession_decryptMessageJni(JNIEnv *env, jobject thiz, jobject aEncryptedMsg);
+JNIEXPORT jstring JNICALL Java_org_matrix_olm_OlmSession_decryptMessage(JNIEnv *env, jobject thiz, jobject aEncryptedMsg);
 
 JNIEXPORT jstring JNICALL Java_org_matrix_olm_OlmSession_getSessionIdentifierJni(JNIEnv *env, jobject thiz);
 

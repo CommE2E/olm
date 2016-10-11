@@ -29,16 +29,12 @@ public class OlmAccount {
     public static final String JSON_KEY_IDENTITY_KEY = "curve25519";
     public static final String JSON_KEY_FINGER_PRINT_KEY = "ed25519";
 
-    /** instance unique identifier, used in JNI to match the corresponding native class **/
-    private int mJavaInstanceId;
-
     /** account raw pointer value (OlmAccount*) returned by JNI.
      * this value identifies uniquely the native account instance.
      */
     private long mNativeOlmAccountId;
 
     public OlmAccount() {
-        mJavaInstanceId = hashCode();
         //initNewAccount();
     }
 
@@ -101,8 +97,13 @@ public class OlmAccount {
 
     /**
      * Return the identity keys (identity & fingerprint keys) in a JSON array.<br>
-     * Public API for {@link #identityKeysJni()}.
-     * @return identity keys in JSON array format if operation succeed, null otherwise
+     * Public API for {@link #identityKeysJni()}.<br>
+     * Ex:<tt>
+     * {
+     *  "curve25519":"Vam++zZPMqDQM6ANKpO/uAl5ViJSHxV9hd+b0/fwRAg",
+     *  "ed25519":"+v8SOlOASFTMrX3MCKBM4iVnYoZ+JIjpNt1fi8Z9O2I"
+     * }</tt>
+     * @return identity keys in JSON array if operation succeed, null otherwise
      */
     public JSONObject identityKeys() {
         JSONObject identityKeysJsonObj = null;
@@ -150,6 +151,14 @@ public class OlmAccount {
     /**
      * Return the "one time keys" in a JSON array.<br>
      * The number of "one time keys", is specified by {@link #generateOneTimeKeys(int)}<br>
+     * Ex:<tt>
+     * { "curve25519":
+     *  {
+     *      "AAAABQ":"qefVZd8qvjOpsFzoKSAdfUnJVkIreyxWFlipCHjSQQg",
+     *      "AAAABA":"/X8szMU+p+lsTnr56wKjaLgjTMQQkCk8EIWEAilZtQ8",
+     *      "AAAAAw":"qxNxxFHzevFntaaPdT0fhhO7tc7pco4+xB/5VRG81hA",
+     *  }
+     * }</tt><br>
      * Public API for {@link #oneTimeKeysJni()}.<br>
      * Note: these keys are to be published on the server.
      * @return one time keys in JSON array format if operation succeed, null otherwise
@@ -192,9 +201,4 @@ public class OlmAccount {
      * @return the signed message if operation succeed, null otherwise
      */
     public native String signMessage(String aMessage);
-
-    @Override
-    public String toString() {
-        return super.toString();
-    }
 }

@@ -30,9 +30,6 @@ public class OlmAccountTest {
     private static OlmManager mOlmManager;
     private boolean mIsAccountCreated;
 
-    public static final String TEST_STRING = "This is a string";
-    public static final long TEST_LONG = 12345678L;
-
     @BeforeClass
     public static void setUpClass(){
         // load native lib
@@ -61,26 +58,35 @@ public class OlmAccountTest {
     }
 
     @Test
-    public void test1CreateAccount() {
+    public void test01CreateReleaseAccount() {
+        mOlmAccount = new OlmAccount();
+        assertNotNull(mOlmAccount);
+
+        mOlmAccount.releaseAccount();
+        assertTrue(0 == mOlmAccount.getOlmAccountId());
+    }
+
+    @Test
+    public void test02CreateAccount() {
         mOlmAccount = new OlmAccount();
         assertNotNull(mOlmAccount);
     }
 
     @Test
-    public void test2InitNewAccount() {
+    public void test03InitNewAccount() {
         assertTrue(mOlmAccount.initNewAccount());
         mIsAccountCreated = true;
     }
 
     @Test
-    public void test3GetOlmAccountId() {
+    public void test04GetOlmAccountId() {
         long olmNativeInstance = mOlmAccount.getOlmAccountId();
         Log.d(LOG_TAG,"## testGetOlmAccountId olmNativeInstance="+olmNativeInstance);
         assertTrue(0!=olmNativeInstance);
     }
 
     @Test
-    public void test4IdentityKeys() {
+    public void test05IdentityKeys() {
         JSONObject identityKeysJson = mOlmAccount.identityKeys();
         assertNotNull(identityKeysJson);
         Log.d(LOG_TAG,"## testIdentityKeys Keys="+identityKeysJson);
@@ -108,7 +114,7 @@ public class OlmAccountTest {
     //** ************** One time keys TESTS **************
     //****************************************************
     @Test
-    public void test5MaxOneTimeKeys() {
+    public void test06MaxOneTimeKeys() {
         long maxOneTimeKeys = mOlmAccount.maxOneTimeKeys();
         Log.d(LOG_TAG,"## testMaxOneTimeKeys(): maxOneTimeKeys="+maxOneTimeKeys);
 
@@ -116,13 +122,13 @@ public class OlmAccountTest {
     }
 
     @Test
-    public void test6GenerateOneTimeKeys() {
+    public void test07GenerateOneTimeKeys() {
         int retValue = mOlmAccount.generateOneTimeKeys(GENERATION_ONE_TIME_KEYS_NUMBER);
         assertTrue(0==retValue);
     }
 
     @Test
-    public void test7OneTimeKeysJsonFormat() {
+    public void test08OneTimeKeysJsonFormat() {
         int oneTimeKeysCount = 0;
         JSONObject generatedKeysJsonObj;
         JSONObject oneTimeKeysJson = mOlmAccount.oneTimeKeys();
@@ -145,27 +151,31 @@ public class OlmAccountTest {
         }
     }
 
-    // TODO testRemoveOneTimeKeysForSession when session is available
-    /*@Test
-    public void testRemoveOneTimeKeysForSession() {
-        Log.d(LOG_TAG,"## testRemoveOneTimeKeysForSession");
-        OLMSession olmSession = new OLMSession();
+    @Test
+    public void test10RemoveOneTimeKeysForSession() {
+        OlmSession olmSession = new OlmSession();
+        olmSession.initNewSession();
+        long sessionId = olmSession.getOlmSessionId();
+        assertTrue(0 != sessionId);
 
-        JSONArray keysJsonArray = mOlmAccount.removeOneTimeKeysForSession(olmSession);
+        int sessionRetCode = mOlmAccount.removeOneTimeKeysForSession(sessionId);
+        // no one time key has been use in the session, so removeOneTimeKeysForSession() returns an error
+        assertTrue(0 != sessionRetCode);
 
-        assertNotNull(keysJsonArray);
-        // TODO add extra test to test the JSON content format..
-    }*/
+        olmSession.releaseSession();
+        sessionId = olmSession.getOlmSessionId();
+        assertTrue("sessionRetCode="+sessionRetCode,0 == sessionId);
+    }
 
     @Test
-    public void test8MarkOneTimeKeysAsPublished() {
+    public void test11MarkOneTimeKeysAsPublished() {
         int retCode = mOlmAccount.markOneTimeKeysAsPublished();
         // if OK => retCode=0
         assertTrue(0 == retCode);
     }
 
     @Test
-    public void test9SignMessage() {
+    public void test12SignMessage() {
         String clearMsg = "String to be signed by olm";
         String signedMsg  = mOlmAccount.signMessage(clearMsg);
         assertNotNull(signedMsg);
@@ -193,10 +203,8 @@ public class OlmAccountTest {
         int generateRetCode = account.generateOneTimeKeys(50);
         Log.d(LOG_TAG, "## testJni(): generateRetCode="+generateRetCode);
 
-        JSONObject onteTimeKeysKeysJson = account.oneTimeKeys();
-        Log.d(LOG_TAG, "## testJni(): onteTimeKeysKeysJson="+onteTimeKeysKeysJson.toString());
-
-        // TODO removeOneTimeKeysForSession(session);
+        JSONObject oneTimeKeysKeysJson = account.oneTimeKeys();
+        Log.d(LOG_TAG, "## testJni(): oneTimeKeysKeysJson="+oneTimeKeysKeysJson.toString());
 
         int asPublishedRetCode = account.markOneTimeKeysAsPublished();
         Log.d(LOG_TAG, "## testJni(): asPublishedRetCode="+asPublishedRetCode);
