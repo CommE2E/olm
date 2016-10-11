@@ -106,7 +106,7 @@
     
     OLMAccount *bob2 = [NSKeyedUnarchiver unarchiveObjectWithData:bobData];
     NSDictionary *bobIdKeys2 = bob2.identityKeys;
-    NSDictionary *bobOneTimeKeys2 = bob.oneTimeKeys;
+    NSDictionary *bobOneTimeKeys2 = bob2.oneTimeKeys;
     
     XCTAssertEqualObjects(bobIdKeys, bobIdKeys2);
     XCTAssertEqualObjects(bobOneTimeKeys, bobOneTimeKeys2);
