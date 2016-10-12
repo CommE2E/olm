@@ -120,7 +120,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initOutboundSessionJni)(JNIEnv *env, jobject
     else
     {   // allocate random buffer
         size_t randomSize = olm_create_outbound_session_random_length(sessionPtr);
-        if((0!=randomSize) && (false == setRandomInBuffer(&randomBuffPtr, randomSize)))
+        if((0!=randomSize) && !setRandomInBuffer(&randomBuffPtr, randomSize))
         {
             LOGE("## initOutboundSessionJni(): failure - random buffer init");
         }
@@ -136,8 +136,8 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initOutboundSessionJni)(JNIEnv *env, jobject
             }
             else
             {
-                int theirIdentityKeyLength = env->GetStringUTFLength(aTheirIdentityKey);
-                int theirOneTimeKeyLength  = env->GetStringUTFLength(aTheirOneTimeKey);
+                size_t theirIdentityKeyLength = (size_t)env->GetStringUTFLength(aTheirIdentityKey);
+                size_t theirOneTimeKeyLength  = (size_t)env->GetStringUTFLength(aTheirOneTimeKey);
                 LOGD("## initOutboundSessionJni(): identityKey=%s oneTimeKey=%s",theirIdentityKeyPtr,theirOneTimeKeyPtr);
 
                 sessionResult = olm_create_outbound_session(sessionPtr,
@@ -219,7 +219,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionJni)(JNIEnv *env, jobject 
         }
         else
         {
-            int messageLength = env->GetStringUTFLength(aOneTimeKeyMsg);
+            size_t messageLength = (size_t)env->GetStringUTFLength(aOneTimeKeyMsg);
             LOGD("## initInboundSessionJni(): messageLength=%d message=%s", messageLength, messagePtr);
 
             sessionResult = olm_create_inbound_session(sessionPtr, accountPtr, (void*)messagePtr , messageLength);
@@ -283,8 +283,8 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionFromIdKeyJni)(JNIEnv *env,
     }
     else
     {
-        size_t messageLength = env->GetStringUTFLength(aOneTimeKeyMsg);
-        size_t theirIdentityKeyLength = env->GetStringUTFLength(aTheirIdentityKey);
+        size_t messageLength = (size_t)env->GetStringUTFLength(aOneTimeKeyMsg);
+        size_t theirIdentityKeyLength = (size_t)env->GetStringUTFLength(aTheirIdentityKey);
 
         LOGD("## initInboundSessionFromIdKeyJni(): message=%s messageLength=%lu",messagePtr,messageLength);
 
@@ -339,7 +339,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(matchesInboundSessionJni)(JNIEnv *env, jobje
     }
     else
     {
-        size_t messageLength = env->GetStringUTFLength(aOneTimeKeyMsg);
+        size_t messageLength = (size_t)env->GetStringUTFLength(aOneTimeKeyMsg);
 
         size_t matchResult = olm_matches_inbound_session(sessionPtr, (void*)messagePtr , messageLength);
         if(matchResult == olm_error()) {
@@ -399,8 +399,8 @@ JNIEXPORT jint JNICALL OLM_SESSION_FUNC_DEF(matchesInboundSessionFromIdKeyJni)(J
     }
     else
     {
-        size_t identityKeyLength = env->GetStringUTFLength(aTheirIdentityKey);
-        size_t messageLength = env->GetStringUTFLength(aOneTimeKeyMsg);
+        size_t identityKeyLength = (size_t)env->GetStringUTFLength(aTheirIdentityKey);
+        size_t messageLength = (size_t)env->GetStringUTFLength(aOneTimeKeyMsg);
 
         size_t matchResult = olm_matches_inbound_session_from(sessionPtr, (void const *)theirIdentityKeyPtr, identityKeyLength, (void*)messagePtr , messageLength);
         if(matchResult == olm_error()) {
@@ -485,15 +485,15 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
         // Note: olm_encrypt_random_length() can return 0, which means
         // it just does not need new random data to encrypt a new message
         size_t randomLength = olm_encrypt_random_length(sessionPtr);
-        LOGD("## encryptMessageJni(): messageType=%lu randomLength=%lu",messageType,randomLength);
-        if( (0!=randomLength) && (false == setRandomInBuffer(&randomBuffPtr, randomLength)))
+
+        if((0!=randomLength) && !setRandomInBuffer(&randomBuffPtr, randomLength))
         {
             LOGE("## encryptMessageJni(): failure - random buffer init");
         }
         else
         {
             // alloc buffer for encrypted message
-            size_t clearMsgLength = env->GetStringUTFLength(aClearMsg);
+            size_t clearMsgLength = (size_t)env->GetStringUTFLength(aClearMsg);
             size_t encryptedMsgLength = olm_encrypt_message_length(sessionPtr, clearMsgLength);
             if(NULL == (encryptedMsgPtr = (void*)malloc(encryptedMsgLength*sizeof(uint8_t))))
             {
@@ -506,6 +506,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
                     LOGW("## encryptMessageJni(): random buffer is not required");
                 }
 
+                LOGD("## encryptMessageJni(): messageType=%lu randomLength=%lu clearMsgLength=%lu encryptedMsgLength=%lu",messageType,randomLength, clearMsgLength, encryptedMsgLength);
                 // encrypt message
                 size_t result = olm_encrypt(sessionPtr,
                                             (void const *)clearMsgPtr,
@@ -521,15 +522,19 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
                 }
                 else
                 {
+                    // update encrypted buffer size
+                    (static_cast<char*>(encryptedMsgPtr))[result] = static_cast<char>('\0');
+
                     // update message type: PRE KEY or normal
                     env->SetLongField(aEncryptedMsg, typeMsgFieldId, (jlong)messageType);
 
                     // update message: encryptedMsgPtr => encryptedJstring
                     jstring encryptedJstring = env->NewStringUTF((const char*)encryptedMsgPtr);
+                    size_t encryptedUtfMsgLength = (size_t)env->GetStringUTFLength(encryptedJstring);
                     env->SetObjectField(aEncryptedMsg, encryptedMsgFieldId, (jobject)encryptedJstring);
 
                     retCode = ERROR_CODE_OK;
-                    LOGD("## encryptMessageJni(): success - result=%lu Type=%lu encryptedMsg=%s", result, messageType, (const char*)encryptedMsgPtr);
+                    LOGD("## encryptMessageJni(): success - result=%lu Type=%lu utfLength=%lu encryptedMsg=%s", result, messageType, encryptedUtfMsgLength, (const char*)encryptedMsgPtr);
                 }
             }
         }
@@ -607,18 +612,18 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessage)(JNIEnv *env, jobject thiz
     else
     {
         // get message type
-        jlong encryptedMsgType = env->GetLongField(aEncryptedMsg, typeMsgFieldId);
+        size_t encryptedMsgType = (size_t)env->GetLongField(aEncryptedMsg, typeMsgFieldId);
         // get encrypted message length
-        size_t encryptedMsgLength = env->GetStringUTFLength(encryptedMsgJstring);
+        size_t encryptedMsgLength = (size_t)env->GetStringUTFLength(encryptedMsgJstring);
 
         // create a dedicated temp buffer to be used in next Olm API calls
         tempEncryptedPtr = static_cast<char*>(malloc(encryptedMsgLength*sizeof(uint8_t)));
         memcpy(tempEncryptedPtr, encryptedMsgPtr, encryptedMsgLength);
-        LOGD("##  decryptMessageJni(): encryptedMsgType=%lld encryptedMsgLength=%lu encryptedMsg=%s",encryptedMsgType,encryptedMsgLength,encryptedMsgPtr);
+        LOGD("##  decryptMessage(): MsgType=%ld encryptedMsgLength=%lu encryptedMsg=%s",encryptedMsgType,encryptedMsgLength,encryptedMsgPtr);
 
         // get max plaintext length
         size_t maxPlainTextLength = olm_decrypt_max_plaintext_length(sessionPtr,
-                                                                     encryptedMsgType,
+                                                                     static_cast<size_t>(encryptedMsgType),
                                                                      static_cast<void*>(tempEncryptedPtr),
                                                                      encryptedMsgLength);
         // Note: tempEncryptedPtr is destroyed by olm_decrypt_max_plaintext_length()
@@ -641,7 +646,7 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessage)(JNIEnv *env, jobject thiz
                                                  encryptedMsgType,
                                                  (void*)encryptedMsgPtr,
                                                  encryptedMsgLength,
-                                                 (void*)plainTextMsgPtr,
+                                                 plainTextMsgPtr,
                                                  maxPlainTextLength);
             if(plaintextLength == olm_error())
             {
@@ -650,7 +655,9 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessage)(JNIEnv *env, jobject thiz
             }
             else
             {
+                // update decrypted buffer size
                 (static_cast<char*>(plainTextMsgPtr))[plaintextLength] = static_cast<char>('\0');
+
                 LOGD("##  decryptMessage(): decrypted returnedLg=%lu plainTextMsgPtr=%s",plaintextLength, static_cast<char*>(plainTextMsgPtr));
                 decryptedMsgRetValue = env->NewStringUTF(static_cast<const char*>(plainTextMsgPtr));
             }
@@ -690,19 +697,19 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, job
     jstring returnValueStr=0;
 
     // get the size to alloc to contain the id
-    size_t lengthSessId = olm_session_id_length(sessionPtr);
+    size_t lengthSessionId = olm_session_id_length(sessionPtr);
 
     if(NULL == (sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
     {
         LOGE("## getSessionIdentifierJni(): failure - invalid Session ptr=NULL");
     }
-    else if(NULL == (sessionIdPtr = (void*)malloc(lengthSessId*sizeof(uint8_t))))
+    else if(NULL == (sessionIdPtr = (void*)malloc(lengthSessionId*sizeof(uint8_t))))
     {
        LOGE("## getSessionIdentifierJni(): failure - identifier allocation OOM");
     }
     else
     {
-        size_t result = olm_session_id(sessionPtr, sessionIdPtr, lengthSessId);
+        size_t result = olm_session_id(sessionPtr, sessionIdPtr, lengthSessionId);
         if (result == olm_error())
         {
             const char *errorMsgPtr = olm_session_last_error(sessionPtr);
@@ -710,6 +717,10 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, job
         }
         else
         {
+            // update decrypted buffer size
+            (static_cast<char*>(sessionIdPtr))[result] = static_cast<char>('\0');
+
+            LOGD("## getSessionIdentifierJni(): success - result=%lu sessionId=%s",result, (char*)sessionIdPtr);
             returnValueStr = env->NewStringUTF((const char*)sessionIdPtr);
         }
         free(sessionIdPtr);

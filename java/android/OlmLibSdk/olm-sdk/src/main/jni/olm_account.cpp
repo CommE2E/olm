@@ -87,7 +87,7 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(initNewAccountJni)(JNIEnv *env, jobject thi
     {
         // allocate random buffer
         randomSize = olm_create_account_random_length(accountPtr);
-        if(false == setRandomInBuffer(&randomBuffPtr, randomSize))
+        if(!setRandomInBuffer(&randomBuffPtr, randomSize))
         {
             LOGE("## initNewAccount(): failure - random buffer init");
         }
@@ -216,10 +216,10 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeys)(JNIEnv *env, jobject th
     }
     else
     {   // keys memory allocation
-        randomLength = olm_account_generate_one_time_keys_random_length(accountPtr, aNumberOfKeys);
+        randomLength = olm_account_generate_one_time_keys_random_length(accountPtr, (size_t)aNumberOfKeys);
         LOGD("## generateOneTimeKeys(): randomLength=%ld", randomLength);
 
-        if(false == setRandomInBuffer(&randomBufferPtr, randomLength))
+        if(!setRandomInBuffer(&randomBufferPtr, randomLength))
         {
             LOGE("## generateOneTimeKeys(): failure - random buffer init");
         }
@@ -228,7 +228,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeys)(JNIEnv *env, jobject th
             LOGD("## generateOneTimeKeys(): accountPtr =%p aNumberOfKeys=%d",accountPtr, aNumberOfKeys);
 
             // retrieve key pairs in keysBytesPtr
-            result = olm_account_generate_one_time_keys(accountPtr, aNumberOfKeys, (void*)randomBufferPtr, randomLength);
+            result = olm_account_generate_one_time_keys(accountPtr, (size_t)aNumberOfKeys, (void*)randomBufferPtr, randomLength);
             if(result == olm_error()) {
                 const char *errorMsgPtr = olm_account_last_error(accountPtr);
                 LOGE("## generateOneTimeKeys(): failure - error generating one time keys Msg=%s",errorMsgPtr);
@@ -418,7 +418,7 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessage)(JNIEnv *env, jobject thiz, j
             }
             else
             {   // sign message
-                resultSign = olm_account_sign(accountPtr, (void*)messageToSign, messageLength, signedMsgPtr, signatureLength);
+                resultSign = olm_account_sign(accountPtr, (void*)messageToSign, (size_t)messageLength, signedMsgPtr, signatureLength);
                 if(resultSign == olm_error())
                 {
                     const char *errorMsgPtr = olm_account_last_error(accountPtr);

@@ -184,12 +184,9 @@ public class OlmSessionTest {
         // CREATE ALICE OUTBOUND SESSION and encrypt message to bob
         assertNotNull(aliceSession.initOutboundSessionWithAccount(aliceAccount, bobIdentityKey, bobOneTimeKey));
         String helloClearMsg = "Hello I'm Alice!";
-        String goodbyeClearMsg = "Goodbye Alice";
+
         OlmMessage encryptedAliceToBobMsg1 = aliceSession.encryptMessage(helloClearMsg);
-        //OlmMessage encryptedAliceToBobMsg2 = aliceSession.encryptMessage(goodbyeClearMsg);
         assertNotNull(encryptedAliceToBobMsg1);
-        //assertNotNull(encryptedAliceToBobMsg2);
-        Log.d(LOG_TAG,"## test02AliceToBobBackAndForth(): encryptedMsg="+encryptedAliceToBobMsg1.mCipherText);
 
         // CREATE BOB INBOUND SESSION and decrypt message from alice
         OlmSession bobSession = new OlmSession();
@@ -199,13 +196,10 @@ public class OlmSessionTest {
 
         // DECRYPT MESSAGE FROM ALICE
         String decryptedMsg01 = bobSession.decryptMessage(encryptedAliceToBobMsg1);
-        //String decryptedMsg02 = bobSession.decryptMessage(encryptedAliceToBobMsg2);
         assertNotNull(decryptedMsg01);
-        //assertNotNull(decryptedMsg02);
 
         // MESSAGE COMPARISON: decrypted vs encrypted
         assertTrue(helloClearMsg.equals(decryptedMsg01));
-        //assertTrue(goodbyeClearMsg.equals(decryptedMsg02));
 
         assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession.getOlmSessionId()));
 
@@ -216,27 +210,60 @@ public class OlmSessionTest {
 
         OlmMessage encryptedMsg1 = bobSession.encryptMessage(clearMsg1);
         assertNotNull(encryptedMsg1);
-        /*OlmMessage encryptedMsg2 = bobSession.encryptMessage(clearMsg2);
+        OlmMessage encryptedMsg2 = bobSession.encryptMessage(clearMsg2);
         assertNotNull(encryptedMsg2);
         OlmMessage encryptedMsg3 = bobSession.encryptMessage(clearMsg3);
-        assertNotNull(encryptedMsg3);*/
+        assertNotNull(encryptedMsg3);
 
         String decryptedMsg1 = aliceSession.decryptMessage(encryptedMsg1);
-        //assertNotNull(decryptedMsg1);
-        /*String decryptedMsg2 = aliceSession.decryptMessage(encryptedMsg2);
-        //assertNotNull(decryptedMsg2);
+        assertNotNull(decryptedMsg1);
+        String decryptedMsg2 = aliceSession.decryptMessage(encryptedMsg2);
+        assertNotNull(decryptedMsg2);
         String decryptedMsg3 = aliceSession.decryptMessage(encryptedMsg3);
-        //assertNotNull(decryptedMsg3);*/
+        assertNotNull(decryptedMsg3);
 
-        /*assertTrue(clearMsg1.equals(decryptedMsg1));
-/*        assertTrue(clearMsg2.equals(decryptedMsg2));
-        assertTrue(clearMsg3.equals(decryptedMsg3));*/
+        assertTrue(clearMsg1.equals(decryptedMsg1));
+        assertTrue(clearMsg2.equals(decryptedMsg2));
+        assertTrue(clearMsg3.equals(decryptedMsg3));
 
         // clean objects..
         bobAccount.releaseAccount();
         aliceAccount.releaseAccount();
         bobSession.releaseSession();
         aliceSession.releaseSession();
+    }
+
+    @Test
+    public void test03AliceBobSessionId() {
+        // creates alice & bob accounts
+        OlmAccount aliceAccount = new OlmAccount();
+        aliceAccount.initNewAccount();
+
+        OlmAccount bobAccount = new OlmAccount();
+        bobAccount.initNewAccount();
+
+        // test accounts creation
+        assertTrue(0!=bobAccount.getOlmAccountId());
+        assertTrue(0!=aliceAccount.getOlmAccountId());
+
+        // CREATE ALICE SESSION
+        OlmSession aliceSession = new OlmSession();
+        aliceSession.initNewSession();
+        assertTrue(0!=aliceSession.getOlmSessionId());
+
+        // CREATE BOB INBOUND SESSION and decrypt message from alice
+        OlmSession bobSession = new OlmSession();
+        bobSession.initNewSession();
+        assertTrue(0!=bobSession.getOlmSessionId());
+
+        String aliceSessionId = aliceSession.sessionIdentifier();
+        assertNotNull(aliceSessionId);
+
+        String bobSessionId = bobSession.sessionIdentifier();
+        assertNotNull(bobSessionId);
+
+        // must be the same for both ends of the conversation
+        assertTrue(aliceSessionId.equals(bobSessionId));
     }
 
 }
