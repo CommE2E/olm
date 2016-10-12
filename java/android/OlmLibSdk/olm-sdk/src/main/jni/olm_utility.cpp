@@ -136,6 +136,6 @@ jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
     LOGD("## getSessionInstanceId() ERROR! aJniEnv=NULL");
   }
 
-  LOGD("## getSessionInstanceId() success - instanceId=%lld",instanceId);
+  //LOGD("## getSessionInstanceId() success - instanceId=%lld",instanceId);
   return instanceId;
 }
