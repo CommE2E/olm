@@ -50,10 +50,7 @@ public class OlmSessionTest {
 
         // creates alice & bob accounts
         OlmAccount aliceAccount = new OlmAccount();
-        aliceAccount.initNewAccount();
-
         OlmAccount bobAccount = new OlmAccount();
-        bobAccount.initNewAccount();
 
         // test accounts creation
         assertTrue(0!=bobAccount.getOlmAccountId());
@@ -88,7 +85,6 @@ public class OlmSessionTest {
 
         // CREATE ALICE SESSION
         OlmSession aliceSession = new OlmSession();
-        aliceSession.initNewSession();
         assertTrue(0!=aliceSession.getOlmSessionId());
 
         // CREATE ALICE OUTBOUND SESSION and encrypt message to bob
@@ -100,7 +96,6 @@ public class OlmSessionTest {
 
         // CREATE BOB INBOUND SESSION and decrypt message from alice
         OlmSession bobSession = new OlmSession();
-        bobSession.initNewSession();
         assertTrue(0!=bobSession.getOlmSessionId());
         assertNotNull(bobSession.initInboundSessionWithAccount(bobAccount, encryptedMsgToBob.mCipherText));
         String decryptedMsg = bobSession.decryptMessage(encryptedMsgToBob);
@@ -140,10 +135,7 @@ public class OlmSessionTest {
 
         // creates alice & bob accounts
         OlmAccount aliceAccount = new OlmAccount();
-        aliceAccount.initNewAccount();
-
         OlmAccount bobAccount = new OlmAccount();
-        bobAccount.initNewAccount();
 
         // test accounts creation
         assertTrue(0!=bobAccount.getOlmAccountId());
@@ -178,7 +170,6 @@ public class OlmSessionTest {
 
         // CREATE ALICE SESSION
         OlmSession aliceSession = new OlmSession();
-        aliceSession.initNewSession();
         assertTrue(0!=aliceSession.getOlmSessionId());
 
         // CREATE ALICE OUTBOUND SESSION and encrypt message to bob
@@ -190,7 +181,6 @@ public class OlmSessionTest {
 
         // CREATE BOB INBOUND SESSION and decrypt message from alice
         OlmSession bobSession = new OlmSession();
-        bobSession.initNewSession();
         assertTrue(0!=bobSession.getOlmSessionId());
         assertNotNull(bobSession.initInboundSessionWithAccount(bobAccount, encryptedAliceToBobMsg1.mCipherText));
 
@@ -237,10 +227,7 @@ public class OlmSessionTest {
     public void test03AliceBobSessionId() {
         // creates alice & bob accounts
         OlmAccount aliceAccount = new OlmAccount();
-        aliceAccount.initNewAccount();
-
         OlmAccount bobAccount = new OlmAccount();
-        bobAccount.initNewAccount();
 
         // test accounts creation
         assertTrue(0!=bobAccount.getOlmAccountId());
@@ -248,12 +235,10 @@ public class OlmSessionTest {
 
         // CREATE ALICE SESSION
         OlmSession aliceSession = new OlmSession();
-        aliceSession.initNewSession();
         assertTrue(0!=aliceSession.getOlmSessionId());
 
         // CREATE BOB INBOUND SESSION and decrypt message from alice
         OlmSession bobSession = new OlmSession();
-        bobSession.initNewSession();
         assertTrue(0!=bobSession.getOlmSessionId());
 
         String aliceSessionId = aliceSession.sessionIdentifier();

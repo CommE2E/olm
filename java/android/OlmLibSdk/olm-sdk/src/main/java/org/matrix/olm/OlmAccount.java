@@ -35,7 +35,7 @@ public class OlmAccount {
     private long mNativeOlmAccountId;
 
     public OlmAccount() {
-        //initNewAccount();
+        initNewAccount();
     }
 
     /**
@@ -79,7 +79,7 @@ public class OlmAccount {
      * To be called before any other API call.
      * @return true if init succeed, false otherwise.
      */
-    public boolean initNewAccount() {
+    private boolean initNewAccount() {
         boolean retCode = false;
         if(0 != (mNativeOlmAccountId = initNewAccountJni())){
             retCode = true;

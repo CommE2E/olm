@@ -31,7 +31,7 @@ public class OlmSession {
     private OlmAccount mOlmAccount;
 
     public OlmSession() {
-        //initNewSession();
+        initNewSession();
     }
 
     /**
@@ -76,7 +76,7 @@ public class OlmSession {
      * To be called before any other API call.
      * @return true if init succeed, false otherwise.
      */
-    public boolean initNewSession() {
+    private boolean initNewSession() {
         boolean retCode = false;
         if(0 != (mNativeOlmSessionId = initNewSessionJni())){
             retCode = true;

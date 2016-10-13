@@ -70,11 +70,6 @@ public class OlmAccountTest {
     public void test02CreateAccount() {
         mOlmAccount = new OlmAccount();
         assertNotNull(mOlmAccount);
-    }
-
-    @Test
-    public void test03InitNewAccount() {
-        assertTrue(mOlmAccount.initNewAccount());
         mIsAccountCreated = true;
     }
 
@@ -154,7 +149,6 @@ public class OlmAccountTest {
     @Test
     public void test10RemoveOneTimeKeysForSession() {
         OlmSession olmSession = new OlmSession();
-        olmSession.initNewSession();
         long sessionId = olmSession.getOlmSessionId();
         assertTrue(0 != sessionId);
 
@@ -189,7 +183,6 @@ public class OlmAccountTest {
         Log.d(LOG_TAG, "## testJni(): lib version="+versionLib);
 
         OlmAccount account = new OlmAccount();
-        boolean initStatus = account.initNewAccount();
 
         long accountNativeId = account.getOlmAccountId();
         Log.d(LOG_TAG, "## testJni(): lib accountNativeId="+accountNativeId);
