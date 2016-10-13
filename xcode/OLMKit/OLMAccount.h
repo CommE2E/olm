@@ -28,7 +28,7 @@
 - (BOOL) removeOneTimeKeysForSession:(OLMSession*)session;
 
 /** Marks the current set of one time keys as being published. */
-- (void) markKeysAsPublished;
+- (void) markOneTimeKeysAsPublished;
 
 /** The largest number of one time keys this account can store. */
 - (NSUInteger) maxOneTimeKeys;

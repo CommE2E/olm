@@ -157,6 +157,11 @@
     return YES;
 }
 
+- (void)markOneTimeKeysAsPublished
+{
+    olm_account_mark_keys_as_published(self.account);
+}
+
 #pragma mark OLMSerializable
 
 /** Initializes from encrypted serialized data. Will throw error if invalid key or invalid base64. */
