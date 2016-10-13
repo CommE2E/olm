@@ -565,7 +565,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
  * @param aEncryptedMsg message to decrypt
  * @return decrypted message if operation succeed, null otherwise
  */
-JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessage)(JNIEnv *env, jobject thiz, jobject aEncryptedMsg)
+JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jobject aEncryptedMsg)
 {
     jstring decryptedMsgRetValue = 0;
     jclass encryptedMsgJclass = 0;
@@ -579,35 +579,35 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessage)(JNIEnv *env, jobject thiz
     void *plainTextMsgPtr = NULL;
     char *tempEncryptedPtr = NULL;
 
-    LOGD("## decryptMessage(): IN ");
+    LOGD("## decryptMessageJni(): IN ");
 
     if(NULL == (sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
     {
-        LOGE("##  decryptMessage(): failure - invalid Session ptr=NULL");
+        LOGE("##  decryptMessageJni(): failure - invalid Session ptr=NULL");
     }
     else if(0 == aEncryptedMsg)
     {
-        LOGE("##  decryptMessage(): failure - invalid clear message");
+        LOGE("##  decryptMessageJni(): failure - invalid clear message");
     }
     else if(0 == (encryptedMsgJclass = env->GetObjectClass(aEncryptedMsg)))
     {
-        LOGE("##  decryptMessage(): failure - unable to get crypted message class");
+        LOGE("##  decryptMessageJni(): failure - unable to get crypted message class");
     }
     else if(0 == (encryptedMsgFieldId = env->GetFieldID(encryptedMsgJclass,"mCipherText","Ljava/lang/String;")))
     {
-        LOGE("##  decryptMessage(): failure - unable to get message field");
+        LOGE("##  decryptMessageJni(): failure - unable to get message field");
     }
     else if(0 == (typeMsgFieldId = env->GetFieldID(encryptedMsgJclass,"mType","J")))
     {
-        LOGE("##  decryptMessage(): failure - unable to get message type field");
+        LOGE("##  decryptMessageJni(): failure - unable to get message type field");
     }
     else if(0 == (encryptedMsgJstring = (jstring)env->GetObjectField(aEncryptedMsg, encryptedMsgFieldId)))
     {
-        LOGE("##  decryptMessage(): failure - JNI encrypted object ");
+        LOGE("##  decryptMessageJni(): failure - JNI encrypted object ");
     }
     else if(0 == (encryptedMsgPtr = env->GetStringUTFChars(encryptedMsgJstring, 0)))
     {
-        LOGE("##  decryptMessage(): failure - encrypted message JNI allocation OOM");
+        LOGE("##  decryptMessageJni(): failure - encrypted message JNI allocation OOM");
     }
     else
     {
@@ -619,7 +619,7 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessage)(JNIEnv *env, jobject thiz
         // create a dedicated temp buffer to be used in next Olm API calls
         tempEncryptedPtr = static_cast<char*>(malloc(encryptedMsgLength*sizeof(uint8_t)));
         memcpy(tempEncryptedPtr, encryptedMsgPtr, encryptedMsgLength);
-        LOGD("##  decryptMessage(): MsgType=%ld encryptedMsgLength=%lu encryptedMsg=%s",encryptedMsgType,encryptedMsgLength,encryptedMsgPtr);
+        LOGD("##  decryptMessageJni(): MsgType=%ld encryptedMsgLength=%lu encryptedMsg=%s",encryptedMsgType,encryptedMsgLength,encryptedMsgPtr);
 
         // get max plaintext length
         size_t maxPlainTextLength = olm_decrypt_max_plaintext_length(sessionPtr,
@@ -631,11 +631,11 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessage)(JNIEnv *env, jobject thiz
         if(maxPlainTextLength == olm_error())
         {
             const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-            LOGE("##  decryptMessage(): failure - olm_decrypt_max_plaintext_length Msg=%s",errorMsgPtr);
+            LOGE("##  decryptMessageJni(): failure - olm_decrypt_max_plaintext_length Msg=%s",errorMsgPtr);
         }
         else
         {
-            LOGD("##  decryptMessage(): maxPlaintextLength=%lu",maxPlainTextLength);
+            LOGD("##  decryptMessageJni(): maxPlaintextLength=%lu",maxPlainTextLength);
 
             // allocate output decrypted message
             plainTextMsgPtr = static_cast<void*>(malloc(maxPlainTextLength*sizeof(uint8_t)));
@@ -651,14 +651,14 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessage)(JNIEnv *env, jobject thiz
             if(plaintextLength == olm_error())
             {
                 const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-                LOGE("##  decryptMessage(): failure - olm_decrypt Msg=%s",errorMsgPtr);
+                LOGE("##  decryptMessageJni(): failure - olm_decrypt Msg=%s",errorMsgPtr);
             }
             else
             {
                 // update decrypted buffer size
                 (static_cast<char*>(plainTextMsgPtr))[plaintextLength] = static_cast<char>('\0');
 
-                LOGD("##  decryptMessage(): decrypted returnedLg=%lu plainTextMsgPtr=%s",plaintextLength, static_cast<char*>(plainTextMsgPtr));
+                LOGD("##  decryptMessageJni(): decrypted returnedLg=%lu plainTextMsgPtr=%s",plaintextLength, static_cast<char*>(plainTextMsgPtr));
                 decryptedMsgRetValue = env->NewStringUTF(static_cast<const char*>(plainTextMsgPtr));
             }
         }

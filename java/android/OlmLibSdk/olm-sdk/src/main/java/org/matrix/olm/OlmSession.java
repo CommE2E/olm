@@ -69,7 +69,6 @@ public class OlmSession {
         mNativeOlmSessionId = 0;
     }
 
-
     /**
      * Create and save the session native instance ID.
      * Wrapper for {@link #initNewSessionJni()}.<br>
@@ -257,6 +256,10 @@ public class OlmSession {
      * @param aEncryptedMsg message to decrypt
      * @return the decrypted message if operation succeed, null otherwise
      */
-    public native String decryptMessage(OlmMessage aEncryptedMsg);
+    public String decryptMessage(OlmMessage aEncryptedMsg) {
+        return decryptMessageJni(aEncryptedMsg);
+    }
+
+    private native String decryptMessageJni(OlmMessage aEncryptedMsg);
 }
 
