@@ -1,0 +1,90 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion '21.1.2'
+
+    defaultConfig {
+        minSdkVersion 11
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets.main {
+        jniLibs.srcDir 'src/main/libs'
+        jni.srcDirs = []
+    }
+
+    task ndkBuildNativeRelease(type: Exec, description: 'NDK building..') {
+        println 'ndkBuildNativeRelease starts..'
+        workingDir file('src/main')
+        commandLine getNdkBuildCmd(), 'NDK_DEBUG=0'
+    }
+
+    task ndkBuildNativeDebug(type: Exec, description: 'NDK building..') {
+        println 'ndkBuildNativeDebug starts..'
+        workingDir file('src/main')
+        commandLine getNdkBuildCmd(), 'NDK_DEBUG=1'
+    }
+
+    task cleanNative(type: Exec, description: 'Clean NDK build') {
+        workingDir file('src/main')
+        commandLine getNdkBuildCmd(), 'clean'
+    }
+
+    /*tasks.withType(JavaCompile) {
+        compileTask -> compileTask.dependsOn ndkBuildNative
+    }*/
+
+    tasks.withType(JavaCompile) {
+        compileTask -> if (compileTask.name.startsWith('compileDebugJava')) {
+            println 'test compile: Debug'
+            compileTask.dependsOn ndkBuildNativeDebug
+        } else if (compileTask.name.startsWith('compileReleaseJava')) {
+            println 'test compile: Release'
+            compileTask.dependsOn ndkBuildNativeRelease
+        }
+    }
+
+
+    clean.dependsOn cleanNative
+
+}
+
+def getNdkFolder() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    def ndkFolder = properties.getProperty('ndk.dir', null)
+    if (ndkFolder == null)
+        throw new GradleException("NDK location missing. Define it with ndk.dir in the local.properties file")
+
+    return ndkFolder
+}
+
+def getNdkBuildCmd() {
+    def ndkBuildCmd = getNdkFolder() + "/ndk-build"
+    if (Os.isFamily(Os.FAMILY_WINDOWS))
+        ndkBuildCmd += ".cmd"
+
+    return ndkBuildCmd
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:21.+'
+
+    testCompile 'junit:junit:4.12'
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile 'com.android.support:support-annotations:21.0.0'
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
+}
