@@ -220,7 +220,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionJni)(JNIEnv *env, jobject 
         else
         {
             size_t messageLength = (size_t)env->GetStringUTFLength(aOneTimeKeyMsg);
-            LOGD("## initInboundSessionJni(): messageLength=%d message=%s", messageLength, messagePtr);
+            LOGD("## initInboundSessionJni(): messageLength=%lu message=%s", messageLength, messagePtr);
 
             sessionResult = olm_create_inbound_session(sessionPtr, accountPtr, (void*)messagePtr , messageLength);
             if(sessionResult == olm_error()) {
