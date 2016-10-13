@@ -105,7 +105,7 @@ public class OlmSessionTest {
         assertTrue(clearMsg.equals(decryptedMsg));
 
         // clean objects..
-        assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession.getOlmSessionId()));
+        assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
         // release accounts
         bobAccount.releaseAccount();
         aliceAccount.releaseAccount();
@@ -191,7 +191,7 @@ public class OlmSessionTest {
         // MESSAGE COMPARISON: decrypted vs encrypted
         assertTrue(helloClearMsg.equals(decryptedMsg01));
 
-        assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession.getOlmSessionId()));
+        assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
 
         // BACK/FORTH MESSAGE COMPARISON
         String clearMsg1 = "Hello I'm Bob!";

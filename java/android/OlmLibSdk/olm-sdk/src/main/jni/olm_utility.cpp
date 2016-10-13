@@ -101,7 +101,7 @@ jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 }
 
 /**
-* Read the account instance ID of the calling object (aJavaObject).<br>
+* Read the session instance ID of the calling object (aJavaObject).<br>
 * @param aJniEnv pointer pointing on the JNI function table
 * @param aJavaObject reference to the object on which the method is invoked
 * @return the instance ID if read succeed, -1 otherwise.
@@ -137,5 +137,85 @@ jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
   }
 
   //LOGD("## getSessionInstanceId() success - instanceId=%lld",instanceId);
+  return instanceId;
+}
+
+
+/**
+* Read the inbound group session instance ID of the calling object (aJavaObject).<br>
+* @param aJniEnv pointer pointing on the JNI function table
+* @param aJavaObject reference to the object on which the method is invoked
+* @return the instance ID if read succeed, -1 otherwise.
+**/
+jlong getInboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
+{
+  jlong instanceId=-1;
+  jfieldID instanceIdField;
+  jclass loaderClass;
+
+  if(NULL!=aJniEnv)
+  {
+    if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
+    {
+      if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmInboundGroupSessionId", "J")))
+      {
+        instanceId = aJniEnv->GetLongField(aJavaObject, instanceIdField);
+        aJniEnv->DeleteLocalRef(loaderClass);
+      }
+      else
+      {
+        LOGD("## getSessionInstanceId() ERROR! GetFieldID=null");
+      }
+    }
+    else
+    {
+      LOGD("## getSessionInstanceId() ERROR! GetObjectClass=null");
+    }
+  }
+  else
+  {
+    LOGD("## getSessionInstanceId() ERROR! aJniEnv=NULL");
+  }
+
+  return instanceId;
+}
+
+
+/**
+* Read the outbound group session instance ID of the calling object (aJavaObject).<br>
+* @param aJniEnv pointer pointing on the JNI function table
+* @param aJavaObject reference to the object on which the method is invoked
+* @return the instance ID if read succeed, -1 otherwise.
+**/
+jlong getOutboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
+{
+  jlong instanceId=-1;
+  jfieldID instanceIdField;
+  jclass loaderClass;
+
+  if(NULL!=aJniEnv)
+  {
+    if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
+    {
+      if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmOutboundGroupSessionId", "J")))
+      {
+        instanceId = aJniEnv->GetLongField(aJavaObject, instanceIdField);
+        aJniEnv->DeleteLocalRef(loaderClass);
+      }
+      else
+      {
+        LOGD("## getSessionInstanceId() ERROR! GetFieldID=null");
+      }
+    }
+    else
+    {
+      LOGD("## getSessionInstanceId() ERROR! GetObjectClass=null");
+    }
+  }
+  else
+  {
+    LOGD("## getSessionInstanceId() ERROR! aJniEnv=NULL");
+  }
+
   return instanceId;
 }

@@ -19,7 +19,9 @@ package org.matrix.olm;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class OlmSession {
+import java.io.Serializable;
+
+public class OlmSession implements Serializable {
     private static final String LOG_TAG = "OlmSession";
 
     /** session raw pointer value (OlmSession*) returned by JNI.
@@ -85,7 +87,6 @@ public class OlmSession {
 
     /**
      * Create the corresponding OLM session in native side.<br>
-     * The return value is a long casted C ptr on the OlmSession.
      * Do not forget to call {@link #releaseSession()} when JAVA side is done.
      * @return native session instance identifier (see {@link #mNativeOlmSessionId})
      */
@@ -159,6 +160,7 @@ public class OlmSession {
      * @param aTheirIdentityKey the sender identity key
      * @param aOneTimeKeyMsg PRE KEY message
      * @return this if operation succeed, null otherwise
+     * TODO unit test missing: initInboundSessionWithAccountFrom
      */
     public OlmSession initInboundSessionWithAccountFrom(OlmAccount aAccount, String aTheirIdentityKey, String aOneTimeKeyMsg) {
         OlmSession retObj=null;
@@ -198,6 +200,7 @@ public class OlmSession {
      * Public API for {@link #matchesInboundSessionJni(String)}.
      * @param aOneTimeKeyMsg PRE KEY message
      * @return this if operation succeed, null otherwise
+     * TODO unit test missing: matchesInboundSession
      */
     public boolean matchesInboundSession(String aOneTimeKeyMsg) {
         boolean retCode = false;
@@ -218,6 +221,7 @@ public class OlmSession {
      * @param aTheirIdentityKey the sender identity key
      * @param aOneTimeKeyMsg PRE KEY message
      * @return this if operation succeed, null otherwise
+     * TODO unit test missing: matchesInboundSessionFrom
      */
     public boolean matchesInboundSessionFrom(String aTheirIdentityKey, String aOneTimeKeyMsg) {
         boolean retCode = false;
@@ -261,5 +265,10 @@ public class OlmSession {
     }
 
     private native String decryptMessageJni(OlmMessage aEncryptedMsg);
+
+    // TODO missing API: initWithSerializedData
+    // TODO missing API: serializeDataWithKey
+    // TODO missing API: initWithCoder
+    // TODO missing API: encodeWithCoder
 }
 

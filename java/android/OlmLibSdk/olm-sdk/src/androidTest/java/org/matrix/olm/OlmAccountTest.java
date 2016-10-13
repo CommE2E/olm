@@ -152,9 +152,8 @@ public class OlmAccountTest {
         long sessionId = olmSession.getOlmSessionId();
         assertTrue(0 != sessionId);
 
-        int sessionRetCode = mOlmAccount.removeOneTimeKeysForSession(sessionId);
-        // no one time key has been use in the session, so removeOneTimeKeysForSession() returns an error
-        assertTrue(0 != sessionRetCode);
+        int sessionRetCode = mOlmAccount.removeOneTimeKeysForSession(olmSession);
+        assertTrue(0 == sessionRetCode);
 
         olmSession.releaseSession();
         sessionId = olmSession.getOlmSessionId();

@@ -21,7 +21,9 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class OlmAccount {
+import java.io.Serializable;
+
+public class OlmAccount implements Serializable {
     private static final String LOG_TAG = "OlmAccount";
 
     // JSON keys used in the JSON objects returned by JNI
@@ -67,7 +69,6 @@ public class OlmAccount {
 
     /**
      * Create the corresponding OLM account in native side.<br>
-     * The return value is a long casted C ptr on the OlmAccount.
      * Do not forget to call {@link #releaseAccount()} when JAVA side is done.
      * @return native account instance identifier (see {@link #mNativeOlmAccountId})
      */
@@ -86,14 +87,6 @@ public class OlmAccount {
         }
         return retCode;
     }
-
-    /**
-     * Get the public identity keys (Ed25519 fingerprint key and Curve25519 identity key).<br>
-     * Keys are Base64 encoded.
-     * These keys must be published on the server.
-     * @return byte array containing the identity keys if operation succeed, null otherwise
-     */
-    private native byte[] identityKeysJni();
 
     /**
      * Return the identity keys (identity & fingerprint keys) in a JSON array.<br>
@@ -123,6 +116,13 @@ public class OlmAccount {
 
         return identityKeysJsonObj;
     }
+    /**
+     * Get the public identity keys (Ed25519 fingerprint key and Curve25519 identity key).<br>
+     * Keys are Base64 encoded.
+     * These keys must be published on the server.
+     * @return byte array containing the identity keys if operation succeed, null otherwise
+     */
+    private native byte[] identityKeysJni();
 
     /**
      * Return the largest number of "one time keys" this account can store.
@@ -138,15 +138,6 @@ public class OlmAccount {
      * @return 0 if operation succeed, -1 otherwise
      */
     public native int generateOneTimeKeys(int aNumberOfKeys);
-
-    /**
-     * Get the public parts of the unpublished "one time keys" for the account.<br>
-     * The returned data is a JSON-formatted object with the single property
-     * <tt>curve25519</tt>, which is itself an object mapping key id to
-     * base64-encoded Curve25519 key.<br>
-     * @return byte array containing the one time keys if operation succeed, null otherwise
-     */
-    private native byte[] oneTimeKeysJni();
 
     /**
      * Return the "one time keys" in a JSON array.<br>
@@ -181,24 +172,61 @@ public class OlmAccount {
 
         return identityKeysJsonObj;
     }
+    /**
+     * Get the public parts of the unpublished "one time keys" for the account.<br>
+     * The returned data is a JSON-formatted object with the single property
+     * <tt>curve25519</tt>, which is itself an object mapping key id to
+     * base64-encoded Curve25519 key.<br>
+     * @return byte array containing the one time keys if operation succeed, null otherwise
+     */
+    private native byte[] oneTimeKeysJni();
 
+    /**
+     * Remove the "one time keys" that the session used from the account.
+     * @param aSession session instance
+     * @return 0 if operation succeed, -1 otherwise
+     */
+    public int removeOneTimeKeysForSession(OlmSession aSession) {
+        int retCode = 0;
+
+        if(null != aSession) {
+            int result = removeOneTimeKeysForSessionJni(aSession.getOlmSessionId());
+            Log.d(LOG_TAG,"## removeOneTimeKeysForSession(): result="+result);
+            if(-1 == result) {
+                retCode = -1;
+            }
+        }
+
+        return retCode;
+    }
     /**
      * Remove the "one time keys" that the session used from the account.
      * @param aNativeOlmSessionId native session instance identifier
      * @return 0 if operation succeed, 1 if no matching keys in the sessions to be removed, -1 if operation failed
      */
-    public native int removeOneTimeKeysForSession(long aNativeOlmSessionId);
+    private native int removeOneTimeKeysForSessionJni(long aNativeOlmSessionId);
 
     /**
      * Marks the current set of "one time keys" as being published.
      * @return 0 if operation succeed, -1 otherwise
      */
-    public native int markOneTimeKeysAsPublished();
+    public int markOneTimeKeysAsPublished() {
+        return markOneTimeKeysAsPublishedJni();
+    }
+    private native int markOneTimeKeysAsPublishedJni();
 
     /**
      * Sign a message with the ed25519 fingerprint key for this account.
      * @param aMessage message to sign
      * @return the signed message if operation succeed, null otherwise
      */
-    public native String signMessage(String aMessage);
+    public String signMessage(String aMessage){
+        return signMessageJni(aMessage);
+    }
+    private native String signMessageJni(String aMessage);
+
+    // TODO missing API: initWithSerializedData
+    // TODO missing API: serializeDataWithKey
+    // TODO missing API: initWithCoder
+    // TODO missing API: encodeWithCoder
 }

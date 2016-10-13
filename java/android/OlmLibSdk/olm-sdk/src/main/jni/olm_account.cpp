@@ -19,7 +19,7 @@
 
 /**
 * Init memory allocation for account creation.
-* @return valid memory alocation, NULL otherwise
+* @return valid memory allocation, NULL otherwise
 **/
 OlmAccount* initializeAccountMemory()
 {
@@ -68,7 +68,7 @@ JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(releaseAccountJni)(JNIEnv *env, jobject thiz
 /**
 * Initialize a new account and return it to JAVA side.<br>
 * Since a C prt is returned as a jlong, special care will be taken
-* to make the cast (OlmAccount* => jlong) platform independant.
+* to make the cast (OlmAccount* => jlong) platform independent.
 * @return the initialized OlmAccount* instance if init succeed, NULL otherwise
 **/
 JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(initNewAccountJni)(JNIEnv *env, jobject thiz)
@@ -308,7 +308,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(oneTimeKeysJni)(JNIEnv *env, jobject t
  * @param aNativeOlmSessionId session instance
  * @return ERROR_CODE_OK if operation succeed, ERROR_CODE_NO_MATCHING_ONE_TIME_KEYS if no matching keys, ERROR_CODE_KO otherwise
 **/
-JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysForSession)(JNIEnv *env, jobject thiz, jlong aNativeOlmSessionId)
+JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysForSessionJni)(JNIEnv *env, jobject thiz, jlong aNativeOlmSessionId)
 {
     jint retCode = ERROR_CODE_KO;
     OlmAccount* accountPtr = NULL;
@@ -317,11 +317,11 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysForSession)(JNIEnv *env, jo
 
     if(NULL == sessionPtr)
     {
-        LOGE("## removeOneTimeKeysForSession(): failure - invalid session ptr");
+        LOGE("## removeOneTimeKeysForSessionJni(): failure - invalid session ptr");
     }
     else if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
     {
-        LOGE("## removeOneTimeKeysForSession(): failure - invalid account ptr");
+        LOGE("## removeOneTimeKeysForSessionJni(): failure - invalid account ptr");
     }
     else
     {
@@ -329,14 +329,14 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysForSession)(JNIEnv *env, jo
         if(result == olm_error())
         {   // the account doesn't have any matching "one time keys"..
             const char *errorMsgPtr = olm_account_last_error(accountPtr);
-            LOGW("## removeOneTimeKeysForSession(): failure - removing one time keys Msg=%s",errorMsgPtr);
+            LOGW("## removeOneTimeKeysForSessionJni(): failure - removing one time keys Msg=%s",errorMsgPtr);
 
             retCode = ERROR_CODE_NO_MATCHING_ONE_TIME_KEYS;
         }
         else
         {
             retCode = ERROR_CODE_OK;
-            LOGD("## removeOneTimeKeysForSession(): success");
+            LOGD("## removeOneTimeKeysForSessionJni(): success");
         }
     }
 
@@ -347,7 +347,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysForSession)(JNIEnv *env, jo
  * Mark the current set of "one time keys" as being published.
  * @return ERROR_CODE_OK if operation succeed, ERROR_CODE_KO otherwise
 **/
-JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublished)(JNIEnv *env, jobject thiz)
+JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublishedJni)(JNIEnv *env, jobject thiz)
 {
     jint retCode = ERROR_CODE_OK;
     OlmAccount* accountPtr = NULL;
@@ -355,7 +355,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublished)(JNIEnv *env, job
 
     if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
     {
-        LOGE("## markOneTimeKeysPublished(): failure - invalid account ptr");
+        LOGE("## markOneTimeKeysAsPublishedJni(): failure - invalid account ptr");
         retCode = ERROR_CODE_KO;
     }
     else
@@ -364,12 +364,12 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublished)(JNIEnv *env, job
         if(result == olm_error())
         {
             const char *errorMsgPtr = olm_account_last_error(accountPtr);
-            LOGW("## markOneTimeKeysPublished(): failure - Msg=%s",errorMsgPtr);
+            LOGW("## markOneTimeKeysAsPublishedJni(): failure - Msg=%s",errorMsgPtr);
             retCode = ERROR_CODE_KO;
         }
         else
         {
-            LOGD("## markOneTimeKeysPublished(): success - retCode=%ld",result);
+            LOGD("## markOneTimeKeysAsPublishedJni(): success - retCode=%ld",result);
         }
     }
 
@@ -382,7 +382,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublished)(JNIEnv *env, job
  * @param aMessage message to sign
  * @return the signed message, null otherwise
 **/
-JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessage)(JNIEnv *env, jobject thiz, jstring aMessage)
+JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz, jstring aMessage)
 {
     OlmAccount* accountPtr = NULL;
     size_t signatureLength;
@@ -392,11 +392,11 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessage)(JNIEnv *env, jobject thiz, j
 
     if(NULL == aMessage)
     {
-        LOGE("## signMessage(): failure - invalid aMessage param");
+        LOGE("## signMessageJni(): failure - invalid aMessage param");
     }
     else if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
     {
-        LOGE("## signMessage(): failure - invalid account ptr");
+        LOGE("## signMessageJni(): failure - invalid account ptr");
     }
     else
     {
@@ -404,7 +404,7 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessage)(JNIEnv *env, jobject thiz, j
         const char* messageToSign = env->GetStringUTFChars(aMessage, 0);
         if(NULL == messageToSign)
         {
-            LOGE("## signMessage(): failure - message JNI allocation OOM");
+            LOGE("## signMessageJni(): failure - message JNI allocation OOM");
         }
         else
         {
@@ -414,22 +414,26 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessage)(JNIEnv *env, jobject thiz, j
             signatureLength = olm_account_signature_length(accountPtr);
             if(NULL == (signedMsgPtr = (void*)malloc(signatureLength*sizeof(uint8_t))))
             {
-                LOGE("## signMessage(): failure - signature allocation OOM");
+                LOGE("## signMessageJni(): failure - signature allocation OOM");
             }
             else
             {   // sign message
-                resultSign = olm_account_sign(accountPtr, (void*)messageToSign, (size_t)messageLength, signedMsgPtr, signatureLength);
+                resultSign = olm_account_sign(accountPtr,
+                                             (void*)messageToSign,
+                                             (size_t)messageLength,
+                                             signedMsgPtr,
+                                             signatureLength);
                 if(resultSign == olm_error())
                 {
                     const char *errorMsgPtr = olm_account_last_error(accountPtr);
-                    LOGE("## signMessage(): failure - error signing message Msg=%s",errorMsgPtr);
+                    LOGE("## signMessageJni(): failure - error signing message Msg=%s",errorMsgPtr);
                 }
                 else
-                {   // convert to jstring
-                    // TODO check how UTF conversion can impact the content?
-                    // why not consider return jbyteArray? and convert in JAVA side..
+                {
+                    // TODO check if signedMsgPtr needs to be null ended: signedMsgPtr[resultSign]='\0'
+                    // convert to jstring
                     signedMsgRetValue = env->NewStringUTF((const char*)signedMsgPtr); // UTF8
-                    LOGD("## signMessage(): success - retCode=%ld",resultSign);
+                    LOGD("## signMessageJni(): success - retCode=%ld",resultSign);
                 }
 
                 free(signedMsgPtr);

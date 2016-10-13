@@ -25,7 +25,6 @@
 #include <jni.h>
 #include <android/log.h>
 
-#include "olm/olm.h"
 
 #define TAG "OlmJniNative"
 
@@ -53,12 +52,5 @@ static const int ERROR_CODE_KO = -1;
 
 // constants
 static const int ACCOUNT_CREATION_RANDOM_MODULO = 256;
-
-
-typedef struct _AccountContext
-{
-  OlmAccount* mAccountPtr;
-  _AccountContext(): mAccountPtr(NULL){}
-} AccountContext;
 
 #endif

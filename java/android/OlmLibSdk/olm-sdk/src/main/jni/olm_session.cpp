@@ -458,7 +458,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
     }
     else if(0 == aEncryptedMsg)
     {
-        LOGE("## encryptMessageJni(): failure - invalid clear message");
+        LOGE("## encryptMessageJni(): failure - invalid encrypted message");
     }
     else if(NULL == (clearMsgPtr = env->GetStringUTFChars(aClearMsg, 0)))
     {
@@ -587,11 +587,11 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject t
     }
     else if(0 == aEncryptedMsg)
     {
-        LOGE("##  decryptMessageJni(): failure - invalid clear message");
+        LOGE("##  decryptMessageJni(): failure - invalid encrypted message");
     }
     else if(0 == (encryptedMsgJclass = env->GetObjectClass(aEncryptedMsg)))
     {
-        LOGE("##  decryptMessageJni(): failure - unable to get crypted message class");
+        LOGE("##  decryptMessageJni(): failure - unable to get encrypted message class");
     }
     else if(0 == (encryptedMsgFieldId = env->GetFieldID(encryptedMsgJclass,"mCipherText","Ljava/lang/String;")))
     {
@@ -644,7 +644,7 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject t
             memcpy(tempEncryptedPtr, encryptedMsgPtr, encryptedMsgLength);
             size_t plaintextLength = olm_decrypt(sessionPtr,
                                                  encryptedMsgType,
-                                                 (void*)encryptedMsgPtr,
+                                                 (void*)tempEncryptedPtr,
                                                  encryptedMsgLength,
                                                  plainTextMsgPtr,
                                                  maxPlainTextLength);
@@ -717,7 +717,7 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, job
         }
         else
         {
-            // update decrypted buffer size
+            // update length
             (static_cast<char*>(sessionIdPtr))[result] = static_cast<char>('\0');
 
             LOGD("## getSessionIdentifierJni(): success - result=%lu sessionId=%s",result, (char*)sessionIdPtr);
