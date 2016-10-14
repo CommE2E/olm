@@ -18,7 +18,6 @@ package org.matrix.olm;
 
 
 import android.text.TextUtils;
-import android.util.Log;
 
 public class OlmOutboundGroupSession {
     private static final String LOG_TAG = "OlmOutboundGroupSession";
@@ -41,16 +40,16 @@ public class OlmOutboundGroupSession {
      * Create and save a new session native instance ID and
      * initialise a new outbound group session.<br>
      * See {@link #initNewSession()} and {@link #initOutboundGroupSession()}
-     * @throws OlmUtilsException
+     * @throws OlmException
      */
-    public OlmOutboundGroupSession() throws OlmUtilsException {
+    public OlmOutboundGroupSession() throws OlmException {
         if(initNewSession()) {
             if( 0 != initOutboundGroupSession()) {
                 releaseSession();// prevent memory leak before throwing
-                throw new OlmUtilsException(OlmUtilsException.EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION);
+                throw new OlmException(OlmException.EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION);
             }
         } else {
-            throw new OlmUtilsException(OlmUtilsException.EXCEPTION_CODE_INIT_NEW_SESSION_FAILURE);
+            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_NEW_SESSION_FAILURE);
         }
     }
 

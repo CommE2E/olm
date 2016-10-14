@@ -17,19 +17,18 @@
 #ifndef _OMLUTILITY_H
 #define _OMLUTILITY_H
 
+#define OLM_UTILITY_FUNC_DEF(func_name) FUNC_DEF(OlmUtility,func_name)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-bool setRandomInBuffer(uint8_t **aBuffer2Ptr, size_t aRandomSize);
-jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
-jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
-jlong getInboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
+JNIEXPORT bool OLM_UTILITY_FUNC_DEF(ed25519VerifyJni)(JNIEnv *env, jobject thiz, jstring aKey, jstring aMessage, jstring aSignature, jobject aErrorMessage);
 
 #ifdef __cplusplus
 }
 #endif
+
 
 
 #endif

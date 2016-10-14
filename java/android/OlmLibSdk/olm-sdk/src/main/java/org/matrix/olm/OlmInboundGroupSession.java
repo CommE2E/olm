@@ -48,16 +48,16 @@ public class OlmInboundGroupSession implements Serializable {
      * The session key parameter is retrieved from a outbound group session
      * See {@link #initNewSession()} and {@link #initInboundGroupSessionWithSessionKey(String)}
      * @param aSessionKey session key
-     * @throws OlmUtilsException
+     * @throws OlmException
      */
-    public OlmInboundGroupSession(String aSessionKey) throws OlmUtilsException {
+    public OlmInboundGroupSession(String aSessionKey) throws OlmException {
         if(initNewSession()) {
             if( 0 != initInboundGroupSessionWithSessionKey(aSessionKey)) {
                 releaseSession();// prevent memory leak before throwing
-                throw new OlmUtilsException(OlmUtilsException.EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION);
+                throw new OlmException(OlmException.EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION);
             }
         } else {
-            throw new OlmUtilsException(OlmUtilsException.EXCEPTION_CODE_INIT_NEW_SESSION_FAILURE);
+            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_NEW_SESSION_FAILURE);
         }
     }
 

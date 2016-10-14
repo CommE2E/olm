@@ -16,7 +16,7 @@
 
 package org.matrix.olm;
 
-public class OlmUtilsException extends Exception {
+public class OlmException extends Exception {
     // exception codes
     public static final int EXCEPTION_CODE_INIT_NEW_SESSION_FAILURE = 0;
     public static final int EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION = 1;
@@ -24,7 +24,7 @@ public class OlmUtilsException extends Exception {
 
     private final int mCode;
 
-    public OlmUtilsException(int aExceptionCode) {
+    public OlmException(int aExceptionCode) {
         super();
         mCode = aExceptionCode;
     }

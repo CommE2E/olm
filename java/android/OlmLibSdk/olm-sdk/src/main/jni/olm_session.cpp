@@ -69,14 +69,16 @@ JNIEXPORT jlong OLM_SESSION_FUNC_DEF(initNewSessionJni)(JNIEnv *env, jobject thi
 {
     OlmSession* sessionPtr = NULL;
 
+    LOGD("## initNewSessionJni(): OlmSession IN");
+
     // init account memory allocation
     if(NULL == (sessionPtr = initializeSessionMemory()))
     {
-        LOGE("## initNewSessionJni(): failure - init session OOM");
+        LOGE(" ## initNewSessionJni(): failure - init session OOM");
     }
     else
     {
-       LOGD("## initNewSessionJni(): success - OLM session created");
+       LOGD(" ## initNewSessionJni(): success - OLM session created");
     }
 
     return (jlong)(intptr_t)sessionPtr;
