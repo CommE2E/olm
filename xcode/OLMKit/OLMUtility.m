@@ -50,19 +50,18 @@
     return self;
 }
 
-- (BOOL)ed25519Verify:(NSString *)key message:(NSString *)message signature:(NSString *)signature error:(NSError *__autoreleasing *)error {
+- (BOOL)verifyEd25519Signature:(NSString*)signature key:(NSString*)key message:(NSData*)message error:(NSError**)error {
 
     NSData *keyData = [key dataUsingEncoding:NSUTF8StringEncoding];
-    NSData *messageData = [message dataUsingEncoding:NSUTF8StringEncoding];
     NSData *signatureData = [signature dataUsingEncoding:NSUTF8StringEncoding];
 
     size_t result = olm_ed25519_verify(_utility,
                                        keyData.bytes, keyData.length,
-                                       messageData.bytes, messageData.length,
+                                       message.bytes, message.length,
                                        signatureData.bytes, signatureData.length
                                        );
 
-    if (result < 0) {
+    if (result < 0 || result == (size_t)-1) {
         if (error) {
             NSDictionary *userInfo = @{NSLocalizedFailureReasonErrorKey: [NSString stringWithUTF8String:olm_utility_last_error(_utility)]};
 

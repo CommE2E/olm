@@ -157,5 +157,25 @@
     XCTAssertEqualObjects(msg3, dMsg3);
 }
 
+- (void)testEd25519Signing {
+
+    OLMUtility *olmUtility = [[OLMUtility alloc] init];
+    OLMAccount *alice = [[OLMAccount alloc] initNewAccount];
+
+    NSDictionary *aJSON = @{
+                            @"key1": @"value1",
+                            @"key2": @"value2"
+                            };
+    NSData *message = [NSKeyedArchiver archivedDataWithRootObject:aJSON];
+    NSString *signature = [alice signMessage:message];
+
+
+    NSString *aliceEd25519Key = alice.identityKeys[@"ed25519"];
+
+    NSError *error;
+    BOOL result = [olmUtility verifyEd25519Signature:signature key:aliceEd25519Key message:message error:&error];
+    XCTAssert(result);
+    XCTAssertNil(error);
+}
 
 @end
