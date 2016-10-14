@@ -53,4 +53,21 @@ static const int ERROR_CODE_KO = -1;
 // constants
 static const int ACCOUNT_CREATION_RANDOM_MODULO = 256;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// internal helper functions
+bool setRandomInBuffer(uint8_t **aBuffer2Ptr, size_t aRandomSize);
+jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
+jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
+jlong getInboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
+jlong getOutboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
+
+
+#ifdef __cplusplus
+}
+#endif
+
+
 #endif

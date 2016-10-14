@@ -15,7 +15,6 @@
  */
 
 #include "olm_inbound_group_session.h"
-#include "olm_utility.h"
 
 
 /**
@@ -123,44 +122,53 @@ JNIEXPORT jint OLM_INBOUND_GROUP_SESSION_FUNC_DEF(initInboundGroupSessionWithSes
 }
 
 
+/**
+* Get a base64-encoded identifier for this inbound group session.
+*/
 JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEnv *env, jobject thiz)
 {
     OlmInboundGroupSession *sessionPtr = NULL;
     uint8_t *sessionIdPtr = NULL;
     jstring returnValueStr=0;
 
-    // get the size to alloc to contain the id
-    size_t lengthSessionId = olm_inbound_group_session_id_length(sessionPtr);
+    LOGD("## sessionIdentifierJni(): inbound group session IN");
 
     if(NULL == (sessionPtr = (OlmInboundGroupSession*)getInboundGroupSessionInstanceId(env,thiz)))
     {
         LOGE("## sessionIdentifierJni(): failure - invalid inbound group session instance");
     }
-    else if(NULL == (sessionIdPtr = (uint8_t*)malloc(lengthSessionId*sizeof(uint8_t))))
-    {
-       LOGE("## sessionIdentifierJni(): failure - identifier allocation OOM");
-    }
     else
     {
-        size_t result = olm_inbound_group_session_id(sessionPtr, sessionIdPtr, lengthSessionId);
-        if (result == olm_error())
+        // get the size to alloc
+        size_t lengthSessionId = olm_inbound_group_session_id_length(sessionPtr);
+        LOGD("## sessionIdentifierJni(): inbound group session lengthSessionId=%lu",lengthSessionId);
+
+        if(NULL == (sessionIdPtr = (uint8_t*)malloc(lengthSessionId*sizeof(uint8_t))))
         {
-            const char *errorMsgPtr = olm_inbound_group_session_last_error(sessionPtr);
-            LOGE("## sessionIdentifierJni(): failure - get session identifier failure Msg=%s",errorMsgPtr);
+           LOGE("## sessionIdentifierJni(): failure - inbound group session identifier allocation OOM");
         }
         else
         {
-            // update length
-            sessionIdPtr[result] = static_cast<char>('\0');
-
-            LOGD("## sessionIdentifierJni(): success - result=%lu sessionId=%s",result, (char*)sessionIdPtr);
-            returnValueStr = env->NewStringUTF((const char*)sessionIdPtr);
+            size_t result = olm_inbound_group_session_id(sessionPtr, sessionIdPtr, lengthSessionId);
+            if (result == olm_error())
+            {
+                const char *errorMsgPtr = olm_inbound_group_session_last_error(sessionPtr);
+                LOGE("## sessionIdentifierJni(): failure - get inbound group session identifier failure Msg=%s",errorMsgPtr);
+            }
+            else
+            {
+                // update length
+                sessionIdPtr[result] = static_cast<char>('\0');
+                LOGD("## sessionIdentifierJni(): success - inbound group session result=%lu sessionId=%s",result, (char*)sessionIdPtr);
+                returnValueStr = env->NewStringUTF((const char*)sessionIdPtr);
+            }
+            free(sessionIdPtr);
         }
-        free(sessionIdPtr);
     }
 
     return returnValueStr;
 }
+
 
 JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jstring aEncryptedMsg)
 {
@@ -178,7 +186,7 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
     }
     else if(0 == aEncryptedMsg)
     {
-        LOGE("##  decryptMessageJni(): failure - invalid clear message");
+        LOGE("##  decryptMessageJni(): failure - invalid encrypted message");
     }
     else if(0 == (encryptedMsgPtr = env->GetStringUTFChars(aEncryptedMsg, 0)))
     {

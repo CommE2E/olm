@@ -15,7 +15,6 @@
  */
 
 #include "olm_account.h"
-#include "olm_utility.h"
 
 /**
 * Init memory allocation for account creation.
@@ -85,9 +84,12 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(initNewAccountJni)(JNIEnv *env, jobject thi
     }
     else
     {
-        // allocate random buffer
+        // get random buffer size
         randomSize = olm_create_account_random_length(accountPtr);
-        if(!setRandomInBuffer(&randomBuffPtr, randomSize))
+        LOGD("## initNewAccount(): randomSize=%lu", randomSize);
+
+        // allocate random buffer
+        if((0!=randomSize) && !setRandomInBuffer(&randomBuffPtr, randomSize))
         {
             LOGE("## initNewAccount(): failure - random buffer init");
         }
@@ -219,7 +221,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeys)(JNIEnv *env, jobject th
         randomLength = olm_account_generate_one_time_keys_random_length(accountPtr, (size_t)aNumberOfKeys);
         LOGD("## generateOneTimeKeys(): randomLength=%ld", randomLength);
 
-        if(!setRandomInBuffer(&randomBufferPtr, randomLength))
+        if((0!=randomLength) && !setRandomInBuffer(&randomBufferPtr, randomLength))
         {
             LOGE("## generateOneTimeKeys(): failure - random buffer init");
         }

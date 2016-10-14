@@ -34,17 +34,31 @@ public class OlmInboundGroupSession implements Serializable {
      */
     private long mNativeOlmInboundGroupSessionId;
 
-
-    public OlmInboundGroupSession() {
-        initNewSession();
-    }
-
     /**
      * Getter on the native inbound group session ID.
      * @return native inbound group session ID
      */
-    public long getOlmInboundGroupSessionId(){
+    public long getOlmInboundGroupSessionId() {
         return mNativeOlmInboundGroupSessionId;
+    }
+
+    /**
+     * Constructor.<br>
+     * Create and save a new native session instance ID and start a new inbound group session.
+     * The session key parameter is retrieved from a outbound group session
+     * See {@link #initNewSession()} and {@link #initInboundGroupSessionWithSessionKey(String)}
+     * @param aSessionKey session key
+     * @throws OlmUtilsException
+     */
+    public OlmInboundGroupSession(String aSessionKey) throws OlmUtilsException {
+        if(initNewSession()) {
+            if( 0 != initInboundGroupSessionWithSessionKey(aSessionKey)) {
+                releaseSession();// prevent memory leak before throwing
+                throw new OlmUtilsException(OlmUtilsException.EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION);
+            }
+        } else {
+            throw new OlmUtilsException(OlmUtilsException.EXCEPTION_CODE_INIT_NEW_SESSION_FAILURE);
+        }
     }
 
     /**
@@ -88,12 +102,13 @@ public class OlmInboundGroupSession implements Serializable {
     private native long initNewSessionJni();
 
     /**
-     * Creates a new inbound group session.<br>
-     * The session key parameter is retrieved from a outbound group session.
+     * Start a new inbound group session.<br>
+     * The session key parameter is retrieved from a outbound group session
+     * see {@link OlmOutboundGroupSession#sessionKey()}
      * @param aSessionKey session key
      * @return 0 if operation succeed, -1 otherwise
      */
-    public int initInboundGroupSessionWithSessionKey(String aSessionKey) {
+    private int initInboundGroupSessionWithSessionKey(String aSessionKey) {
         int retCode = -1;
 
         if(TextUtils.isEmpty(aSessionKey)){

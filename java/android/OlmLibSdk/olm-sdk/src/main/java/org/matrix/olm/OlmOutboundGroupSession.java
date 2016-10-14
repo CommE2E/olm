@@ -28,16 +28,30 @@ public class OlmOutboundGroupSession {
      */
     private long mNativeOlmOutboundGroupSessionId;
 
-    public OlmOutboundGroupSession() {
-        initNewSession();
-    }
-
     /**
      * Getter on the native outbound group session ID.
      * @return native outbound group session ID
      */
     public long getOlmInboundGroupSessionId(){
-        return mNativeOlmInboundGroupSessionId;
+        return mNativeOlmOutboundGroupSessionId;
+    }
+
+    /**
+     * Constructor.<br>
+     * Create and save a new session native instance ID and
+     * initialise a new outbound group session.<br>
+     * See {@link #initNewSession()} and {@link #initOutboundGroupSession()}
+     * @throws OlmUtilsException
+     */
+    public OlmOutboundGroupSession() throws OlmUtilsException {
+        if(initNewSession()) {
+            if( 0 != initOutboundGroupSession()) {
+                releaseSession();// prevent memory leak before throwing
+                throw new OlmUtilsException(OlmUtilsException.EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION);
+            }
+        } else {
+            throw new OlmUtilsException(OlmUtilsException.EXCEPTION_CODE_INIT_NEW_SESSION_FAILURE);
+        }
     }
 
     /**
@@ -45,9 +59,8 @@ public class OlmOutboundGroupSession {
      * Public API for {@link #releaseSessionJni()}.
      * To be called before any other API call.
      */
-    public void releaseSession(){
-        releaseSessionJni();
-
+    public void releaseSession() {
+        releaseSessionJni();        
         mNativeOlmOutboundGroupSessionId = 0;
     }
 
@@ -80,54 +93,66 @@ public class OlmOutboundGroupSession {
      */
     private native long initNewSessionJni();
 
-
     /**
-     * Creates a new outbound group session.<br>
-     * The session key parameter is retrieved from a outbound group session.
+     * Start a new outbound group session.<br>
      * @return 0 if operation succeed, -1 otherwise
      */
-    public int initOutboundGroupSession() {
+    private int initOutboundGroupSession() {
         return initOutboundGroupSessionJni();
     }
-    public native int initOutboundGroupSessionJni();
+    private native int initOutboundGroupSessionJni();
 
-
-
-
+    /**
+     * Get a base64-encoded identifier for this session.
+     * @return session identifier if operation succeed, null otherwise.
+     */
     public String sessionIdentifier() {
         String retValue = null;
-        //retValue = sessionIdentifierJni();
+        retValue = sessionIdentifierJni();
 
         return retValue;
     }
-    public native String sessionIdentifierJni();
+    private native String sessionIdentifierJni();
 
-
-
-
-    public long messageIndex() {
-        long retValue =0;
-        //retValue = messageIndexJni();
+    /**
+     * Get the current message index for this session.<br>
+     * Each message is sent with an increasing index, this
+     * method returns the index for the next message.
+     * @return current session index
+     */
+    public int messageIndex() {
+        int retValue =0;
+        retValue = messageIndexJni();
 
         return retValue;
     }
-    private native long messageIndexJni();
+    private native int messageIndexJni();
 
-
-
-
+    /**
+     * Get the base64-encoded current ratchet key for this session.<br>
+     * Each message is sent with a different ratchet key. This method returns the
+     * ratchet key that will be used for the next message.
+     * @return outbound session key
+     */
     public String sessionKey() {
         String retValue = null;
-        //retValue = sessionKeyJni();
+        retValue = sessionKeyJni();
 
         return retValue;
     }
     private native String sessionKeyJni();
 
-
+    /**
+     * Encrypt some plain-text message.<br>
+     * @param aClearMsg message to be encrypted
+     * @return the encrypted message if operation succeed, null otherwise
+     */
     public String encryptMessage(String aClearMsg) {
         String retValue = null;
-        //retValue = encryptMessageJni(aClearMsg);
+
+        if(!TextUtils.isEmpty(aClearMsg)) {
+            retValue = encryptMessageJni(aClearMsg);
+        }
 
         return retValue;
     }

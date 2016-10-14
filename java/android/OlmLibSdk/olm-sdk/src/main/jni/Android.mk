@@ -45,8 +45,9 @@ $(SRC_ROOT_DIR)/lib/crypto-algorithms/aes.c \
 $(SRC_ROOT_DIR)/lib/curve25519-donna/curve25519-donna.c \
 olm_account.cpp \
 olm_session.cpp \
-olm_utility.cpp \
-olm_inbound_group_session.cpp
+olm_jni_helper.cpp \
+olm_inbound_group_session.cpp \
+olm_outbound_group_session.cpp
 
 LOCAL_LDLIBS := -llog
 
