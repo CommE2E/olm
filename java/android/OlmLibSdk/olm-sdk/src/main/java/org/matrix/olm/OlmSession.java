@@ -124,7 +124,7 @@ public class OlmSession implements Serializable {
 
     /**
      * Create a new in-bound session for sending/receiving messages from an
-     * incoming PRE_KEY message.<br>
+     * incoming PRE_KEY ({@link OlmMessage#MESSAGE_TYPE_PRE_KEY}) message.<br>
      * Public API for {@link #initInboundSessionJni(long, String)}.
      * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
      * @param aAccount the account to associate with this session
@@ -153,7 +153,7 @@ public class OlmSession implements Serializable {
 
     /**
      * Create a new in-bound session for sending/receiving messages from an
-     * incoming PRE_KEY message based on the sender identity key.<br>
+     * incoming PRE_KEY({@link OlmMessage#MESSAGE_TYPE_PRE_KEY}) message based on the sender identity key.<br>
      * Public API for {@link #initInboundSessionFromIdKeyJni(long, String, String)}.
      * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
      * @param aAccount the account to associate with this session
@@ -195,7 +195,7 @@ public class OlmSession implements Serializable {
     private native String getSessionIdentifierJni();
 
     /**
-     * Checks if the PRE_KEY message is for this in-bound session.<br>
+     * Checks if the PRE_KEY({@link OlmMessage#MESSAGE_TYPE_PRE_KEY}) message is for this in-bound session.<br>
      * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
      * Public API for {@link #matchesInboundSessionJni(String)}.
      * @param aOneTimeKeyMsg PRE KEY message
@@ -215,7 +215,7 @@ public class OlmSession implements Serializable {
 
 
     /**
-     * Checks if the PRE_KEY message is for this in-bound session based on the sender identity key.<br>
+     * Checks if the PRE_KEY({@link OlmMessage#MESSAGE_TYPE_PRE_KEY}) message is for this in-bound session based on the sender identity key.<br>
      * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
      * Public API for {@link #matchesInboundSessionJni(String)}.
      * @param aTheirIdentityKey the sender identity key
