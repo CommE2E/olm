@@ -150,7 +150,7 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEn
         size_t lengthSessionId = olm_inbound_group_session_id_length(sessionPtr);
         LOGD(" ## sessionIdentifierJni(): inbound group session lengthSessionId=%lu",lengthSessionId);
 
-        if(NULL == (sessionIdPtr = (uint8_t*)malloc(lengthSessionId*sizeof(uint8_t))))
+        if(NULL == (sessionIdPtr = (uint8_t*)malloc((lengthSessionId+1)*sizeof(uint8_t))))
         {
            LOGE(" ## sessionIdentifierJni(): failure - inbound group session identifier allocation OOM");
         }
@@ -228,7 +228,7 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
                 LOGD(" ## decryptMessageJni(): maxPlaintextLength=%lu",maxPlainTextLength);
 
                 // allocate output decrypted message
-                plainTextMsgPtr = static_cast<uint8_t*>(malloc(maxPlainTextLength*sizeof(uint8_t)));
+                plainTextMsgPtr = static_cast<uint8_t*>(malloc((maxPlainTextLength+1)*sizeof(uint8_t)));
 
                 // decrypt, but before reload encrypted buffer (previous one was destroyed)
                 memcpy(tempEncryptedPtr, encryptedMsgPtr, encryptedMsgLength);

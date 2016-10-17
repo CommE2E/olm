@@ -150,7 +150,7 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIE
         size_t lengthSessionId = olm_outbound_group_session_id_length(sessionPtr);
         LOGD(" ## sessionIdentifierJni(): outbound group session lengthSessionId=%lu",lengthSessionId);
 
-        if(NULL == (sessionIdPtr = (uint8_t*)malloc(lengthSessionId*sizeof(uint8_t))))
+        if(NULL == (sessionIdPtr = (uint8_t*)malloc((lengthSessionId+1)*sizeof(uint8_t))))
         {
            LOGE(" ## sessionIdentifierJni(): failure - outbound identifier allocation OOM");
         }
@@ -227,7 +227,7 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionKeyJni)(JNIEnv *env
         size_t sessionKeyLength = olm_outbound_group_session_key_length(sessionPtr);
         LOGD(" ## sessionKeyJni(): sessionKeyLength=%lu",sessionKeyLength);
 
-        if(NULL == (sessionKeyPtr = (uint8_t*)malloc(sessionKeyLength*sizeof(uint8_t))))
+        if(NULL == (sessionKeyPtr = (uint8_t*)malloc((sessionKeyLength+1)*sizeof(uint8_t))))
         {
            LOGE(" ## sessionKeyJni(): failure - session key allocation OOM");
         }
@@ -285,7 +285,7 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv 
 
         // compute max encrypted length
         size_t encryptedMsgLength = olm_group_encrypt_message_length(sessionPtr,clearMsgLength);
-        if(NULL == (encryptedMsgPtr = (uint8_t*)malloc(encryptedMsgLength*sizeof(uint8_t))))
+        if(NULL == (encryptedMsgPtr = (uint8_t*)malloc((encryptedMsgLength+1)*sizeof(uint8_t))))
         {
             LOGE(" ## encryptMessageJni(): failure - encryptedMsgPtr buffer OOM");
         }

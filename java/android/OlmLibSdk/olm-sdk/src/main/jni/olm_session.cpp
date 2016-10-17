@@ -497,7 +497,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
             // alloc buffer for encrypted message
             size_t clearMsgLength = (size_t)env->GetStringUTFLength(aClearMsg);
             size_t encryptedMsgLength = olm_encrypt_message_length(sessionPtr, clearMsgLength);
-            if(NULL == (encryptedMsgPtr = (void*)malloc(encryptedMsgLength*sizeof(uint8_t))))
+            if(NULL == (encryptedMsgPtr = (void*)malloc((encryptedMsgLength+1)*sizeof(uint8_t))))
             {
                 LOGE("## encryptMessageJni(): failure - encryptedMsgPtr buffer OOM");
             }
@@ -640,7 +640,7 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject t
             LOGD("##  decryptMessageJni(): maxPlaintextLength=%lu",maxPlainTextLength);
 
             // allocate output decrypted message
-            plainTextMsgPtr = static_cast<void*>(malloc(maxPlainTextLength*sizeof(uint8_t)));
+            plainTextMsgPtr = static_cast<void*>(malloc((maxPlainTextLength+1)*sizeof(uint8_t)));
 
             // decrypt, but before reload encrypted buffer (previous one was destroyed)
             memcpy(tempEncryptedPtr, encryptedMsgPtr, encryptedMsgLength);
@@ -705,7 +705,7 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, job
     {
         LOGE("## getSessionIdentifierJni(): failure - invalid Session ptr=NULL");
     }
-    else if(NULL == (sessionIdPtr = (void*)malloc(lengthSessionId*sizeof(uint8_t))))
+    else if(NULL == (sessionIdPtr = (void*)malloc((lengthSessionId+1)*sizeof(uint8_t))))
     {
        LOGE("## getSessionIdentifierJni(): failure - identifier allocation OOM");
     }
