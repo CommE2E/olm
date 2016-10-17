@@ -153,7 +153,8 @@ public class OlmAccountTest {
         assertTrue(0 != sessionId);
 
         int sessionRetCode = mOlmAccount.removeOneTimeKeysForSession(olmSession);
-        assertTrue(0 == sessionRetCode);
+        // test against no matching keys
+        assertTrue(1 == sessionRetCode);
 
         olmSession.releaseSession();
         sessionId = olmSession.getOlmSessionId();

@@ -27,8 +27,20 @@ public class OlmAccount implements Serializable {
     private static final String LOG_TAG = "OlmAccount";
 
     // JSON keys used in the JSON objects returned by JNI
+    /** As well as the identity key, each device creates a number of Curve25519 key pairs which are
+     also used to establish Olm sessions, but can only be used once. Once again, the private part
+     remains on the device. but the public part is published to the Matrix network **/
     public static final String JSON_KEY_ONE_TIME_KEY = "curve25519";
+
+    /** Curve25519 identity key is a public-key cryptographic system which can be used to establish a shared
+     secret.<br>In Matrix, each device has a long-lived Curve25519 identity key which is used to establish
+     Olm sessions with that device. The private key should never leave the device, but the
+     public part is signed with the Ed25519 fingerprint key ({@link #JSON_KEY_FINGER_PRINT_KEY}) and published to the network. **/
     public static final String JSON_KEY_IDENTITY_KEY = "curve25519";
+
+    /** Ed25519 finger print is a public-key cryptographic system for signing messages.<br>In Matrix, each device has
+     an Ed25519 key pair which serves to identify that device. The private the key should
+     never leave the device, but the public part is published to the Matrix network. **/
     public static final String JSON_KEY_FINGER_PRINT_KEY = "ed25519";
 
     /** account raw pointer value (OlmAccount*) returned by JNI.
@@ -89,7 +101,7 @@ public class OlmAccount implements Serializable {
     }
 
     /**
-     * Return the identity keys (identity & fingerprint keys) in a JSON array.<br>
+     * Return the identity keys (identity &amp fingerprint keys) in a JSON array.<br>
      * Public API for {@link #identityKeysJni()}.<br>
      * Ex:<tt>
      * {
@@ -184,17 +196,14 @@ public class OlmAccount implements Serializable {
     /**
      * Remove the "one time keys" that the session used from the account.
      * @param aSession session instance
-     * @return 0 if operation succeed, -1 otherwise
+     * @return 0 if operation succeed, 1 if no matching keys in the sessions to be removed, -1 if operation failed
      */
     public int removeOneTimeKeysForSession(OlmSession aSession) {
         int retCode = 0;
 
         if(null != aSession) {
-            int result = removeOneTimeKeysForSessionJni(aSession.getOlmSessionId());
-            Log.d(LOG_TAG,"## removeOneTimeKeysForSession(): result="+result);
-            if(-1 == result) {
-                retCode = -1;
-            }
+            retCode = removeOneTimeKeysForSessionJni(aSession.getOlmSessionId());
+            Log.d(LOG_TAG,"## removeOneTimeKeysForSession(): result="+retCode);
         }
 
         return retCode;
@@ -217,10 +226,11 @@ public class OlmAccount implements Serializable {
 
     /**
      * Sign a message with the ed25519 fingerprint key for this account.
+     * The signed message is returned by the method.
      * @param aMessage message to sign
      * @return the signed message if operation succeed, null otherwise
      */
-    public String signMessage(String aMessage){
+    public String signMessage(String aMessage) {
         return signMessageJni(aMessage);
     }
     private native String signMessageJni(String aMessage);
