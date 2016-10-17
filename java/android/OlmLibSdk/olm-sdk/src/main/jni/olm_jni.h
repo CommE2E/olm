@@ -21,7 +21,6 @@
 #include <cstdio>
 #include <string>
 #include <sstream>
-#include <map>
 #include <jni.h>
 #include <android/log.h>
 
@@ -52,6 +51,14 @@ static const int ERROR_CODE_KO = -1;
 
 // constants
 static const int ACCOUNT_CREATION_RANDOM_MODULO = 256;
+
+
+// strings
+static const char *CLASS_OLM_OUTBOUND_GROUP_SESSION = "org/matrix/olm/OlmOutboundGroupSession";
+static const char *CLASS_OLM_INBOUND_GROUP_SESSION = "org/matrix/olm/OlmInboundGroupSession";
+static const char *CLASS_OLM_SESSION = "org/matrix/olm/OlmSession";
+static const char *CLASS_OLM_ACCOUNT = "org/matrix/olm/OlmAccount";
+static const char *CLASS_OLM_UTILITY = "org/matrix/olm/OlmUtility";
 
 #ifdef __cplusplus
 extern "C" {

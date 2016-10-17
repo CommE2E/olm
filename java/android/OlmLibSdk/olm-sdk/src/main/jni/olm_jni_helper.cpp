@@ -70,10 +70,17 @@ jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
   jlong instanceId=-1;
   jfieldID instanceIdField;
   jclass loaderClass;
+  jclass requiredClass = 0;
 
   if(NULL!=aJniEnv)
   {
-    if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
+    requiredClass = aJniEnv->FindClass(CLASS_OLM_ACCOUNT);
+
+    if((0 != requiredClass) && (JNI_TRUE != aJniEnv->IsInstanceOf(aJavaObject, requiredClass)))
+    {
+        LOGD("## getAccountInstanceId() failure - invalid instance of");
+    }
+    else if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
     {
       if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmAccountId", "J")))
       {
@@ -110,10 +117,17 @@ jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
   jlong instanceId=-1;
   jfieldID instanceIdField;
   jclass loaderClass;
+  jclass requiredClass = 0;
 
   if(NULL!=aJniEnv)
   {
-    if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
+    requiredClass = aJniEnv->FindClass(CLASS_OLM_SESSION);
+
+    if((0 != requiredClass) && (JNI_TRUE != aJniEnv->IsInstanceOf(aJavaObject, requiredClass)))
+    {
+        LOGD("## getSessionInstanceId() failure - invalid instance of");
+    }
+    else if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
     {
       if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmSessionId", "J")))
       {
@@ -151,10 +165,17 @@ jlong getInboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
   jlong instanceId=-1;
   jfieldID instanceIdField;
   jclass loaderClass;
+  jclass requiredClass = 0;
 
   if(NULL!=aJniEnv)
   {
-    if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
+    requiredClass = aJniEnv->FindClass(CLASS_OLM_INBOUND_GROUP_SESSION);
+
+    if((0 != requiredClass) && (JNI_TRUE != aJniEnv->IsInstanceOf(aJavaObject, requiredClass)))
+    {
+      LOGD("## getInboundGroupSessionInstanceId() failure - invalid instance of");
+    }
+    else if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
     {
       if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmInboundGroupSessionId", "J")))
       {
@@ -191,10 +212,57 @@ jlong getOutboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
   jlong instanceId=-1;
   jfieldID instanceIdField;
   jclass loaderClass;
+  jclass requiredClass = 0;
 
   if(NULL!=aJniEnv)
   {
-    if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
+    requiredClass = aJniEnv->FindClass(CLASS_OLM_OUTBOUND_GROUP_SESSION);
+
+    if((0 != requiredClass) && (JNI_TRUE != aJniEnv->IsInstanceOf(aJavaObject, requiredClass)))
+    {
+        LOGD("## getOutboundGroupSessionInstanceId() failure - invalid instance of");
+    }
+    else if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
+    {
+      if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmOutboundGroupSessionId", "J")))
+      {
+        instanceId = aJniEnv->GetLongField(aJavaObject, instanceIdField);
+        aJniEnv->DeleteLocalRef(loaderClass);
+      }
+      else
+      {
+        LOGD("## getOutboundGroupSessionInstanceId() ERROR! GetFieldID=null");
+      }
+    }
+    else
+    {
+      LOGD("## getOutboundGroupSessionInstanceId() ERROR! GetObjectClass=null");
+    }
+  }
+  else
+  {
+    LOGD("## getOutboundGroupSessionInstanceId() ERROR! aJniEnv=NULL");
+  }
+
+  return instanceId;
+}
+
+jlong getUtilityInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
+{
+  jlong instanceId=-1;
+  jfieldID instanceIdField;
+  jclass loaderClass;
+  jclass requiredClass = 0;
+
+  if(NULL!=aJniEnv)
+  {
+    requiredClass = aJniEnv->FindClass(CLASS_OLM_UTILITY);
+
+    if((0 != requiredClass) && (JNI_TRUE != aJniEnv->IsInstanceOf(aJavaObject, requiredClass)))
+    {
+        LOGD("## getOutboundGroupSessionInstanceId() failure - invalid instance of");
+    }
+    else if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
     {
       if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmOutboundGroupSessionId", "J")))
       {
