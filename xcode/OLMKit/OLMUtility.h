@@ -11,6 +11,14 @@
 @interface OLMUtility : NSObject
 
 /**
+ Calculate the SHA-256 hash of the input and encodes it as base64.
+ 
+ @param message the message to hash.
+ @return the base64-encoded hash value.
+ */
+- (NSString*)sha256:(NSData*)message;
+
+/**
  Verify an ed25519 signature.
 
  @param signature the base64-encoded signature to be checked.
