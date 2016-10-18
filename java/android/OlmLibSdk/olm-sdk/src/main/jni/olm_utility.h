@@ -17,13 +17,20 @@
 #ifndef _OMLUTILITY_H
 #define _OMLUTILITY_H
 
+#include "olm_jni.h"
+#include "olm/olm.h"
+
 #define OLM_UTILITY_FUNC_DEF(func_name) FUNC_DEF(OlmUtility,func_name)
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-JNIEXPORT bool OLM_UTILITY_FUNC_DEF(ed25519VerifyJni)(JNIEnv *env, jobject thiz, jstring aKey, jstring aMessage, jstring aSignature, jobject aErrorMessage);
+JNIEXPORT jlong   OLM_UTILITY_FUNC_DEF(initUtilityJni)(JNIEnv *env, jobject thiz);
+JNIEXPORT void    OLM_UTILITY_FUNC_DEF(releaseUtilityJni)(JNIEnv *env, jobject thiz);
+JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, jobject thiz, jstring aSignature, jstring aKey, jstring aMessage);
+JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jstring aMessageToHash);
 
 #ifdef __cplusplus
 }

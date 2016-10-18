@@ -44,21 +44,16 @@
 
 #define FUNC_DEF(class_name,func_name) JNICALL Java_org_matrix_olm_##class_name##_##func_name
 
-// Error codes definition
-static const int ERROR_CODE_OK = 0;
-static const int ERROR_CODE_NO_MATCHING_ONE_TIME_KEYS = ERROR_CODE_OK+1;
-static const int ERROR_CODE_KO = -1;
+namespace AndroidOlmSdk
+{
+    // Error codes definition
+    static const int ERROR_CODE_OK = 0;
+    static const int ERROR_CODE_NO_MATCHING_ONE_TIME_KEYS = ERROR_CODE_OK+1;
+    static const int ERROR_CODE_KO = -1;
 
-// constants
-static const int ACCOUNT_CREATION_RANDOM_MODULO = 256;
-
-
-// strings
-static const char *CLASS_OLM_OUTBOUND_GROUP_SESSION = "org/matrix/olm/OlmOutboundGroupSession";
-static const char *CLASS_OLM_INBOUND_GROUP_SESSION = "org/matrix/olm/OlmInboundGroupSession";
-static const char *CLASS_OLM_SESSION = "org/matrix/olm/OlmSession";
-static const char *CLASS_OLM_ACCOUNT = "org/matrix/olm/OlmAccount";
-static const char *CLASS_OLM_UTILITY = "org/matrix/olm/OlmUtility";
+    // constants
+    static const int ACCOUNT_CREATION_RANDOM_MODULO = 256;
+}
 
 #ifdef __cplusplus
 extern "C" {
@@ -70,7 +65,7 @@ jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 jlong getInboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 jlong getOutboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
-
+jlong getUtilityInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 
 #ifdef __cplusplus
 }

@@ -16,6 +16,7 @@
 
 #include "olm_inbound_group_session.h"
 
+using namespace AndroidOlmSdk;
 
 /**
  * Release the session allocation made by initializeInboundGroupSessionMemory().<br>

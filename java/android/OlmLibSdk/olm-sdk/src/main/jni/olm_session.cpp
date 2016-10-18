@@ -16,6 +16,7 @@
 
 #include "olm_session.h"
 
+using namespace AndroidOlmSdk;
 
 /**
 * Init memory allocation for a session creation.<br>
@@ -585,31 +586,31 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject t
 
     if(NULL == (sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
     {
-        LOGE("##  decryptMessageJni(): failure - invalid Session ptr=NULL");
+        LOGE("## decryptMessageJni(): failure - invalid Session ptr=NULL");
     }
     else if(0 == aEncryptedMsg)
     {
-        LOGE("##  decryptMessageJni(): failure - invalid encrypted message");
+        LOGE("## decryptMessageJni(): failure - invalid encrypted message");
     }
     else if(0 == (encryptedMsgJclass = env->GetObjectClass(aEncryptedMsg)))
     {
-        LOGE("##  decryptMessageJni(): failure - unable to get encrypted message class");
+        LOGE("## decryptMessageJni(): failure - unable to get encrypted message class");
     }
     else if(0 == (encryptedMsgFieldId = env->GetFieldID(encryptedMsgJclass,"mCipherText","Ljava/lang/String;")))
     {
-        LOGE("##  decryptMessageJni(): failure - unable to get message field");
+        LOGE("## decryptMessageJni(): failure - unable to get message field");
     }
     else if(0 == (typeMsgFieldId = env->GetFieldID(encryptedMsgJclass,"mType","J")))
     {
-        LOGE("##  decryptMessageJni(): failure - unable to get message type field");
+        LOGE("## decryptMessageJni(): failure - unable to get message type field");
     }
     else if(0 == (encryptedMsgJstring = (jstring)env->GetObjectField(aEncryptedMsg, encryptedMsgFieldId)))
     {
-        LOGE("##  decryptMessageJni(): failure - JNI encrypted object ");
+        LOGE("## decryptMessageJni(): failure - JNI encrypted object ");
     }
     else if(0 == (encryptedMsgPtr = env->GetStringUTFChars(encryptedMsgJstring, 0)))
     {
-        LOGE("##  decryptMessageJni(): failure - encrypted message JNI allocation OOM");
+        LOGE("## decryptMessageJni(): failure - encrypted message JNI allocation OOM");
     }
     else
     {
@@ -621,7 +622,7 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject t
         // create a dedicated temp buffer to be used in next Olm API calls
         tempEncryptedPtr = static_cast<char*>(malloc(encryptedMsgLength*sizeof(uint8_t)));
         memcpy(tempEncryptedPtr, encryptedMsgPtr, encryptedMsgLength);
-        LOGD("##  decryptMessageJni(): MsgType=%ld encryptedMsgLength=%lu encryptedMsg=%s",encryptedMsgType,encryptedMsgLength,encryptedMsgPtr);
+        LOGD("## decryptMessageJni(): MsgType=%ld encryptedMsgLength=%lu encryptedMsg=%s",encryptedMsgType,encryptedMsgLength,encryptedMsgPtr);
 
         // get max plaintext length
         size_t maxPlainTextLength = olm_decrypt_max_plaintext_length(sessionPtr,
@@ -633,11 +634,11 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject t
         if(maxPlainTextLength == olm_error())
         {
             const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-            LOGE("##  decryptMessageJni(): failure - olm_decrypt_max_plaintext_length Msg=%s",errorMsgPtr);
+            LOGE("## decryptMessageJni(): failure - olm_decrypt_max_plaintext_length Msg=%s",errorMsgPtr);
         }
         else
         {
-            LOGD("##  decryptMessageJni(): maxPlaintextLength=%lu",maxPlainTextLength);
+            LOGD("## decryptMessageJni(): maxPlaintextLength=%lu",maxPlainTextLength);
 
             // allocate output decrypted message
             plainTextMsgPtr = static_cast<void*>(malloc((maxPlainTextLength+1)*sizeof(uint8_t)));
@@ -653,14 +654,14 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject t
             if(plaintextLength == olm_error())
             {
                 const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-                LOGE("##  decryptMessageJni(): failure - olm_decrypt Msg=%s",errorMsgPtr);
+                LOGE("## decryptMessageJni(): failure - olm_decrypt Msg=%s",errorMsgPtr);
             }
             else
             {
                 // update decrypted buffer size
                 (static_cast<char*>(plainTextMsgPtr))[plaintextLength] = static_cast<char>('\0');
 
-                LOGD("##  decryptMessageJni(): decrypted returnedLg=%lu plainTextMsgPtr=%s",plaintextLength, static_cast<char*>(plainTextMsgPtr));
+                LOGD("## decryptMessageJni(): decrypted returnedLg=%lu plainTextMsgPtr=%s",plaintextLength, static_cast<char*>(plainTextMsgPtr));
                 decryptedMsgRetValue = env->NewStringUTF(static_cast<const char*>(plainTextMsgPtr));
             }
         }
@@ -698,34 +699,41 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, job
     void *sessionIdPtr = NULL;
     jstring returnValueStr=0;
 
-    // get the size to alloc to contain the id
-    size_t lengthSessionId = olm_session_id_length(sessionPtr);
+    LOGD("## getSessionIdentifierJni(): IN ");
 
     if(NULL == (sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
     {
         LOGE("## getSessionIdentifierJni(): failure - invalid Session ptr=NULL");
     }
-    else if(NULL == (sessionIdPtr = (void*)malloc((lengthSessionId+1)*sizeof(uint8_t))))
-    {
-       LOGE("## getSessionIdentifierJni(): failure - identifier allocation OOM");
-    }
     else
     {
-        size_t result = olm_session_id(sessionPtr, sessionIdPtr, lengthSessionId);
-        if (result == olm_error())
+        // get the size to alloc to contain the id
+        size_t lengthSessionId = olm_session_id_length(sessionPtr);
+        LOGD("## getSessionIdentifierJni(): lengthSessionId=%lu",lengthSessionId);
+
+        if(NULL == (sessionIdPtr = (void*)malloc((lengthSessionId+1)*sizeof(uint8_t))))
         {
-            const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-            LOGE("## getSessionIdentifierJni(): failure - get session identifier failure Msg=%s",errorMsgPtr);
+           LOGE("## getSessionIdentifierJni(): failure - identifier allocation OOM");
         }
         else
         {
-            // update length
-            (static_cast<char*>(sessionIdPtr))[result] = static_cast<char>('\0');
+            size_t result = olm_session_id(sessionPtr, sessionIdPtr, lengthSessionId);
 
-            LOGD("## getSessionIdentifierJni(): success - result=%lu sessionId=%s",result, (char*)sessionIdPtr);
-            returnValueStr = env->NewStringUTF((const char*)sessionIdPtr);
+            if (result == olm_error())
+            {
+                const char *errorMsgPtr = olm_session_last_error(sessionPtr);
+                LOGE("## getSessionIdentifierJni(): failure - get session identifier failure Msg=%s",errorMsgPtr);
+            }
+            else
+            {
+                // update length
+                (static_cast<char*>(sessionIdPtr))[result] = static_cast<char>('\0');
+
+                LOGD("## getSessionIdentifierJni(): success - result=%lu sessionId=%s",result, (char*)sessionIdPtr);
+                returnValueStr = env->NewStringUTF((const char*)sessionIdPtr);
+            }
+            free(sessionIdPtr);
         }
-        free(sessionIdPtr);
     }
 
     return returnValueStr;

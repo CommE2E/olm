@@ -16,6 +16,8 @@
 
 #include "olm_account.h"
 
+using namespace AndroidOlmSdk;
+
 /**
 * Init memory allocation for account creation.
 * @return valid memory allocation, NULL otherwise
@@ -264,36 +266,36 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(oneTimeKeysJni)(JNIEnv *env, jobject t
     size_t keysResult;
     jbyteArray byteArrayRetValue = NULL;
 
-    LOGD("## oneTimeKeys(): accountPtr =%p",accountPtr);
+    LOGD("## oneTimeKeysJni(): IN");
 
     if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
     {
-        LOGE("## oneTimeKeys(): failure - invalid Account ptr");
+        LOGE("## oneTimeKeysJni(): failure - invalid Account ptr");
     }
     else
     {   // keys memory allocation
         keysLength = olm_account_one_time_keys_length(accountPtr);
         if(NULL == (keysBytesPtr=(uint8_t *)malloc(keysLength*sizeof(uint8_t))))
         {
-            LOGE("## oneTimeKeys(): failure - one time keys array OOM");
+            LOGE("## oneTimeKeysJni(): failure - one time keys array OOM");
         }
         else
         {   // retrieve key pairs in keysBytesPtr
             keysResult = olm_account_one_time_keys(accountPtr, keysBytesPtr, keysLength);
             if(keysResult == olm_error()) {
                 const char *errorMsgPtr = olm_account_last_error(accountPtr);
-                LOGE("## oneTimeKeys(): failure - error getting one time keys Msg=%s",errorMsgPtr);
+                LOGE("## oneTimeKeysJni(): failure - error getting one time keys Msg=%s",errorMsgPtr);
             }
             else
             {   // allocate the byte array to be returned to java
                 if(NULL == (byteArrayRetValue=env->NewByteArray(keysLength)))
                 {
-                    LOGE("## oneTimeKeys(): failure - return byte array OOM");
+                    LOGE("## oneTimeKeysJni(): failure - return byte array OOM");
                 }
                 else
                 {
                     env->SetByteArrayRegion(byteArrayRetValue, 0/*offset*/, keysLength, (const jbyte*)keysBytesPtr);
-                    LOGD("## oneTimeKeys(): success");
+                    LOGD("## oneTimeKeysJni(): success");
                 }
             }
 
