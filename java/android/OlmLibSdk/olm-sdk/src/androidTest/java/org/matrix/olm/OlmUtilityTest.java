@@ -45,7 +45,7 @@ public class OlmUtilityTest {
     @Test
     public void test01VerifyEd25519Signing() {
         String fingerPrintKey = null;
-        String errorMsg = new String();
+        StringBuffer errorMsg = new StringBuffer();
         String message = "{\"key1\":\"value1\",\"key2\":\"value2\"};";
 
         // create account
@@ -67,10 +67,20 @@ public class OlmUtilityTest {
             assertTrue("Exception MSg="+e.getMessage(), false);
         }
 
-        // instance utility
+        // instantiate utility object
         OlmUtility utility = new OlmUtility();
+
+        // verify signature
+        errorMsg.append("init with anything");
         boolean isVerified = utility.verifyEd25519Signature(messageSignature, fingerPrintKey, message, errorMsg);
         assertTrue(isVerified);
+        assertTrue(String.valueOf(errorMsg).isEmpty());
+
+        // check a bad signature is detected and the error message is not empty
+        messageSignature = "Bad signature Bad signature Bad signature..";
+        isVerified = utility.verifyEd25519Signature(messageSignature, fingerPrintKey, message, errorMsg);
+        assertFalse(isVerified);
+        assertFalse(String.valueOf(errorMsg).isEmpty());
 
         utility.releaseUtility();
     }

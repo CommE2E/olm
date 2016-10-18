@@ -71,14 +71,14 @@ public class OlmUtility implements Serializable {
      * If the key was too small, aError is set to "OLM.INVALID_BASE64".
      * If the signature was invalid, aError is set to "OLM.BAD_MESSAGE_MAC".<br>
      * @param aSignature the base64-encoded message signature to be checked.
-     * @param aFingerprintKey the ed25519 key
-     * @param aMessage the message which was signed
+     * @param aFingerprintKey the ed25519 key (fingerprint key)
+     * @param aMessage the signed message
      * @param aError error message description
      * @return true if the signature is verified, false otherwise
      */
-    public boolean verifyEd25519Signature(String aSignature, String aFingerprintKey, String aMessage, String aError) {
+    public boolean verifyEd25519Signature(String aSignature, String aFingerprintKey, String aMessage, StringBuffer aError) {
         boolean retCode = false;
-        OlmUtility retObj=null;
+        String errorRetValue = null;
 
         if(null == aError) {
             Log.e(LOG_TAG, "## verifyEd25519Signature(): invalid input error parameter");
@@ -86,17 +86,26 @@ public class OlmUtility implements Serializable {
         else if(TextUtils.isEmpty(aSignature) || TextUtils.isEmpty(aFingerprintKey) || TextUtils.isEmpty(aMessage)){
             Log.e(LOG_TAG, "## verifyEd25519Signature(): invalid input parameters");
         } else {
-            String errorRetValue = verifyEd25519SignatureJni(aSignature,aFingerprintKey, aMessage);
-            if(null == errorRetValue) {
-                aError="";
+            aError.setLength(0);
+
+            if( null == (errorRetValue = verifyEd25519SignatureJni(aSignature,aFingerprintKey, aMessage))) {
                 retCode = true;
             } else {
-                aError = errorRetValue;
+                aError.append(errorRetValue);
             }
         }
 
         return retCode;
     }
+
+    /**
+     * Verify an ed25519 signature.
+     * Return a human readable error message in case of verification failure.
+     * @param aSignature the base64-encoded message signature to be checked.
+     * @param aFingerprintKey the ed25519 key
+     * @param aMessage the signed message
+     * @return null if validation succeed, the error message string if operation failed
+     */
     private native String verifyEd25519SignatureJni(String aSignature, String aFingerprintKey, String aMessage);
 
 
