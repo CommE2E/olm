@@ -81,8 +81,7 @@ JNIEXPORT void OLM_UTILITY_FUNC_DEF(releaseUtilityJni)(JNIEnv *env, jobject thiz
  * @param aSignature the base64-encoded message signature to be checked.
  * @param aKey the ed25519 key (fingerprint key)
  * @param aMessage the message which was signed
- * @param the result error if there is a problem with the verification.
- * @return true if validation succeed, false otherwise
+ * @return 0 if validation succeed, an error message string if operation failed
  */
 JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, jobject thiz, jstring aSignature, jstring aKey, jstring aMessage)
 {
