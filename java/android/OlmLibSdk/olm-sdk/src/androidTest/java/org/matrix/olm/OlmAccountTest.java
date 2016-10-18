@@ -173,41 +173,6 @@ public class OlmAccountTest {
         String clearMsg = "String to be signed by olm";
         String signedMsg  = mOlmAccount.signMessage(clearMsg);
         assertNotNull(signedMsg);
-        // TODO add test to unsign the signedMsg and compare it ot clearMsg
+        // additional tests are performed in test01VerifyEd25519Signing()
     }
-
-
-    private void testJni(){
-        OlmManager mgr = new OlmManager();
-        String versionLib = mgr.getOlmLibVersion();
-        Log.d(LOG_TAG, "## testJni(): lib version="+versionLib);
-
-        OlmAccount account = new OlmAccount();
-
-        long accountNativeId = account.getOlmAccountId();
-        Log.d(LOG_TAG, "## testJni(): lib accountNativeId="+accountNativeId);
-
-        JSONObject identityKeys = account.identityKeys();
-        Log.d(LOG_TAG, "## testJni(): identityKeysJson="+identityKeys.toString());
-
-        long maxOneTimeKeys = account.maxOneTimeKeys();
-        Log.d(LOG_TAG, "## testJni(): lib maxOneTimeKeys="+maxOneTimeKeys);
-
-        int generateRetCode = account.generateOneTimeKeys(50);
-        Log.d(LOG_TAG, "## testJni(): generateRetCode="+generateRetCode);
-
-        JSONObject oneTimeKeysKeysJson = account.oneTimeKeys();
-        Log.d(LOG_TAG, "## testJni(): oneTimeKeysKeysJson="+oneTimeKeysKeysJson.toString());
-
-        int asPublishedRetCode = account.markOneTimeKeysAsPublished();
-        Log.d(LOG_TAG, "## testJni(): asPublishedRetCode="+asPublishedRetCode);
-
-        String clearMsg ="My clear message";
-        String signedMsg = account.signMessage(clearMsg);
-        Log.d(LOG_TAG, "## testJni(): signedMsg="+signedMsg);
-
-        account.releaseAccount();
-    }
-
-
 }

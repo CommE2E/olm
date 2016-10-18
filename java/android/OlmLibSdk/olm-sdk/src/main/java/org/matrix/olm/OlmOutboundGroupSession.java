@@ -40,23 +40,22 @@ public class OlmOutboundGroupSession {
      * Create and save a new session native instance ID and
      * initialise a new outbound group session.<br>
      * See {@link #initNewSession()} and {@link #initOutboundGroupSession()}
-     * @throws OlmException
+     * @throws OlmException constructor failure
      */
     public OlmOutboundGroupSession() throws OlmException {
         if(initNewSession()) {
             if( 0 != initOutboundGroupSession()) {
                 releaseSession();// prevent memory leak before throwing
-                throw new OlmException(OlmException.EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION);
+                throw new OlmException(OlmException.EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION, OlmException.EXCEPTION_MSG_INIT_OUTBOUND_GROUP_SESSION);
             }
         } else {
-            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_NEW_SESSION_FAILURE);
+            throw new OlmException(OlmException.EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION, OlmException.EXCEPTION_MSG_NEW_OUTBOUND_GROUP_SESSION);
         }
     }
 
     /**
      * Release native session and invalid its JAVA reference counter part.<br>
      * Public API for {@link #releaseSessionJni()}.
-     * To be called before any other API call.
      */
     public void releaseSession() {
         releaseSessionJni();        

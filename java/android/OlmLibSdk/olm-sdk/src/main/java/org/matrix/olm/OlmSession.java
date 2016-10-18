@@ -63,7 +63,6 @@ public class OlmSession implements Serializable {
     /**
      * Release native session and invalid its JAVA reference counter part.<br>
      * Public API for {@link #releaseSessionJni()}.
-     * To be called before any other API call.
      */
     public void releaseSession(){
         releaseSessionJni();
@@ -128,19 +127,19 @@ public class OlmSession implements Serializable {
      * Public API for {@link #initInboundSessionJni(long, String)}.
      * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
      * @param aAccount the account to associate with this session
-     * @param aOneTimeKeyMsg PRE KEY message
+     * @param aPreKeyMsg PRE KEY message
      * @return this if operation succeed, null otherwise
      */
-    public OlmSession initInboundSessionWithAccount(OlmAccount aAccount, String aOneTimeKeyMsg) {
+    public OlmSession initInboundSessionWithAccount(OlmAccount aAccount, String aPreKeyMsg) {
         OlmSession retObj=null;
 
-        if((null==aAccount) || TextUtils.isEmpty(aOneTimeKeyMsg)){
+        if((null==aAccount) || TextUtils.isEmpty(aPreKeyMsg)){
             Log.e(LOG_TAG, "## initInboundSessionWithAccount(): invalid input parameters");
         } else {
             // set the account of this session
             mOlmAccount = aAccount;
 
-            if( 0 == initInboundSessionJni(mOlmAccount.getOlmAccountId(), aOneTimeKeyMsg)) {
+            if( 0 == initInboundSessionJni(mOlmAccount.getOlmAccountId(), aPreKeyMsg)) {
                 retObj = this;
             }
         }
@@ -156,22 +155,23 @@ public class OlmSession implements Serializable {
      * incoming PRE_KEY({@link OlmMessage#MESSAGE_TYPE_PRE_KEY}) message based on the sender identity key.<br>
      * Public API for {@link #initInboundSessionFromIdKeyJni(long, String, String)}.
      * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
+     * This method must only be called the first time a pre-key message is received from an inbound session.
      * @param aAccount the account to associate with this session
      * @param aTheirIdentityKey the sender identity key
-     * @param aOneTimeKeyMsg PRE KEY message
+     * @param aPreKeyMsg PRE KEY message
      * @return this if operation succeed, null otherwise
      * TODO unit test missing: initInboundSessionWithAccountFrom
      */
-    public OlmSession initInboundSessionWithAccountFrom(OlmAccount aAccount, String aTheirIdentityKey, String aOneTimeKeyMsg) {
+    public OlmSession initInboundSessionWithAccountFrom(OlmAccount aAccount, String aTheirIdentityKey, String aPreKeyMsg) {
         OlmSession retObj=null;
 
-        if((null==aAccount) || TextUtils.isEmpty(aOneTimeKeyMsg)){
+        if((null==aAccount) || TextUtils.isEmpty(aPreKeyMsg)){
             Log.e(LOG_TAG, "## initInboundSessionWithAccount(): invalid input parameters");
         } else {
             // set the account of this session
             mOlmAccount = aAccount;
 
-            if(0 == initInboundSessionFromIdKeyJni(mOlmAccount.getOlmAccountId(), aTheirIdentityKey, aOneTimeKeyMsg)){
+            if(0 == initInboundSessionFromIdKeyJni(mOlmAccount.getOlmAccountId(), aTheirIdentityKey, aPreKeyMsg)){
                 retObj = this;
             }
         }

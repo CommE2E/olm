@@ -16,17 +16,33 @@
 
 package org.matrix.olm;
 
+/**
+ * Exception class to identify specific Olm SDk exceptions.
+ */
 public class OlmException extends Exception {
     // exception codes
-    public static final int EXCEPTION_CODE_INIT_NEW_SESSION_FAILURE = 0;
-    public static final int EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION = 1;
-    public static final int EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION = 2;
+    public static final int EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION = 0;
+    public static final int EXCEPTION_CODE_CREATE_INBOUND_GROUP_SESSION = 1;
+    public static final int EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION = 2;
+    public static final int EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION = 3;
 
+    // exception human readable messages
+    public static final String EXCEPTION_MSG_NEW_OUTBOUND_GROUP_SESSION = "failed to create a new outbound group Session";
+    public static final String EXCEPTION_MSG_NEW_INBOUND_GROUP_SESSION = "failed to create a new inbound group Session";
+    public static final String EXCEPTION_MSG_INIT_OUTBOUND_GROUP_SESSION = "failed to initialize a new outbound group Session";
+    public static final String EXCEPTION_MSG_INIT_INBOUND_GROUP_SESSION = "failed to initialize a new inbound group Session";
+
+    /** exception code to be taken from: {@link #EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION} {@link #EXCEPTION_CODE_CREATE_INBOUND_GROUP_SESSION}
+     * {@link #EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION} {@link #EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION}**/
     private final int mCode;
 
-    public OlmException(int aExceptionCode) {
+    /** Human readable message description **/
+    private final String mMessage;
+
+    public OlmException(int aExceptionCode, String aExceptionMessage) {
         super();
         mCode = aExceptionCode;
+        mMessage = aExceptionMessage;
     }
 
     public int getExceptionCode() {

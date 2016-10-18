@@ -250,5 +250,4 @@ public class OlmSessionTest {
         // must be the same for both ends of the conversation
         assertTrue(aliceSessionId.equals(bobSessionId));
     }
-
 }

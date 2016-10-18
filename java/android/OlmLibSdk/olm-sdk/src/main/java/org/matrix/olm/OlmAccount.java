@@ -71,7 +71,6 @@ public class OlmAccount implements Serializable {
     /**
      * Release native account and invalid its JAVA reference counter part.<br>
      * Public API for {@link #releaseAccountJni()}.
-     * To be called before any other API call.
      */
     public void releaseAccount(){
         releaseAccountJni();

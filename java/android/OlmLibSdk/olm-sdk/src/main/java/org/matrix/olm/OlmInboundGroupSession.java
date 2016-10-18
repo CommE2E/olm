@@ -45,26 +45,25 @@ public class OlmInboundGroupSession implements Serializable {
     /**
      * Constructor.<br>
      * Create and save a new native session instance ID and start a new inbound group session.
-     * The session key parameter is retrieved from a outbound group session
+     * The session key parameter is retrieved from an outbound group session
      * See {@link #initNewSession()} and {@link #initInboundGroupSessionWithSessionKey(String)}
      * @param aSessionKey session key
-     * @throws OlmException
+     * @throws OlmException constructor failure
      */
     public OlmInboundGroupSession(String aSessionKey) throws OlmException {
         if(initNewSession()) {
             if( 0 != initInboundGroupSessionWithSessionKey(aSessionKey)) {
                 releaseSession();// prevent memory leak before throwing
-                throw new OlmException(OlmException.EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION);
+                throw new OlmException(OlmException.EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION,OlmException.EXCEPTION_MSG_INIT_INBOUND_GROUP_SESSION);
             }
         } else {
-            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_NEW_SESSION_FAILURE);
+            throw new OlmException(OlmException.EXCEPTION_CODE_CREATE_INBOUND_GROUP_SESSION, OlmException.EXCEPTION_MSG_NEW_INBOUND_GROUP_SESSION);
         }
     }
 
     /**
      * Release native session and invalid its JAVA reference counter part.<br>
      * Public API for {@link #releaseSessionJni()}.
-     * To be called before any other API call.
      */
     public void releaseSession(){
         releaseSessionJni();
@@ -81,8 +80,7 @@ public class OlmInboundGroupSession implements Serializable {
     private native void releaseSessionJni();
 
     /**
-     * Create and save the session native instance ID.
-     * Wrapper for {@link #initNewSessionJni()}.<br>
+     * Create and save the session native instance ID.<br>
      * To be called before any other API call.
      * @return true if init succeed, false otherwise.
      */
