@@ -37,6 +37,7 @@ public class OlmException extends Exception {
     public static final String EXCEPTION_MSG_INIT_INBOUND_GROUP_SESSION = "failed to initialize a new inbound group Session";
     public static final String EXCEPTION_MSG_INIT_NEW_ACCOUNT_DESERIALIZATION = "initNewAccount() failure";
     public static final String EXCEPTION_MSG_INIT_ACCOUNT_DESERIALIZATION = "initWithSerializedData() failure";
+    public static final String EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION = "invalid deserialized parameters";
 
     /** exception code to be taken from: {@link #EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION} {@link #EXCEPTION_CODE_CREATE_INBOUND_GROUP_SESSION}
      * {@link #EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION} {@link #EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION}**/
