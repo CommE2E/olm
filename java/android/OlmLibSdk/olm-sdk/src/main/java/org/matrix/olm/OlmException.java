@@ -25,12 +25,18 @@ public class OlmException extends Exception {
     public static final int EXCEPTION_CODE_CREATE_INBOUND_GROUP_SESSION = 1;
     public static final int EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION = 2;
     public static final int EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION = 3;
+    public static final int EXCEPTION_CODE_ACCOUNT_SERIALIZATION = 4;
+    public static final int EXCEPTION_CODE_ACCOUNT_DESERIALIZATION = 5;
+    public static final int EXCEPTION_CODE_SESSION_SERIALIZATION = 6;
+    public static final int EXCEPTION_CODE_SESSION_DESERIALIZATION = 7;
 
     // exception human readable messages
     public static final String EXCEPTION_MSG_NEW_OUTBOUND_GROUP_SESSION = "failed to create a new outbound group Session";
     public static final String EXCEPTION_MSG_NEW_INBOUND_GROUP_SESSION = "failed to create a new inbound group Session";
     public static final String EXCEPTION_MSG_INIT_OUTBOUND_GROUP_SESSION = "failed to initialize a new outbound group Session";
     public static final String EXCEPTION_MSG_INIT_INBOUND_GROUP_SESSION = "failed to initialize a new inbound group Session";
+    public static final String EXCEPTION_MSG_INIT_NEW_ACCOUNT_DESERIALIZATION = "initNewAccount() failure";
+    public static final String EXCEPTION_MSG_INIT_ACCOUNT_DESERIALIZATION = "initWithSerializedData() failure";
 
     /** exception code to be taken from: {@link #EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION} {@link #EXCEPTION_CODE_CREATE_INBOUND_GROUP_SESSION}
      * {@link #EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION} {@link #EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION}**/
@@ -47,5 +53,10 @@ public class OlmException extends Exception {
 
     public int getExceptionCode() {
         return mCode;
+    }
+
+    @Override
+    public String getMessage() {
+        return mMessage;
     }
 }
