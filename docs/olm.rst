@@ -30,7 +30,7 @@ Initial setup
 ~~~~~~~~~~~~~
 
 The setup takes four Curve25519_ inputs: Identity keys for Alice and Bob,
-:math:`I_A` and :math:`I_B`, and ephemeral keys for Alice and Bob,
+:math:`I_A` and :math:`I_B`, and one-time keys for Alice and Bob,
 :math:`E_A` and :math:`E_B`. A shared secret, :math:`S`, is generated using
 `Triple Diffie-Hellman`_. The initial 256 bit root key, :math:`R_0`, and 256
 bit chain key, :math:`C_{0,0}`, are derived from the shared secret using an
