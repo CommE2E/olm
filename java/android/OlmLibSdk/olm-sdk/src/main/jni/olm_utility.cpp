@@ -141,17 +141,17 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
     // free alloc
     if(NULL != signaturePtr)
     {
-     env->ReleaseStringUTFChars(aSignature, signaturePtr);
+        env->ReleaseStringUTFChars(aSignature, signaturePtr);
     }
 
     if(NULL != keyPtr)
     {
-     env->ReleaseStringUTFChars(aKey, keyPtr);
+        env->ReleaseStringUTFChars(aKey, keyPtr);
     }
 
     if(NULL != messagePtr)
     {
-     env->ReleaseStringUTFChars(aMessage, messagePtr);
+        env->ReleaseStringUTFChars(aMessage, messagePtr);
     }
 
     return errorMessageRetValue;
