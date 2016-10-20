@@ -16,15 +16,27 @@
 
 package org.matrix.olm;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.Random;
 
 public class OlmAccount implements Serializable {
+    private static final long serialVersionUID = 3497486121598434824L;
     private static final String LOG_TAG = "OlmAccount";
+    private static final int MAX_BITS_LENGTH = 128;
+    private static final int RANDOM_TAB_SIZE = 32;
+    private static final int RANDOM_MAX = 256;
 
     // JSON keys used in the JSON objects returned by JNI
     /** As well as the identity key, each device creates a number of Curve25519 key pairs which are
@@ -46,11 +58,129 @@ public class OlmAccount implements Serializable {
     /** account raw pointer value (OlmAccount*) returned by JNI.
      * this value identifies uniquely the native account instance.
      */
-    private long mNativeOlmAccountId;
+    private transient long mNativeOlmAccountId;
+
+    private transient SecureRandom mSecureRandom;
 
     public OlmAccount() {
         initNewAccount();
+        mSecureRandom = new SecureRandom();
     }
+
+    private String getRandomKey() {
+        //String keyRetValue = new BigInteger(MAX_BITS_LENGTH, mSecureRandom).toString(RANDOM_TAB_SIZE);
+        String keyRetValue;
+        Random rand = new Random();
+
+        StringBuilder strBuilder = new StringBuilder();
+
+        for(int i=0;i<RANDOM_TAB_SIZE;i++) {
+            strBuilder.append(rand.nextInt(RANDOM_MAX));
+        }
+        keyRetValue = "1234567890";//strBuilder.toString();
+
+        return keyRetValue;
+    }
+
+    private void writeObject(ObjectOutputStream aOutStream) throws IOException, OlmException {
+        aOutStream.defaultWriteObject();
+
+        // generate serialization key
+        String key = getRandomKey();
+
+        // compute pickle string
+        StringBuffer errorMsg = new StringBuffer();
+        String pickledData = serializeDataWithKey(key, errorMsg);
+
+        if(null == pickledData) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_SERIALIZATION, String.valueOf(errorMsg));
+        } else {
+            aOutStream.writeObject(key);
+            aOutStream.writeObject(pickledData);
+        }
+    }
+
+    private void readObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException, OlmException {
+        aInStream.defaultReadObject();
+        StringBuffer errorMsg = new StringBuffer();
+
+        String key = (String) aInStream.readObject();
+        String pickledData = (String) aInStream.readObject();
+
+        if(TextUtils.isEmpty(key)) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, OlmException.EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION+" key");
+
+        } else if(TextUtils.isEmpty(pickledData)) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, OlmException.EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION+" pickle");
+
+        } else if(!initNewAccount()) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, OlmException.EXCEPTION_MSG_INIT_NEW_ACCOUNT_DESERIALIZATION);
+
+        } else if(!initWithSerializedData(pickledData, key, errorMsg)) {
+            releaseAccount(); // prevent memory leak
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, String.valueOf(errorMsg));
+
+        } else {
+            Log.d(LOG_TAG,"## readObject(): success");
+        }
+    }
+
+    /**
+     * Return an account as a base64 string.<br>
+     * The account is serialized and encrypted with aKey.
+     * In case of failure, an error human readable
+     * description is provide in aErrorMsg.
+     * @param aKey encryption key
+     * @param aErrorMsg error message description
+     * @return pickled base64 string if operation succeed, null otherwise
+     */
+    private String serializeDataWithKey(String aKey, StringBuffer aErrorMsg) {
+        String pickleRetValue = null;
+
+        // sanity check
+        if(null == aErrorMsg) {
+            Log.e(LOG_TAG,"## serializeDataWithKey(): invalid parameter - aErrorMsg=null");
+        } else if(TextUtils.isEmpty(aKey)) {
+            aErrorMsg.append("Invalid input parameters in serializeDataWithKey()");
+        } else {
+            aErrorMsg.setLength(0);
+            pickleRetValue = serializeDataWithKeyJni(aKey, aErrorMsg);
+        }
+
+        return pickleRetValue;
+    }
+    private native String serializeDataWithKeyJni(String aKey, StringBuffer aErrorMsg);
+
+
+    /**
+     * Loads an account from a pickled base64 string.<br>
+     * See {@link #serializeDataWithKey(String, StringBuffer)}
+     * @param aSerializedData pickled account in a base64 string format
+     * @param aKey key used to encrypted
+     * @param aErrorMsg error message description
+     * @return true if operation succeed, false otherwise
+     */
+    private boolean initWithSerializedData(String aSerializedData, String aKey, StringBuffer aErrorMsg) {
+        boolean retCode = false;
+        String jniError;
+
+        if(null == aErrorMsg) {
+            Log.e(LOG_TAG, "## initWithSerializedData(): invalid input error parameter");
+        } else {
+            aErrorMsg.setLength(0);
+
+            if (TextUtils.isEmpty(aSerializedData) || TextUtils.isEmpty(aKey)) {
+                Log.e(LOG_TAG, "## initWithSerializedData(): invalid input parameters");
+            } else if (null == (jniError = initWithSerializedDataJni(aSerializedData, aKey))) {
+                retCode = true;
+            } else {
+                aErrorMsg.append(jniError);
+            }
+        }
+
+        return retCode;
+    }
+    private native String initWithSerializedDataJni(String aSerializedData, String aKey);
 
     /**
      * Getter on the account ID.
@@ -86,8 +216,8 @@ public class OlmAccount implements Serializable {
     private native long initNewAccountJni();
 
     /**
-     * Create and save the account native instance ID.
-     * Wrapper for {@link #initNewAccountJni()}.<br>
+     * Create and initialize a new native account instance.<br>
+     * Wrapper for {@link #initNewAccountJni()}.
      * To be called before any other API call.
      * @return true if init succeed, false otherwise.
      */
