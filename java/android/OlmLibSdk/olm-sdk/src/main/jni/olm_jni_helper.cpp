@@ -104,7 +104,7 @@ jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
   {
     LOGE("## getAccountInstanceId() ERROR! aJniEnv=NULL");
   }
-  LOGD("## getAccountInstanceId() success - instanceId=%lld",instanceId);
+  LOGD("## getAccountInstanceId() success - instanceId=%p (jlong)(intptr_t)instanceId=%lld",(void*)instanceId, (jlong)(intptr_t)instanceId);
   return instanceId;
 }
 
