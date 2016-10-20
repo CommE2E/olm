@@ -166,6 +166,7 @@ int main() {
                             plaintext_buf, size, &message_index);
     assert_equals(plaintext_length, res);
     assert_equals(plaintext, plaintext_buf, res);
+    assert_equals(message_index, uint32_t(0));
 }
 
 {
@@ -213,6 +214,7 @@ int main() {
     res = olm_group_decrypt(
         inbound_session, msgcopy, msglen, plaintext_buf, size, &message_index
     );
+    assert_equals(message_index, uint32_t(0));
     assert_equals(plaintext_length, res);
     assert_equals(plaintext, plaintext_buf, res);
 
