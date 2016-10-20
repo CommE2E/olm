@@ -47,10 +47,16 @@ public class OlmSessionTest {
         final int ONE_TIME_KEYS_NUMBER = 5;
         String bobIdentityKey = null;
         String bobOneTimeKey=null;
-
+        OlmAccount bobAccount = null;
+        OlmAccount aliceAccount = null;
         // creates alice & bob accounts
-        OlmAccount aliceAccount = new OlmAccount();
-        OlmAccount bobAccount = new OlmAccount();
+
+        try {
+            aliceAccount = new OlmAccount();
+            bobAccount = new OlmAccount();
+        } catch (OlmException e) {
+            assertTrue(e.getMessage(),false);
+        }
 
         // test accounts creation
         assertTrue(0!=bobAccount.getOlmAccountId());
@@ -132,10 +138,16 @@ public class OlmSessionTest {
         final int ONE_TIME_KEYS_NUMBER = 1;
         String bobIdentityKey = null;
         String bobOneTimeKey=null;
+        OlmAccount aliceAccount = null;
+        OlmAccount bobAccount = null;
 
         // creates alice & bob accounts
-        OlmAccount aliceAccount = new OlmAccount();
-        OlmAccount bobAccount = new OlmAccount();
+        try {
+            aliceAccount = new OlmAccount();
+            bobAccount = new OlmAccount();
+        } catch (OlmException e) {
+            assertTrue(e.getMessage(),false);
+        }
 
         // test accounts creation
         assertTrue(0!=bobAccount.getOlmAccountId());
@@ -226,8 +238,14 @@ public class OlmSessionTest {
     @Test
     public void test03AliceBobSessionId() {
         // creates alice & bob accounts
-        OlmAccount aliceAccount = new OlmAccount();
-        OlmAccount bobAccount = new OlmAccount();
+        OlmAccount aliceAccount = null;
+        OlmAccount bobAccount = null;
+        try {
+            aliceAccount = new OlmAccount();
+            bobAccount = new OlmAccount();
+        } catch (OlmException e) {
+            assertTrue(e.getMessage(),false);
+        }
 
         // test accounts creation
         assertTrue(0!=bobAccount.getOlmAccountId());

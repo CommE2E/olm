@@ -26,17 +26,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Random;
 
 public class OlmAccount implements Serializable {
     private static final long serialVersionUID = 3497486121598434824L;
     private static final String LOG_TAG = "OlmAccount";
-    private static final int MAX_BITS_LENGTH = 128;
-    private static final int RANDOM_TAB_SIZE = 32;
-    private static final int RANDOM_MAX = 256;
+    private static final int RANDOM_KEY_SIZE = 32;
+    private static final int RANDOM_RANGE = 256;
 
     // JSON keys used in the JSON objects returned by JNI
     /** As well as the identity key, each device creates a number of Curve25519 key pairs which are
@@ -60,24 +56,22 @@ public class OlmAccount implements Serializable {
      */
     private transient long mNativeOlmAccountId;
 
-    private transient SecureRandom mSecureRandom;
 
-    public OlmAccount() {
-        initNewAccount();
-        mSecureRandom = new SecureRandom();
+    public OlmAccount() throws OlmException {
+        if(!initNewAccount()) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_ACCOUNT_CREATION,OlmException.EXCEPTION_MSG_INIT_ACCOUNT_CREATION);
+        }
     }
 
     private String getRandomKey() {
-        //String keyRetValue = new BigInteger(MAX_BITS_LENGTH, mSecureRandom).toString(RANDOM_TAB_SIZE);
         String keyRetValue;
         Random rand = new Random();
-
         StringBuilder strBuilder = new StringBuilder();
 
-        for(int i=0;i<RANDOM_TAB_SIZE;i++) {
-            strBuilder.append(rand.nextInt(RANDOM_MAX));
+        for(int i = 0; i< OlmAccount.RANDOM_KEY_SIZE; i++) {
+            strBuilder.append(rand.nextInt(RANDOM_RANGE));
         }
-        keyRetValue = "1234567890";//strBuilder.toString();
+        keyRetValue = strBuilder.toString();
 
         return keyRetValue;
     }
@@ -113,7 +107,7 @@ public class OlmAccount implements Serializable {
         } else if(TextUtils.isEmpty(pickledData)) {
             throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, OlmException.EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION+" pickle");
 
-        } else if(!initNewAccount()) {
+        } else if(!createNewAccount()) {
             throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, OlmException.EXCEPTION_MSG_INIT_NEW_ACCOUNT_DESERIALIZATION);
 
         } else if(!initWithSerializedData(pickledData, key, errorMsg)) {
@@ -191,14 +185,6 @@ public class OlmAccount implements Serializable {
     }
 
     /**
-     * Destroy the corresponding OLM account native object.<br>
-     * This method must ALWAYS be called when this JAVA instance
-     * is destroyed (ie. garbage collected) to prevent memory leak in native side.
-     * See {@link #initNewAccountJni()}.
-     */
-    private native void releaseAccountJni();
-
-    /**
      * Release native account and invalid its JAVA reference counter part.<br>
      * Public API for {@link #releaseAccountJni()}.
      */
@@ -209,14 +195,15 @@ public class OlmAccount implements Serializable {
     }
 
     /**
-     * Create the corresponding OLM account in native side.<br>
-     * Do not forget to call {@link #releaseAccount()} when JAVA side is done.
-     * @return native account instance identifier (see {@link #mNativeOlmAccountId})
+     * Destroy the corresponding OLM account native object.<br>
+     * This method must ALWAYS be called when this JAVA instance
+     * is destroyed (ie. garbage collected) to prevent memory leak in native side.
+     * See {@link #initNewAccountJni()}.
      */
-    private native long initNewAccountJni();
+    private native void releaseAccountJni();
 
     /**
-     * Create and initialize a new native account instance.<br>
+     * Create and initialize a native account instance.<br>
      * Wrapper for {@link #initNewAccountJni()}.
      * To be called before any other API call.
      * @return true if init succeed, false otherwise.
@@ -228,6 +215,35 @@ public class OlmAccount implements Serializable {
         }
         return retCode;
     }
+
+    /**
+     * Create and initialize an OLM account in native side.<br>
+     * Do not forget to call {@link #releaseAccount()} when JAVA side is done.
+     * @return native account instance identifier (see {@link #mNativeOlmAccountId})
+     */
+    private native long initNewAccountJni();
+
+    /**
+     * Create a native account instance without any initialization.<br>
+     * Since the account is left uninitialized, this
+     * method is intended to be used in the serialization mechanism (see {@link #readObject(ObjectInputStream)}).<br>
+     * Public wrapper for {@link #createNewAccountJni()}.
+     * @return true if init succeed, false otherwise.
+     */
+    private boolean createNewAccount() {
+        boolean retCode = false;
+        if(0 != (mNativeOlmAccountId = createNewAccountJni())){
+            retCode = true;
+        }
+        return retCode;
+    }
+
+    /**
+     * Create an OLM account in native side.<br>
+     * Do not forget to call {@link #releaseAccount()} when JAVA side is done.
+     * @return native account instance identifier (see {@link #mNativeOlmAccountId})
+     */
+    private native long createNewAccountJni();
 
     /**
      * Return the identity keys (identity &amp fingerprint keys) in a JSON array.<br>

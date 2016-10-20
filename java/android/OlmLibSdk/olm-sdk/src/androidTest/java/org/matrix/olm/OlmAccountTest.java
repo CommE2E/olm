@@ -42,6 +42,7 @@ public class OlmAccountTest {
     private static OlmAccount mOlmAccount;
     private static OlmManager mOlmManager;
     private boolean mIsAccountCreated;
+    final String FILE_NAME = "SerialTestFile";
 
     @BeforeClass
     public static void setUpClass(){
@@ -72,7 +73,11 @@ public class OlmAccountTest {
 
     @Test
     public void test01CreateReleaseAccount() {
-        mOlmAccount = new OlmAccount();
+        try {
+            mOlmAccount = new OlmAccount();
+        } catch (OlmException e) {
+            e.printStackTrace();
+        }
         assertNotNull(mOlmAccount);
 
         mOlmAccount.releaseAccount();
@@ -81,7 +86,11 @@ public class OlmAccountTest {
 
     @Test
     public void test02CreateAccount() {
-        mOlmAccount = new OlmAccount();
+        try {
+            mOlmAccount = new OlmAccount();
+        } catch (OlmException e) {
+            e.printStackTrace();
+        }
         assertNotNull(mOlmAccount);
         mIsAccountCreated = true;
     }
@@ -198,16 +207,21 @@ public class OlmAccountTest {
     public void test13Serialization() {
         FileOutputStream fileOutput = null;
         ObjectOutputStream objectOutput = null;
-        OlmAccount accountRef = new OlmAccount();
+        OlmAccount accountRef = null;
         OlmAccount accountDeserial = null;
-        OlmException exception;
+
+        try {
+            accountRef = new OlmAccount();
+        } catch (OlmException e) {
+            assertTrue(e.getMessage(),false);
+        }
 
         int retValue = accountRef.generateOneTimeKeys(GENERATION_ONE_TIME_KEYS_NUMBER);
         assertTrue(0==retValue);
 
+        // get keys references
         JSONObject identityKeysRef = accountRef.identityKeys();
         JSONObject oneTimeKeysRef = accountRef.oneTimeKeys();
-        final String FILE_NAME = "testfile";
 
         /*Context context = getInstrumentation().getContext();
         SharedPreferences sharedPref = context.getSharedPreferences("TestPref",Context.MODE_PRIVATE);
@@ -217,16 +231,15 @@ public class OlmAccountTest {
         try {
             Context context = getInstrumentation().getContext();
             context.getFilesDir();
-            //File serialFile = new File(FILE_NAME);
-            //fileOutput = new FileOutputStream(serialFile);
             fileOutput = context.openFileOutput(FILE_NAME, Context.MODE_PRIVATE);
 
+            // serialize
             objectOutput = new ObjectOutputStream(fileOutput);
             objectOutput.writeObject(accountRef);
             objectOutput.flush();
             objectOutput.close();
 
-            //FileInputStream fileInput = new FileInputStream(serialFile);
+            // deserialize
             FileInputStream fileInput = context.openFileInput(FILE_NAME);
             ObjectInputStream objectInput = new ObjectInputStream(fileInput);
             accountDeserial = (OlmAccount) objectInput.readObject();
@@ -234,14 +247,20 @@ public class OlmAccountTest {
 
             assertNotNull(accountDeserial);
 
+            // get de-serialized keys
             JSONObject identityKeys2 = accountDeserial.identityKeys();
+            assertNotNull(identityKeys2);
             JSONObject oneTimeKeys2 = accountDeserial.oneTimeKeys();
-            assertEquals(identityKeysRef, identityKeys2);
-            assertEquals(oneTimeKeysRef, oneTimeKeys2);
+            assertNotNull(oneTimeKeys2);
+
+            // compare identity keys
+            assertTrue(identityKeys2.toString().equals(identityKeysRef.toString()));
+
+            // compare onetime keys
+            assertTrue(oneTimeKeys2.toString().equals(oneTimeKeysRef.toString()));
 
             accountRef.releaseAccount();
             accountDeserial.releaseAccount();
-
         }
 
         catch (FileNotFoundException e) {

@@ -29,6 +29,7 @@ public class OlmException extends Exception {
     public static final int EXCEPTION_CODE_ACCOUNT_DESERIALIZATION = 5;
     public static final int EXCEPTION_CODE_SESSION_SERIALIZATION = 6;
     public static final int EXCEPTION_CODE_SESSION_DESERIALIZATION = 7;
+    public static final int EXCEPTION_CODE_INIT_ACCOUNT_CREATION = 8;
 
     // exception human readable messages
     public static final String EXCEPTION_MSG_NEW_OUTBOUND_GROUP_SESSION = "failed to create a new outbound group Session";
@@ -38,6 +39,7 @@ public class OlmException extends Exception {
     public static final String EXCEPTION_MSG_INIT_NEW_ACCOUNT_DESERIALIZATION = "initNewAccount() failure";
     public static final String EXCEPTION_MSG_INIT_ACCOUNT_DESERIALIZATION = "initWithSerializedData() failure";
     public static final String EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION = "invalid deserialized parameters";
+    public static final String EXCEPTION_MSG_INIT_ACCOUNT_CREATION = "Account constructor failure";
 
     /** exception code to be taken from: {@link #EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION} {@link #EXCEPTION_CODE_CREATE_INBOUND_GROUP_SESSION}
      * {@link #EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION} {@link #EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION}**/

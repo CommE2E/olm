@@ -47,9 +47,14 @@ public class OlmUtilityTest {
         String fingerPrintKey = null;
         StringBuffer errorMsg = new StringBuffer();
         String message = "{\"key1\":\"value1\",\"key2\":\"value2\"};";
+        OlmAccount account = null;
 
         // create account
-        OlmAccount account = new OlmAccount();
+        try {
+            account = new OlmAccount();
+        } catch (OlmException e) {
+            assertTrue(e.getMessage(),false);
+        }
         assertNotNull(account);
 
         // sign message
