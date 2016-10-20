@@ -78,20 +78,20 @@ public class OlmUtility implements Serializable {
      */
     public boolean verifyEd25519Signature(String aSignature, String aFingerprintKey, String aMessage, StringBuffer aError) {
         boolean retCode = false;
-        String errorRetValue = null;
+        String jniError;
 
-        if(null == aError) {
+        if (null == aError) {
             Log.e(LOG_TAG, "## verifyEd25519Signature(): invalid input error parameter");
-        }
-        else if(TextUtils.isEmpty(aSignature) || TextUtils.isEmpty(aFingerprintKey) || TextUtils.isEmpty(aMessage)){
-            Log.e(LOG_TAG, "## verifyEd25519Signature(): invalid input parameters");
         } else {
             aError.setLength(0);
 
-            if( null == (errorRetValue = verifyEd25519SignatureJni(aSignature,aFingerprintKey, aMessage))) {
+            if (TextUtils.isEmpty(aSignature) || TextUtils.isEmpty(aFingerprintKey) || TextUtils.isEmpty(aMessage)) {
+                Log.e(LOG_TAG, "## verifyEd25519Signature(): invalid input parameters");
+                aError.append("JAVA sanity check failure - invalid input parameters");
+            } else if (null == (jniError = verifyEd25519SignatureJni(aSignature, aFingerprintKey, aMessage))) {
                 retCode = true;
             } else {
-                aError.append(errorRetValue);
+                aError.append(jniError);
             }
         }
 
