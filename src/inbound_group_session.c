@@ -287,7 +287,9 @@ static size_t _decrypt(
         return (size_t)-1;
     }
 
-    *message_index = decoded_results.message_index;
+    if (message_index != NULL) {
+        *message_index = decoded_results.message_index;
+    }
 
     /* verify the signature. We could do this before decoding the message, but
      * we allow for the possibility of future protocol versions which use a
