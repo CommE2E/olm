@@ -5,8 +5,12 @@ An implementation of the Double Ratchet cryptographic ratchet described by
 https://github.com/trevp/double_ratchet/wiki, written in C and C++11 and
 exposed as a C API.
 
-The specification of the Olm ratchet can be found in docs/olm.rst or
-https://matrix.org/docs/spec/olm.html
+The specification of the Olm ratchet can be found in ``docs/olm.rst`` or
+https://matrix.org/docs/spec/olm.html.
+
+This library also includes an implementation of the Megolm cryptographic
+ratchet, as specified in ``docs/megolm.rst`` or
+https://matrix.org/docs/spec/megolm.html.
 
 Building
 --------

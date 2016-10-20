@@ -199,9 +199,9 @@ session.
 
 In order to maintain the ability to decrypt conversation history, inbound
 sessions should store a copy of their earliest known ratchet value (unless they
-explicitly want to drop the ability to decrypt that history). They may also
-choose to cache calculated ratchet values, but the decision of which ratchet
-states to cache is left to the application.
+explicitly want to drop the ability to decrypt that history - see `Partial
+Forward Secrecy`_\ ). They may also choose to cache calculated ratchet values,
+but the decision of which ratchet states to cache is left to the application.
 
 Data exchange formats
 ---------------------
@@ -269,7 +269,68 @@ protocol). The MAC protects all of the bytes preceding the MAC.
 
 The length of the signature is determined by the signing algorithm being used
 (64 bytes in this version of the protocol). The signature covers all of the
-bytes preceding the signaure.
+bytes preceding the signature.
+
+Limitations
+-----------
+
+Lack of Transcript Consistency
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In a group conversation, there is no guarantee that all recipients have
+received the same messages. For example, if Alice is in a conversation with Bob
+and Charlie, she could send different messages to Bob and Charlie, or could
+send some messages to Bob but not Charlie, or vice versa.
+
+Solving this is, in general, a hard problem, particularly in a protocol which
+does not guarantee in-order message delivery. For now it remains the subject of
+future research.
+
+Lack of Backward Secrecy
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once the key to a Megolm session is compromised, the attacker can decrypt any
+future messages sent via that session.
+
+In order to mitigate this, the application should ensure that Megolm sessions
+are not used indefinitely. Instead it should periodically start a new session,
+with new keys shared over a secure channel.
+
+.. TODO: Can we recommend sensible lifetimes for Megolm sessions? Probably
+   depends how paranoid we're feeling, but some guidelines might be useful.
+
+Partial Forward Secrecy
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Each recipient maintains a record of the ratchet value which allows them to
+decrypt any messages sent in the session after the corresponding point in the
+conversation. If this value is compromised, an attacker can similarly decrypt
+those past messages.
+
+To mitigate this issue, the application should offer the user the option to
+discard historical conversations, by winding forward any stored ratchet values,
+or discarding sessions altogether.
+
+Dependency on secure channel for key exchange
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The design of the Megolm ratchet relies on the availability of a secure
+peer-to-peer channel for the exchange of session keys. Any vulnerabilities in
+the underlying channel are likely to be amplified when applied to Megolm
+session setup.
+
+For example, if the peer-to-peer channel is vulnerable to an unknown key-share
+attack, the entire Megolm session become similarly vulnerable. For example:
+Alice starts a group chat with Eve, and shares the session keys with Eve. Eve
+uses the unknown key-share attack to forward the session keys to Bob, who
+believes Alice is starting the session with him. Eve then forwards messages
+from the Megolm session to Bob, who again believes they are coming from
+Alice. Provided the peer-to-peer channel is not vulnerable to this attack, Bob
+will realise that the key-sharing message was forwarded by Eve, and can treat
+the Megolm session as a forgery.
+
+A second example: if the peer-to-peer channel is vulnerable to a replay
+attack, this can be extended to entire Megolm sessions.
 
 License
 -------
