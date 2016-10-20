@@ -571,7 +571,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
 JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jobject aEncryptedMsg)
 {
     jstring decryptedMsgRetValue = 0;
-    jclass encryptedMsgJclass = 0;
+    jclass encryptedMsgJClass = 0;
     jstring encryptedMsgJstring = 0; // <= obtained from encryptedMsgFieldId
     // field IDs
     jfieldID encryptedMsgFieldId;
@@ -592,15 +592,15 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject t
     {
         LOGE("## decryptMessageJni(): failure - invalid encrypted message");
     }
-    else if(0 == (encryptedMsgJclass = env->GetObjectClass(aEncryptedMsg)))
+    else if(0 == (encryptedMsgJClass = env->GetObjectClass(aEncryptedMsg)))
     {
         LOGE("## decryptMessageJni(): failure - unable to get encrypted message class");
     }
-    else if(0 == (encryptedMsgFieldId = env->GetFieldID(encryptedMsgJclass,"mCipherText","Ljava/lang/String;")))
+    else if(0 == (encryptedMsgFieldId = env->GetFieldID(encryptedMsgJClass,"mCipherText","Ljava/lang/String;")))
     {
         LOGE("## decryptMessageJni(): failure - unable to get message field");
     }
-    else if(0 == (typeMsgFieldId = env->GetFieldID(encryptedMsgJclass,"mType","J")))
+    else if(0 == (typeMsgFieldId = env->GetFieldID(encryptedMsgJClass,"mType","J")))
     {
         LOGE("## decryptMessageJni(): failure - unable to get message type field");
     }
