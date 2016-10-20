@@ -403,8 +403,8 @@ DemoUser.prototype.decryptGroup = function(jsonpacket, callback) {
             throw new Error("Unknown session id " + session_id);
         }
 
-        var plaintext = session.decrypt(packet.body);
-        done(plaintext);
+        var result = session.decrypt(packet.body);
+        done(result.plaintext);
     }, callback);
 };
 

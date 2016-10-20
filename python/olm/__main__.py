@@ -328,7 +328,7 @@ def do_group_decrypt(args):
     session = InboundGroupSession()
     session.unpickle(args.key, read_base64_file(args.session_file))
     message = args.message_file.read()
-    plaintext = session.decrypt(message)
+    plaintext, message_index = session.decrypt(message)
     with open(args.session_file, "wb") as f:
         f.write(session.pickle(args.key))
     args.plaintext_file.write(plaintext)
