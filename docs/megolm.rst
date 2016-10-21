@@ -283,7 +283,7 @@ as a new message.
 
 To mitigate this it is recomendend that applications track the ratchet indicies
 they have recieved and that they reject messages with a ratchet index that
-they've already decrypted.
+they have already decrypted.
 
 Lack of Transcript Consistency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
