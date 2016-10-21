@@ -18,6 +18,13 @@
 
 using namespace AndroidOlmSdk;
 
+/*jstring serializeDataWithKey(JNIEnv *env, jobject thiz,
+                                jstring aKey,
+                                jobject aErrorMsg,
+                                olmPickleLengthFuncPtr<OlmAccount*> aGetLengthFunc,
+                                olmPickleFuncPtr<OlmAccount*> aGetPickleFunc,
+                                olmLastErrorFuncPtr<OlmAccount*> aGetLastErrorFunc);*/
+
 /**
 * Init memory allocation for account creation.
 * @return valid memory allocation, NULL otherwise
@@ -487,6 +494,14 @@ JNIEXPORT jstring OLM_MANAGER_FUNC_DEF(getOlmLibVersion)(JNIEnv* env, jobject th
 **/
 JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, jobject thiz, jstring aKey, jobject aErrorMsg)
 {
+    /*jstring pickledDataRetValue = serializeDataWithKey(env,thiz,
+                                                          aKey,
+                                                          aErrorMsg,
+                                                          olm_pickle_account_length,
+                                                          olm_pickle_account,
+                                                          olm_account_last_error);
+    return pickledDataRetValue;*/
+
     jstring pickledDataRetValue = 0;
     jclass errorMsgJClass = 0;
     jmethodID errorMsgMethodId = 0;

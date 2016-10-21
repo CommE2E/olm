@@ -1,5 +1,6 @@
 package org.matrix.olm;
 
+import android.content.Context;
 import android.support.test.runner.AndroidJUnit4;
 import android.text.TextUtils;
 import android.util.Log;
@@ -11,6 +12,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -19,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class OlmGroupSessionTest {
     private static final String LOG_TAG = "OlmSessionTest";
+    private final String FILE_NAME_SERIAL_SESSION = "SerialGroupSession";
 
     private static OlmManager mOlmManager;
     private static OlmOutboundGroupSession mAliceOutboundGroupSession;
@@ -141,4 +151,66 @@ public class OlmGroupSessionTest {
         // release group sessions
         mBobInboundGroupSession.releaseSession();
     }
+
+
+    @Test
+    public void test14SerializeOutboundSession() {
+        OlmOutboundGroupSession outboundGroupSessionRef=null;
+        OlmOutboundGroupSession outboundGroupSessionSerial=null;
+
+        // alice creates OUTBOUND GROUP SESSION
+        try {
+            outboundGroupSessionRef = new OlmOutboundGroupSession();
+        } catch (OlmException e) {
+            assertTrue("Exception in OlmOutboundGroupSession, Exception code=" + e.getExceptionCode(), false);
+        }
+
+        assertNotNull(outboundGroupSessionRef);
+
+
+        // serialize alice session
+        Context context = getInstrumentation().getContext();
+        try {
+            FileOutputStream fileOutput = context.openFileOutput(FILE_NAME_SERIAL_SESSION, Context.MODE_PRIVATE);
+            ObjectOutputStream objectOutput = new ObjectOutputStream(fileOutput);
+            objectOutput.writeObject(outboundGroupSessionRef);
+            objectOutput.flush();
+            objectOutput.close();
+
+            // deserialize session
+            FileInputStream fileInput = context.openFileInput(FILE_NAME_SERIAL_SESSION);
+            ObjectInputStream objectInput = new ObjectInputStream(fileInput);
+            outboundGroupSessionSerial = (OlmOutboundGroupSession) objectInput.readObject();
+            objectInput.close();
+
+            // get sessions IDs
+            String sessionKeyRef = outboundGroupSessionRef.sessionKey();
+            String sessionKeySerial = outboundGroupSessionSerial.sessionKey();
+
+            // session ID sanity check
+            assertFalse(TextUtils.isEmpty(sessionKeyRef));
+            assertFalse(TextUtils.isEmpty(sessionKeySerial));
+
+            // session IDs comparison
+            assertTrue(sessionKeyRef.equals(sessionKeySerial));
+        }
+        catch (FileNotFoundException e) {
+            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception FileNotFoundException Msg=="+e.getMessage());
+        }
+        catch (ClassNotFoundException e) {
+            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception ClassNotFoundException Msg==" + e.getMessage());
+        }
+        catch (IOException e) {
+            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception IOException Msg==" + e.getMessage());
+        }
+        /*catch (OlmException e) {
+            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception OlmException Msg==" + e.getMessage());
+        }*/
+        catch (Exception e) {
+            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception Msg==" + e.getMessage());
+        }
+
+    }
+
+
 }

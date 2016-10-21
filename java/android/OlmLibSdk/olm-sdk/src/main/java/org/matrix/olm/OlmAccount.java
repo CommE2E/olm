@@ -31,8 +31,6 @@ import java.util.Random;
 public class OlmAccount implements Serializable {
     private static final long serialVersionUID = 3497486121598434824L;
     private static final String LOG_TAG = "OlmAccount";
-    private static final int RANDOM_KEY_SIZE = 32;
-    private static final int RANDOM_RANGE = 256;
 
     // JSON keys used in the JSON objects returned by JNI
     /** As well as the identity key, each device creates a number of Curve25519 key pairs which are
@@ -63,24 +61,17 @@ public class OlmAccount implements Serializable {
         }
     }
 
-    private String getRandomKey() {
-        String keyRetValue;
-        Random rand = new Random();
-        StringBuilder strBuilder = new StringBuilder();
-
-        for(int i = 0; i< OlmAccount.RANDOM_KEY_SIZE; i++) {
-            strBuilder.append(rand.nextInt(RANDOM_RANGE));
-        }
-        keyRetValue = strBuilder.toString();
-
-        return keyRetValue;
-    }
-
+    /**
+     * Kick off the serialization mechanism.
+     * @param aOutStream output stream for serializing
+     * @throws IOException
+     * @throws OlmException
+     */
     private void writeObject(ObjectOutputStream aOutStream) throws IOException, OlmException {
         aOutStream.defaultWriteObject();
 
         // generate serialization key
-        String key = getRandomKey();
+        String key = OlmUtility.getRandomKey();
 
         // compute pickle string
         StringBuffer errorMsg = new StringBuffer();
@@ -94,6 +85,13 @@ public class OlmAccount implements Serializable {
         }
     }
 
+    /**
+     * Kick off the deserialization mechanism.
+     * @param aInStream
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws OlmException
+     */
     private void readObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException, OlmException {
         aInStream.defaultReadObject();
         StringBuffer errorMsg = new StringBuffer();
@@ -379,9 +377,4 @@ public class OlmAccount implements Serializable {
         return signMessageJni(aMessage);
     }
     private native String signMessageJni(String aMessage);
-
-    // TODO missing API: initWithSerializedData
-    // TODO missing API: serializeDataWithKey
-    // TODO missing API: initWithCoder
-    // TODO missing API: encodeWithCoder
 }

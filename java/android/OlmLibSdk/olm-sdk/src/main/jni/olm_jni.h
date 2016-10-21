@@ -55,6 +55,20 @@ namespace AndroidOlmSdk
     static const int ACCOUNT_CREATION_RANDOM_MODULO = 256;
 }
 
+
+// function pointer templates
+template<typename T> using olmPickleLengthFuncPtr = size_t (*)(T);
+template<typename T> using olmPickleFuncPtr = size_t (*)(T, void const *, size_t, void *, size_t);
+template<typename T> using olmLastErrorFuncPtr = const char* (*)(T);
+
+template <typename T>
+jstring serializeDataWithKey(JNIEnv *env, jobject thiz,
+                                jstring aKey,
+                                jobject aErrorMsg,
+                                olmPickleLengthFuncPtr<T> aGetLengthFunc,
+                                olmPickleFuncPtr<T> aGetPickleFunc,
+                                olmLastErrorFuncPtr<T> aGetLastErrorFunc);
+
 #ifdef __cplusplus
 extern "C" {
 #endif

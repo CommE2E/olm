@@ -18,6 +18,7 @@
  */
 
 #include "olm_jni_helper.h"
+#include "olm/olm.h"
 
 using namespace AndroidOlmSdk;
 
@@ -287,4 +288,98 @@ jlong getUtilityInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
   }
 
   return instanceId;
+}
+
+template <typename T>
+jstring serializeDataWithKey(JNIEnv *env, jobject thiz,
+                                jstring aKey,
+                                jobject aErrorMsg,
+                                olmPickleLengthFuncPtr<T> aGetLengthFunc,
+                                olmPickleFuncPtr<T> aGetPickleFunc,
+                                olmLastErrorFuncPtr<T> aGetLastErrorFunc)
+{
+    jstring pickledDataRetValue = 0;
+    jclass errorMsgJClass = 0;
+    jmethodID errorMsgMethodId = 0;
+    jstring errorJstring = 0;
+    const char *keyPtr = NULL;
+    void *pickledPtr = NULL;
+    T accountPtr = NULL;
+
+    LOGD("## serializeDataWithKeyJni(): IN");
+
+    if(NULL == (accountPtr = (T)getAccountInstanceId(env,thiz)))
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - invalid account ptr");
+    }
+    else if(0 == aKey)
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - invalid key");
+    }
+    else if(0 == aErrorMsg)
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - invalid error object");
+    }
+    else if(0 == (errorMsgJClass = env->GetObjectClass(aErrorMsg)))
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - unable to get error class");
+    }
+    else if(0 == (errorMsgMethodId = env->GetMethodID(errorMsgJClass, "append", "(Ljava/lang/String;)Ljava/lang/StringBuffer;")))
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - unable to get error method ID");
+    }
+    else if(NULL == (keyPtr = env->GetStringUTFChars(aKey, 0)))
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - keyPtr JNI allocation OOM");
+    }
+    else
+    {
+        size_t pickledLength = aGetLengthFunc(accountPtr);
+        size_t keyLength = (size_t)env->GetStringUTFLength(aKey);
+        LOGD(" ## serializeDataWithKeyJni(): pickledLength=%lu keyLength=%lu",pickledLength, keyLength);
+        LOGD(" ## serializeDataWithKeyJni(): key=%s",(char const *)keyPtr);
+
+        if(NULL == (pickledPtr = (void*)malloc((pickledLength+1)*sizeof(uint8_t))))
+        {
+            LOGE(" ## serializeDataWithKeyJni(): failure - pickledPtr buffer OOM");
+        }
+        else
+        {
+            size_t result = aGetPickleFunc(accountPtr,
+                                           (void const *)keyPtr,
+                                           keyLength,
+                                           (void*)pickledPtr,
+                                           pickledLength);
+            if(result == olm_error())
+            {
+                const char *errorMsgPtr = aGetLastErrorFunc(accountPtr);
+                LOGE(" ## serializeDataWithKeyJni(): failure - olm_pickle_account() Msg=%s",errorMsgPtr);
+
+                if(0 != (errorJstring = env->NewStringUTF(errorMsgPtr)))
+                {
+                    env->CallObjectMethod(aErrorMsg, errorMsgMethodId, errorJstring);
+                }
+            }
+            else
+            {
+                // build success output
+                (static_cast<char*>(pickledPtr))[pickledLength] = static_cast<char>('\0');
+                pickledDataRetValue = env->NewStringUTF((const char*)pickledPtr);
+                LOGD(" ## serializeDataWithKeyJni(): success - result=%lu pickled=%s", result, static_cast<char*>(pickledPtr));
+            }
+        }
+    }
+
+    // free alloc
+    if(NULL != keyPtr)
+    {
+     env->ReleaseStringUTFChars(aKey, keyPtr);
+    }
+
+    if(NULL != pickledPtr)
+    {
+        free(pickledPtr);
+    }
+
+    return pickledDataRetValue;
 }

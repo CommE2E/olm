@@ -42,7 +42,7 @@ public class OlmAccountTest {
     private static OlmAccount mOlmAccount;
     private static OlmManager mOlmManager;
     private boolean mIsAccountCreated;
-    final String FILE_NAME = "SerialTestFile";
+    private final String FILE_NAME = "SerialTestFile";
 
     @BeforeClass
     public static void setUpClass(){
@@ -170,7 +170,12 @@ public class OlmAccountTest {
 
     @Test
     public void test10RemoveOneTimeKeysForSession() {
-        OlmSession olmSession = new OlmSession();
+        OlmSession olmSession = null;
+        try {
+            olmSession = new OlmSession();
+        } catch (OlmException e) {
+            assertTrue("Exception Msg="+e.getMessage(), false);
+        }
         long sessionId = olmSession.getOlmSessionId();
         assertTrue(0 != sessionId);
 
@@ -230,16 +235,16 @@ public class OlmAccountTest {
 
         try {
             Context context = getInstrumentation().getContext();
-            context.getFilesDir();
+            //context.getFilesDir();
             fileOutput = context.openFileOutput(FILE_NAME, Context.MODE_PRIVATE);
 
-            // serialize
+            // serialize account
             objectOutput = new ObjectOutputStream(fileOutput);
             objectOutput.writeObject(accountRef);
             objectOutput.flush();
             objectOutput.close();
 
-            // deserialize
+            // deserialize account
             FileInputStream fileInput = context.openFileInput(FILE_NAME);
             ObjectInputStream objectInput = new ObjectInputStream(fileInput);
             accountDeserial = (OlmAccount) objectInput.readObject();
@@ -262,7 +267,6 @@ public class OlmAccountTest {
             accountRef.releaseAccount();
             accountDeserial.releaseAccount();
         }
-
         catch (FileNotFoundException e) {
             Log.e(LOG_TAG, "## test13Serialization(): Exception FileNotFoundException Msg=="+e.getMessage());
         }
@@ -278,7 +282,6 @@ public class OlmAccountTest {
         catch (Exception e) {
             Log.e(LOG_TAG, "## test13Serialization(): Exception Msg==" + e.getMessage());
         }
-
     }
 
 

@@ -41,6 +41,16 @@ OlmSession* initializeSessionMemory()
     return sessionPtr;
 }
 
+
+JNIEXPORT jlong OLM_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *env, jobject thiz)
+{
+    LOGD("## createNewSessionJni(): IN");
+    OlmSession* accountPtr = initializeSessionMemory();
+
+    LOGD(" ## createNewSessionJni(): success - accountPtr=%p (jlong)(intptr_t)accountPtr=%lld",accountPtr,(jlong)(intptr_t)accountPtr);
+    return (jlong)(intptr_t)accountPtr;
+}
+
 JNIEXPORT void OLM_SESSION_FUNC_DEF(releaseSessionJni)(JNIEnv *env, jobject thiz)
 {
   OlmSession* sessionPtr = NULL;
@@ -687,8 +697,6 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject t
 }
 
 
-
-
 /**
 * Get the session identifier for this session.
 * @return the session identifier if operation succeed, null otherwise
@@ -739,3 +747,167 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, job
     return returnValueStr;
 }
 
+
+/**
+* Serialize and encrypt session instance into a base64 string.<br>
+* @param aKey key used to encrypt the serialized session data
+* @param[out] aErrorMsg error message set if operation failed
+* @return a base64 string if operation succeed, null otherwise
+**/
+JNIEXPORT jstring OLM_SESSION_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, jobject thiz, jstring aKey, jobject aErrorMsg)
+{
+    jstring pickledDataRetValue = 0;
+    jclass errorMsgJClass = 0;
+    jmethodID errorMsgMethodId = 0;
+    jstring errorJstring = 0;
+    const char *keyPtr = NULL;
+    void *pickledPtr = NULL;
+    OlmSession* sessionPtr = NULL;
+
+    LOGD("## serializeDataWithKeyJni(): IN");
+
+    if(NULL == (sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - invalid session ptr");
+    }
+    else if(0 == aKey)
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - invalid key");
+    }
+    else if(0 == aErrorMsg)
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - invalid error object");
+    }
+    else if(0 == (errorMsgJClass = env->GetObjectClass(aErrorMsg)))
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - unable to get error class");
+    }
+    else if(0 == (errorMsgMethodId = env->GetMethodID(errorMsgJClass, "append", "(Ljava/lang/String;)Ljava/lang/StringBuffer;")))
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - unable to get error method ID");
+    }
+    else if(NULL == (keyPtr = env->GetStringUTFChars(aKey, 0)))
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - keyPtr JNI allocation OOM");
+    }
+    else
+    {
+        size_t pickledLength = olm_pickle_session_length(sessionPtr);
+        size_t keyLength = (size_t)env->GetStringUTFLength(aKey);
+        LOGD(" ## serializeDataWithKeyJni(): pickledLength=%lu keyLength=%lu",pickledLength, keyLength);
+        LOGD(" ## serializeDataWithKeyJni(): key=%s",(char const *)keyPtr);
+
+        if(NULL == (pickledPtr = (void*)malloc((pickledLength+1)*sizeof(uint8_t))))
+        {
+            LOGE(" ## serializeDataWithKeyJni(): failure - pickledPtr buffer OOM");
+        }
+        else
+        {
+            size_t result = olm_pickle_session(sessionPtr,
+                                              (void const *)keyPtr,
+                                              keyLength,
+                                              (void*)pickledPtr,
+                                              pickledLength);
+            if(result == olm_error())
+            {
+                const char *errorMsgPtr = olm_session_last_error(sessionPtr);
+                LOGE(" ## serializeDataWithKeyJni(): failure - olm_pickle_session() Msg=%s",errorMsgPtr);
+
+                if(0 != (errorJstring = env->NewStringUTF(errorMsgPtr)))
+                {
+                    env->CallObjectMethod(aErrorMsg, errorMsgMethodId, errorJstring);
+                }
+            }
+            else
+            {
+                // build success output
+                (static_cast<char*>(pickledPtr))[pickledLength] = static_cast<char>('\0');
+                pickledDataRetValue = env->NewStringUTF((const char*)pickledPtr);
+                LOGD(" ## serializeDataWithKeyJni(): success - result=%lu pickled=%s", result, static_cast<char*>(pickledPtr));
+            }
+        }
+    }
+
+    // free alloc
+    if(NULL != keyPtr)
+    {
+     env->ReleaseStringUTFChars(aKey, keyPtr);
+    }
+
+    if(NULL != pickledPtr)
+    {
+        free(pickledPtr);
+    }
+
+    return pickledDataRetValue;
+}
+
+
+JNIEXPORT jstring OLM_SESSION_FUNC_DEF(initWithSerializedDataJni)(JNIEnv *env, jobject thiz, jstring aSerializedData, jstring aKey)
+{
+    OlmSession* sessionPtr = NULL;
+    jstring errorMessageRetValue = 0;
+    const char *keyPtr = NULL;
+    const char *pickledPtr = NULL;
+
+    LOGD("## initWithSerializedDataJni(): IN");
+
+    if(NULL == (sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
+    {
+        LOGE(" ## initWithSerializedDataJni(): failure - session failure OOM");
+    }
+    else if(0 == aKey)
+    {
+        LOGE(" ## initWithSerializedDataJni(): failure - invalid key");
+    }
+    else if(0 == aSerializedData)
+    {
+        LOGE(" ## initWithSerializedDataJni(): failure - serialized data");
+    }
+    else if(NULL == (keyPtr = env->GetStringUTFChars(aKey, 0)))
+    {
+        LOGE(" ## initWithSerializedDataJni(): failure - keyPtr JNI allocation OOM");
+    }
+    else if(NULL == (pickledPtr = env->GetStringUTFChars(aSerializedData, 0)))
+    {
+        LOGE(" ## initWithSerializedDataJni(): failure - pickledPtr JNI allocation OOM");
+    }
+    else
+    {
+        size_t pickledLength = (size_t)env->GetStringUTFLength(aSerializedData);
+        size_t keyLength = (size_t)env->GetStringUTFLength(aKey);
+        LOGD(" ## initWithSerializedDataJni(): pickledLength=%lu keyLength=%lu",pickledLength, keyLength);
+        LOGD(" ## initWithSerializedDataJni(): key=%s",(char const *)keyPtr);
+        LOGD(" ## initWithSerializedDataJni(): pickled=%s",(char const *)pickledPtr);
+
+        size_t result = olm_unpickle_session(sessionPtr,
+                                             (void const *)keyPtr,
+                                             keyLength,
+                                             (void*)pickledPtr,
+                                             pickledLength);
+        if(result == olm_error())
+        {
+            const char *errorMsgPtr = olm_session_last_error(sessionPtr);
+            LOGE(" ## initWithSerializedDataJni(): failure - olm_unpickle_account() Msg=%s",errorMsgPtr);
+            errorMessageRetValue = env->NewStringUTF(errorMsgPtr);
+        }
+        else
+        {
+            LOGD(" ## initWithSerializedDataJni(): success - result=%lu ", result);
+        }
+
+    }
+
+    // free alloc
+    if(NULL != keyPtr)
+    {
+        env->ReleaseStringUTFChars(aKey, keyPtr);
+    }
+
+    if(NULL != pickledPtr)
+    {
+        env->ReleaseStringUTFChars(aSerializedData, pickledPtr);
+    }
+
+    return errorMessageRetValue;
+}
