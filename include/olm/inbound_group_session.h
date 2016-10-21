@@ -140,7 +140,8 @@ size_t olm_group_decrypt(
     uint8_t * message, size_t message_length,
 
     /* output */
-    uint8_t * plaintext, size_t max_plaintext_length
+    uint8_t * plaintext, size_t max_plaintext_length,
+    uint32_t * message_index
 );
 
 

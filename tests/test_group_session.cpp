@@ -161,10 +161,12 @@ int main() {
     memcpy(msgcopy, msg, msglen);
     size = olm_group_decrypt_max_plaintext_length(inbound_session, msgcopy, msglen);
     uint8_t plaintext_buf[size];
+    uint32_t message_index;
     res = olm_group_decrypt(inbound_session, msg, msglen,
-                            plaintext_buf, size);
+                            plaintext_buf, size, &message_index);
     assert_equals(plaintext_length, res);
     assert_equals(plaintext, plaintext_buf, res);
+    assert_equals(message_index, uint32_t(0));
 }
 
 {
@@ -208,9 +210,11 @@ int main() {
 
     memcpy(msgcopy, message, msglen);
     uint8_t plaintext_buf[size];
+    uint32_t message_index;
     res = olm_group_decrypt(
-        inbound_session, msgcopy, msglen, plaintext_buf, size
+        inbound_session, msgcopy, msglen, plaintext_buf, size, &message_index
     );
+    assert_equals(message_index, uint32_t(0));
     assert_equals(plaintext_length, res);
     assert_equals(plaintext, plaintext_buf, res);
 
@@ -227,7 +231,7 @@ int main() {
     memcpy(msgcopy, message, msglen);
     res = olm_group_decrypt(
         inbound_session, msgcopy, msglen,
-        plaintext_buf, size
+        plaintext_buf, size, &message_index
     );
     assert_equals((size_t)-1, res);
     assert_equals(
