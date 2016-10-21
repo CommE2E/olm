@@ -281,8 +281,8 @@ A message can be decrypted successfully multiple times. This means that an
 attacker can re-send a copy of an old message, and the recipient will treat it
 as a new message.
 
-To mitigate this it is recomendend that applications track the ratchet indicies
-they have recieved and that they reject messages with a ratchet index that
+To mitigate this it is recommended that applications track the ratchet indices
+they have received and that they reject messages with a ratchet index that
 they have already decrypted.
 
 Lack of Transcript Consistency
