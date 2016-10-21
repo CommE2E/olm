@@ -17,10 +17,17 @@
 package org.matrix.olm;
 
 
-public class OlmManager {
+import android.util.Log;
 
-    static {
-        java.lang.System.loadLibrary("olm");
+public class OlmManager {
+    private static final String LOG_TAG = "OlmManager";
+
+    public OlmManager() {
+        try {
+            java.lang.System.loadLibrary("olm");
+        } catch(UnsatisfiedLinkError e) {
+            Log.e(LOG_TAG,"Exception loadLibrary() - Msg="+e.getMessage());
+        }
     }
 
     /**

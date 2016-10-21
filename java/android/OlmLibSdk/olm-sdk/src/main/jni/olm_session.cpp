@@ -41,7 +41,6 @@ OlmSession* initializeSessionMemory()
     return sessionPtr;
 }
 
-
 JNIEXPORT jlong OLM_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *env, jobject thiz)
 {
     LOGD("## createNewSessionJni(): IN");

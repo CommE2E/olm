@@ -47,7 +47,8 @@ olm_account.cpp \
 olm_session.cpp \
 olm_jni_helper.cpp \
 olm_inbound_group_session.cpp \
-olm_outbound_group_session.cpp
+olm_outbound_group_session.cpp \
+olm_utility.cpp
 
 LOCAL_LDLIBS := -llog
 

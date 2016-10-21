@@ -642,7 +642,6 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(initWithSerializedDataJni)(JNIEnv *env, j
         {
             LOGD(" ## initWithSerializedDataJni(): success - result=%lu ", result);
         }
-
     }
 
     // free alloc

@@ -97,7 +97,7 @@ public class OlmSession implements Serializable {
     }
 
     /**
-     * Return an account as a base64 string.<br>
+     * Return a session as a base64 string.<br>
      * The account is serialized and encrypted with aKey.
      * In case of failure, an error human readable
      * description is provide in aErrorMsg.
@@ -124,7 +124,7 @@ public class OlmSession implements Serializable {
 
 
     /**
-     * Loads an account from a pickled base64 string.<br>
+     * Loads a session from a pickled base64 string.<br>
      * See {@link #serializeDataWithKey(String, StringBuffer)}
      * @param aSerializedData pickled account in a base64 string format
      * @param aKey key used to encrypted

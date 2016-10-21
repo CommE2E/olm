@@ -31,6 +31,8 @@ public class OlmException extends Exception {
     public static final int EXCEPTION_CODE_SESSION_DESERIALIZATION = 7;
     public static final int EXCEPTION_CODE_INIT_ACCOUNT_CREATION = 8;
     public static final int EXCEPTION_CODE_INIT_SESSION_CREATION = 9;
+    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_SERIALIZATION = 10;
+    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_DESERIALIZATION = 11;
 
     // exception human readable messages
     public static final String EXCEPTION_MSG_NEW_OUTBOUND_GROUP_SESSION = "failed to create a new outbound group Session";
@@ -39,7 +41,7 @@ public class OlmException extends Exception {
     public static final String EXCEPTION_MSG_INIT_INBOUND_GROUP_SESSION = "failed to initialize a new inbound group Session";
     public static final String EXCEPTION_MSG_INIT_NEW_ACCOUNT_DESERIALIZATION = "initNewAccount() failure";
     public static final String EXCEPTION_MSG_INIT_ACCOUNT_DESERIALIZATION = "initWithSerializedData() failure";
-    public static final String EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION = "invalid deserialized parameters";
+    public static final String EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION = "invalid de-serialized parameters";
     public static final String EXCEPTION_MSG_INIT_ACCOUNT_CREATION = "Account constructor failure";
     public static final String EXCEPTION_MSG_INIT_SESSION_CREATION = "Session constructor failure";
 

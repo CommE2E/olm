@@ -183,16 +183,27 @@ public class OlmGroupSessionTest {
             outboundGroupSessionSerial = (OlmOutboundGroupSession) objectInput.readObject();
             objectInput.close();
 
-            // get sessions IDs
+            // get sessions keys
             String sessionKeyRef = outboundGroupSessionRef.sessionKey();
             String sessionKeySerial = outboundGroupSessionSerial.sessionKey();
 
-            // session ID sanity check
+            // session keys sanity check
             assertFalse(TextUtils.isEmpty(sessionKeyRef));
             assertFalse(TextUtils.isEmpty(sessionKeySerial));
 
-            // session IDs comparison
+            // session keys comparison
             assertTrue(sessionKeyRef.equals(sessionKeySerial));
+
+            // get sessions IDs
+            String sessionIdRef = outboundGroupSessionRef.sessionIdentifier();
+            String sessionIdSerial = outboundGroupSessionSerial.sessionIdentifier();
+
+            // session ID sanity check
+            assertFalse(TextUtils.isEmpty(sessionIdRef));
+            assertFalse(TextUtils.isEmpty(sessionIdSerial));
+
+            // session IDs comparison
+            assertTrue(sessionIdRef.equals(sessionIdSerial));
         }
         catch (FileNotFoundException e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception FileNotFoundException Msg=="+e.getMessage());

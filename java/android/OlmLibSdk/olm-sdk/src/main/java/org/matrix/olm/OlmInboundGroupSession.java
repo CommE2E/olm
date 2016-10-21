@@ -26,7 +26,7 @@ import android.util.Log;
 import java.io.Serializable;
 
 public class OlmInboundGroupSession implements Serializable {
-
+    private static final long serialVersionUID = -772028491251653253L;
     private static final String LOG_TAG = "OlmInboundGroupSession";
 
     /** session raw pointer value returned by JNI.<br>
