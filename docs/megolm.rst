@@ -274,6 +274,16 @@ bytes preceding the signature.
 Limitations
 -----------
 
+Message Replays
+---------------
+
+A message can be decrypted successfully multiple times. This means that a MITM
+server can send multiple copies of a message and they will successfully decrypt.
+
+To mitigate this it is recomendend that applications track the message indicies
+they have recieved and that they reject messages with indicies that they've
+already decrypted.
+
 Lack of Transcript Consistency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
