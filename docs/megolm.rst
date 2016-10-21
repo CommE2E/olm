@@ -277,12 +277,13 @@ Limitations
 Message Replays
 ---------------
 
-A message can be decrypted successfully multiple times. This means that a MITM
-server can send multiple copies of a message and they will successfully decrypt.
+A message can be decrypted successfully multiple times. This means that an
+attacker can re-send a copy of an old message, and the recipient will treat it
+as a new message.
 
-To mitigate this it is recomendend that applications track the message indicies
-they have recieved and that they reject messages with indicies that they've
-already decrypted.
+To mitigate this it is recomendend that applications track the ratchet indicies
+they have recieved and that they reject messages with a ratchet index that
+they've already decrypted.
 
 Lack of Transcript Consistency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
