@@ -20,9 +20,13 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.Serializable;
+import java.util.Random;
 
-public class OlmUtility implements Serializable {
+public class OlmUtility {
     private static final String LOG_TAG = "OlmUtility";
+
+    public static final int RANDOM_KEY_SIZE = 32;
+    public static final int RANDOM_RANGE = 256;
 
     /** raw pointer value returned by JNI.
      * this value uniquely identifies this utility instance.
@@ -128,9 +132,17 @@ public class OlmUtility implements Serializable {
     private native String sha256Jni(String aMessage);
 
 
-    // TODO missing API: initWithSerializedData
-    // TODO missing API: serializeDataWithKey
-    // TODO missing API: initWithCoder
-    // TODO missing API: encodeWithCoder
+    public static String getRandomKey() {
+        String keyRetValue;
+        Random rand = new Random();
+        StringBuilder strBuilder = new StringBuilder();
+
+        for(int i = 0; i< RANDOM_KEY_SIZE; i++) {
+            strBuilder.append(rand.nextInt(RANDOM_RANGE));
+        }
+        keyRetValue = strBuilder.toString();
+
+        return keyRetValue;
+    }
 }
 
