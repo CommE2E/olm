@@ -119,8 +119,7 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(initNewAccountJni)(JNIEnv *env, jobject thi
             // create account
             accountRetCode = olm_create_account(accountPtr, (void*)randomBuffPtr, randomSize);
             if(accountRetCode == olm_error()) {
-                const char *errorMsgPtr = olm_account_last_error(accountPtr);
-                LOGE("## initNewAccount(): failure - account creation failed Msg=%s", errorMsgPtr);
+                LOGE("## initNewAccount(): failure - account creation failed Msg=%s", (const char *)olm_account_last_error(accountPtr));
              }
 
             LOGD("## initNewAccount(): success - OLM account created");
@@ -171,8 +170,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(identityKeysJni)(JNIEnv *env, jobject 
         {   // retrieve key pairs in identityKeysBytesPtr
             keysResult = olm_account_identity_keys(accountPtr, identityKeysBytesPtr, identityKeysLength);
             if(keysResult == olm_error()) {
-                const char *errorMsgPtr = olm_account_last_error(accountPtr);
-                LOGE("## identityKeys(): failure - error getting identity keys Msg=%s",errorMsgPtr);
+                LOGE("## identityKeys(): failure - error getting identity keys Msg=%s",(const char *)olm_account_last_error(accountPtr));
             }
             else
             {   // allocate the byte array to be returned to java
@@ -253,8 +251,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeys)(JNIEnv *env, jobject th
             // retrieve key pairs in keysBytesPtr
             result = olm_account_generate_one_time_keys(accountPtr, (size_t)aNumberOfKeys, (void*)randomBufferPtr, randomLength);
             if(result == olm_error()) {
-                const char *errorMsgPtr = olm_account_last_error(accountPtr);
-                LOGE("## generateOneTimeKeys(): failure - error generating one time keys Msg=%s",errorMsgPtr);
+                LOGE("## generateOneTimeKeys(): failure - error generating one time keys Msg=%s",(const char *)olm_account_last_error(accountPtr));
             }
             else
             {
@@ -302,8 +299,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(oneTimeKeysJni)(JNIEnv *env, jobject t
         {   // retrieve key pairs in keysBytesPtr
             keysResult = olm_account_one_time_keys(accountPtr, keysBytesPtr, keysLength);
             if(keysResult == olm_error()) {
-                const char *errorMsgPtr = olm_account_last_error(accountPtr);
-                LOGE("## oneTimeKeysJni(): failure - error getting one time keys Msg=%s",errorMsgPtr);
+                LOGE("## oneTimeKeysJni(): failure - error getting one time keys Msg=%s",(const char *)olm_account_last_error(accountPtr));
             }
             else
             {   // allocate the byte array to be returned to java
@@ -351,8 +347,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysForSessionJni)(JNIEnv *env,
         result = olm_remove_one_time_keys(accountPtr, sessionPtr);
         if(result == olm_error())
         {   // the account doesn't have any matching "one time keys"..
-            const char *errorMsgPtr = olm_account_last_error(accountPtr);
-            LOGW("## removeOneTimeKeysForSessionJni(): failure - removing one time keys Msg=%s",errorMsgPtr);
+            LOGW("## removeOneTimeKeysForSessionJni(): failure - removing one time keys Msg=%s",(const char *)olm_account_last_error(accountPtr));
 
             retCode = ERROR_CODE_NO_MATCHING_ONE_TIME_KEYS;
         }
@@ -386,8 +381,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublishedJni)(JNIEnv *env, 
         result = olm_account_mark_keys_as_published(accountPtr);
         if(result == olm_error())
         {
-            const char *errorMsgPtr = olm_account_last_error(accountPtr);
-            LOGW("## markOneTimeKeysAsPublishedJni(): failure - Msg=%s",errorMsgPtr);
+            LOGW("## markOneTimeKeysAsPublishedJni(): failure - Msg=%s",(const char *)olm_account_last_error(accountPtr));
             retCode = ERROR_CODE_KO;
         }
         else
@@ -448,8 +442,7 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz
                                              signatureLength);
                 if(resultSign == olm_error())
                 {
-                    const char *errorMsgPtr = olm_account_last_error(accountPtr);
-                    LOGE("## signMessageJni(): failure - error signing message Msg=%s",errorMsgPtr);
+                    LOGE("## signMessageJni(): failure - error signing message Msg=%s",(const char *)olm_account_last_error(accountPtr));
                 }
                 else
                 {

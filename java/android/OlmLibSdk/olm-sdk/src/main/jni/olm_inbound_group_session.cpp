@@ -38,7 +38,7 @@ JNIEXPORT void OLM_INBOUND_GROUP_SESSION_FUNC_DEF(releaseSessionJni)(JNIEnv *env
     LOGD(" ## releaseSessionJni(): sessionPtr=%p",sessionPtr);
 
     size_t retCode = olm_clear_inbound_group_session(sessionPtr);
-    LOGD(" ## releaseSessionJni(): clear_inbound_group_session=%lu",retCode);
+    LOGI(" ## releaseSessionJni(): clear_inbound_group_session=%lu",retCode);
 
     LOGD(" ## releaseSessionJni(): free IN");
     free(sessionPtr);
@@ -52,26 +52,26 @@ JNIEXPORT void OLM_INBOUND_GROUP_SESSION_FUNC_DEF(releaseSessionJni)(JNIEnv *env
 * to make the cast (OlmInboundGroupSession* => jlong) platform independent.
 * @return the initialized OlmInboundGroupSession* instance if init succeed, NULL otherwise
 **/
-JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(initNewSessionJni)(JNIEnv *env, jobject thiz)
+JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *env, jobject thiz)
 {
     OlmInboundGroupSession* sessionPtr = NULL;
     size_t sessionSize = 0;
 
-    LOGD("## initNewSessionJni(): inbound group session IN");
+    LOGD("## createNewSessionJni(): inbound group session IN");
     sessionSize = olm_inbound_group_session_size();
 
     if(0 == sessionSize)
     {
-        LOGE(" ## initNewSessionJni(): failure - inbound group session size = 0");
+        LOGE(" ## createNewSessionJni(): failure - inbound group session size = 0");
     }
     else if(NULL != (sessionPtr=(OlmInboundGroupSession*)malloc(sessionSize)))
     {
       sessionPtr = olm_inbound_group_session(sessionPtr);
-      LOGD(" ## initNewSessionJni(): success - inbound group session size=%lu",sessionSize);
+      LOGD(" ## createNewSessionJni(): success - inbound group session size=%lu",sessionSize);
     }
     else
     {
-      LOGE(" ## initNewSessionJni(): failure - inbound group session OOM");
+      LOGE(" ## createNewSessionJni(): failure - inbound group session OOM");
     }
 
     return (jlong)(intptr_t)sessionPtr;
@@ -160,8 +160,7 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEn
             size_t result = olm_inbound_group_session_id(sessionPtr, sessionIdPtr, lengthSessionId);
             if (result == olm_error())
             {
-                const char *errorMsgPtr = olm_inbound_group_session_last_error(sessionPtr);
-                LOGE(" ## sessionIdentifierJni(): failure - get inbound group session identifier failure Msg=%s",errorMsgPtr);
+                LOGE(" ## sessionIdentifierJni(): failure - get inbound group session identifier failure Msg=%s",(const char *)olm_inbound_group_session_last_error(sessionPtr));
             }
             else
             {
@@ -221,8 +220,7 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
                                                                                encryptedMsgLength);
             if(maxPlainTextLength == olm_error())
             {
-                const char *errorMsgPtr = olm_inbound_group_session_last_error(sessionPtr);
-                LOGE(" ## decryptMessageJni(): failure - olm_group_decrypt_max_plaintext_length Msg=%s",errorMsgPtr);
+                LOGE(" ## decryptMessageJni(): failure - olm_group_decrypt_max_plaintext_length Msg=%s",(const char *)olm_inbound_group_session_last_error(sessionPtr));
             }
             else
             {
@@ -240,8 +238,7 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
                                                            maxPlainTextLength);
                 if(plaintextLength == olm_error())
                 {
-                    const char *errorMsgPtr = olm_inbound_group_session_last_error(sessionPtr);
-                    LOGE(" ## decryptMessageJni(): failure - olm_group_decrypt Msg=%s",errorMsgPtr);
+                    LOGE(" ## decryptMessageJni(): failure - olm_group_decrypt Msg=%s",(const char *)olm_inbound_group_session_last_error(sessionPtr));
                 }
                 else
                 {
@@ -275,4 +272,165 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
 }
 
 
+/**
+* Serialize and encrypt session instance into a base64 string.<br>
+* @param aKey key used to encrypt the serialized session data
+* @param[out] aErrorMsg error message set if operation failed
+* @return a base64 string if operation succeed, null otherwise
+**/
+JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, jobject thiz, jstring aKey, jobject aErrorMsg)
+{
+    jstring pickledDataRetValue = 0;
+    jclass errorMsgJClass = 0;
+    jmethodID errorMsgMethodId = 0;
+    jstring errorJstring = 0;
+    const char *keyPtr = NULL;
+    void *pickledPtr = NULL;
+    OlmInboundGroupSession* sessionPtr = NULL;
 
+    LOGD("## inbound group session serializeDataWithKeyJni(): IN");
+
+    if(NULL == (sessionPtr = (OlmInboundGroupSession*)getInboundGroupSessionInstanceId(env,thiz)))
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - invalid session ptr");
+    }
+    else if(0 == aKey)
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - invalid key");
+    }
+    else if(0 == aErrorMsg)
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - invalid error object");
+    }
+    else if(0 == (errorMsgJClass = env->GetObjectClass(aErrorMsg)))
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - unable to get error class");
+    }
+    else if(0 == (errorMsgMethodId = env->GetMethodID(errorMsgJClass, "append", "(Ljava/lang/String;)Ljava/lang/StringBuffer;")))
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - unable to get error method ID");
+    }
+    else if(NULL == (keyPtr = env->GetStringUTFChars(aKey, 0)))
+    {
+        LOGE(" ## serializeDataWithKeyJni(): failure - keyPtr JNI allocation OOM");
+    }
+    else
+    {
+        size_t pickledLength = olm_pickle_inbound_group_session_length(sessionPtr);
+        size_t keyLength = (size_t)env->GetStringUTFLength(aKey);
+        LOGD(" ## serializeDataWithKeyJni(): pickledLength=%lu keyLength=%lu",pickledLength, keyLength);
+        LOGD(" ## serializeDataWithKeyJni(): key=%s",(char const *)keyPtr);
+
+        if(NULL == (pickledPtr = (void*)malloc((pickledLength+1)*sizeof(uint8_t))))
+        {
+            LOGE(" ## serializeDataWithKeyJni(): failure - pickledPtr buffer OOM");
+        }
+        else
+        {
+            size_t result = olm_pickle_inbound_group_session(sessionPtr,
+                                                             (void const *)keyPtr,
+                                                              keyLength,
+                                                              (void*)pickledPtr,
+                                                              pickledLength);
+            if(result == olm_error())
+            {
+                const char *errorMsgPtr = olm_inbound_group_session_last_error(sessionPtr);
+                LOGE(" ## serializeDataWithKeyJni(): failure - olm_pickle_outbound_group_session() Msg=%s",errorMsgPtr);
+
+                if(0 != (errorJstring = env->NewStringUTF(errorMsgPtr)))
+                {
+                    env->CallObjectMethod(aErrorMsg, errorMsgMethodId, errorJstring);
+                }
+            }
+            else
+            {
+                // build success output
+                (static_cast<char*>(pickledPtr))[pickledLength] = static_cast<char>('\0');
+                pickledDataRetValue = env->NewStringUTF((const char*)pickledPtr);
+                LOGD(" ## serializeDataWithKeyJni(): success - result=%lu pickled=%s", result, static_cast<char*>(pickledPtr));
+            }
+        }
+    }
+
+    // free alloc
+    if(NULL != keyPtr)
+    {
+     env->ReleaseStringUTFChars(aKey, keyPtr);
+    }
+
+    if(NULL != pickledPtr)
+    {
+        free(pickledPtr);
+    }
+
+    return pickledDataRetValue;
+}
+
+
+JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(initWithSerializedDataJni)(JNIEnv *env, jobject thiz, jstring aSerializedData, jstring aKey)
+{
+    OlmInboundGroupSession* sessionPtr = NULL;
+    jstring errorMessageRetValue = 0;
+    const char *keyPtr = NULL;
+    const char *pickledPtr = NULL;
+
+    LOGD("## initWithSerializedDataJni(): IN");
+
+    if(NULL == (sessionPtr = (OlmInboundGroupSession*)getInboundGroupSessionInstanceId(env,thiz)))
+    {
+        LOGE(" ## initWithSerializedDataJni(): failure - session failure OOM");
+    }
+    else if(0 == aKey)
+    {
+        LOGE(" ## initWithSerializedDataJni(): failure - invalid key");
+    }
+    else if(0 == aSerializedData)
+    {
+        LOGE(" ## initWithSerializedDataJni(): failure - serialized data");
+    }
+    else if(NULL == (keyPtr = env->GetStringUTFChars(aKey, 0)))
+    {
+        LOGE(" ## initWithSerializedDataJni(): failure - keyPtr JNI allocation OOM");
+    }
+    else if(NULL == (pickledPtr = env->GetStringUTFChars(aSerializedData, 0)))
+    {
+        LOGE(" ## initWithSerializedDataJni(): failure - pickledPtr JNI allocation OOM");
+    }
+    else
+    {
+        size_t pickledLength = (size_t)env->GetStringUTFLength(aSerializedData);
+        size_t keyLength = (size_t)env->GetStringUTFLength(aKey);
+        LOGD(" ## initWithSerializedDataJni(): pickledLength=%lu keyLength=%lu",pickledLength, keyLength);
+        LOGD(" ## initWithSerializedDataJni(): key=%s",(char const *)keyPtr);
+        LOGD(" ## initWithSerializedDataJni(): pickled=%s",(char const *)pickledPtr);
+
+        size_t result = olm_unpickle_inbound_group_session(sessionPtr,
+                                                           (void const *)keyPtr,
+                                                           keyLength,
+                                                           (void*)pickledPtr,
+                                                           pickledLength);
+        if(result == olm_error())
+        {
+            const char *errorMsgPtr = olm_inbound_group_session_last_error(sessionPtr);
+            LOGE(" ## initWithSerializedDataJni(): failure - olm_unpickle_inbound_group_session() Msg=%s",errorMsgPtr);
+            errorMessageRetValue = env->NewStringUTF(errorMsgPtr);
+        }
+        else
+        {
+            LOGD(" ## initWithSerializedDataJni(): success - result=%lu ", result);
+        }
+    }
+
+    // free alloc
+    if(NULL != keyPtr)
+    {
+        env->ReleaseStringUTFChars(aKey, keyPtr);
+    }
+
+    if(NULL != pickledPtr)
+    {
+        env->ReleaseStringUTFChars(aSerializedData, pickledPtr);
+    }
+
+    return errorMessageRetValue;
+}

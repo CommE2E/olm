@@ -19,7 +19,6 @@ package org.matrix.olm;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.Serializable;
 import java.util.Random;
 
 public class OlmUtility {
@@ -31,18 +30,10 @@ public class OlmUtility {
     /** raw pointer value returned by JNI.
      * this value uniquely identifies this utility instance.
      **/
-    private long mNativeOlmUtilityId;
+    private long mNativeId;
 
     public OlmUtility() {
         initUtility();
-    }
-
-    /**
-     * Getter on the session ID.
-     * @return native session ID
-     */
-    public long getOlmUtilityId(){
-        return mNativeOlmUtilityId;
     }
 
     /**
@@ -52,7 +43,7 @@ public class OlmUtility {
      */
     private boolean initUtility() {
         boolean retCode = false;
-        if(0 != (mNativeOlmUtilityId = initUtilityJni())){
+        if(0 != (mNativeId = initUtilityJni())){
             retCode = true;
         }
         return retCode;
@@ -65,7 +56,7 @@ public class OlmUtility {
      */
     public void releaseUtility(){
         releaseUtilityJni();
-        mNativeOlmUtilityId = 0;
+        mNativeId = 0;
     }
     private native void releaseUtilityJni();
 

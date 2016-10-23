@@ -203,8 +203,7 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jst
                                        hashLength);
             if(result == olm_error())
             {
-                const char *errorMsgPtr = olm_utility_last_error(utilityPtr);
-                LOGE("## sha256Jni(): failure - hash creation Msg=%s",errorMsgPtr);
+                LOGE("## sha256Jni(): failure - hash creation Msg=%s",(const char *)olm_utility_last_error(utilityPtr));
             }
             else
             {

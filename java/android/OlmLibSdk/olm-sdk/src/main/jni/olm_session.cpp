@@ -161,8 +161,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initOutboundSessionJni)(JNIEnv *env, jobject
                                                             (void*)randomBuffPtr,
                                                             randomSize);
                 if(sessionResult == olm_error()) {
-                    const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-                    LOGE("## initOutboundSessionJni(): failure - session creation  Msg=%s",errorMsgPtr);
+                    LOGE("## initOutboundSessionJni(): failure - session creation  Msg=%s",(const char *)olm_session_last_error(sessionPtr));
                 }
                 else
                 {
@@ -236,8 +235,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionJni)(JNIEnv *env, jobject 
 
             sessionResult = olm_create_inbound_session(sessionPtr, accountPtr, (void*)messagePtr , messageLength);
             if(sessionResult == olm_error()) {
-                const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-                LOGE("## initInboundSessionJni(): failure - init inbound session creation  Msg=%s",errorMsgPtr);
+                LOGE("## initInboundSessionJni(): failure - init inbound session creation  Msg=%s",(const char *)olm_session_last_error(sessionPtr));
             }
             else
             {
@@ -302,8 +300,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionFromIdKeyJni)(JNIEnv *env,
 
         sessionResult = olm_create_inbound_session_from(sessionPtr, accountPtr, theirIdentityKeyPtr, theirIdentityKeyLength, (void*)messagePtr , messageLength);
         if(sessionResult == olm_error()) {
-            const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-            LOGE("## initInboundSessionFromIdKeyJni(): failure - init inbound session creation  Msg=%s",errorMsgPtr);
+            LOGE("## initInboundSessionFromIdKeyJni(): failure - init inbound session creation  Msg=%s",(const char *)olm_session_last_error(sessionPtr));
         }
         else
         {
@@ -355,8 +352,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(matchesInboundSessionJni)(JNIEnv *env, jobje
 
         size_t matchResult = olm_matches_inbound_session(sessionPtr, (void*)messagePtr , messageLength);
         if(matchResult == olm_error()) {
-            const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-            LOGE("## matchesInboundSessionJni(): failure - no match  Msg=%s",errorMsgPtr);
+            LOGE("## matchesInboundSessionJni(): failure - no match  Msg=%s",(const char *)olm_session_last_error(sessionPtr));
         }
         else
         {
@@ -416,8 +412,7 @@ JNIEXPORT jint JNICALL OLM_SESSION_FUNC_DEF(matchesInboundSessionFromIdKeyJni)(J
 
         size_t matchResult = olm_matches_inbound_session_from(sessionPtr, (void const *)theirIdentityKeyPtr, identityKeyLength, (void*)messagePtr , messageLength);
         if(matchResult == olm_error()) {
-            const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-            LOGE("## matchesInboundSessionFromIdKeyJni(): failure - no match  Msg=%s",errorMsgPtr);
+            LOGE("## matchesInboundSessionFromIdKeyJni(): failure - no match  Msg=%s",(const char *)olm_session_last_error(sessionPtr));
         }
         else
         {
@@ -529,8 +524,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
                                             encryptedMsgLength);
                 if(result == olm_error())
                 {
-                    const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-                    LOGE("## encryptMessageJni(): failure - Msg=%s",errorMsgPtr);
+                    LOGE("## encryptMessageJni(): failure - Msg=%s",(const char *)olm_session_last_error(sessionPtr));
                 }
                 else
                 {
@@ -542,11 +536,10 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
 
                     // update message: encryptedMsgPtr => encryptedJstring
                     jstring encryptedJstring = env->NewStringUTF((const char*)encryptedMsgPtr);
-                    size_t encryptedUtfMsgLength = (size_t)env->GetStringUTFLength(encryptedJstring);
                     env->SetObjectField(aEncryptedMsg, encryptedMsgFieldId, (jobject)encryptedJstring);
 
                     retCode = ERROR_CODE_OK;
-                    LOGD("## encryptMessageJni(): success - result=%lu Type=%lu utfLength=%lu encryptedMsg=%s", result, messageType, encryptedUtfMsgLength, (const char*)encryptedMsgPtr);
+                    LOGD("## encryptMessageJni(): success - result=%lu Type=%lu utfLength=%lu encryptedMsg=%s", result, messageType, (size_t)env->GetStringUTFLength(encryptedJstring), (const char*)encryptedMsgPtr);
                 }
             }
         }
@@ -642,8 +635,7 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject t
 
         if(maxPlainTextLength == olm_error())
         {
-            const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-            LOGE("## decryptMessageJni(): failure - olm_decrypt_max_plaintext_length Msg=%s",errorMsgPtr);
+            LOGE("## decryptMessageJni(): failure - olm_decrypt_max_plaintext_length Msg=%s",(const char *)olm_session_last_error(sessionPtr));
         }
         else
         {
@@ -662,8 +654,7 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject t
                                                  maxPlainTextLength);
             if(plaintextLength == olm_error())
             {
-                const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-                LOGE("## decryptMessageJni(): failure - olm_decrypt Msg=%s",errorMsgPtr);
+                LOGE("## decryptMessageJni(): failure - olm_decrypt Msg=%s",(const char *)olm_session_last_error(sessionPtr));
             }
             else
             {
@@ -728,8 +719,7 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, job
 
             if (result == olm_error())
             {
-                const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-                LOGE("## getSessionIdentifierJni(): failure - get session identifier failure Msg=%s",errorMsgPtr);
+                LOGE("## getSessionIdentifierJni(): failure - get session identifier failure Msg=%s",(const char *)olm_session_last_error(sessionPtr));
             }
             else
             {

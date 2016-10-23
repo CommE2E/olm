@@ -63,12 +63,13 @@ bool setRandomInBuffer(uint8_t **aBuffer2Ptr, size_t aRandomSize)
 
 
 /**
-* Read the account instance ID of the calling object.
+* Read the instance ID of the calling object.
 * @param aJniEnv pointer pointing on the JNI function table
 * @param aJavaObject reference to the object on which the method is invoked
+* @param aCallingClass java calling clas name
 * @return the instance ID if operation succeed, -1 if instance ID was not found.
 **/
-jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
+jlong getInstanceId(JNIEnv* aJniEnv, jobject aJavaObject, const char *aCallingClass)
 {
   jlong instanceId = 0;
   jfieldID instanceIdField;
@@ -77,7 +78,7 @@ jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 
   if(NULL!=aJniEnv)
   {
-    requiredClass = aJniEnv->FindClass(CLASS_OLM_ACCOUNT);
+    requiredClass = aJniEnv->FindClass(aCallingClass);
 
     if((0 != requiredClass) && (JNI_TRUE != aJniEnv->IsInstanceOf(aJavaObject, requiredClass)))
     {
@@ -85,29 +86,43 @@ jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
     }
     else if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
     {
-      if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmAccountId", "J")))
+      if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeId", "J")))
       {
         instanceId = aJniEnv->GetLongField(aJavaObject, instanceIdField);
         aJniEnv->DeleteLocalRef(loaderClass);
-        LOGD("## getAccountInstanceId(): read from java instanceId=%lld",instanceId);
+        LOGD("## getInstanceId(): read from java instanceId=%lld",instanceId);
       }
       else
       {
-        LOGE("## getAccountInstanceId() ERROR! GetFieldID=null");
+        LOGE("## getInstanceId() ERROR! GetFieldID=null");
       }
     }
     else
     {
-      LOGE("## getAccountInstanceId() ERROR! GetObjectClass=null");
+      LOGE("## getInstanceId() ERROR! GetObjectClass=null");
     }
   }
   else
   {
-    LOGE("## getAccountInstanceId() ERROR! aJniEnv=NULL");
+    LOGE("## getInstanceId() ERROR! aJniEnv=NULL");
   }
-  LOGD("## getAccountInstanceId() success - instanceId=%p (jlong)(intptr_t)instanceId=%lld",(void*)instanceId, (jlong)(intptr_t)instanceId);
+  LOGD("## getInstanceId() success - instanceId=%p (jlong)(intptr_t)instanceId=%lld",(void*)instanceId, (jlong)(intptr_t)instanceId);
   return instanceId;
 }
+
+/**
+* Read the account instance ID of the calling object.
+* @param aJniEnv pointer pointing on the JNI function table
+* @param aJavaObject reference to the object on which the method is invoked
+* @return the instance ID if operation succeed, -1 if instance ID was not found.
+**/
+jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
+{
+  jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_ACCOUNT);
+  return instanceId;
+}
+
+
 
 /**
 * Read the session instance ID of the calling object (aJavaObject).<br>
@@ -117,45 +132,9 @@ jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 **/
 jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 {
-  jlong instanceId = 0;
-  jfieldID instanceIdField;
-  jclass loaderClass;
-  jclass requiredClass = 0;
-
-  if(NULL!=aJniEnv)
-  {
-    requiredClass = aJniEnv->FindClass(CLASS_OLM_SESSION);
-
-    if((0 != requiredClass) && (JNI_TRUE != aJniEnv->IsInstanceOf(aJavaObject, requiredClass)))
-    {
-        LOGE("## getSessionInstanceId() failure - invalid instance of");
-    }
-    else if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
-    {
-      if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmSessionId", "J")))
-      {
-        instanceId = aJniEnv->GetLongField(aJavaObject, instanceIdField);
-        aJniEnv->DeleteLocalRef(loaderClass);
-      }
-      else
-      {
-        LOGE("## getSessionInstanceId() ERROR! GetFieldID=null");
-      }
-    }
-    else
-    {
-      LOGE("## getSessionInstanceId() ERROR! GetObjectClass=null");
-    }
-  }
-  else
-  {
-    LOGE("## getSessionInstanceId() ERROR! aJniEnv=NULL");
-  }
-
-  //LOGD("## getSessionInstanceId() success - instanceId=%lld",instanceId);
+  jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_SESSION);
   return instanceId;
 }
-
 
 /**
 * Read the inbound group session instance ID of the calling object (aJavaObject).<br>
@@ -165,41 +144,7 @@ jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 **/
 jlong getInboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 {
-  jlong instanceId = 0;
-  jfieldID instanceIdField;
-  jclass loaderClass;
-  jclass requiredClass = 0;
-
-  if(NULL!=aJniEnv)
-  {
-    requiredClass = aJniEnv->FindClass(CLASS_OLM_INBOUND_GROUP_SESSION);
-
-    if((0 != requiredClass) && (JNI_TRUE != aJniEnv->IsInstanceOf(aJavaObject, requiredClass)))
-    {
-      LOGE("## getInboundGroupSessionInstanceId() failure - invalid instance of");
-    }
-    else if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
-    {
-      if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmInboundGroupSessionId", "J")))
-      {
-        instanceId = aJniEnv->GetLongField(aJavaObject, instanceIdField);
-        aJniEnv->DeleteLocalRef(loaderClass);
-      }
-      else
-      {
-        LOGE("## getInboundGroupSessionInstanceId() ERROR! GetFieldID=null");
-      }
-    }
-    else
-    {
-      LOGE("## getInboundGroupSessionInstanceId() ERROR! GetObjectClass=null");
-    }
-  }
-  else
-  {
-    LOGE("## getInboundGroupSessionInstanceId() ERROR! aJniEnv=NULL");
-  }
-
+  jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_INBOUND_GROUP_SESSION);
   return instanceId;
 }
 
@@ -212,83 +157,22 @@ jlong getInboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 **/
 jlong getOutboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 {
-  jlong instanceId = 0;
-  jfieldID instanceIdField;
-  jclass loaderClass;
-  jclass requiredClass = 0;
-
-  if(NULL!=aJniEnv)
-  {
-    requiredClass = aJniEnv->FindClass(CLASS_OLM_OUTBOUND_GROUP_SESSION);
-
-    if((0 != requiredClass) && (JNI_TRUE != aJniEnv->IsInstanceOf(aJavaObject, requiredClass)))
-    {
-        LOGE("## getOutboundGroupSessionInstanceId() failure - invalid instance of");
-    }
-    else if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
-    {
-      if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmOutboundGroupSessionId", "J")))
-      {
-        instanceId = aJniEnv->GetLongField(aJavaObject, instanceIdField);
-        aJniEnv->DeleteLocalRef(loaderClass);
-      }
-      else
-      {
-        LOGE("## getOutboundGroupSessionInstanceId() ERROR! GetFieldID=null");
-      }
-    }
-    else
-    {
-      LOGE("## getOutboundGroupSessionInstanceId() ERROR! GetObjectClass=null");
-    }
-  }
-  else
-  {
-    LOGE("## getOutboundGroupSessionInstanceId() ERROR! aJniEnv=NULL");
-  }
-
+  jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_OUTBOUND_GROUP_SESSION);
   return instanceId;
 }
 
+/**
+* Read the utility instance ID of the calling object (aJavaObject).<br>
+* @param aJniEnv pointer pointing on the JNI function table
+* @param aJavaObject reference to the object on which the method is invoked
+* @return the instance ID if read succeed, -1 otherwise.
+**/
 jlong getUtilityInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 {
-  jlong instanceId = 0;
-  jfieldID instanceIdField;
-  jclass loaderClass;
-  jclass requiredClass = 0;
-
-  if(NULL!=aJniEnv)
-  {
-    requiredClass = aJniEnv->FindClass(CLASS_OLM_UTILITY);
-
-    if((0 != requiredClass) && (JNI_TRUE != aJniEnv->IsInstanceOf(aJavaObject, requiredClass)))
-    {
-        LOGE("## getUtilityInstanceId() failure - invalid instance of");
-    }
-    else if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
-    {
-      if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeOlmUtilityId", "J")))
-      {
-        instanceId = aJniEnv->GetLongField(aJavaObject, instanceIdField);
-        aJniEnv->DeleteLocalRef(loaderClass);
-      }
-      else
-      {
-        LOGE("## getUtilityInstanceId() ERROR! GetFieldID=null");
-      }
-    }
-    else
-    {
-      LOGE("## getUtilityInstanceId() ERROR! GetObjectClass=null");
-    }
-  }
-  else
-  {
-    LOGE("## getUtilityInstanceId() ERROR! aJniEnv=NULL");
-  }
-
+  jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_UTILITY);
   return instanceId;
 }
+
 
 template <typename T>
 jstring serializeDataWithKey(JNIEnv *env, jobject thiz,

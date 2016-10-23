@@ -32,25 +32,17 @@ public class OlmOutboundGroupSession implements Serializable {
     /** session raw pointer value returned by JNI.<br>
      * this value uniquely identifies the native inbound group session instance.
      */
-    private long mNativeOlmOutboundGroupSessionId;
-
-    /**
-     * Getter on the native outbound group session ID.
-     * @return native outbound group session ID
-     */
-    public long getOlmInboundGroupSessionId(){
-        return mNativeOlmOutboundGroupSessionId;
-    }
+    private transient long mNativeId;
 
     /**
      * Constructor.<br>
      * Create and save a new session native instance ID and
      * initialise a new outbound group session.<br>
-     * See {@link #initNewSession()} and {@link #initOutboundGroupSession()}
+     * See {@link #createNewSession()} and {@link #initOutboundGroupSession()}
      * @throws OlmException constructor failure
      */
     public OlmOutboundGroupSession() throws OlmException {
-        if(initNewSession()) {
+        if(createNewSession()) {
             if( 0 != initOutboundGroupSession()) {
                 releaseSession();// prevent memory leak before throwing
                 throw new OlmException(OlmException.EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION, OlmException.EXCEPTION_MSG_INIT_OUTBOUND_GROUP_SESSION);
@@ -104,7 +96,7 @@ public class OlmOutboundGroupSession implements Serializable {
         } else if(TextUtils.isEmpty(pickledData)) {
             throw new OlmException(OlmException.EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_DESERIALIZATION, OlmException.EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION+" pickle");
 
-        } else if(!initNewSession()) {
+        } else if(!createNewSession()) {
             throw new OlmException(OlmException.EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_DESERIALIZATION, OlmException.EXCEPTION_MSG_INIT_NEW_ACCOUNT_DESERIALIZATION);
 
         } else if(!initWithSerializedData(pickledData, key, errorMsg)) {
@@ -180,26 +172,26 @@ public class OlmOutboundGroupSession implements Serializable {
      */
     public void releaseSession() {
         releaseSessionJni();        
-        mNativeOlmOutboundGroupSessionId = 0;
+        mNativeId = 0;
     }
 
     /**
      * Destroy the corresponding OLM outbound group session native object.<br>
      * This method must ALWAYS be called when this JAVA instance
      * is destroyed (ie. garbage collected) to prevent memory leak in native side.
-     * See {@link #initNewSessionJni()}.
+     * See {@link #createNewSessionJni()}.
      */
     private native void releaseSessionJni();
 
     /**
      * Create and save the session native instance ID.
-     * Wrapper for {@link #initNewSessionJni()}.<br>
+     * Wrapper for {@link #createNewSessionJni()}.<br>
      * To be called before any other API call.
      * @return true if init succeed, false otherwise.
      */
-    private boolean initNewSession() {
+    private boolean createNewSession() {
         boolean retCode = false;
-        if(0 != (mNativeOlmOutboundGroupSessionId = initNewSessionJni())){
+        if(0 != (mNativeId = createNewSessionJni())){
             retCode = true;
         }
         return retCode;
@@ -208,9 +200,9 @@ public class OlmOutboundGroupSession implements Serializable {
     /**
      * Create the corresponding OLM outbound group session in native side.<br>
      * Do not forget to call {@link #releaseSession()} when JAVA side is done.
-     * @return native session instance identifier (see {@link #mNativeOlmOutboundGroupSessionId})
+     * @return native session instance identifier (see {@link #mNativeId})
      */
-    private native long initNewSessionJni();
+    private native long createNewSessionJni();
 
     /**
      * Start a new outbound group session.<br>

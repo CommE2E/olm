@@ -31,7 +31,7 @@ public class OlmSession implements Serializable {
     /** session raw pointer value (OlmSession*) returned by JNI.
      * this value uniquely identifies the native session instance.
      **/
-    private transient long mNativeOlmSessionId;
+    private transient long mNativeId;
 
 
     public OlmSession() throws OlmException {
@@ -158,7 +158,7 @@ public class OlmSession implements Serializable {
      * @return native session ID
      */
     public long getOlmSessionId(){
-        return mNativeOlmSessionId;
+        return mNativeId;
     }
 
     /**
@@ -176,7 +176,7 @@ public class OlmSession implements Serializable {
     public void releaseSession(){
         releaseSessionJni();
 
-        mNativeOlmSessionId = 0;
+        mNativeId = 0;
     }
 
     /**
@@ -187,7 +187,7 @@ public class OlmSession implements Serializable {
      */
     private boolean initNewSession() {
         boolean retCode = false;
-        if(0 != (mNativeOlmSessionId = initNewSessionJni())){
+        if(0 != (mNativeId = initNewSessionJni())){
             retCode = true;
         }
         return retCode;
@@ -196,7 +196,7 @@ public class OlmSession implements Serializable {
     /**
      * Create the corresponding OLM session in native side.<br>
      * Do not forget to call {@link #releaseSession()} when JAVA side is done.
-     * @return native session instance identifier (see {@link #mNativeOlmSessionId})
+     * @return native session instance identifier (see {@link #mNativeId})
      */
     private native long initNewSessionJni();
 
@@ -210,7 +210,7 @@ public class OlmSession implements Serializable {
      */
     private boolean createNewSession() {
         boolean retCode = false;
-        if(0 != (mNativeOlmSessionId = createNewSessionJni())){
+        if(0 != (mNativeId = createNewSessionJni())){
             retCode = true;
         }
         return retCode;
@@ -219,7 +219,7 @@ public class OlmSession implements Serializable {
     /**
      * Create an OLM account in native side.<br>
      * Do not forget to call {@link #releaseSession()} when JAVA side is done.
-     * @return native account instance identifier (see {@link #mNativeOlmSessionId})
+     * @return native account instance identifier (see {@link #mNativeId})
      */
     private native long createNewSessionJni();
 

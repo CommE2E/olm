@@ -33,6 +33,8 @@ public class OlmException extends Exception {
     public static final int EXCEPTION_CODE_INIT_SESSION_CREATION = 9;
     public static final int EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_SERIALIZATION = 10;
     public static final int EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_DESERIALIZATION = 11;
+    public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_SERIALIZATION = 12;
+    public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_DESERIALIZATION = 13;
 
     // exception human readable messages
     public static final String EXCEPTION_MSG_NEW_OUTBOUND_GROUP_SESSION = "failed to create a new outbound group Session";

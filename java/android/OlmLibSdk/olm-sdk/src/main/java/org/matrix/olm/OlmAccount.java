@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Random;
 
 public class OlmAccount implements Serializable {
     private static final long serialVersionUID = 3497486121598434824L;
@@ -52,7 +51,7 @@ public class OlmAccount implements Serializable {
     /** account raw pointer value (OlmAccount*) returned by JNI.
      * this value identifies uniquely the native account instance.
      */
-    private transient long mNativeOlmAccountId;
+    private transient long mNativeId;
 
 
     public OlmAccount() throws OlmException {
@@ -179,7 +178,7 @@ public class OlmAccount implements Serializable {
      * @return native account ID
      */
     public long getOlmAccountId(){
-        return mNativeOlmAccountId;
+        return mNativeId;
     }
 
     /**
@@ -189,7 +188,7 @@ public class OlmAccount implements Serializable {
     public void releaseAccount(){
         releaseAccountJni();
 
-        mNativeOlmAccountId = 0;
+        mNativeId = 0;
     }
 
     /**
@@ -208,7 +207,7 @@ public class OlmAccount implements Serializable {
      */
     private boolean initNewAccount() {
         boolean retCode = false;
-        if(0 != (mNativeOlmAccountId = initNewAccountJni())){
+        if(0 != (mNativeId = initNewAccountJni())){
             retCode = true;
         }
         return retCode;
@@ -217,7 +216,7 @@ public class OlmAccount implements Serializable {
     /**
      * Create and initialize an OLM account in native side.<br>
      * Do not forget to call {@link #releaseAccount()} when JAVA side is done.
-     * @return native account instance identifier (see {@link #mNativeOlmAccountId})
+     * @return native account instance identifier (see {@link #mNativeId})
      */
     private native long initNewAccountJni();
 
@@ -230,7 +229,7 @@ public class OlmAccount implements Serializable {
      */
     private boolean createNewAccount() {
         boolean retCode = false;
-        if(0 != (mNativeOlmAccountId = createNewAccountJni())){
+        if(0 != (mNativeId = createNewAccountJni())){
             retCode = true;
         }
         return retCode;
@@ -239,7 +238,7 @@ public class OlmAccount implements Serializable {
     /**
      * Create an OLM account in native side.<br>
      * Do not forget to call {@link #releaseAccount()} when JAVA side is done.
-     * @return native account instance identifier (see {@link #mNativeOlmAccountId})
+     * @return native account instance identifier (see {@link #mNativeId})
      */
     private native long createNewAccountJni();
 
