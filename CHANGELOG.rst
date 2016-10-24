@@ -13,6 +13,8 @@ This release includes the following changes since 1.3.0:
 * Add a `specification <./docs/megolm.rst>`_ of the Megolm ratchet, and add
   some information on mitigating unknown key-share attacks to the `Olm
   specification <./docs/olm.rst>`_.
+* Add an ``install-headers`` target to the Makefile (and run it when installing
+  the library). (Credit to Emmanuel Gil Peyrot).
 
 Changes in `1.3.0 <http://matrix.org/git/olm/commit/?h=1.3.0>`_
 ===============================================================
