@@ -45,7 +45,7 @@ Usage notes:
 
    .. code::
 
-      ./afl-fuzz -i- -o existing_output_dir [...etc...]
+       afl-fuzz -i- -o existing_output_dir [...etc...]
 
 8. If it shows failures, pipe the failure case into
    ``./build/fuzzers/debug_<fuzzing_tool>``, fix, and repeat.
