@@ -26,7 +26,7 @@ OlmUtility* initializeUtilityMemory()
     if(NULL != (utilityPtr=(OlmUtility*)malloc(utilitySize)))
     {
       utilityPtr = olm_utility(utilityPtr);
-      LOGD("## initializeUtilityMemory(): success - OLM utility size=%lu",utilitySize);
+      LOGD("## initializeUtilityMemory(): success - OLM utility size=%lu",static_cast<long unsigned int>(utilitySize));
     }
     else
     {
@@ -60,6 +60,8 @@ JNIEXPORT jlong OLM_UTILITY_FUNC_DEF(initUtilityJni)(JNIEnv *env, jobject thiz)
 JNIEXPORT void OLM_UTILITY_FUNC_DEF(releaseUtilityJni)(JNIEnv *env, jobject thiz)
 {
   OlmUtility* utilityPtr = NULL;
+
+  LOGD("## releaseUtilityJni(): IN");
 
   if(NULL == (utilityPtr = (OlmUtility*)getUtilityInstanceId(env,thiz)))
   {
@@ -118,7 +120,7 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
         size_t signatureLength = (size_t)env->GetStringUTFLength(aSignature);
         size_t keyLength = (size_t)env->GetStringUTFLength(aKey);
         size_t messageLength = (size_t)env->GetStringUTFLength(aMessage);
-        LOGD(" ## verifyEd25519SignatureJni(): signatureLength=%lu keyLength=%lu messageLength=%lu",signatureLength,keyLength,messageLength);
+        LOGD(" ## verifyEd25519SignatureJni(): signatureLength=%lu keyLength=%lu messageLength=%lu",static_cast<long unsigned int>(signatureLength),static_cast<long unsigned int>(keyLength),static_cast<long unsigned int>(messageLength));
 
         size_t result = olm_ed25519_verify(utilityPtr,
                                            (void const *)keyPtr,
@@ -134,7 +136,7 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
         }
         else
         {
-            LOGD("## verifyEd25519SignatureJni(): success - result=%ld", result);
+            LOGD("## verifyEd25519SignatureJni(): success - result=%lu", static_cast<long unsigned int>(result));
         }
     }
 
@@ -210,7 +212,7 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jst
                 // update length
                 (static_cast<char*>(hashValuePtr))[result] = static_cast<char>('\0');
 
-                LOGD("## sha256Jni(): success - result=%lu hashValue=%s",result, (char*)hashValuePtr);
+                LOGD("## sha256Jni(): success - result=%lu hashValue=%s",static_cast<long unsigned int>(result), (char*)hashValuePtr);
                 sha256RetValue = env->NewStringUTF((const char*)hashValuePtr);
             }
         }

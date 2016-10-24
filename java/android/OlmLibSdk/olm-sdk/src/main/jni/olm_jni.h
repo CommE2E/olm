@@ -28,12 +28,18 @@
 #define TAG "OlmJniNative"
 
 /* logging macros */
-#define ENABLE_LOGS
+//#define ENABLE_LOGS
+
+#ifdef NDK_DEBUG
+    #warning "NDK_DEBUG is defined"
+#else
+    #warning "NDK_DEBUG not defined"
+#endif
 
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__)
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
 
-#ifdef ENABLE_LOGS
+#ifdef NDK_DEBUG
     #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__)
     #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, TAG, __VA_ARGS__)
 #else

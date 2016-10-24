@@ -37,7 +37,7 @@ OlmAccount* initializeAccountMemory()
     if(NULL != (accountPtr=(OlmAccount*)malloc(accountSize)))
     { // init account object
       accountPtr = olm_account(accountPtr);
-      LOGD("## initializeAccountMemory(): success - OLM account size=%lu",accountSize);
+      LOGD("## initializeAccountMemory(): success - OLM account size=%lu",static_cast<long unsigned int>(accountSize));
     }
     else
     {
@@ -107,7 +107,7 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(initNewAccountJni)(JNIEnv *env, jobject thi
     {
         // get random buffer size
         randomSize = olm_create_account_random_length(accountPtr);
-        LOGD("## initNewAccount(): randomSize=%lu", randomSize);
+        LOGD("## initNewAccount(): randomSize=%lu", static_cast<long unsigned int>(randomSize));
 
         // allocate random buffer
         if((0!=randomSize) && !setRandomInBuffer(&randomBuffPtr, randomSize))
@@ -181,7 +181,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(identityKeysJni)(JNIEnv *env, jobject 
                 else
                 {
                     env->SetByteArrayRegion(byteArrayRetValue, 0/*offset*/, identityKeysLength, (const jbyte*)identityKeysBytesPtr);
-                    LOGD("## identityKeys(): success - result=%ld", keysResult);
+                    LOGD("## identityKeys(): success - result=%lu", static_cast<long unsigned int>(keysResult));
                 }
             }
 
@@ -212,7 +212,7 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(maxOneTimeKeys)(JNIEnv *env, jobject thiz)
     {
         maxKeys = olm_account_max_number_of_one_time_keys(accountPtr);
     }
-    LOGD("## maxOneTimeKey(): Max keys=%ld", maxKeys);
+    LOGD("## maxOneTimeKey(): Max keys=%lu", static_cast<long unsigned int>(maxKeys));
 
     return (jlong)maxKeys;
 }
@@ -238,7 +238,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeys)(JNIEnv *env, jobject th
     else
     {   // keys memory allocation
         randomLength = olm_account_generate_one_time_keys_random_length(accountPtr, (size_t)aNumberOfKeys);
-        LOGD("## generateOneTimeKeys(): randomLength=%ld", randomLength);
+        LOGD("## generateOneTimeKeys(): randomLength=%lu", static_cast<long unsigned int>(randomLength));
 
         if((0!=randomLength) && !setRandomInBuffer(&randomBufferPtr, randomLength))
         {
@@ -256,7 +256,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeys)(JNIEnv *env, jobject th
             else
             {
                 retCode = ERROR_CODE_OK;
-                LOGD("## generateOneTimeKeys(): success - result=%ld", result);
+                LOGD("## generateOneTimeKeys(): success - result=%lu", static_cast<long unsigned int>(result));
             }
         }
     }
@@ -386,7 +386,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublishedJni)(JNIEnv *env, 
         }
         else
         {
-            LOGD("## markOneTimeKeysAsPublishedJni(): success - retCode=%ld",result);
+            LOGD("## markOneTimeKeysAsPublishedJni(): success - retCode=%lu",static_cast<long unsigned int>(result));
         }
     }
 
@@ -429,7 +429,7 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz
 
             // signature memory allocation
             signatureLength = olm_account_signature_length(accountPtr);
-            if(NULL == (signedMsgPtr = (void*)malloc(signatureLength*sizeof(uint8_t))))
+            if(NULL == (signedMsgPtr = (void*)malloc((signatureLength+1)*sizeof(uint8_t))))
             {
                 LOGE("## signMessageJni(): failure - signature allocation OOM");
             }
@@ -446,10 +446,11 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz
                 }
                 else
                 {
-                    // TODO check if signedMsgPtr needs to be null ended: signedMsgPtr[resultSign]='\0'
+                    // info: signatureLength is always equal to resultSign
+                    (static_cast<char*>(signedMsgPtr))[signatureLength] = static_cast<char>('\0');
                     // convert to jstring
                     signedMsgRetValue = env->NewStringUTF((const char*)signedMsgPtr); // UTF8
-                    LOGD("## signMessageJni(): success - retCode=%ld",resultSign);
+                    LOGD("## signMessageJni(): success - retCode=%lu signatureLength=%lu", static_cast<long unsigned int>(resultSign), static_cast<long unsigned int>(signatureLength));
                 }
 
                 free(signedMsgPtr);
@@ -533,7 +534,7 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, job
     {
         size_t pickledLength = olm_pickle_account_length(accountPtr);
         size_t keyLength = (size_t)env->GetStringUTFLength(aKey);
-        LOGD(" ## serializeDataWithKeyJni(): pickledLength=%lu keyLength=%lu",pickledLength, keyLength);
+        LOGD(" ## serializeDataWithKeyJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
         LOGD(" ## serializeDataWithKeyJni(): key=%s",(char const *)keyPtr);
 
         if(NULL == (pickledPtr = (void*)malloc((pickledLength+1)*sizeof(uint8_t))))
@@ -562,7 +563,7 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, job
                 // build success output
                 (static_cast<char*>(pickledPtr))[pickledLength] = static_cast<char>('\0');
                 pickledDataRetValue = env->NewStringUTF((const char*)pickledPtr);
-                LOGD(" ## serializeDataWithKeyJni(): success - result=%lu pickled=%s", result, static_cast<char*>(pickledPtr));
+                LOGD(" ## serializeDataWithKeyJni(): success - result=%lu pickled=%s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
             }
         }
     }
@@ -616,7 +617,7 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(initWithSerializedDataJni)(JNIEnv *env, j
     {
         size_t pickledLength = (size_t)env->GetStringUTFLength(aSerializedData);
         size_t keyLength = (size_t)env->GetStringUTFLength(aKey);
-        LOGD(" ## initWithSerializedDataJni(): pickledLength=%lu keyLength=%lu",pickledLength, keyLength);
+        LOGD(" ## initWithSerializedDataJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
         LOGD(" ## initWithSerializedDataJni(): key=%s",(char const *)keyPtr);
         LOGD(" ## initWithSerializedDataJni(): pickled=%s",(char const *)pickledPtr);
 
@@ -633,7 +634,7 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(initWithSerializedDataJni)(JNIEnv *env, j
         }
         else
         {
-            LOGD(" ## initWithSerializedDataJni(): success - result=%lu ", result);
+            LOGD(" ## initWithSerializedDataJni(): success - result=%lu ", static_cast<long unsigned int>(result));
         }
     }
 

@@ -45,15 +45,12 @@ bool setRandomInBuffer(uint8_t **aBuffer2Ptr, size_t aRandomSize)
     }
     else
     {
-        LOGD("## setRandomInBuffer(): randomSize=%ld",aRandomSize);
+        LOGD("## setRandomInBuffer(): randomSize=%lu",static_cast<long unsigned int>(aRandomSize));
 
         srand(time(NULL)); // init seed
         for(size_t i=0;i<aRandomSize;i++)
         {
             (*aBuffer2Ptr)[i] = (uint8_t)(rand()%ACCOUNT_CREATION_RANDOM_MODULO);
-
-            // debug purpose
-            //LOGD("## setRandomInBuffer(): randomBuffPtr[%ld]=%d",i, (*aBuffer2Ptr)[i]);
         }
 
         retCode = true;
@@ -220,7 +217,7 @@ jstring serializeDataWithKey(JNIEnv *env, jobject thiz,
     {
         size_t pickledLength = aGetLengthFunc(accountPtr);
         size_t keyLength = (size_t)env->GetStringUTFLength(aKey);
-        LOGD(" ## serializeDataWithKeyJni(): pickledLength=%lu keyLength=%lu",pickledLength, keyLength);
+        LOGD(" ## serializeDataWithKeyJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
         LOGD(" ## serializeDataWithKeyJni(): key=%s",(char const *)keyPtr);
 
         if(NULL == (pickledPtr = (void*)malloc((pickledLength+1)*sizeof(uint8_t))))
@@ -249,7 +246,7 @@ jstring serializeDataWithKey(JNIEnv *env, jobject thiz,
                 // build success output
                 (static_cast<char*>(pickledPtr))[pickledLength] = static_cast<char>('\0');
                 pickledDataRetValue = env->NewStringUTF((const char*)pickledPtr);
-                LOGD(" ## serializeDataWithKeyJni(): success - result=%lu pickled=%s", result, static_cast<char*>(pickledPtr));
+                LOGD(" ## serializeDataWithKeyJni(): success - result=%lu pickled=%s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
             }
         }
     }
