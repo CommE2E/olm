@@ -58,8 +58,8 @@ public class OlmSessionTest {
         String bobOneTimeKey=null;
         OlmAccount bobAccount = null;
         OlmAccount aliceAccount = null;
-        // creates alice & bob accounts
 
+        // ALICE & BOB ACCOUNTS CREATION
         try {
             aliceAccount = new OlmAccount();
             bobAccount = new OlmAccount();
