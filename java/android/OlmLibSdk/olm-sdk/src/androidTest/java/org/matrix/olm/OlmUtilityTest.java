@@ -61,7 +61,7 @@ public class OlmUtilityTest {
         String messageSignature = account.signMessage(message);
         assertNotNull(messageSignature);
 
-        // get identity key
+        // get identities key (finger print key)
         JSONObject identityKeysJson = account.identityKeys();
         assertNotNull(identityKeysJson);
         try {
@@ -82,12 +82,13 @@ public class OlmUtilityTest {
         assertTrue(String.valueOf(errorMsg).isEmpty());
 
         // check a bad signature is detected and the error message is not empty
-        messageSignature = "Bad signature Bad signature Bad signature..";
-        isVerified = utility.verifyEd25519Signature(messageSignature, fingerPrintKey, message, errorMsg);
+        String badSignature = "Bad signature Bad signature Bad signature..";
+        isVerified = utility.verifyEd25519Signature(badSignature, fingerPrintKey, message, errorMsg);
         assertFalse(isVerified);
         assertFalse(String.valueOf(errorMsg).isEmpty());
 
         utility.releaseUtility();
+        account.releaseAccount();
     }
 
 
