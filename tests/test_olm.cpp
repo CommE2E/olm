@@ -49,7 +49,9 @@ mock_random(ot_random, sizeof(ot_random));
 
 std::size_t pickle_length = ::olm_pickle_account_length(account);
 std::uint8_t pickle1[pickle_length];
-::olm_pickle_account(account, "secret_key", 10, pickle1, pickle_length);
+std::size_t res = ::olm_pickle_account(account, "secret_key", 10, pickle1, pickle_length);
+assert_equals(pickle_length, res);
+
 std::uint8_t pickle2[pickle_length];
 std::memcpy(pickle2, pickle1, pickle_length);
 
@@ -59,10 +61,10 @@ assert_not_equals(std::size_t(-1), ::olm_unpickle_account(
     account2, "secret_key", 10, pickle2, pickle_length
 ));
 assert_equals(pickle_length, ::olm_pickle_account_length(account2));
-::olm_pickle_account(account2, "secret_key", 10, pickle2, pickle_length);
+res = ::olm_pickle_account(account2, "secret_key", 10, pickle2, pickle_length);
+assert_equals(pickle_length, res);
 
 assert_equals(pickle1, pickle2, pickle_length);
-
 }
 
 
@@ -122,7 +124,9 @@ mock_random(random2, sizeof(random2));
 
 std::size_t pickle_length = ::olm_pickle_session_length(session);
 std::uint8_t pickle1[pickle_length];
-::olm_pickle_session(session, "secret_key", 10, pickle1, pickle_length);
+std::size_t res = ::olm_pickle_session(session, "secret_key", 10, pickle1, pickle_length);
+assert_equals(pickle_length, res);
+
 std::uint8_t pickle2[pickle_length];
 std::memcpy(pickle2, pickle1, pickle_length);
 
@@ -132,10 +136,10 @@ assert_not_equals(std::size_t(-1), ::olm_unpickle_session(
     session2, "secret_key", 10, pickle2, pickle_length
 ));
 assert_equals(pickle_length, ::olm_pickle_session_length(session2));
-::olm_pickle_session(session2, "secret_key", 10, pickle2, pickle_length);
+res = ::olm_pickle_session(session2, "secret_key", 10, pickle2, pickle_length);
+assert_equals(pickle_length, res);
 
 assert_equals(pickle1, pickle2, pickle_length);
-
 }
 
 { /** Loopback test */
