@@ -60,7 +60,7 @@ size_t _olm_enc_output(
         raw_output, length
     );
     _olm_encode_base64(raw_output, length, output);
-    return raw_length;
+    return base64_length;
 }
 
 
