@@ -231,20 +231,18 @@ public class OlmSession implements Serializable {
      * @param aAccount the account to associate with this session
      * @param aTheirIdentityKey the identity key of the recipient
      * @param aTheirOneTimeKey the one time key of the recipient
-     * @return this if operation succeed, null otherwise
+     * @return 0 if operation succeed, -1 otherwise
      */
-    public OlmSession initOutboundSessionWithAccount(OlmAccount aAccount, String aTheirIdentityKey, String aTheirOneTimeKey) {
-        OlmSession retObj=null;
+    public int initOutboundSessionWithAccount(OlmAccount aAccount, String aTheirIdentityKey, String aTheirOneTimeKey) {
+        int retCode=-1;
 
         if((null==aAccount) || TextUtils.isEmpty(aTheirIdentityKey) || TextUtils.isEmpty(aTheirOneTimeKey)){
             Log.e(LOG_TAG, "## initOutboundSession(): invalid input parameters");
         } else {
-            if(0 == initOutboundSessionJni(aAccount.getOlmAccountId(), aTheirIdentityKey, aTheirOneTimeKey)) {
-                retObj = this;
-            }
+            retCode = initOutboundSessionJni(aAccount.getOlmAccountId(), aTheirIdentityKey, aTheirOneTimeKey);
         }
 
-        return retObj;
+        return retCode;
     }
 
     private native int initOutboundSessionJni(long aOlmAccountId, String aTheirIdentityKey, String aTheirOneTimeKey);
@@ -252,25 +250,23 @@ public class OlmSession implements Serializable {
 
     /**
      * Create a new in-bound session for sending/receiving messages from an
-     * incoming PRE_KEY ({@link OlmMessage#MESSAGE_TYPE_PRE_KEY}) message.<br>
+     * incoming PRE_KEY message ({@link OlmMessage#MESSAGE_TYPE_PRE_KEY}).<br>
      * Public API for {@link #initInboundSessionJni(long, String)}.
      * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
      * @param aAccount the account to associate with this session
      * @param aPreKeyMsg PRE KEY message
-     * @return this if operation succeed, null otherwise
+     * @return 0 if operation succeed, -1 otherwise
      */
-    public OlmSession initInboundSessionWithAccount(OlmAccount aAccount, String aPreKeyMsg) {
-        OlmSession retObj=null;
+    public int initInboundSessionWithAccount(OlmAccount aAccount, String aPreKeyMsg) {
+        int retCode=-1;
 
         if((null==aAccount) || TextUtils.isEmpty(aPreKeyMsg)){
             Log.e(LOG_TAG, "## initInboundSessionWithAccount(): invalid input parameters");
         } else {
-            if( 0 == initInboundSessionJni(aAccount.getOlmAccountId(), aPreKeyMsg)) {
-                retObj = this;
-            }
+            retCode = initInboundSessionJni(aAccount.getOlmAccountId(), aPreKeyMsg);
         }
 
-        return retObj;
+        return retCode;
     }
 
     private native int initInboundSessionJni(long aOlmAccountId, String aOneTimeKeyMsg);
