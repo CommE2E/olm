@@ -282,7 +282,10 @@ public class OlmAccount implements Serializable {
      * Return the largest number of "one time keys" this account can store.
      * @return the max number of "one time keys", -1 otherwise
      */
-    public native long maxOneTimeKeys();
+    public long maxOneTimeKeys() {
+        return maxOneTimeKeysJni();
+    }
+    private native long maxOneTimeKeysJni();
 
     /**
      * Generate a number of new one time keys.<br> If total number of keys stored
@@ -291,7 +294,10 @@ public class OlmAccount implements Serializable {
      * @param aNumberOfKeys number of keys to generate
      * @return 0 if operation succeed, -1 otherwise
      */
-    public native int generateOneTimeKeys(int aNumberOfKeys);
+    public int generateOneTimeKeys(int aNumberOfKeys) {
+        return generateOneTimeKeysJni(aNumberOfKeys);
+    }
+    private native int generateOneTimeKeysJni(int aNumberOfKeys);
 
     /**
      * Return the "one time keys" in a JSON array.<br>
@@ -341,7 +347,7 @@ public class OlmAccount implements Serializable {
      * @return 0 if operation succeed, 1 if no matching keys in the sessions to be removed, -1 if operation failed
      */
     public int removeOneTimeKeysForSession(OlmSession aSession) {
-        int retCode = 0;
+        int retCode = -1;
 
         if(null != aSession) {
             retCode = removeOneTimeKeysForSessionJni(aSession.getOlmSessionId());
