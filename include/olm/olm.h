@@ -320,7 +320,8 @@ int olm_session_has_received_message(
 
 /** Checks if the PRE_KEY message is for this in-bound session. This can happen
  * if multiple messages are sent to this account before this account sends a
- * message in reply. Returns olm_error() on failure. If the base64
+ * message in reply. Returns 1 if the session matches. Returns 0 if the session
+ * does not match. Returns olm_error() on failure. If the base64
  * couldn't be decoded then olm_session_last_error will be "INVALID_BASE64".
  * If the message was for an unsupported protocol version then
  * olm_session_last_error() will be "BAD_MESSAGE_VERSION". If the message
@@ -333,7 +334,8 @@ size_t olm_matches_inbound_session(
 
 /** Checks if the PRE_KEY message is for this in-bound session. This can happen
  * if multiple messages are sent to this account before this account sends a
- * message in reply. Returns olm_error() on failure. If the base64
+ * message in reply. Returns 1 if the session matches. Returns 0 if the session
+ * does not match. Returns olm_error() on failure. If the base64
  * couldn't be decoded then olm_session_last_error will be "INVALID_BASE64".
  * If the message was for an unsupported protocol version then
  * olm_session_last_error() will be "BAD_MESSAGE_VERSION". If the message

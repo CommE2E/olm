@@ -165,6 +165,9 @@ std::uint8_t o_random[::olm_account_generate_one_time_keys_random_length(
 mock_random_b(o_random, sizeof(o_random));
 ::olm_account_generate_one_time_keys(b_account, 42, o_random, sizeof(o_random));
 
+std::uint8_t a_id_keys[::olm_account_identity_keys_length(a_account)];
+::olm_account_identity_keys(a_account, a_id_keys, sizeof(a_id_keys));
+
 std::uint8_t b_id_keys[::olm_account_identity_keys_length(b_account)];
 std::uint8_t b_ot_keys[::olm_account_one_time_keys_length(b_account)];
 ::olm_account_identity_keys(b_account, b_id_keys, sizeof(b_id_keys));
@@ -176,8 +179,8 @@ std::uint8_t a_rand[::olm_create_outbound_session_random_length(a_session)];
 mock_random_a(a_rand, sizeof(a_rand));
 assert_not_equals(std::size_t(-1), ::olm_create_outbound_session(
     a_session, a_account,
-    b_id_keys + 15, 43,
-    b_ot_keys + 25, 43,
+    b_id_keys + 15, 43, // B's curve25519 identity key
+    b_ot_keys + 25, 43, // B's curve25519 one time key
     a_rand, sizeof(a_rand)
 ));
 
@@ -202,6 +205,31 @@ std::uint8_t b_session_buffer[::olm_account_size()];
     b_session, b_account, tmp_message_1, sizeof(message_1)
 );
 
+// Check that the inbound session matches the message it was created from.
+std::memcpy(tmp_message_1, message_1, sizeof(message_1));
+assert_equals(std::size_t(1), ::olm_matches_inbound_session(
+    b_session,
+    tmp_message_1, sizeof(message_1)
+));
+
+// Check that the inbound session matches the key this message is supposed
+// to be from.
+std::memcpy(tmp_message_1, message_1, sizeof(message_1));
+assert_equals(std::size_t(1), ::olm_matches_inbound_session_from(
+    b_session,
+    a_id_keys + 15, 43, // A's curve125519 identity key.
+    tmp_message_1, sizeof(message_1)
+));
+
+// Check that the inbound session isn't from a different user.
+std::memcpy(tmp_message_1, message_1, sizeof(message_1));
+assert_equals(std::size_t(0), ::olm_matches_inbound_session_from(
+    b_session,
+    b_id_keys + 15, 43, // B's curve25519 identity key.
+    tmp_message_1, sizeof(message_1)
+));
+
+// Check that we can decrypt the message.
 std::memcpy(tmp_message_1, message_1, sizeof(message_1));
 std::uint8_t plaintext_1[::olm_decrypt_max_plaintext_length(
     b_session, 0, tmp_message_1, sizeof(message_1)
