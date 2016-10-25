@@ -1,8 +1,26 @@
+Changes in `2.0.0 <http://matrix.org/git/olm/commit/?h=2.0.0>`_
+===============================================================
+
+This release includes the following changes since 1.3.0:
+
+* Fix a buffer bounds check when decoding group messages.
+* Update ``olm_group_decrypt`` to return the ratchet index for decrypted
+  messages.
+* Fix ``olm_pickle_account``, ``olm_pickle_session``,
+  ``olm_pickle_inbound_group_session`` and
+  ``olm_pickle_outbound_group_session`` to correctly return the length of the
+  pickled object.
+* Add a `specification <./docs/megolm.rst>`_ of the Megolm ratchet, and add
+  some information on mitigating unknown key-share attacks to the `Olm
+  specification <./docs/olm.rst>`_.
+* Add an ``install-headers`` target to the Makefile (and run it when installing
+  the library). (Credit to Emmanuel Gil Peyrot).
+
 Changes in `1.3.0 <http://matrix.org/git/olm/commit/?h=1.3.0>`_
 ===============================================================
 
-The release updates the group session identifier to avoid collisions.
-The group sessions are now identified by their ed25519 public key.
+This release updates the group session identifier to avoid collisions.
+Group sessions are now identified by their ed25519 public key.
 
 These changes alter the pickle format of outbound group sessions, attempting
 to unpickle an outbound group session created with a previous version of olm
