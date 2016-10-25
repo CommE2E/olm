@@ -351,7 +351,9 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(matchesInboundSessionJni)(JNIEnv *env, jobje
         size_t messageLength = (size_t)env->GetStringUTFLength(aOneTimeKeyMsg);
 
         size_t matchResult = olm_matches_inbound_session(sessionPtr, (void*)messagePtr , messageLength);
-        if(matchResult == olm_error()) {
+        //if(matchResult == olm_error()) {
+        // for now olm_matches_inbound_session() returns 1 when it succeeds, otherwise 1- or 0
+        if(matchResult != 1) {
             LOGE("## matchesInboundSessionJni(): failure - no match  Msg=%s",(const char *)olm_session_last_error(sessionPtr));
         }
         else
@@ -411,7 +413,9 @@ JNIEXPORT jint JNICALL OLM_SESSION_FUNC_DEF(matchesInboundSessionFromIdKeyJni)(J
         size_t messageLength = (size_t)env->GetStringUTFLength(aOneTimeKeyMsg);
 
         size_t matchResult = olm_matches_inbound_session_from(sessionPtr, (void const *)theirIdentityKeyPtr, identityKeyLength, (void*)messagePtr , messageLength);
-        if(matchResult == olm_error()) {
+        //if(matchResult == olm_error()) {
+        // for now olm_matches_inbound_session() returns 1 when it succeeds, otherwise 1- or 0
+        if(matchResult != 1) {
             LOGE("## matchesInboundSessionFromIdKeyJni(): failure - no match  Msg=%s",(const char *)olm_session_last_error(sessionPtr));
         }
         else
