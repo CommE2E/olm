@@ -64,18 +64,23 @@ public class TestHelper {
     /**
      * Return the first one time key from the JSON object.
      * @param aIdentityKeysObj JSON result of {@link OlmAccount#oneTimeKeys()}
+     * @param aKeyPosition the poistion of the key to be retrieved
      * @return one time key string if operation succeed, null otherwise
      */
-    static public String getFirstOneTimeKey(JSONObject aIdentityKeysObj) {
+    static public String getOneTimeKey(JSONObject aIdentityKeysObj, int aKeyPosition) {
         String firstOneTimeKey = null;
+        int i=0;
 
         try {
             JSONObject generatedKeys = aIdentityKeysObj.getJSONObject(OlmAccount.JSON_KEY_ONE_TIME_KEY);
             assertNotNull(OlmAccount.JSON_KEY_ONE_TIME_KEY + " object is missing", generatedKeys);
 
             Iterator<String> generatedKeysIt = generatedKeys.keys();
-            if (generatedKeysIt.hasNext()) {
-                firstOneTimeKey = generatedKeys.getString(generatedKeysIt.next());
+            while(i<aKeyPosition) {
+                if (generatedKeysIt.hasNext()) {
+                    firstOneTimeKey = generatedKeys.getString(generatedKeysIt.next());
+                    i++;
+                }
             }
         } catch (JSONException e) {
             assertTrue("Exception Msg=" + e.getMessage(), false);
