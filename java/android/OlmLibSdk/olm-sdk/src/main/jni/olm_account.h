@@ -39,8 +39,8 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(identityKeysJni)(JNIEnv *env, jobject 
 
 // one time keys
 JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(oneTimeKeysJni)(JNIEnv *env, jobject thiz);
-JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(maxOneTimeKeys)(JNIEnv *env, jobject thiz);
-JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeys)(JNIEnv *env, jobject thiz, jint aNumberOfKeys);
+JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(maxOneTimeKeysJni)(JNIEnv *env, jobject thiz);
+JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeysJni)(JNIEnv *env, jobject thiz, jint aNumberOfKeys);
 JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysForSessionJni)(JNIEnv *env, jobject thiz, jlong aNativeOlmSessionId);
 JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublishedJni)(JNIEnv *env, jobject thiz);
 

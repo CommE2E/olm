@@ -199,7 +199,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(identityKeysJni)(JNIEnv *env, jobject 
  * Get the maximum number of "one time keys" the account can store.
  *
 **/
-JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(maxOneTimeKeys)(JNIEnv *env, jobject thiz)
+JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(maxOneTimeKeysJni)(JNIEnv *env, jobject thiz)
 {
     OlmAccount* accountPtr = NULL;
     size_t maxKeys = -1;
@@ -222,7 +222,7 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(maxOneTimeKeys)(JNIEnv *env, jobject thiz)
  * @param aNumberOfKeys number of keys to generate
  * @return ERROR_CODE_OK if operation succeed, ERROR_CODE_KO otherwise
 **/
-JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeys)(JNIEnv *env, jobject thiz, jint aNumberOfKeys)
+JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeysJni)(JNIEnv *env, jobject thiz, jint aNumberOfKeys)
 {
     OlmAccount *accountPtr = NULL;
     uint8_t *randomBufferPtr = NULL;
@@ -233,30 +233,30 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeys)(JNIEnv *env, jobject th
 
     if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
     {
-        LOGE("## generateOneTimeKeys(): failure - invalid Account ptr");
+        LOGE("## generateOneTimeKeysJni(): failure - invalid Account ptr");
     }
     else
     {   // keys memory allocation
         randomLength = olm_account_generate_one_time_keys_random_length(accountPtr, (size_t)aNumberOfKeys);
-        LOGD("## generateOneTimeKeys(): randomLength=%lu", static_cast<long unsigned int>(randomLength));
+        LOGD("## generateOneTimeKeysJni(): randomLength=%lu", static_cast<long unsigned int>(randomLength));
 
         if((0!=randomLength) && !setRandomInBuffer(&randomBufferPtr, randomLength))
         {
-            LOGE("## generateOneTimeKeys(): failure - random buffer init");
+            LOGE("## generateOneTimeKeysJni(): failure - random buffer init");
         }
         else
         {
-            LOGD("## generateOneTimeKeys(): accountPtr =%p aNumberOfKeys=%d",accountPtr, aNumberOfKeys);
+            LOGD("## generateOneTimeKeysJni(): accountPtr =%p aNumberOfKeys=%d",accountPtr, aNumberOfKeys);
 
             // retrieve key pairs in keysBytesPtr
             result = olm_account_generate_one_time_keys(accountPtr, (size_t)aNumberOfKeys, (void*)randomBufferPtr, randomLength);
             if(result == olm_error()) {
-                LOGE("## generateOneTimeKeys(): failure - error generating one time keys Msg=%s",(const char *)olm_account_last_error(accountPtr));
+                LOGE("## generateOneTimeKeysJni(): failure - error generating one time keys Msg=%s",(const char *)olm_account_last_error(accountPtr));
             }
             else
             {
                 retCode = ERROR_CODE_OK;
-                LOGD("## generateOneTimeKeys(): success - result=%lu", static_cast<long unsigned int>(result));
+                LOGD("## generateOneTimeKeysJni(): success - result=%lu", static_cast<long unsigned int>(result));
             }
         }
     }
