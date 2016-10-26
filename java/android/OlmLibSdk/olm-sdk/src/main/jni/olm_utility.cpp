@@ -121,6 +121,7 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
         size_t keyLength = (size_t)env->GetStringUTFLength(aKey);
         size_t messageLength = (size_t)env->GetStringUTFLength(aMessage);
         LOGD(" ## verifyEd25519SignatureJni(): signatureLength=%lu keyLength=%lu messageLength=%lu",static_cast<long unsigned int>(signatureLength),static_cast<long unsigned int>(keyLength),static_cast<long unsigned int>(messageLength));
+        LOGD(" ## verifyEd25519SignatureJni(): key=%s",keyPtr);
 
         size_t result = olm_ed25519_verify(utilityPtr,
                                            (void const *)keyPtr,
@@ -132,7 +133,7 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
         if(result == olm_error()) {
             const char *errorMsgPtr = olm_utility_last_error(utilityPtr);
             errorMessageRetValue = env->NewStringUTF(errorMsgPtr);
-            LOGE("## verifyEd25519SignatureJni(): failure - session creation  Msg=%s",errorMsgPtr);
+            LOGE("## verifyEd25519SignatureJni(): failure - olm_ed25519_verify Msg=%s",errorMsgPtr);
         }
         else
         {

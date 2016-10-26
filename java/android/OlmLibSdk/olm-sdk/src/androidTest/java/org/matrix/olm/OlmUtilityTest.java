@@ -86,9 +86,15 @@ public class OlmUtilityTest {
         assertTrue(isVerified);
         assertTrue(String.valueOf(errorMsg).isEmpty());
 
-        // check a bad signature is detected and the error message is not empty
+        // check a bad signature is detected => errorMsg = BAD_MESSAGE_MAC
         String badSignature = "Bad signature Bad signature Bad signature..";
         isVerified = utility.verifyEd25519Signature(badSignature, fingerPrintKey, message, errorMsg);
+        assertFalse(isVerified);
+        assertFalse(String.valueOf(errorMsg).isEmpty());
+
+        // check bad fingerprint size => errorMsg = INVALID_BASE64
+        String badSizeFingerPrintKey = fingerPrintKey.substring(fingerPrintKey.length()/2);
+        isVerified = utility.verifyEd25519Signature(messageSignature, badSizeFingerPrintKey, message, errorMsg);
         assertFalse(isVerified);
         assertFalse(String.valueOf(errorMsg).isEmpty());
 
