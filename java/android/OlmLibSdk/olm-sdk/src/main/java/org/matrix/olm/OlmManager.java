@@ -16,13 +16,16 @@
 
 package org.matrix.olm;
 
-
 import android.util.Log;
 
+/**
+ * Olm SDK entry point class.<br> An OlmManager instance must be created at first to enable native library load.
+ * <br><br>Detailed implementation guide is available at <a href="http://matrix.org/docs/guides/e2e_implementation.html">Implementing End-to-End Encryption in Matrix clients</a>.
+ */
 public class OlmManager {
     private static final String LOG_TAG = "OlmManager";
 
-    public OlmManager() {
+    static {
         try {
             java.lang.System.loadLibrary("olm");
         } catch(UnsatisfiedLinkError e) {
