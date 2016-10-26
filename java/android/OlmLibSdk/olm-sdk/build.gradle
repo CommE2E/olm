@@ -24,6 +24,13 @@ android {
         jni.srcDirs = []
     }
 
+   task buildJavaDoc(type: Javadoc) {
+        source = android.sourceSets.main.java.srcDirs
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+        destinationDir = file("./doc/")
+        failOnError false
+    }
+
     task ndkBuildNativeRelease(type: Exec, description: 'NDK building..') {
         println 'ndkBuildNativeRelease starts..'
         workingDir file('src/main')
@@ -53,11 +60,10 @@ android {
             println 'test compile: Release'
             compileTask.dependsOn ndkBuildNativeRelease
         }
+        compileTask.dependsOn buildJavaDoc
     }
 
-
     clean.dependsOn cleanNative
-
 }
 
 def getNdkFolder() {

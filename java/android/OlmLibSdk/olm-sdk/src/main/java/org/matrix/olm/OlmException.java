@@ -17,7 +17,7 @@
 package org.matrix.olm;
 
 /**
- * Exception class to identify specific Olm SDk exceptions.
+ * Exception class to identify specific Olm SDK exceptions.
  */
 public class OlmException extends Exception {
     // exception codes

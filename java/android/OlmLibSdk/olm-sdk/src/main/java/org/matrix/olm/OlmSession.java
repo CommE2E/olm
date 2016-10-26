@@ -24,6 +24,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+/**
+ * Session class used to create Olm sessions in conjunction with {@link OlmAccount} class.<br>
+ * Olm session is used to encrypt data between devices, especially to create Olm group sessions (see {@link OlmOutboundGroupSession} and {@link OlmInboundGroupSession}).<br>
+ * To establish an Olm session with Bob, Alice calls {@link #initOutboundSessionWithAccount(OlmAccount, String, String)} with Bob's identity and onetime keys. Then Alice generates an encrypted PRE_KEY message ({@link #encryptMessage(String)})
+ * used by Bob to open the Olm session in his side with {@link #initOutboundSessionWithAccount(OlmAccount, String, String)}.
+ * From this step on, messages can be exchanged by using {@link #encryptMessage(String)} and {@link #decryptMessage(OlmMessage)}.
+ * <br><br>Detailed implementation guide is available at <a href="http://matrix.org/docs/guides/e2e_implementation.html">Implementing End-to-End Encryption in Matrix clients</a>.
+ */
 public class OlmSession implements Serializable {
     private static final long serialVersionUID = -8975488639186976419L;
     private static final String LOG_TAG = "OlmSession";
@@ -43,8 +51,8 @@ public class OlmSession implements Serializable {
     /**
      * Kick off the serialization mechanism.
      * @param aOutStream output stream for serializing
-     * @throws IOException
-     * @throws OlmException
+     * @throws IOException exception
+     * @throws OlmException exception
      */
     private void writeObject(ObjectOutputStream aOutStream) throws IOException, OlmException {
         aOutStream.defaultWriteObject();
@@ -66,10 +74,10 @@ public class OlmSession implements Serializable {
 
     /**
      * Kick off the deserialization mechanism.
-     * @param aInStream
-     * @throws IOException
-     * @throws ClassNotFoundException
-     * @throws OlmException
+     * @param aInStream input stream
+     * @throws IOException exception
+     * @throws ClassNotFoundException exception
+     * @throws OlmException exception
      */
     private void readObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException, OlmException {
         aInStream.defaultReadObject();

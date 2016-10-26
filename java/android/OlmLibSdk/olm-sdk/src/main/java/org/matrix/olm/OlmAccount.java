@@ -27,6 +27,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+/**
+ * Account class used to create Olm sessions in conjunction with {@link OlmSession} class.<br>
+ * OlmAccount provides APIs to retrieve the Olm keys.
+ *<br><br>Detailed implementation guide is available at <a href="http://matrix.org/docs/guides/e2e_implementation.html">Implementing End-to-End Encryption in Matrix clients</a>.
+ */
 public class OlmAccount implements Serializable {
     private static final long serialVersionUID = 3497486121598434824L;
     private static final String LOG_TAG = "OlmAccount";
@@ -63,8 +68,8 @@ public class OlmAccount implements Serializable {
     /**
      * Kick off the serialization mechanism.
      * @param aOutStream output stream for serializing
-     * @throws IOException
-     * @throws OlmException
+     * @throws IOException exception
+     * @throws OlmException exception
      */
     private void writeObject(ObjectOutputStream aOutStream) throws IOException, OlmException {
         aOutStream.defaultWriteObject();
@@ -86,10 +91,10 @@ public class OlmAccount implements Serializable {
 
     /**
      * Kick off the deserialization mechanism.
-     * @param aInStream
-     * @throws IOException
-     * @throws ClassNotFoundException
-     * @throws OlmException
+     * @param aInStream input stream
+     * @throws IOException exception
+     * @throws ClassNotFoundException exception
+     * @throws OlmException exception
      */
     private void readObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException, OlmException {
         aInStream.defaultReadObject();
@@ -243,7 +248,7 @@ public class OlmAccount implements Serializable {
     private native long createNewAccountJni();
 
     /**
-     * Return the identity keys (identity &amp fingerprint keys) in a JSON array.<br>
+     * Return the identity keys (identity and fingerprint keys) in a JSON array.<br>
      * Public API for {@link #identityKeysJni()}.<br>
      * Ex:<tt>
      * {

@@ -28,6 +28,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+/**
+ * Class used to create an inbound <a href="http://matrix.org/docs/guides/e2e_implementation.html#handling-an-m-room-key-event">Megolm session</a>.<br>
+ * Counter part of the outbound group session {@link OlmOutboundGroupSession}, this class decrypts the messages sent by the outbound side.
+ *
+ * <br><br>Detailed implementation guide is available at <a href="http://matrix.org/docs/guides/e2e_implementation.html">Implementing End-to-End Encryption in Matrix clients</a>.
+ */
 public class OlmInboundGroupSession implements Serializable {
     private static final long serialVersionUID = -772028491251653253L;
     private static final String LOG_TAG = "OlmInboundGroupSession";
@@ -130,8 +136,8 @@ public class OlmInboundGroupSession implements Serializable {
     /**
      * Kick off the serialization mechanism.
      * @param aOutStream output stream for serializing
-     * @throws IOException
-     * @throws OlmException
+     * @throws IOException exception
+     * @throws OlmException exception
      */
     private void writeObject(ObjectOutputStream aOutStream) throws IOException, OlmException {
         aOutStream.defaultWriteObject();
@@ -153,10 +159,10 @@ public class OlmInboundGroupSession implements Serializable {
 
     /**
      * Kick off the deserialization mechanism.
-     * @param aInStream
-     * @throws IOException
-     * @throws ClassNotFoundException
-     * @throws OlmException
+     * @param aInStream input stream
+     * @throws IOException exception
+     * @throws ClassNotFoundException exception
+     * @throws OlmException exception
      */
     private void readObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException, OlmException {
         aInStream.defaultReadObject();

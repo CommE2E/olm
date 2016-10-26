@@ -21,6 +21,9 @@ import android.util.Log;
 
 import java.util.Random;
 
+/**
+ * Olm SDK helper class.
+ */
 public class OlmUtility {
     private static final String LOG_TAG = "OlmUtility";
 

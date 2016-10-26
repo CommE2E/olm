@@ -35,6 +35,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -344,7 +345,7 @@ public class OlmSessionTest {
 
         String aliceClearMsg = "hello helooo to bob!";
         OlmMessage encryptedAliceToBobMsg1 = aliceSession.encryptMessage(aliceClearMsg);
-        assertTrue(false==bobSession.matchesInboundSession(encryptedAliceToBobMsg1.mCipherText));
+        assertFalse(bobSession.matchesInboundSession(encryptedAliceToBobMsg1.mCipherText));
 
         // init bob session with alice PRE KEY
         assertTrue(0==bobSession.initInboundSessionWithAccount(bobAccount, encryptedAliceToBobMsg1.mCipherText));
