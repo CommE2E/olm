@@ -46,6 +46,7 @@ JS_POST := javascript/olm_outbound_group_session.js \
 DOCS := tracing/README.html \
     docs/megolm.html \
     docs/olm.html \
+    docs/signing.html \
     README.html \
     CHANGELOG.html
 
