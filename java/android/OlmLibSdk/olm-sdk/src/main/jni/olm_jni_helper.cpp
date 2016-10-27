@@ -19,6 +19,7 @@
 
 #include "olm_jni_helper.h"
 #include "olm/olm.h"
+#include <sys/time.h>
 
 using namespace AndroidOlmSdk;
 
@@ -31,6 +32,8 @@ using namespace AndroidOlmSdk;
 bool setRandomInBuffer(uint8_t **aBuffer2Ptr, size_t aRandomSize)
 {
     bool retCode = false;
+    struct timeval timeValue;
+
     if(NULL == aBuffer2Ptr)
     {
         LOGE("## setRandomInBuffer(): failure - aBuffer=NULL");
@@ -47,10 +50,14 @@ bool setRandomInBuffer(uint8_t **aBuffer2Ptr, size_t aRandomSize)
     {
         LOGD("## setRandomInBuffer(): randomSize=%lu",static_cast<long unsigned int>(aRandomSize));
 
-        srand(time(NULL)); // init seed
+        gettimeofday(&timeValue, NULL);
+        srand(timeValue.tv_usec); // init seed
+
         for(size_t i=0;i<aRandomSize;i++)
         {
             (*aBuffer2Ptr)[i] = (uint8_t)(rand()%ACCOUNT_CREATION_RANDOM_MODULO);
+            // debug purpose
+            //LOGD("## setRandomInBuffer(): randomBuffPtr[%ld]=%d",i, (*aBuffer2Ptr)[i]);
         }
 
         retCode = true;
