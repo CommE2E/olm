@@ -37,8 +37,12 @@ JNIEXPORT void OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(releaseSessionJni)(JNIEnv *en
   {
     LOGD(" ## releaseSessionJni(): sessionPtr=%p",sessionPtr);
 
+#ifdef ENABLE_JNI_LOG
     size_t retCode = olm_clear_outbound_group_session(sessionPtr);
-    LOGI(" ## releaseSessionJni(): clear_outbound_group_session=%lu",static_cast<long unsigned int>(retCode));
+    LOGD(" ## releaseSessionJni(): clear_outbound_group_session=%lu",static_cast<long unsigned int>(retCode));
+#else
+    olm_clear_outbound_group_session(sessionPtr);
+#endif
 
     LOGD(" ## releaseSessionJni(): free IN");
     free(sessionPtr);

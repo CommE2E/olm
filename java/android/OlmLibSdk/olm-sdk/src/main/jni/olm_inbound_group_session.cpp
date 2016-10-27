@@ -36,9 +36,12 @@ JNIEXPORT void OLM_INBOUND_GROUP_SESSION_FUNC_DEF(releaseSessionJni)(JNIEnv *env
   else
   {
     LOGD(" ## releaseSessionJni(): sessionPtr=%p",sessionPtr);
-
+#ifdef ENABLE_JNI_LOG
     size_t retCode = olm_clear_inbound_group_session(sessionPtr);
-    LOGI(" ## releaseSessionJni(): clear_inbound_group_session=%lu",static_cast<long unsigned int>(retCode));
+    LOGD(" ## releaseSessionJni(): clear_inbound_group_session=%lu",static_cast<long unsigned int>(retCode));
+#else
+    olm_clear_inbound_group_session(sessionPtr);
+#endif
 
     LOGD(" ## releaseSessionJni(): free IN");
     free(sessionPtr);
@@ -111,7 +114,7 @@ JNIEXPORT jint OLM_INBOUND_GROUP_SESSION_FUNC_DEF(initInboundGroupSessionWithSes
         sessionResult = olm_init_inbound_group_session(sessionPtr, sessionKeyPtr, sessionKeyLength);
         if(sessionResult == olm_error()) {
             const char *errorMsgPtr = olm_inbound_group_session_last_error(sessionPtr);
-            LOGE(" ## initInboundSessionFromIdKeyJni(): failure - init inbound session creation  Msg=%s",errorMsgPtr);
+            LOGE(" ## initInboundSessionFromIdKeyJni(): failure - init inbound session creation Msg=%s",errorMsgPtr);
         }
         else
         {
