@@ -51,7 +51,7 @@ public class OlmGroupSessionTest {
     private static OlmOutboundGroupSession mAliceOutboundGroupSession;
     private static String mAliceSessionIdentifier;
     private static long mAliceMessageIndex;
-    public  static final String CLEAR_MESSAGE1 = "Hello!";
+    private static final String CLEAR_MESSAGE1 = "Hello!";
     private static String mAliceToBobMessage;
     private static OlmInboundGroupSession mBobInboundGroupSession;
     private static String mAliceOutboundSessionKey;
@@ -172,7 +172,7 @@ public class OlmGroupSessionTest {
     @Test
     public void test14SerializeOutboundSession() {
         OlmOutboundGroupSession outboundGroupSessionRef=null;
-        OlmOutboundGroupSession outboundGroupSessionSerial=null;
+        OlmOutboundGroupSession outboundGroupSessionSerial;
 
         // create one OUTBOUND GROUP SESSION
         try {
@@ -238,14 +238,13 @@ public class OlmGroupSessionTest {
         catch (Exception e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception Msg==" + e.getMessage());
         }
-
     }
 
     @Test
     public void test15SerializeInboundSession() {
         OlmOutboundGroupSession aliceOutboundGroupSession=null;
         OlmInboundGroupSession bobInboundGroupSessionRef=null;
-        OlmInboundGroupSession bobInboundGroupSessionSerial=null;
+        OlmInboundGroupSession bobInboundGroupSessionSerial;
 
         // alice creates OUTBOUND GROUP SESSION
         try {
@@ -306,13 +305,86 @@ public class OlmGroupSessionTest {
         catch (IOException e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception IOException Msg==" + e.getMessage());
         }
-        /*catch (OlmException e) {
-            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception OlmException Msg==" + e.getMessage());
-        }*/
         catch (Exception e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception Msg==" + e.getMessage());
         }
+    }
 
+    /**
+     * Create multiple outbound group sessions and check that session Keys are different.
+     * This test validates random series are provide enough random values.
+     */
+    @Test
+    public void test16MultipleOutboundSession() {
+        OlmOutboundGroupSession outboundGroupSession1;
+        OlmOutboundGroupSession outboundGroupSession2;
+        OlmOutboundGroupSession outboundGroupSession3;
+        OlmOutboundGroupSession outboundGroupSession4;
+        OlmOutboundGroupSession outboundGroupSession5;
+        OlmOutboundGroupSession outboundGroupSession6;
+        OlmOutboundGroupSession outboundGroupSession7;
+        OlmOutboundGroupSession outboundGroupSession8;
+
+        try {
+            outboundGroupSession1 = new OlmOutboundGroupSession();
+            outboundGroupSession2 = new OlmOutboundGroupSession();
+            outboundGroupSession3 = new OlmOutboundGroupSession();
+            outboundGroupSession4 = new OlmOutboundGroupSession();
+            outboundGroupSession5 = new OlmOutboundGroupSession();
+            outboundGroupSession6 = new OlmOutboundGroupSession();
+            outboundGroupSession7 = new OlmOutboundGroupSession();
+            outboundGroupSession8 = new OlmOutboundGroupSession();
+
+            // get the session key from the outbound group sessions
+            String sessionKey1 = outboundGroupSession1.sessionKey();
+            String sessionKey2 = outboundGroupSession2.sessionKey();
+            assertFalse(sessionKey1.equals(sessionKey2));
+
+            String sessionKey3 = outboundGroupSession3.sessionKey();
+            assertFalse(sessionKey2.equals(sessionKey3));
+
+            String sessionKey4 = outboundGroupSession4.sessionKey();
+            assertFalse(sessionKey3.equals(sessionKey4));
+
+            String sessionKey5 = outboundGroupSession5.sessionKey();
+            assertFalse(sessionKey4.equals(sessionKey5));
+
+            String sessionKey6 = outboundGroupSession6.sessionKey();
+            assertFalse(sessionKey5.equals(sessionKey6));
+
+            String sessionKey7 = outboundGroupSession7.sessionKey();
+            assertFalse(sessionKey6.equals(sessionKey7));
+
+            String sessionKey8 = outboundGroupSession8.sessionKey();
+            assertFalse(sessionKey7.equals(sessionKey8));
+
+            // get the session IDs from the outbound group sessions
+            String sessionId1 = outboundGroupSession1.sessionIdentifier();
+            String sessionId2 = outboundGroupSession2.sessionIdentifier();
+            assertFalse(sessionId1.equals(sessionId2));
+
+            String sessionId3 = outboundGroupSession3.sessionKey();
+            assertFalse(sessionId2.equals(sessionId3));
+
+            String sessionId4 = outboundGroupSession4.sessionKey();
+            assertFalse(sessionId3.equals(sessionId4));
+
+            String sessionId5 = outboundGroupSession5.sessionKey();
+            assertFalse(sessionId4.equals(sessionId5));
+
+            String sessionId6 = outboundGroupSession6.sessionKey();
+            assertFalse(sessionId5.equals(sessionId6));
+
+            String sessionId7 = outboundGroupSession7.sessionKey();
+            assertFalse(sessionId6.equals(sessionId7));
+
+            String sessionId8 = outboundGroupSession8.sessionKey();
+            assertFalse(sessionId7.equals(sessionId8));
+
+
+        } catch (OlmException e) {
+            assertTrue("Exception in OlmOutboundGroupSession, Exception code=" + e.getExceptionCode(), false);
+        }
     }
 
 }

@@ -41,6 +41,7 @@ import java.io.ObjectOutputStream;
 import java.util.Iterator;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -238,10 +239,10 @@ public class OlmAccountTest {
 
     @Test
     public void test13Serialization() {
-        FileOutputStream fileOutput = null;
-        ObjectOutputStream objectOutput = null;
+        FileOutputStream fileOutput;
+        ObjectOutputStream objectOutput;
         OlmAccount accountRef = null;
-        OlmAccount accountDeserial = null;
+        OlmAccount accountDeserial;
 
         try {
             accountRef = new OlmAccount();
@@ -348,11 +349,82 @@ public class OlmAccountTest {
         } catch (OlmException e) {
             assertTrue(e.getMessage(),false);
         }
-        String clearMsg = null;
-        String signedMsg  = olmAccount.signMessage(clearMsg);
+        String signedMsg  = olmAccount.signMessage(null);
         assertNull(signedMsg);
 
         olmAccount.releaseAccount();
     }
 
+    /**
+     * Create multiple accounts and check that identity keys are still different.
+     * This test validates random series are provide enough random values.
+     */
+    @Test
+    public void test17MultipleAccountCreation() {
+        try {
+            OlmAccount account1 = new OlmAccount();
+            OlmAccount account2 = new OlmAccount();
+            OlmAccount account3 = new OlmAccount();
+            OlmAccount account4 = new OlmAccount();
+            OlmAccount account5 = new OlmAccount();
+            OlmAccount account6 = new OlmAccount();
+            OlmAccount account7 = new OlmAccount();
+            OlmAccount account8 = new OlmAccount();
+            OlmAccount account9 = new OlmAccount();
+            OlmAccount account10 = new OlmAccount();
+
+            JSONObject identityKeysJson1 = account1.identityKeys();
+            JSONObject identityKeysJson2 = account2.identityKeys();
+            JSONObject identityKeysJson3 = account3.identityKeys();
+            JSONObject identityKeysJson4 = account4.identityKeys();
+            JSONObject identityKeysJson5 = account5.identityKeys();
+            JSONObject identityKeysJson6 = account6.identityKeys();
+            JSONObject identityKeysJson7 = account7.identityKeys();
+            JSONObject identityKeysJson8 = account8.identityKeys();
+            JSONObject identityKeysJson9 = account9.identityKeys();
+            JSONObject identityKeysJson10 = account10.identityKeys();
+
+            String identityKey1 = TestHelper.getIdentityKey(identityKeysJson1);
+            String identityKey2 = TestHelper.getIdentityKey(identityKeysJson2);
+            assertFalse(identityKey1.equals(identityKey2));
+
+            String identityKey3 = TestHelper.getIdentityKey(identityKeysJson3);
+            assertFalse(identityKey2.equals(identityKey3));
+
+            String identityKey4 = TestHelper.getIdentityKey(identityKeysJson4);
+            assertFalse(identityKey3.equals(identityKey4));
+
+            String identityKey5 = TestHelper.getIdentityKey(identityKeysJson5);
+            assertFalse(identityKey4.equals(identityKey5));
+
+            String identityKey6 = TestHelper.getIdentityKey(identityKeysJson6);
+            assertFalse(identityKey5.equals(identityKey6));
+
+            String identityKey7 = TestHelper.getIdentityKey(identityKeysJson7);
+            assertFalse(identityKey6.equals(identityKey7));
+
+            String identityKey8 = TestHelper.getIdentityKey(identityKeysJson8);
+            assertFalse(identityKey7.equals(identityKey8));
+
+            String identityKey9 = TestHelper.getIdentityKey(identityKeysJson9);
+            assertFalse(identityKey8.equals(identityKey9));
+
+            String identityKey10 = TestHelper.getIdentityKey(identityKeysJson10);
+            assertFalse(identityKey9.equals(identityKey10));
+
+            account1.releaseAccount();
+            account2.releaseAccount();
+            account3.releaseAccount();
+            account4.releaseAccount();
+            account5.releaseAccount();
+            account6.releaseAccount();
+            account7.releaseAccount();
+            account8.releaseAccount();
+            account9.releaseAccount();
+            account10.releaseAccount();
+
+        } catch (OlmException e) {
+            assertTrue(e.getMessage(),false);
+        }
+    }
 }
