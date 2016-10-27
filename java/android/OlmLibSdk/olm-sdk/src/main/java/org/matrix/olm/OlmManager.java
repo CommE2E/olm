@@ -24,6 +24,7 @@ import android.util.Log;
  */
 public class OlmManager {
     private static final String LOG_TAG = "OlmManager";
+    private static final String SDK_OLM_VERSION = "V0.1.0_1";
 
     static {
         try {
@@ -31,6 +32,12 @@ public class OlmManager {
         } catch(UnsatisfiedLinkError e) {
             Log.e(LOG_TAG,"Exception loadLibrary() - Msg="+e.getMessage());
         }
+    }
+
+    public String getSdkOlmVersion() {
+        //Date currentDate = Calendar.getInstance().getTime();
+        //String retVal = new SimpleDateFormat("yyyyMMdd_HH:mm:ss").format(currentDate);
+        return SDK_OLM_VERSION;
     }
 
     /**

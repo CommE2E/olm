@@ -62,9 +62,11 @@ public class OlmAccountTest {
         // load native lib
         mOlmManager = new OlmManager();
 
-        String version = mOlmManager.getOlmLibVersion();
-        assertNotNull(version);
-        Log.d(LOG_TAG, "## setUpClass(): lib version="+version);
+        String olmLibVersion = mOlmManager.getOlmLibVersion();
+        assertNotNull(olmLibVersion);
+        String olmSdkVersion = mOlmManager.getSdkOlmVersion();
+        assertNotNull(olmLibVersion);
+        Log.d(LOG_TAG, "## setUpClass(): Versions - Android Olm SDK = "+olmSdkVersion+"  Olm lib ="+olmLibVersion);
     }
 
     @AfterClass
