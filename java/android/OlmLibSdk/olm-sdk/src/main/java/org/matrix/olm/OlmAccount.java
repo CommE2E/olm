@@ -264,7 +264,7 @@ public class OlmAccount implements Serializable {
         if( null != (identityKeysBuffer = identityKeysJni())) {
             try {
                 identityKeysJsonObj = new JSONObject(new String(identityKeysBuffer));
-                Log.d(LOG_TAG, "## identityKeys(): Identity Json keys=" + identityKeysJsonObj.toString());
+                //Log.d(LOG_TAG, "## identityKeys(): Identity Json keys=" + identityKeysJsonObj.toString());
             } catch (JSONException e) {
                 identityKeysJsonObj = null;
                 Log.e(LOG_TAG, "## identityKeys(): Exception - Msg=" + e.getMessage());
@@ -321,21 +321,21 @@ public class OlmAccount implements Serializable {
      */
     public JSONObject oneTimeKeys() {
         byte identityKeysBuffer[];
-        JSONObject identityKeysJsonObj = null;
+        JSONObject oneTimeKeysJsonObj = null;
 
         if( null != (identityKeysBuffer = oneTimeKeysJni())) {
             try {
-                identityKeysJsonObj = new JSONObject(new String(identityKeysBuffer));
-                Log.d(LOG_TAG, "## oneTimeKeys(): Identity Json keys=" + identityKeysJsonObj.toString());
+                oneTimeKeysJsonObj = new JSONObject(new String(identityKeysBuffer));
+                //Log.d(LOG_TAG, "## oneTimeKeys(): OneTime Json keys=" + oneTimeKeysJsonObj.toString());
             } catch (JSONException e) {
-                identityKeysJsonObj = null;
+                oneTimeKeysJsonObj = null;
                 Log.e(LOG_TAG, "## oneTimeKeys(): Exception - Msg=" + e.getMessage());
             }
         } else {
             Log.e(LOG_TAG, "## oneTimeKeys(): Failure - identityKeysJni()=null");
         }
 
-        return identityKeysJsonObj;
+        return oneTimeKeysJsonObj;
     }
     /**
      * Get the public parts of the unpublished "one time keys" for the account.<br>
