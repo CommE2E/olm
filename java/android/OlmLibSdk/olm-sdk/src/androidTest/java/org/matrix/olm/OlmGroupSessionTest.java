@@ -196,13 +196,12 @@ public class OlmGroupSessionTest {
             FileInputStream fileInput = context.openFileInput(FILE_NAME_SERIAL_OUT_SESSION);
             ObjectInputStream objectInput = new ObjectInputStream(fileInput);
             outboundGroupSessionSerial = (OlmOutboundGroupSession) objectInput.readObject();
+            assertNotNull(outboundGroupSessionSerial);
             objectInput.close();
 
             // get sessions keys
             String sessionKeyRef = outboundGroupSessionRef.sessionKey();
             String sessionKeySerial = outboundGroupSessionSerial.sessionKey();
-
-            // session keys sanity check
             assertFalse(TextUtils.isEmpty(sessionKeyRef));
             assertFalse(TextUtils.isEmpty(sessionKeySerial));
 
@@ -212,8 +211,6 @@ public class OlmGroupSessionTest {
             // get sessions IDs
             String sessionIdRef = outboundGroupSessionRef.sessionIdentifier();
             String sessionIdSerial = outboundGroupSessionSerial.sessionIdentifier();
-
-            // session ID sanity check
             assertFalse(TextUtils.isEmpty(sessionIdRef));
             assertFalse(TextUtils.isEmpty(sessionIdSerial));
 
@@ -222,21 +219,16 @@ public class OlmGroupSessionTest {
 
             outboundGroupSessionRef.releaseSession();
             outboundGroupSessionSerial.releaseSession();
-        }
-        catch (FileNotFoundException e) {
-            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception FileNotFoundException Msg=="+e.getMessage());
-        }
-        catch (ClassNotFoundException e) {
-            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception ClassNotFoundException Msg==" + e.getMessage());
-        }
-        catch (IOException e) {
-            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception IOException Msg==" + e.getMessage());
-        }
-        /*catch (OlmException e) {
-            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception OlmException Msg==" + e.getMessage());
-        }*/
-        catch (Exception e) {
-            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception Msg==" + e.getMessage());
+        } catch (FileNotFoundException e) {
+            Log.e(LOG_TAG, "## test14SerializeOutboundSession(): Exception FileNotFoundException Msg=="+e.getMessage());
+        } catch (ClassNotFoundException e) {
+            Log.e(LOG_TAG, "## test14SerializeOutboundSession(): Exception ClassNotFoundException Msg==" + e.getMessage());
+        } catch (OlmException e) {
+            Log.e(LOG_TAG, "## test14SerializeOutboundSession(): Exception OlmException Msg==" + e.getMessage());
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "## test14SerializeOutboundSession(): Exception IOException Msg==" + e.getMessage());
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## test14SerializeOutboundSession(): Exception Msg==" + e.getMessage());
         }
     }
 
@@ -277,17 +269,16 @@ public class OlmGroupSessionTest {
             objectOutput.close();
 
             // deserialize session
-            FileInputStream fileInput = context.openFileInput(FILE_NAME_SERIAL_OUT_SESSION);
+            FileInputStream fileInput = context.openFileInput(FILE_NAME_SERIAL_IN_SESSION);
             ObjectInputStream objectInput = new ObjectInputStream(fileInput);
             bobInboundGroupSessionSerial = (OlmInboundGroupSession)objectInput.readObject();
+            assertNotNull(bobInboundGroupSessionSerial);
             objectInput.close();
 
             // get sessions IDs
             String aliceSessionId = aliceOutboundGroupSession.sessionIdentifier();
             String sessionIdRef = bobInboundGroupSessionRef.sessionIdentifier();
             String sessionIdSerial = bobInboundGroupSessionSerial.sessionIdentifier();
-
-            // session ID sanity check
             assertFalse(TextUtils.isEmpty(aliceSessionId));
             assertFalse(TextUtils.isEmpty(sessionIdRef));
             assertFalse(TextUtils.isEmpty(sessionIdSerial));
@@ -295,18 +286,20 @@ public class OlmGroupSessionTest {
             // session IDs comparison
             assertTrue(aliceSessionId.equals(sessionIdSerial));
             assertTrue(sessionIdRef.equals(sessionIdSerial));
-        }
-        catch (FileNotFoundException e) {
-            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception FileNotFoundException Msg=="+e.getMessage());
-        }
-        catch (ClassNotFoundException e) {
-            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception ClassNotFoundException Msg==" + e.getMessage());
-        }
-        catch (IOException e) {
-            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception IOException Msg==" + e.getMessage());
-        }
-        catch (Exception e) {
-            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception Msg==" + e.getMessage());
+
+            aliceOutboundGroupSession.releaseSession();
+            bobInboundGroupSessionRef.releaseSession();
+            bobInboundGroupSessionSerial.releaseSession();
+        } catch (FileNotFoundException e) {
+            Log.e(LOG_TAG, "## test15SerializeInboundSession(): Exception FileNotFoundException Msg=="+e.getMessage());
+        } catch (ClassNotFoundException e) {
+            Log.e(LOG_TAG, "## test15SerializeInboundSession(): Exception ClassNotFoundException Msg==" + e.getMessage());
+        } catch (OlmException e) {
+            Log.e(LOG_TAG, "## test15SerializeInboundSession(): Exception OlmException Msg==" + e.getMessage());
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "## test15SerializeInboundSession(): Exception IOException Msg==" + e.getMessage());
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## test15SerializeInboundSession(): Exception Msg==" + e.getMessage());
         }
     }
 

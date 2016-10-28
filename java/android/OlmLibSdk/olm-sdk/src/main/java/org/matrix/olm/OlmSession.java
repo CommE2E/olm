@@ -52,9 +52,8 @@ public class OlmSession implements Serializable {
      * Kick off the serialization mechanism.
      * @param aOutStream output stream for serializing
      * @throws IOException exception
-     * @throws OlmException exception
      */
-    private void writeObject(ObjectOutputStream aOutStream) throws IOException, OlmException {
+    private void writeObject(ObjectOutputStream aOutStream) throws IOException {
         aOutStream.defaultWriteObject();
 
         // generate serialization key
@@ -77,9 +76,8 @@ public class OlmSession implements Serializable {
      * @param aInStream input stream
      * @throws IOException exception
      * @throws ClassNotFoundException exception
-     * @throws OlmException exception
      */
-    private void readObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException, OlmException {
+    private void readObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException {
         aInStream.defaultReadObject();
         StringBuffer errorMsg = new StringBuffer();
 
