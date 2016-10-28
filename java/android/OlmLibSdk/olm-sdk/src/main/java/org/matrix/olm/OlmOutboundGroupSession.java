@@ -116,8 +116,8 @@ public class OlmOutboundGroupSession implements Serializable {
     }
 
     /**
-     * Return a session as a base64 string.<br>
-     * The account is serialized and encrypted with aKey.
+     * Return the current outbound group session as a base64 serialized string.<br>
+     * The session is serialized and encrypted with aKey.
      * In case of failure, an error human readable
      * description is provide in aErrorMsg.
      * @param aKey encryption key
@@ -143,10 +143,10 @@ public class OlmOutboundGroupSession implements Serializable {
 
 
     /**
-     * Loads an account from a pickled base64 string.<br>
+     * Load an outbound group session from a pickled base64 string.<br>
      * See {@link #serializeDataWithKey(String, StringBuffer)}
-     * @param aSerializedData pickled account in a base64 string format
-     * @param aKey key used to encrypted
+     * @param aSerializedData pickled outbound group session in a base64 string format
+     * @param aKey encrypting key used in {@link #serializeDataWithKey(String, StringBuffer)}
      * @param aErrorMsg error message description
      * @return true if operation succeed, false otherwise
      */
