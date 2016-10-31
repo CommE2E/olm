@@ -32,7 +32,7 @@ import java.io.Serializable;
  *
  * <br><br>Detailed implementation guide is available at <a href="http://matrix.org/docs/guides/e2e_implementation.html">Implementing End-to-End Encryption in Matrix clients</a>.
  */
-public class OlmOutboundGroupSession implements Serializable {
+public class OlmOutboundGroupSession extends CommonSerializeUtils implements Serializable {
     private static final long serialVersionUID = -3133097431283604416L;
     private static final String LOG_TAG = "OlmOutboundGroupSession";
 
@@ -65,21 +65,7 @@ public class OlmOutboundGroupSession implements Serializable {
      * @throws IOException exception
      */
     private void writeObject(ObjectOutputStream aOutStream) throws IOException {
-        aOutStream.defaultWriteObject();
-
-        // generate serialization key
-        String key = OlmUtility.getRandomKey();
-
-        // compute pickle string
-        StringBuffer errorMsg = new StringBuffer();
-        String pickledData = serializeDataWithKey(key, errorMsg);
-
-        if(null == pickledData) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_SERIALIZATION, String.valueOf(errorMsg));
-        } else {
-            aOutStream.writeObject(key);
-            aOutStream.writeObject(pickledData);
-        }
+        serializeObject(aOutStream);
     }
 
     /**
@@ -89,28 +75,17 @@ public class OlmOutboundGroupSession implements Serializable {
      * @throws ClassNotFoundException exception
      */
     private void readObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException {
-        aInStream.defaultReadObject();
-        StringBuffer errorMsg = new StringBuffer();
+        deserializeObject(aInStream);
+    }
 
-        String key = (String) aInStream.readObject();
-        String pickledData = (String) aInStream.readObject();
+    @Override
+    protected boolean createNewObjectFromSerialization() {
+        return createNewSession();
+    }
 
-        if(TextUtils.isEmpty(key)) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_DESERIALIZATION, OlmException.EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION+" key");
-
-        } else if(TextUtils.isEmpty(pickledData)) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_DESERIALIZATION, OlmException.EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION+" pickle");
-
-        } else if(!createNewSession()) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_DESERIALIZATION, OlmException.EXCEPTION_MSG_INIT_NEW_ACCOUNT_DESERIALIZATION);
-
-        } else if(!initWithSerializedData(pickledData, key, errorMsg)) {
-            releaseSession(); // prevent memory leak
-            throw new OlmException(OlmException.EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_DESERIALIZATION, String.valueOf(errorMsg));
-
-        } else {
-            Log.d(LOG_TAG,"## readObject(): success");
-        }
+    @Override
+    protected void releaseObjectFromSerialization() {
+        releaseSession();
     }
 
     /**
@@ -122,7 +97,8 @@ public class OlmOutboundGroupSession implements Serializable {
      * @param aErrorMsg error message description
      * @return pickled base64 string if operation succeed, null otherwise
      */
-    private String serializeDataWithKey(String aKey, StringBuffer aErrorMsg) {
+    @Override
+    protected String serializeDataWithKey(String aKey, StringBuffer aErrorMsg) {
         String pickleRetValue = null;
 
         // sanity check
@@ -148,7 +124,8 @@ public class OlmOutboundGroupSession implements Serializable {
      * @param aErrorMsg error message description
      * @return true if operation succeed, false otherwise
      */
-    private boolean initWithSerializedData(String aSerializedData, String aKey, StringBuffer aErrorMsg) {
+    @Override
+    protected boolean initWithSerializedData(String aSerializedData, String aKey, StringBuffer aErrorMsg) {
         boolean retCode = false;
         String jniError;
 
