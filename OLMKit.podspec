@@ -38,8 +38,11 @@ Pod::Spec.new do |s|
   # Use the same compiler options for C and C++ as olm/Makefile
   
   s.compiler_flags = "-g -O3 -DOLMLIB_VERSION_MAJOR=#{MAJOR} -DOLMLIB_VERSION_MINOR=#{MINOR} -DOLMLIB_VERSION_PATCH=#{PATCH}"
+
+  # For headers search paths, manage first the normal installation. Then, use paths used
+  # when the pod is local
   s.xcconfig = { 
-    'USER_HEADER_SEARCH_PATHS' =>"#{File.join(File.dirname(__FILE__), 'include')} #{File.join(File.dirname(__FILE__), 'lib')}"
+    'USER_HEADER_SEARCH_PATHS' =>"${PODS_ROOT}/OLMKit/include ${PODS_ROOT}/OLMKit/lib #{File.join(File.dirname(__FILE__), 'include')} #{File.join(File.dirname(__FILE__), 'lib')}"
   }
   
   s.subspec 'olmc' do |olmc|
