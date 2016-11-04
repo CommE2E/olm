@@ -46,7 +46,7 @@ Pod::Spec.new do |s|
   }
   
   s.subspec 'olmc' do |olmc|
-    olmc.source_files   = "src/*.{c}", "lib/ed25519/**/*.{h,c}", "lib/crypto-algorithms/sha256.c", "lib/crypto-algorithms/aes.c",  "lib/curve25519-donna/curve25519-donna.c"
+    olmc.source_files   = "src/*.{c}", "lib/ed25519/**/*.{h,c}", "lib/crypto-algorithms/sha256.{h,c}", "lib/crypto-algorithms/aes.{h,c}",  "lib/curve25519-donna/curve25519-donna.c"
     olmc.compiler_flags = ' -std=c99 -fPIC'
   end
   
