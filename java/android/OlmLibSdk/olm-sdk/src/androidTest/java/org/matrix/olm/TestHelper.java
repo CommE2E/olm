@@ -64,7 +64,7 @@ public class TestHelper {
     /**
      * Return the first one time key from the JSON object.
      * @param aIdentityKeysObj JSON result of {@link OlmAccount#oneTimeKeys()}
-     * @param aKeyPosition the poistion of the key to be retrieved
+     * @param aKeyPosition the position of the key to be retrieved
      * @return one time key string if operation succeed, null otherwise
      */
     static public String getOneTimeKey(JSONObject aIdentityKeysObj, int aKeyPosition) {
