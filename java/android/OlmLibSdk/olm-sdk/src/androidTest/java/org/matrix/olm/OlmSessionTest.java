@@ -159,6 +159,8 @@ public class OlmSessionTest {
      * - bob decrypts the encrypted message with its own session
      * - bob encrypts messages with its own session
      * - alice decrypts bob's messages with its own message
+     * - alice encrypts a message
+     * - bob decrypts the encrypted message
      */
     @Test
     public void test02AliceToBobBackAndForth() {
@@ -245,13 +247,21 @@ public class OlmSessionTest {
         String decryptedMsg3 = aliceSession.decryptMessage(encryptedMsg3);
         assertNotNull(decryptedMsg3);
 
-        // and one more form alice..
-        encryptedMsg1 = aliceSession.encryptMessage(clearMsg1);
-
         // comparison tests
         assertTrue(clearMsg1.equals(decryptedMsg1));
         assertTrue(clearMsg2.equals(decryptedMsg2));
         assertTrue(clearMsg3.equals(decryptedMsg3));
+
+        // and one more from alice to bob
+        clearMsg1 = "another message from Alice to Bob!!";
+        encryptedMsg1 = aliceSession.encryptMessage(clearMsg1);
+        assertNotNull(encryptedMsg1);
+        decryptedMsg1 = bobSession.decryptMessage(encryptedMsg1);
+        assertNotNull(decryptedMsg1);
+        assertTrue(clearMsg1.equals(decryptedMsg1));
+
+        // comparison test
+        assertTrue(clearMsg1.equals(decryptedMsg1));
 
         // clean objects..
         assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
