@@ -79,7 +79,7 @@
     return idString;
 }
 
-- (NSString *)decryptMessage:(NSString *)message
+- (NSString *)decryptMessage:(NSString *)message messageIndex:(NSUInteger*)messageIndex
 {
     NSParameterAssert(message != nil);
     NSData *messageData = [message dataUsingEncoding:NSUTF8StringEncoding];
@@ -96,7 +96,7 @@
     // message buffer is destroyed by olm_group_decrypt_max_plaintext_length
     mutMessage = messageData.mutableCopy;
     NSMutableData *plaintextData = [NSMutableData dataWithLength:maxPlaintextLength];
-    size_t plaintextLength = olm_group_decrypt(session, mutMessage.mutableBytes, mutMessage.length, plaintextData.mutableBytes, plaintextData.length);
+    size_t plaintextLength = olm_group_decrypt(session, mutMessage.mutableBytes, mutMessage.length, plaintextData.mutableBytes, plaintextData.length, messageIndex);
     if (plaintextLength == olm_error()) {
         const char *error = olm_inbound_group_session_last_error(session);
         NSAssert(NO, @"olm_group_decrypt error: %s", error);

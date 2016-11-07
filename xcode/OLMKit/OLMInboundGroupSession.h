@@ -24,6 +24,6 @@
 - (NSString*)sessionIdentifier;
 
 /** base64 ciphertext -> UTF-8 plaintext */
-- (NSString*)decryptMessage:(NSString*)message;
+- (NSString*)decryptMessage:(NSString*)message messageIndex:(NSUInteger*)messageIndex;
 
 @end

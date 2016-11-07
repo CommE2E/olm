@@ -55,8 +55,10 @@
     OLMInboundGroupSession *bobSession = [[OLMInboundGroupSession alloc] initInboundGroupSessionWithSessionKey:sessionKey];
     XCTAssertEqualObjects(aliceSession.sessionIdentifier, bobSession.sessionIdentifier);
 
-    NSString *plaintext = [bobSession decryptMessage:aliceToBobMsg];
+    NSUInteger messageIndex;
+    NSString *plaintext = [bobSession decryptMessage:aliceToBobMsg messageIndex:&messageIndex];
     XCTAssertEqualObjects(message, plaintext);
+    XCTAssertEqual(messageIndex, 0);
 }
 
 - (void)testOutboundGroupSessionSerialization {
