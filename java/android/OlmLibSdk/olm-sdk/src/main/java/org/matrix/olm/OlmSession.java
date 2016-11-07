@@ -35,9 +35,10 @@ import java.io.Serializable;
 public class OlmSession extends CommonSerializeUtils implements Serializable {
     private static final long serialVersionUID = -8975488639186976419L;
     private static final String LOG_TAG = "OlmSession";
+    private transient int mUnreleasedCount;
 
-    /** session raw pointer value (OlmSession*) returned by JNI.
-     * this value uniquely identifies the native session instance.
+    /** Session Id returned by JNI.
+     * This value uniquely identifies the native session instance.
      **/
     private transient long mNativeId;
 
@@ -158,7 +159,7 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      */
     public void releaseSession(){
         releaseSessionJni();
-
+        mUnreleasedCount--;
         mNativeId = 0;
     }
 
@@ -171,6 +172,7 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
     private boolean initNewSession() {
         boolean retCode = false;
         if(0 != (mNativeId = initNewSessionJni())){
+            mUnreleasedCount++;
             retCode = true;
         }
         return retCode;
@@ -194,6 +196,7 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
     private boolean createNewSession() {
         boolean retCode = false;
         if(0 != (mNativeId = createNewSessionJni())){
+            mUnreleasedCount++;
             retCode = true;
         }
         return retCode;
@@ -367,5 +370,13 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
     }
 
     private native String decryptMessageJni(OlmMessage aEncryptedMsg);
+
+    /**
+     * Return the number of unreleased OlmSession instances.<br>
+     * @return number of unreleased instances
+     */
+    public int getUnreleasedCount() {
+        return mUnreleasedCount;
+    }
 }
 

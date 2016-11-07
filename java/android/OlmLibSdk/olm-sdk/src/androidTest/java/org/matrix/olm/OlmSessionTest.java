@@ -137,9 +137,14 @@ public class OlmSessionTest {
         // release accounts
         bobAccount.releaseAccount();
         aliceAccount.releaseAccount();
+        assertTrue(0==bobAccount.getUnreleasedCount());
+        assertTrue(0==aliceAccount.getUnreleasedCount());
+
         // release sessions
         bobSession.releaseSession();
         aliceSession.releaseSession();
+        assertTrue(0==bobSession.getUnreleasedCount());
+        assertTrue(0==aliceSession.getUnreleasedCount());
     }
 
 
@@ -251,9 +256,14 @@ public class OlmSessionTest {
         // clean objects..
         assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
         bobAccount.releaseAccount();
-        bobSession.releaseSession();
         aliceAccount.releaseAccount();
+        assertTrue(0==bobAccount.getUnreleasedCount());
+        assertTrue(0==aliceAccount.getUnreleasedCount());
+
+        bobSession.releaseSession();
         aliceSession.releaseSession();
+        assertTrue(0==bobSession.getUnreleasedCount());
+        assertTrue(0==aliceSession.getUnreleasedCount());
     }
 
 
@@ -302,9 +312,14 @@ public class OlmSessionTest {
         assertTrue(aliceSessionId.equals(bobSessionId));
 
         aliceAccount.releaseAccount();
-        aliceSession.releaseSession();
         bobAccount.releaseAccount();
+        assertTrue(0==aliceAccount.getUnreleasedCount());
+        assertTrue(0==bobAccount.getUnreleasedCount());
+
         bobSession.releaseSession();
+        aliceSession.releaseSession();
+        assertTrue(0==bobSession.getUnreleasedCount());
+        assertTrue(0==aliceSession.getUnreleasedCount());
     }
 
     @Test
@@ -360,8 +375,13 @@ public class OlmSessionTest {
         assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
         aliceAccount.releaseAccount();
         bobAccount.releaseAccount();
+        assertTrue(0==aliceAccount.getUnreleasedCount());
+        assertTrue(0==bobAccount.getUnreleasedCount());
+
         aliceSession.releaseSession();
         bobSession.releaseSession();
+        assertTrue(0==aliceSession.getUnreleasedCount());
+        assertTrue(0==bobSession.getUnreleasedCount());
     }
 
     // ********************************************************
@@ -486,9 +506,15 @@ public class OlmSessionTest {
             assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
             bobAccount.releaseAccount();
             aliceAccount.releaseAccount();
+            assertTrue(0==bobAccount.getUnreleasedCount());
+            assertTrue(0==aliceAccount.getUnreleasedCount());
+
             bobSession.releaseSession();
             aliceSession.releaseSession();
             aliceSessionDeserial.releaseSession();
+            assertTrue(0==bobSession.getUnreleasedCount());
+            assertTrue(0==aliceSession.getUnreleasedCount());
+            assertTrue(0==aliceSessionDeserial.getUnreleasedCount());
         }
         catch (FileNotFoundException e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception FileNotFoundException Msg=="+e.getMessage());
@@ -589,8 +615,13 @@ public class OlmSessionTest {
         assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
         aliceAccount.releaseAccount();
         bobAccount.releaseAccount();
+        assertTrue(0==aliceAccount.getUnreleasedCount());
+        assertTrue(0==bobAccount.getUnreleasedCount());
+
         aliceSession.releaseSession();
         bobSession.releaseSession();
+        assertTrue(0==aliceSession.getUnreleasedCount());
+        assertTrue(0==bobSession.getUnreleasedCount());
     }
 
 }

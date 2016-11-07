@@ -168,9 +168,14 @@ public class OlmGroupSessionTest {
         mBobInboundGroupSession.releaseSession();
     }
 
+    @Test
+    public void test14CheckUnreleaseedCount() {
+        assertTrue(0==mAliceOutboundGroupSession.getUnreleasedCount());
+        assertTrue(0==mBobInboundGroupSession.getUnreleasedCount());
+    }
 
     @Test
-    public void test14SerializeOutboundSession() {
+    public void test15SerializeOutboundSession() {
         OlmOutboundGroupSession outboundGroupSessionRef=null;
         OlmOutboundGroupSession outboundGroupSessionSerial;
 
@@ -219,21 +224,24 @@ public class OlmGroupSessionTest {
 
             outboundGroupSessionRef.releaseSession();
             outboundGroupSessionSerial.releaseSession();
+
+            assertTrue(0==outboundGroupSessionRef.getUnreleasedCount());
+            assertTrue(0==outboundGroupSessionSerial.getUnreleasedCount());
         } catch (FileNotFoundException e) {
-            Log.e(LOG_TAG, "## test14SerializeOutboundSession(): Exception FileNotFoundException Msg=="+e.getMessage());
+            Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception FileNotFoundException Msg=="+e.getMessage());
         } catch (ClassNotFoundException e) {
-            Log.e(LOG_TAG, "## test14SerializeOutboundSession(): Exception ClassNotFoundException Msg==" + e.getMessage());
+            Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception ClassNotFoundException Msg==" + e.getMessage());
         } catch (OlmException e) {
-            Log.e(LOG_TAG, "## test14SerializeOutboundSession(): Exception OlmException Msg==" + e.getMessage());
+            Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception OlmException Msg==" + e.getMessage());
         } catch (IOException e) {
-            Log.e(LOG_TAG, "## test14SerializeOutboundSession(): Exception IOException Msg==" + e.getMessage());
+            Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception IOException Msg==" + e.getMessage());
         } catch (Exception e) {
-            Log.e(LOG_TAG, "## test14SerializeOutboundSession(): Exception Msg==" + e.getMessage());
+            Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception Msg==" + e.getMessage());
         }
     }
 
     @Test
-    public void test15SerializeInboundSession() {
+    public void test16SerializeInboundSession() {
         OlmOutboundGroupSession aliceOutboundGroupSession=null;
         OlmInboundGroupSession bobInboundGroupSessionRef=null;
         OlmInboundGroupSession bobInboundGroupSessionSerial;
@@ -290,16 +298,20 @@ public class OlmGroupSessionTest {
             aliceOutboundGroupSession.releaseSession();
             bobInboundGroupSessionRef.releaseSession();
             bobInboundGroupSessionSerial.releaseSession();
+
+            assertTrue(0==aliceOutboundGroupSession.getUnreleasedCount());
+            assertTrue(0==bobInboundGroupSessionRef.getUnreleasedCount());
+            assertTrue(0==bobInboundGroupSessionSerial.getUnreleasedCount());
         } catch (FileNotFoundException e) {
-            Log.e(LOG_TAG, "## test15SerializeInboundSession(): Exception FileNotFoundException Msg=="+e.getMessage());
+            Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception FileNotFoundException Msg=="+e.getMessage());
         } catch (ClassNotFoundException e) {
-            Log.e(LOG_TAG, "## test15SerializeInboundSession(): Exception ClassNotFoundException Msg==" + e.getMessage());
+            Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception ClassNotFoundException Msg==" + e.getMessage());
         } catch (OlmException e) {
-            Log.e(LOG_TAG, "## test15SerializeInboundSession(): Exception OlmException Msg==" + e.getMessage());
+            Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception OlmException Msg==" + e.getMessage());
         } catch (IOException e) {
-            Log.e(LOG_TAG, "## test15SerializeInboundSession(): Exception IOException Msg==" + e.getMessage());
+            Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception IOException Msg==" + e.getMessage());
         } catch (Exception e) {
-            Log.e(LOG_TAG, "## test15SerializeInboundSession(): Exception Msg==" + e.getMessage());
+            Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception Msg==" + e.getMessage());
         }
     }
 
@@ -308,7 +320,7 @@ public class OlmGroupSessionTest {
      * This test validates random series are provide enough random values.
      */
     @Test
-    public void test16MultipleOutboundSession() {
+    public void test17MultipleOutboundSession() {
         OlmOutboundGroupSession outboundGroupSession1;
         OlmOutboundGroupSession outboundGroupSession2;
         OlmOutboundGroupSession outboundGroupSession3;
@@ -374,7 +386,23 @@ public class OlmGroupSessionTest {
             String sessionId8 = outboundGroupSession8.sessionKey();
             assertFalse(sessionId7.equals(sessionId8));
 
+            outboundGroupSession1.releaseSession();
+            outboundGroupSession2.releaseSession();
+            outboundGroupSession3.releaseSession();
+            outboundGroupSession4.releaseSession();
+            outboundGroupSession5.releaseSession();
+            outboundGroupSession6.releaseSession();
+            outboundGroupSession7.releaseSession();
+            outboundGroupSession8.releaseSession();
 
+            assertTrue(0==outboundGroupSession1.getUnreleasedCount());
+            assertTrue(0==outboundGroupSession2.getUnreleasedCount());
+            assertTrue(0==outboundGroupSession3.getUnreleasedCount());
+            assertTrue(0==outboundGroupSession4.getUnreleasedCount());
+            assertTrue(0==outboundGroupSession5.getUnreleasedCount());
+            assertTrue(0==outboundGroupSession6.getUnreleasedCount());
+            assertTrue(0==outboundGroupSession7.getUnreleasedCount());
+            assertTrue(0==outboundGroupSession8.getUnreleasedCount());
         } catch (OlmException e) {
             assertTrue("Exception in OlmOutboundGroupSession, Exception code=" + e.getExceptionCode(), false);
         }

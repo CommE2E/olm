@@ -37,9 +37,10 @@ import java.io.Serializable;
 public class OlmInboundGroupSession extends CommonSerializeUtils implements Serializable {
     private static final long serialVersionUID = -772028491251653253L;
     private static final String LOG_TAG = "OlmInboundGroupSession";
+    private transient int mUnreleasedCount;
 
-    /** session raw pointer value returned by JNI.<br>
-     * this value uniquely identifies the native inbound group session instance.
+    /** Session Id returned by JNI.<br>
+     * This value uniquely identifies the native inbound group session instance.
      */
     private transient long mNativeId;
 
@@ -68,7 +69,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      */
     public void releaseSession(){
         releaseSessionJni();
-
+        mUnreleasedCount--;
         mNativeId = 0;
     }
 
@@ -88,6 +89,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     private boolean createNewSession() {
         boolean retCode = false;
         if(0 != (mNativeId = createNewSessionJni())){
+            mUnreleasedCount++;
             retCode = true;
         }
         return retCode;
@@ -232,4 +234,12 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      * @return null if operation succeed, an error message if operation failed
      */
     private native String initWithSerializedDataJni(String aSerializedData, String aKey);
+
+    /**
+     * Return the number of unreleased OlmInboundGroupSession instances.<br>
+     * @return number of unreleased instances
+     */
+    public int getUnreleasedCount() {
+        return mUnreleasedCount;
+    }
 }

@@ -35,6 +35,7 @@ import java.io.Serializable;
 public class OlmAccount extends CommonSerializeUtils implements Serializable {
     private static final long serialVersionUID = 3497486121598434824L;
     private static final String LOG_TAG = "OlmAccount";
+    private transient int mUnreleasedCount;
 
     // JSON keys used in the JSON objects returned by JNI
     /** As well as the identity key, each device creates a number of Curve25519 key pairs which are
@@ -53,8 +54,8 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      never leave the device, but the public part is published to the Matrix network. **/
     public static final String JSON_KEY_FINGER_PRINT_KEY = "ed25519";
 
-    /** account raw pointer value (OlmAccount*) returned by JNI.
-     * this value identifies uniquely the native account instance.
+    /** Account Id returned by JNI.
+     * This value identifies uniquely the native account instance.
      */
     private transient long mNativeId;
 
@@ -167,7 +168,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      */
     public void releaseAccount(){
         releaseAccountJni();
-
+        mUnreleasedCount--;
         mNativeId = 0;
     }
 
@@ -188,6 +189,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     private boolean initNewAccount() {
         boolean retCode = false;
         if(0 != (mNativeId = initNewAccountJni())){
+            mUnreleasedCount++;
             retCode = true;
         }
         return retCode;
@@ -210,6 +212,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     private boolean createNewAccount() {
         boolean retCode = false;
         if(0 != (mNativeId = createNewAccountJni())){
+            mUnreleasedCount++;
             retCode = true;
         }
         return retCode;
@@ -353,7 +356,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     private native int markOneTimeKeysAsPublishedJni();
 
     /**
-     * Sign a message with the ed25519 fingerprint key for this account.
+     * Sign a message with the ed25519 fingerprint key for this account.<br>
      * The signed message is returned by the method.
      * @param aMessage message to sign
      * @return the signed message if operation succeed, null otherwise
@@ -362,4 +365,12 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
         return signMessageJni(aMessage);
     }
     private native String signMessageJni(String aMessage);
+
+    /**
+     * Return the number of unreleased OlmAccount instances.<br>
+     * @return number of unreleased instances
+     */
+    public int getUnreleasedCount() {
+        return mUnreleasedCount;
+    }
 }

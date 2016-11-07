@@ -29,9 +29,10 @@ public class OlmUtility {
 
     public static final int RANDOM_KEY_SIZE = 32;
     public static final int RANDOM_RANGE = 256;
+    private transient int mUnreleasedCount;
 
-    /** raw pointer value returned by JNI.
-     * this value uniquely identifies this utility instance.
+    /** Instance Id returned by JNI.
+     * This value uniquely identifies this utility instance.
      **/
     private long mNativeId;
 
@@ -47,6 +48,7 @@ public class OlmUtility {
     private boolean initUtility() {
         boolean retCode = false;
         if(0 != (mNativeId = initUtilityJni())){
+            mUnreleasedCount++;
             retCode = true;
         }
         return retCode;
@@ -59,6 +61,7 @@ public class OlmUtility {
      */
     public void releaseUtility(){
         releaseUtilityJni();
+        mUnreleasedCount--;
         mNativeId = 0;
     }
     private native void releaseUtilityJni();
@@ -126,6 +129,10 @@ public class OlmUtility {
     private native String sha256Jni(String aMessage);
 
 
+    /**
+     * Helper method to compute a string based on random integers.
+     * @return string containing randoms integer values
+     */
     public static String getRandomKey() {
         String keyRetValue;
         Random rand = new Random();
@@ -137,6 +144,14 @@ public class OlmUtility {
         keyRetValue = strBuilder.toString();
 
         return keyRetValue;
+    }
+
+    /**
+     * Return the number of unreleased OlmUtility instances.<br>
+     * @return number of unreleased instances
+     */
+    public int getUnreleasedCount() {
+        return mUnreleasedCount;
     }
 }
 

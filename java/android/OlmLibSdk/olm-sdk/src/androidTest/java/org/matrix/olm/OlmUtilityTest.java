@@ -99,7 +99,10 @@ public class OlmUtilityTest {
         assertFalse(String.valueOf(errorMsg).isEmpty());
 
         utility.releaseUtility();
+        assertTrue(0==utility.getUnreleasedCount());
+
         account.releaseAccount();
+        assertTrue(0==account.getUnreleasedCount());
     }
 
 
@@ -112,5 +115,6 @@ public class OlmUtilityTest {
         assertFalse(TextUtils.isEmpty(hashResult));
 
         utility.releaseUtility();
+        assertTrue(0==utility.getUnreleasedCount());
     }
 }

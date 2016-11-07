@@ -35,9 +35,10 @@ import java.io.Serializable;
 public class OlmOutboundGroupSession extends CommonSerializeUtils implements Serializable {
     private static final long serialVersionUID = -3133097431283604416L;
     private static final String LOG_TAG = "OlmOutboundGroupSession";
+    private transient int mUnreleasedCount;
 
-    /** session raw pointer value returned by JNI.<br>
-     * this value uniquely identifies the native inbound group session instance.
+    /** Session Id returned by JNI.<br>
+     * This value uniquely identifies the native outbound group session instance.
      */
     private transient long mNativeId;
 
@@ -153,7 +154,8 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * Public API for {@link #releaseSessionJni()}.
      */
     public void releaseSession() {
-        releaseSessionJni();        
+        releaseSessionJni();
+        mUnreleasedCount--;
         mNativeId = 0;
     }
 
@@ -174,6 +176,7 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
     private boolean createNewSession() {
         boolean retCode = false;
         if(0 != (mNativeId = createNewSessionJni())){
+            mUnreleasedCount++;
             retCode = true;
         }
         return retCode;
@@ -237,6 +240,7 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
 
     /**
      * Encrypt some plain-text message.<br>
+     * The message given as parameter is encrypted and returned as the return value.
      * @param aClearMsg message to be encrypted
      * @return the encrypted message if operation succeed, null otherwise
      */
@@ -250,4 +254,12 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
         return retValue;
     }
     private native String encryptMessageJni(String aClearMsg);
+
+    /**
+     * Return the number of unreleased OlmOutboundGroupSession instances.<br>
+     * @return number of unreleased instances
+     */
+    public int getUnreleasedCount() {
+        return mUnreleasedCount;
+    }
 }

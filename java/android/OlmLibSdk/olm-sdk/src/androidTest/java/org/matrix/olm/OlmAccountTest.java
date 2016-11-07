@@ -187,11 +187,8 @@ public class OlmAccountTest {
             assertTrue(OlmAccount.JSON_KEY_ONE_TIME_KEY +" object is missing", null!=generatedKeysJsonObj);
 
             // test the count of the generated one time keys:
-            Iterator<String> generatedKeysIt = generatedKeysJsonObj.keys();
-            while(generatedKeysIt.hasNext()){
-                generatedKeysIt.next();
-                oneTimeKeysCount++;
-            }
+            oneTimeKeysCount = generatedKeysJsonObj.length();
+
             assertTrue("Expected count="+GENERATION_ONE_TIME_KEYS_NUMBER+" found="+oneTimeKeysCount,GENERATION_ONE_TIME_KEYS_NUMBER==oneTimeKeysCount);
 
         } catch (JSONException e) {
