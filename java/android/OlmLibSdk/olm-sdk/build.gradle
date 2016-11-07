@@ -28,6 +28,7 @@ android {
         source = android.sourceSets.main.java.srcDirs
         classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
         destinationDir = file("./doc/")
+        options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PRIVATE
         failOnError false
     }
 
@@ -47,10 +48,6 @@ android {
         workingDir file('src/main')
         commandLine getNdkBuildCmd(), 'clean'
     }
-
-    /*tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn ndkBuildNative
-    }*/
 
     tasks.withType(JavaCompile) {
         compileTask -> if (compileTask.name.startsWith('compileDebugJava')) {
