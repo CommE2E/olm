@@ -28,23 +28,26 @@ int main() {
 
     size_t pickle_length = olm_pickle_outbound_group_session_length(session);
     uint8_t pickle1[pickle_length];
-    olm_pickle_outbound_group_session(session,
-                                      "secret_key", 10,
-                                      pickle1, pickle_length);
+    size_t res = olm_pickle_outbound_group_session(
+        session, "secret_key", 10, pickle1, pickle_length
+    );
+    assert_equals(pickle_length, res);
+
     uint8_t pickle2[pickle_length];
     memcpy(pickle2, pickle1, pickle_length);
 
     uint8_t buffer2[size];
     OlmOutboundGroupSession *session2 = olm_outbound_group_session(buffer2);
-    size_t res = olm_unpickle_outbound_group_session(session2,
-                                                     "secret_key", 10,
-                                                     pickle2, pickle_length);
+    res = olm_unpickle_outbound_group_session(
+        session2, "secret_key", 10, pickle2, pickle_length
+    );
     assert_not_equals((size_t)-1, res);
     assert_equals(pickle_length,
                   olm_pickle_outbound_group_session_length(session2));
-    olm_pickle_outbound_group_session(session2,
-                                      "secret_key", 10,
-                                      pickle2, pickle_length);
+    res = olm_pickle_outbound_group_session(
+        session2, "secret_key", 10, pickle2, pickle_length
+    );
+    assert_equals(pickle_length, res);
 
     assert_equals(pickle1, pickle2, pickle_length);
 }
@@ -59,23 +62,25 @@ int main() {
 
     size_t pickle_length = olm_pickle_inbound_group_session_length(session);
     uint8_t pickle1[pickle_length];
-    olm_pickle_inbound_group_session(session,
-                                     "secret_key", 10,
-                                     pickle1, pickle_length);
+    size_t res = olm_pickle_inbound_group_session(
+        session, "secret_key", 10, pickle1, pickle_length
+    );
+    assert_equals(pickle_length, res);
+
     uint8_t pickle2[pickle_length];
     memcpy(pickle2, pickle1, pickle_length);
 
     uint8_t buffer2[size];
     OlmInboundGroupSession *session2 = olm_inbound_group_session(buffer2);
-    size_t res = olm_unpickle_inbound_group_session(session2,
-                                                    "secret_key", 10,
-                                                    pickle2, pickle_length);
+    res = olm_unpickle_inbound_group_session(
+        session2, "secret_key", 10, pickle2, pickle_length
+    );
     assert_not_equals((size_t)-1, res);
     assert_equals(pickle_length,
                   olm_pickle_inbound_group_session_length(session2));
-    olm_pickle_inbound_group_session(session2,
-                                      "secret_key", 10,
-                                      pickle2, pickle_length);
+    res = olm_pickle_inbound_group_session(
+        session2, "secret_key", 10, pickle2, pickle_length
+    );
 
     assert_equals(pickle1, pickle2, pickle_length);
 }
@@ -161,10 +166,12 @@ int main() {
     memcpy(msgcopy, msg, msglen);
     size = olm_group_decrypt_max_plaintext_length(inbound_session, msgcopy, msglen);
     uint8_t plaintext_buf[size];
+    uint32_t message_index;
     res = olm_group_decrypt(inbound_session, msg, msglen,
-                            plaintext_buf, size);
+                            plaintext_buf, size, &message_index);
     assert_equals(plaintext_length, res);
     assert_equals(plaintext, plaintext_buf, res);
+    assert_equals(message_index, uint32_t(0));
 }
 
 {
@@ -208,9 +215,11 @@ int main() {
 
     memcpy(msgcopy, message, msglen);
     uint8_t plaintext_buf[size];
+    uint32_t message_index;
     res = olm_group_decrypt(
-        inbound_session, msgcopy, msglen, plaintext_buf, size
+        inbound_session, msgcopy, msglen, plaintext_buf, size, &message_index
     );
+    assert_equals(message_index, uint32_t(0));
     assert_equals(plaintext_length, res);
     assert_equals(plaintext, plaintext_buf, res);
 
@@ -227,7 +236,7 @@ int main() {
     memcpy(msgcopy, message, msglen);
     res = olm_group_decrypt(
         inbound_session, msgcopy, msglen,
-        plaintext_buf, size
+        plaintext_buf, size, &message_index
     );
     assert_equals((size_t)-1, res);
     assert_equals(

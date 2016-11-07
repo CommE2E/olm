@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
-MAJOR := 1
-MINOR := 3
+MAJOR := 2
+MINOR := 0
 PATCH := 0
 VERSION := $(MAJOR).$(MINOR).$(PATCH)
 PREFIX ?= /usr/local
@@ -46,6 +46,7 @@ JS_POST := javascript/olm_outbound_group_session.js \
 DOCS := tracing/README.html \
     docs/megolm.html \
     docs/olm.html \
+    docs/signing.html \
     README.html \
     CHANGELOG.html
 

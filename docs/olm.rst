@@ -30,7 +30,7 @@ Initial setup
 ~~~~~~~~~~~~~
 
 The setup takes four Curve25519_ inputs: Identity keys for Alice and Bob,
-:math:`I_A` and :math:`I_B`, and ephemeral keys for Alice and Bob,
+:math:`I_A` and :math:`I_B`, and one-time keys for Alice and Bob,
 :math:`E_A` and :math:`E_B`. A shared secret, :math:`S`, is generated using
 `Triple Diffie-Hellman`_. The initial 256 bit root key, :math:`R_0`, and 256
 bit chain key, :math:`C_{0,0}`, are derived from the shared secret using an
@@ -279,7 +279,7 @@ Olm Authenticated Encryption
 Version 1
 ~~~~~~~~~
 
-Version 1 of Olm uses AES-256_ in CBC_ mode with `PCKS#7`_ padding for
+Version 1 of Olm uses AES-256_ in CBC_ mode with `PKCS#7`_ padding for
 encryption and HMAC-SHA-256_ (truncated to 64 bits) for authentication.  The
 256 bit AES key, 256 bit HMAC key, and 128 bit AES IV are derived from the
 message key using HKDF-SHA-256_ using the default salt and an info of
@@ -297,6 +297,37 @@ and the IV :math:`AES\_IV_{i,j}` to give the cipher-text, :math:`X_{i,j}`.
 
 Then the entire message (including the Version Byte and all Payload Bytes) are
 passed through HMAC-SHA-256. The first 8 bytes of the MAC are appended to the message.
+
+Message authentication concerns
+-------------------------------
+
+To avoid unknown key-share attacks, the application must include identifying
+data for the sending and receiving user in the plain-text of (at least) the
+pre-key messages. Such data could be a user ID, a telephone number;
+alternatively it could be the public part of a keypair which the relevant user
+has proven ownership of.
+
+.. admonition:: Example attacks
+
+   1. Alice publishes her public Curve25519 identity key, :math:`I_A`. Eve
+      publishes the same identity key, claiming it as her own. Bob downloads
+      Eve's keys, and associates :math:`I_A` with Eve. Alice sends a message to
+      Bob; Eve intercepts it before forwarding it to Bob. Bob believes the
+      message came from Eve rather than Alice.
+
+      This is prevented if Alice includes her user ID in the plain-text of the
+      pre-key message, so that Bob can see that the message was sent by Alice
+      originally.
+
+   2. Bob publishes his public Curve25519 identity key, :math:`I_B`. Eve
+      publishes the same identity key, claiming it as her own. Alice downloads
+      Eve's keys, and associates :math:`I_B` with Eve. Alice sends a message to
+      Eve; Eve cannot decrypt it, but forwards it to Bob. Bob believes the
+      Alice sent the message to him, wheras Alice intended it to go to Eve.
+
+      This is prevented by Alice including the user ID of the intended recpient
+      (Eve) in the plain-text of the pre-key message. Bob can now tell that the
+      message was meant for Eve rather than him.
 
 IPR
 ---
@@ -323,4 +354,4 @@ an entirely new implementation written by the Matrix.org team.
 .. _`SHA-256`: https://tools.ietf.org/html/rfc6234
 .. _`AES-256`: http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf
 .. _`CBC`: http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
-.. _`PCKS#7`: https://tools.ietf.org/html/rfc2315
+.. _`PKCS#7`: https://tools.ietf.org/html/rfc2315

@@ -154,20 +154,23 @@ size_t olm_init_outbound_group_session_random_length(
 
 size_t olm_init_outbound_group_session(
     OlmOutboundGroupSession *session,
-    uint8_t const * random, size_t random_length
+    uint8_t *random, size_t random_length
 ) {
+    const uint8_t *random_ptr = random;
+
     if (random_length < olm_init_outbound_group_session_random_length(session)) {
         /* Insufficient random data for new session */
         session->last_error = OLM_NOT_ENOUGH_RANDOM;
         return (size_t)-1;
     }
 
-    megolm_init(&(session->ratchet), random, 0);
-    random += MEGOLM_RATCHET_LENGTH;
+    megolm_init(&(session->ratchet), random_ptr, 0);
+    random_ptr += MEGOLM_RATCHET_LENGTH;
 
-    _olm_crypto_ed25519_generate_key(random, &(session->signing_key));
-    random += ED25519_RANDOM_LENGTH;
+    _olm_crypto_ed25519_generate_key(random_ptr, &(session->signing_key));
+    random_ptr += ED25519_RANDOM_LENGTH;
 
+    _olm_unset(random, random_length);
     return 0;
 }
 

@@ -54,6 +54,8 @@ int main(int argc, const char *argv[]) {
 
     uint8_t plaintext[max_length];
 
+    uint32_t ratchet_index;
+
     size_t length = check_error(
         olm_inbound_group_session_last_error,
         session,
@@ -61,7 +63,7 @@ int main(int argc, const char *argv[]) {
         olm_group_decrypt(
             session,
             message_buffer, message_length,
-            plaintext, max_length
+            plaintext, max_length, &ratchet_index
         )
     );
 

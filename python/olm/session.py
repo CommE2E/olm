@@ -58,6 +58,7 @@ session_function(
     c_void_p, c_size_t,  # Identity Key
     c_void_p, c_size_t,  # Pre Key Message
 )
+session_function(lib.olm_pickle_session_length)
 session_function(lib.olm_encrypt_message_type)
 session_function(lib.olm_encrypt_random_length)
 session_function(lib.olm_encrypt_message_length, c_size_t)

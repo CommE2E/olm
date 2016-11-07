@@ -214,11 +214,13 @@ void olm::decode_message(
     reader.ciphertext = nullptr;
     reader.ciphertext_length = 0;
 
-    if (pos == end) return;
     if (input_length < mac_length) return;
+
+    if (pos == end) return;
     reader.version = *(pos++);
 
     while (pos != end) {
+        unknown = pos;
         pos = decode(
             pos, end, RATCHET_KEY_TAG,
             reader.ratchet_key, reader.ratchet_key_length
@@ -234,7 +236,6 @@ void olm::decode_message(
         if (unknown == pos) {
             pos = skip_unknown(pos, end);
         }
-        unknown = pos;
     }
 }
 
@@ -303,6 +304,7 @@ void olm::decode_one_time_key_message(
     reader.version = *(pos++);
 
     while (pos != end) {
+        unknown = pos;
         pos = decode(
             pos, end, ONE_TIME_KEY_ID_TAG,
             reader.one_time_key, reader.one_time_key_length
@@ -322,7 +324,6 @@ void olm::decode_one_time_key_message(
         if (unknown == pos) {
             pos = skip_unknown(pos, end);
         }
-        unknown = pos;
     }
 }
 
@@ -377,9 +378,12 @@ void _olm_decode_group_message(
     results->ciphertext_length = 0;
 
     if (input_length < trailer_length) return;
+
+    if (pos == end) return;
     results->version = *(pos++);
 
     while (pos != end) {
+        unknown = pos;
         pos = decode(
             pos, end, GROUP_MESSAGE_INDEX_TAG,
             results->message_index, has_message_index
@@ -391,7 +395,6 @@ void _olm_decode_group_message(
         if (unknown == pos) {
             pos = skip_unknown(pos, end);
         }
-        unknown = pos;
     }
 
     results->has_message_index = (int)has_message_index;
