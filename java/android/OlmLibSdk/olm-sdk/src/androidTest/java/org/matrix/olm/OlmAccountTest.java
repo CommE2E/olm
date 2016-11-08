@@ -132,24 +132,12 @@ public class OlmAccountTest {
         Log.d(LOG_TAG,"## testIdentityKeys Keys="+identityKeysJson);
 
         // is JSON_KEY_FINGER_PRINT_KEY present?
-        try {
-            String fingerPrintKey = identityKeysJson.getString(OlmAccount.JSON_KEY_FINGER_PRINT_KEY);
-            assertTrue("fingerprint key missing",!TextUtils.isEmpty(fingerPrintKey));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            assertTrue("Exception MSg="+e.getMessage(), false);
-        }
+        String fingerPrintKey = TestHelper.getFingerprintKey(identityKeysJson);
+        assertTrue("fingerprint key missing",!TextUtils.isEmpty(fingerPrintKey));
 
         // is JSON_KEY_IDENTITY_KEY present?
-        try {
-            String identityKey = identityKeysJson.getString(OlmAccount.JSON_KEY_IDENTITY_KEY);
-            assertTrue("identity key missing",!TextUtils.isEmpty(identityKey));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            assertTrue("Exception MSg="+e.getMessage(), false);
-        }
-
-
+        String identityKey = TestHelper.getIdentityKey(identityKeysJson);
+        assertTrue("identity key missing",!TextUtils.isEmpty(identityKey));
     }
 
     //****************************************************
