@@ -267,21 +267,18 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * @param aAccount the account to associate with this session
      * @param aTheirIdentityKey the sender identity key
      * @param aPreKeyMsg PRE KEY message
-     * @return this if operation succeed, null otherwise
-     * TODO unit test missing: initInboundSessionWithAccountFrom
+     * @return 0 if operation succeed, -1 otherwise
      */
-    public OlmSession initInboundSessionWithAccountFrom(OlmAccount aAccount, String aTheirIdentityKey, String aPreKeyMsg) {
-        OlmSession retObj=null;
+    public int initInboundSessionWithAccountFrom(OlmAccount aAccount, String aTheirIdentityKey, String aPreKeyMsg) {
+        int retCode=-1;
 
         if((null==aAccount) || TextUtils.isEmpty(aPreKeyMsg)){
             Log.e(LOG_TAG, "## initInboundSessionWithAccount(): invalid input parameters");
         } else {
-            if(0 == initInboundSessionFromIdKeyJni(aAccount.getOlmAccountId(), aTheirIdentityKey, aPreKeyMsg)){
-                retObj = this;
-            }
+            retCode = initInboundSessionFromIdKeyJni(aAccount.getOlmAccountId(), aTheirIdentityKey, aPreKeyMsg);
         }
 
-        return retObj;
+        return retCode;
     }
 
     private native int initInboundSessionFromIdKeyJni(long aOlmAccountId, String aTheirIdentityKey, String aOneTimeKeyMsg);
@@ -305,7 +302,6 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * Public API for {@link #matchesInboundSessionJni(String)}.
      * @param aOneTimeKeyMsg PRE KEY message
      * @return this if operation succeed, null otherwise
-     * TODO unit test missing: matchesInboundSession
      */
     public boolean matchesInboundSession(String aOneTimeKeyMsg) {
         boolean retCode = false;
@@ -326,7 +322,6 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * @param aTheirIdentityKey the sender identity key
      * @param aOneTimeKeyMsg PRE KEY message
      * @return this if operation succeed, null otherwise
-     * TODO unit test missing: matchesInboundSessionFrom
      */
     public boolean matchesInboundSessionFrom(String aTheirIdentityKey, String aOneTimeKeyMsg) {
         boolean retCode = false;
