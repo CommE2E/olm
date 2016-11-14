@@ -118,7 +118,9 @@
     // message buffer is destroyed by olm_group_decrypt_max_plaintext_length
     mutMessage = messageData.mutableCopy;
     NSMutableData *plaintextData = [NSMutableData dataWithLength:maxPlaintextLength];
-    size_t plaintextLength = olm_group_decrypt(session, mutMessage.mutableBytes, mutMessage.length, plaintextData.mutableBytes, plaintextData.length, messageIndex);
+
+    uint32_t message_index;
+    size_t plaintextLength = olm_group_decrypt(session, mutMessage.mutableBytes, mutMessage.length, plaintextData.mutableBytes, plaintextData.length, &message_index);
     if (plaintextLength == olm_error()) {
         const char *olm_error = olm_inbound_group_session_last_error(session);
 
@@ -137,6 +139,12 @@
     }
     plaintextData.length = plaintextLength;
     NSString *plaintext = [[NSString alloc] initWithData:plaintextData encoding:NSUTF8StringEncoding];
+
+    if (messageIndex)
+    {
+        *messageIndex = message_index;
+    }
+
     return plaintext;
 }
 
