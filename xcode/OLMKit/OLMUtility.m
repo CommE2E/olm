@@ -79,7 +79,7 @@ NSString *const OLMErrorDomain = @"org.matrix.olm";
     size_t result = olm_ed25519_verify(_utility,
                                        keyData.bytes, keyData.length,
                                        message.bytes, message.length,
-                                       signatureData.bytes, signatureData.length
+                                       (void*)signatureData.bytes, signatureData.length
                                        );
 
     if (result == olm_error()) {
