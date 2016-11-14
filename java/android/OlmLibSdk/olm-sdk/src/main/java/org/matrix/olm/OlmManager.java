@@ -25,6 +25,18 @@ import android.util.Log;
 public class OlmManager {
     private static final String LOG_TAG = "OlmManager";
     private static final String SDK_OLM_VERSION = "V0.1.0_1";
+    /** specific flag to enable UTF-8 specific conversion for pre Marshmallow(23) android versions.<br>
+     * <a href="https://github.com/eclipsesource/J2V8/issues/142">NDK NewStringUTF() UTF8 issue</a>
+     **/
+    public static boolean ENABLE_STRING_UTF8_SPECIFIC_CONVERSION;
+
+    /**
+     * Constructor.
+     * @param aIsUtf8SpecificConversionEnabled true to enable JNI specific UTF-8 conversion, false otherwie
+     */
+    public OlmManager(boolean aIsUtf8SpecificConversionEnabled) {
+        ENABLE_STRING_UTF8_SPECIFIC_CONVERSION = aIsUtf8SpecificConversionEnabled;
+    }
 
     static {
         try {

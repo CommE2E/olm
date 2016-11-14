@@ -361,10 +361,10 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * @return the decrypted message if operation succeed, null otherwise
      */
     public String decryptMessage(OlmMessage aEncryptedMsg) {
-        return decryptMessageJni(aEncryptedMsg);
+        return decryptMessageJni(aEncryptedMsg, OlmManager.ENABLE_STRING_UTF8_SPECIFIC_CONVERSION);
     }
 
-    private native String decryptMessageJni(OlmMessage aEncryptedMsg);
+    private native String decryptMessageJni(OlmMessage aEncryptedMsg, boolean aIsUtf8ConversionRequired);
 
     /**
      * Return the number of unreleased OlmSession instances.<br>

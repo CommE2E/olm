@@ -123,16 +123,26 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     private native int initInboundGroupSessionWithSessionKeyJni(String aSessionKey);
 
 
+    /**
+     * Retrieve the base64-encoded identifier for this inbound group session.
+     * @return the session ID if operation succeed, null otherwise
+     */
     public String sessionIdentifier() {
         return sessionIdentifierJni();
     }
     private native String sessionIdentifierJni();
 
 
+    /**
+     * Decrypt the message passed in parameter.
+     * @param aEncryptedMsg the message to be decrypted
+     * @return the decrypted message if operation succeed, null otherwise.
+     */
     public String decryptMessage(String aEncryptedMsg) {
-        return decryptMessageJni(aEncryptedMsg);
+        String decryptedMessage = decryptMessageJni(aEncryptedMsg, OlmManager.ENABLE_STRING_UTF8_SPECIFIC_CONVERSION);
+        return decryptedMessage;
     }
-    private native String decryptMessageJni(String aEncryptedMsg);
+    private native String decryptMessageJni(String aEncryptedMsg, boolean aIsUtf8ConversionRequired);
 
 
     /**

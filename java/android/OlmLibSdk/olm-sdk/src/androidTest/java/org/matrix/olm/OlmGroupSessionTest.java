@@ -60,8 +60,13 @@ public class OlmGroupSessionTest {
 
     @BeforeClass
     public static void setUpClass(){
+
+        // enable UTF-8 specific conversion for pre Marshmallow(23) android versions,
+        // due to issue described here: https://github.com/eclipsesource/J2V8/issues/142
+        boolean isSpecificUtf8ConversionEnabled = android.os.Build.VERSION.SDK_INT < 23;
+
         // load native lib
-        mOlmManager = new OlmManager();
+        mOlmManager = new OlmManager(isSpecificUtf8ConversionEnabled);
 
         String version = mOlmManager.getOlmLibVersion();
         assertNotNull(version);
@@ -408,4 +413,31 @@ public class OlmGroupSessionTest {
         }
     }
 
+    /**
+     * Specific test for the following run time error:
+     * "JNI DETECTED ERROR IN APPLICATION: input is not valid Modified UTF-8: illegal start byte 0xf0 in call to NewStringUTF".<br>
+     * When the msg to decrypt contain emojis, depending on the android platform, the NewStringUTF() behaves differently and
+     * can even crash.
+     * This issue is described in details here: https://github.com/eclipsesource/J2V8/issues/142
+     */
+    @Test
+    public void test18TestBadCharacterCrashInDecrypt() {
+        OlmInboundGroupSession bobInboundGroupSession=null;
+
+        // values taken from a "real life" crash case
+        String sessionKeyRef = "AgAAAAycZE6AekIctJWYxd2AWLOY15YmxZODm/WkgbpWkyycp6ytSp/R+wo84jRrzBNWmv6ySLTZ9R0EDOk9VI2eZyQ6Efdwyo1mAvrWvTkZl9yALPdkOIVHywyG65f1SNiLrnsln3hgsT1vUrISGyKtsljoUgQpr3JDPEhD0ilAi63QBjhnGCW252b+7nF+43rb6O6lwm93LaVwe2341Gdp6EkhTUvetALezEqDOtKN00wVqAbq0RQAnUJIowxHbMswg+FyoR1K1oCjnVEoF23O9xlAn5g1XtuBZP3moJlR2lwsBA";
+        String msgToDecryptWithEmoji = "AwgNEpABpjs+tYF+0y8bWtzAgYAC3N55p5cPJEEiGPU1kxIHSY7f2aG5Fj4wmcsXUkhDv0UePj922kgf+Q4dFsPHKq2aVA93n8DJAQ/FRfcM98B9E6sKCZ/PsCF78uBvF12Aaq9D3pUHBopdd7llUfVq29d5y6ZwX5VDoqV2utsATkKjXYV9CbfZuvvBMQ30ZLjEtyUUBJDY9K4FxEFcULytA/IkVnATTG9ERuLF/yB6ukSFR+iUWRYAmtuOuU0k9BvaqezbGqNoK5Grlkes+dYX6/0yUObumcw9/iAI";
+
+        // bob creates INBOUND GROUP SESSION
+        try {
+            bobInboundGroupSession = new OlmInboundGroupSession(sessionKeyRef);
+        } catch (OlmException e) {
+            assertTrue("Exception in test18TestBadCharacterCrashInDecrypt, Exception code=" + e.getExceptionCode(), false);
+        }
+
+        String decryptedMessage = bobInboundGroupSession.decryptMessage(msgToDecryptWithEmoji);
+        assertNotNull(decryptedMessage);
+    }
+
 }
+

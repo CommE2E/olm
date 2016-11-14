@@ -271,3 +271,46 @@ jstring serializeDataWithKey(JNIEnv *env, jobject thiz,
 
     return pickledDataRetValue;
 }
+
+
+/**
+* Convert a C string into a UTF-8 format string.
+* The conversion is performed in JAVA side to workaround the issue in  NewStringUTF().
+* The problem is described here: https://github.com/eclipsesource/J2V8/issues/142
+*/
+jstring javaCStringToUtf8(JNIEnv *env, uint8_t *aCStringMsgPtr, size_t aMsgLength)
+{
+    jstring convertedRetValue = 0;
+    jbyteArray tempByteArray = NULL;
+
+    if((NULL == aCStringMsgPtr) || (NULL == env))
+    {
+        LOGE("## javaCStringToUtf8(): failure - invalid parameters (null)");
+    }
+    else if(NULL == (tempByteArray=env->NewByteArray(aMsgLength)))
+    {
+        LOGE("## javaCStringToUtf8(): failure - return byte array OOM");
+    }
+    else
+    {
+        env->SetByteArrayRegion(tempByteArray, 0, aMsgLength, (const jbyte*)aCStringMsgPtr);
+
+        // UTF-8 conversion from JAVA
+        jstring strEncode = (env)->NewStringUTF("UTF-8");
+        jclass jClass = env->FindClass("java/lang/String");
+        jmethodID cstor = env->GetMethodID(jClass, "<init>", "([BLjava/lang/String;)V");
+
+        if((0!=jClass) && (0!=jClass) && (0!=strEncode))
+        {
+            convertedRetValue = (jstring) env->NewObject(jClass, cstor, tempByteArray, strEncode);
+            LOGD(" ## javaCStringToUtf8(): succeed");
+            env->DeleteLocalRef(tempByteArray);
+        }
+        else
+        {
+            LOGE(" ## javaCStringToUtf8(): failure - invalid Java references");
+        }
+    }
+
+    return convertedRetValue;
+}

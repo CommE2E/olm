@@ -38,7 +38,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Iterator;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.assertFalse;
@@ -59,8 +58,12 @@ public class OlmAccountTest {
 
     @BeforeClass
     public static void setUpClass(){
+        // enable UTF-8 specific conversion for pre Marshmallow(23) android versions,
+        // due to issue described here: https://github.com/eclipsesource/J2V8/issues/142
+        boolean isSpecificUtf8ConversionEnabled = android.os.Build.VERSION.SDK_INT < 23;
+
         // load native lib
-        mOlmManager = new OlmManager();
+        mOlmManager = new OlmManager(isSpecificUtf8ConversionEnabled);
 
         String olmLibVersion = mOlmManager.getOlmLibVersion();
         assertNotNull(olmLibVersion);

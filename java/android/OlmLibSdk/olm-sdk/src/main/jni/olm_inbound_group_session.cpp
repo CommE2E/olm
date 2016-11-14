@@ -180,7 +180,7 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEn
 }
 
 
-JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jstring aEncryptedMsg)
+JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jstring aEncryptedMsg, jboolean aIsUtf8ConversionRequired)
 {
     jstring decryptedMsgRetValue = 0;
     OlmInboundGroupSession *sessionPtr = NULL;
@@ -245,11 +245,27 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
                 }
                 else
                 {
-                    // update decrypted buffer size
-                    plainTextMsgPtr[plaintextLength] = static_cast<char>('\0');
+                    // UTF-8 conversion workaround for issue on Android versions older than Marshmallow (23)
+                    if(aIsUtf8ConversionRequired)
+                    {
+                        decryptedMsgRetValue = javaCStringToUtf8(env, plainTextMsgPtr, plaintextLength);
+                        if(0 == decryptedMsgRetValue)
+                        {
+                            LOGE(" ## decryptMessageJni(): UTF-8 Conversion failure - javaCStringToUtf8() returns null");
+                        }
+                        else
+                        {
+                            LOGD(" ## decryptMessageJni(): UTF-8 Conversion - decrypted returnedLg=%lu OK",static_cast<long unsigned int>(plaintextLength));
+                        }
+                    }
+                    else
+                    {
+                        // update decrypted buffer size
+                        plainTextMsgPtr[plaintextLength] = static_cast<char>('\0');
 
-                    LOGD(" ## decryptMessageJni(): decrypted returnedLg=%lu plainTextMsgPtr=%s",static_cast<long unsigned int>(plaintextLength), (char*)plainTextMsgPtr);
-                    decryptedMsgRetValue = env->NewStringUTF((const char*)plainTextMsgPtr);
+                        LOGD(" ## decryptMessageJni(): decrypted returnedLg=%lu plainTextMsgPtr=%s",static_cast<long unsigned int>(plaintextLength), (char*)plainTextMsgPtr);
+                        decryptedMsgRetValue = env->NewStringUTF((const char*)plainTextMsgPtr);
+                    }
                 }
             }
         }

@@ -86,6 +86,7 @@ jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 jlong getInboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 jlong getOutboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 jlong getUtilityInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
+jstring javaCStringToUtf8(JNIEnv *env, uint8_t *aCStringMsgPtr, size_t aMsgLength);
 
 #ifdef __cplusplus
 }
