@@ -52,6 +52,15 @@
     NSString *plaintext = [bobSession decryptMessage:aliceToBobMsg error:&error];
     XCTAssertEqualObjects(message, plaintext);
     XCTAssertNil(error);
+
+    XCTAssert([bobSession matchesInboundSession:aliceToBobMsg.ciphertext]);
+    XCTAssertFalse([aliceSession matchesInboundSession:@"ARandomOtkMessage"]);
+
+    NSString *aliceIdKey = alice.identityKeys[@"curve25519"];
+    XCTAssert([bobSession matchesInboundSessionFrom:aliceIdKey oneTimeKeyMessage:aliceToBobMsg.ciphertext]);
+    XCTAssertFalse([bobSession matchesInboundSessionFrom:@"ARandomIdKey" oneTimeKeyMessage:aliceToBobMsg.ciphertext]);
+    XCTAssertFalse([bobSession matchesInboundSessionFrom:aliceIdKey oneTimeKeyMessage:@"ARandomOtkMessage"]);
+
     BOOL success = [bob removeOneTimeKeysForSession:bobSession];
     XCTAssertTrue(success);
 }
@@ -96,8 +105,6 @@
     XCTAssertEqualObjects(msg1, dMsg1);
     XCTAssertEqualObjects(msg2, dMsg2);
     XCTAssertEqualObjects(msg3, dMsg3);
-
-    
 }
 
 - (void) testAccountSerialization {

@@ -156,6 +156,41 @@
     return idString;
 }
 
+- (BOOL)matchesInboundSession:(NSString *)oneTimeKeyMessage {
+    NSData *otk = [oneTimeKeyMessage dataUsingEncoding:NSUTF8StringEncoding];
+
+    size_t result = olm_matches_inbound_session(_session, otk.bytes, otk.length);
+    if (result == 1) {
+        return YES;
+    }
+    else {
+        if (result == olm_error()) {
+            const char *error = olm_session_last_error(_session);
+            NSLog(@"olm_matches_inbound_session error: %s", error);
+        }
+        return NO;
+    }
+}
+
+- (BOOL)matchesInboundSessionFrom:(NSString *)theirIdentityKey oneTimeKeyMessage:(NSString *)oneTimeKeyMessage {
+    NSData *idKey = [theirIdentityKey dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *otk = [oneTimeKeyMessage dataUsingEncoding:NSUTF8StringEncoding];
+
+    size_t result = olm_matches_inbound_session_from(_session,
+                                                     idKey.bytes, idKey.length,
+                                                     otk.bytes, otk.length);
+    if (result == 1) {
+        return YES;
+    }
+    else {
+        if (result == olm_error()) {
+            const char *error = olm_session_last_error(_session);
+            NSLog(@"olm_matches_inbound_session error: %s", error);
+        }
+        return NO;
+    }
+}
+
 - (OLMMessage*) encryptMessage:(NSString*)message error:(NSError**)error {
     size_t messageType = olm_encrypt_message_type(_session);
     size_t randomLength = olm_encrypt_random_length(_session);
