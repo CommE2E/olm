@@ -49,14 +49,25 @@
     return self;
 }
 
-- (instancetype)initInboundGroupSessionWithSessionKey:(NSString *)sessionKey {
+- (instancetype)initInboundGroupSessionWithSessionKey:(NSString *)sessionKey error:(NSError**)error {
     self = [self init];
     if (self) {
         NSData *sessionKeyData = [sessionKey dataUsingEncoding:NSUTF8StringEncoding];
         size_t result = olm_init_inbound_group_session(session, sessionKeyData.bytes, sessionKeyData.length);
         if (result == olm_error())   {
-            const char *error = olm_inbound_group_session_last_error(session);
-            NSAssert(NO, @"olm_init_inbound_group_session error: %s", error);
+            const char *olm_error = olm_inbound_group_session_last_error(session);
+
+            NSString *errorString = [NSString stringWithUTF8String:olm_error];
+            NSLog(@"olm_init_inbound_group_session error: %@", errorString);
+
+            if (error && olm_error && errorString) {
+                *error = [NSError errorWithDomain:OLMErrorDomain
+                                             code:0
+                                         userInfo:@{
+                                                    NSLocalizedDescriptionKey: [NSString stringWithFormat:@"olm_init_inbound_group_session error: %@", errorString]
+                                                    }];
+            }
+
             return nil;
         }
     }
@@ -72,14 +83,14 @@
     size_t result = olm_inbound_group_session_id(session, idData.mutableBytes, idData.length);
     if (result == olm_error()) {
         const char *error = olm_inbound_group_session_last_error(session);
-        NSAssert(NO, @"olm_inbound_group_session_id error: %s", error);
+        NSLog(@"olm_inbound_group_session_id error: %s", error);
         return nil;
     }
     NSString *idString = [[NSString alloc] initWithData:idData encoding:NSUTF8StringEncoding];
     return idString;
 }
 
-- (NSString *)decryptMessage:(NSString *)message messageIndex:(NSUInteger*)messageIndex
+- (NSString *)decryptMessage:(NSString *)message messageIndex:(NSUInteger*)messageIndex error:(NSError**)error
 {
     NSParameterAssert(message != nil);
     NSData *messageData = [message dataUsingEncoding:NSUTF8StringEncoding];
@@ -89,8 +100,19 @@
     NSMutableData *mutMessage = messageData.mutableCopy;
     size_t maxPlaintextLength = olm_group_decrypt_max_plaintext_length(session, mutMessage.mutableBytes, mutMessage.length);
     if (maxPlaintextLength == olm_error()) {
-        const char *error = olm_inbound_group_session_last_error(session);
-        NSAssert(NO, @"olm_group_decrypt_max_plaintext_length error: %s", error);
+        const char *olm_error = olm_inbound_group_session_last_error(session);
+
+        NSString *errorString = [NSString stringWithUTF8String:olm_error];
+        NSLog(@"olm_group_decrypt_max_plaintext_length error: %@", errorString);
+
+        if (error && olm_error && errorString) {
+            *error = [NSError errorWithDomain:OLMErrorDomain
+                                         code:0
+                                     userInfo:@{
+                                                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"olm_group_decrypt_max_plaintext_length error: %@", errorString]
+                                                }];
+        }
+        
         return nil;
     }
     // message buffer is destroyed by olm_group_decrypt_max_plaintext_length
@@ -98,8 +120,19 @@
     NSMutableData *plaintextData = [NSMutableData dataWithLength:maxPlaintextLength];
     size_t plaintextLength = olm_group_decrypt(session, mutMessage.mutableBytes, mutMessage.length, plaintextData.mutableBytes, plaintextData.length, messageIndex);
     if (plaintextLength == olm_error()) {
-        const char *error = olm_inbound_group_session_last_error(session);
-        NSAssert(NO, @"olm_group_decrypt error: %s", error);
+        const char *olm_error = olm_inbound_group_session_last_error(session);
+
+        NSString *errorString = [NSString stringWithUTF8String:olm_error];
+        NSLog(@"olm_group_decrypt error: %@", errorString);
+
+        if (error && olm_error && errorString) {
+            *error = [NSError errorWithDomain:OLMErrorDomain
+                                         code:0
+                                     userInfo:@{
+                                                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"olm_group_decrypt error: %@", errorString]
+                                                }];
+        }
+
         return nil;
     }
     plaintextData.length = plaintextLength;
@@ -120,7 +153,7 @@
     NSParameterAssert(serializedData.length > 0);
     if (key.length == 0 || serializedData.length == 0) {
         if (error) {
-            *error = [NSError errorWithDomain:@"org.matrix.olm" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Bad length."}];
+            *error = [NSError errorWithDomain:OLMErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: @"Bad length."}];
         }
         return nil;
     }
@@ -130,7 +163,7 @@
         const char *olm_error = olm_inbound_group_session_last_error(session);
         NSString *errorString = [NSString stringWithUTF8String:olm_error];
         if (error && errorString) {
-            *error = [NSError errorWithDomain:@"org.matrix.olm" code:0 userInfo:@{NSLocalizedDescriptionKey: errorString}];
+            *error = [NSError errorWithDomain:OLMErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: errorString}];
         }
         return nil;
     }
@@ -147,7 +180,7 @@
         const char *olm_error = olm_inbound_group_session_last_error(session);
         NSString *errorString = [NSString stringWithUTF8String:olm_error];
         if (error && errorString) {
-            *error = [NSError errorWithDomain:@"org.matrix.olm" code:0 userInfo:@{NSLocalizedDescriptionKey: errorString}];
+            *error = [NSError errorWithDomain:OLMErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: errorString}];
         }
         return nil;
     }

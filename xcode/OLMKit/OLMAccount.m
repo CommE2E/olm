@@ -151,7 +151,7 @@
     size_t result = olm_remove_one_time_keys(self.account, session.session);
     if (result == olm_error()) {
         const char *error = olm_account_last_error(_account);
-        NSAssert(NO, @"olm_remove_one_time_keys error: %s", error);
+        NSLog(@"olm_remove_one_time_keys error: %s", error);
         return NO;
     }
     return YES;
@@ -174,7 +174,7 @@
     NSParameterAssert(serializedData.length > 0);
     if (key.length == 0 || serializedData.length == 0) {
         if (error) {
-            *error = [NSError errorWithDomain:@"org.matrix.olm" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Bad length."}];
+            *error = [NSError errorWithDomain:OLMErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: @"Bad length."}];
         }
         return nil;
     }
@@ -184,7 +184,7 @@
         const char *olm_error = olm_account_last_error(_account);
         NSString *errorString = [NSString stringWithUTF8String:olm_error];
         if (error && errorString) {
-            *error = [NSError errorWithDomain:@"org.matrix.olm" code:0 userInfo:@{NSLocalizedDescriptionKey: errorString}];
+            *error = [NSError errorWithDomain:OLMErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: errorString}];
         }
         return nil;
     }
@@ -201,7 +201,7 @@
         const char *olm_error = olm_account_last_error(_account);
         NSString *errorString = [NSString stringWithUTF8String:olm_error];
         if (error && errorString) {
-            *error = [NSError errorWithDomain:@"org.matrix.olm" code:0 userInfo:@{NSLocalizedDescriptionKey: errorString}];
+            *error = [NSError errorWithDomain:OLMErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: errorString}];
         }
         return nil;
     }

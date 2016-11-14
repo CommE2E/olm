@@ -26,6 +26,8 @@
 }
 
 - (void)testAliceAndBob {
+    NSError *error;
+
     OLMAccount *alice = [[OLMAccount alloc] initNewAccount];
     OLMAccount *bob = [[OLMAccount alloc] initNewAccount];
     [bob generateOneTimeKeys:5];
@@ -41,13 +43,15 @@
     }];
     XCTAssert([bobOneTimeKey isKindOfClass:[NSString class]]);
     
-    OLMSession *aliceSession = [[OLMSession alloc] initOutboundSessionWithAccount:alice theirIdentityKey:bobIdKey theirOneTimeKey:bobOneTimeKey];
+    OLMSession *aliceSession = [[OLMSession alloc] initOutboundSessionWithAccount:alice theirIdentityKey:bobIdKey theirOneTimeKey:bobOneTimeKey error:nil];
     NSString *message = @"Hello!";
-    OLMMessage *aliceToBobMsg = [aliceSession encryptMessage:message];
+    OLMMessage *aliceToBobMsg = [aliceSession encryptMessage:message error:&error];
+    XCTAssertNil(error);
     
-    OLMSession *bobSession = [[OLMSession alloc] initInboundSessionWithAccount:bob oneTimeKeyMessage:aliceToBobMsg.ciphertext];
-    NSString *plaintext = [bobSession decryptMessage:aliceToBobMsg];
+    OLMSession *bobSession = [[OLMSession alloc] initInboundSessionWithAccount:bob oneTimeKeyMessage:aliceToBobMsg.ciphertext error:nil];
+    NSString *plaintext = [bobSession decryptMessage:aliceToBobMsg error:&error];
     XCTAssertEqualObjects(message, plaintext);
+    XCTAssertNil(error);
     BOOL success = [bob removeOneTimeKeysForSession:bobSession];
     XCTAssertTrue(success);
 }
@@ -68,12 +72,12 @@
     }];
     XCTAssert([bobOneTimeKey isKindOfClass:[NSString class]]);
     
-    OLMSession *aliceSession = [[OLMSession alloc] initOutboundSessionWithAccount:alice theirIdentityKey:bobIdKey theirOneTimeKey:bobOneTimeKey];
+    OLMSession *aliceSession = [[OLMSession alloc] initOutboundSessionWithAccount:alice theirIdentityKey:bobIdKey theirOneTimeKey:bobOneTimeKey error:nil];
     NSString *message = @"Hello I'm Alice!";
-    OLMMessage *aliceToBobMsg = [aliceSession encryptMessage:message];
+    OLMMessage *aliceToBobMsg = [aliceSession encryptMessage:message error:nil];
     
-    OLMSession *bobSession = [[OLMSession alloc] initInboundSessionWithAccount:bob oneTimeKeyMessage:aliceToBobMsg.ciphertext];
-    NSString *plaintext = [bobSession decryptMessage:aliceToBobMsg];
+    OLMSession *bobSession = [[OLMSession alloc] initInboundSessionWithAccount:bob oneTimeKeyMessage:aliceToBobMsg.ciphertext error:nil];
+    NSString *plaintext = [bobSession decryptMessage:aliceToBobMsg error:nil];
     XCTAssertEqualObjects(message, plaintext);
     BOOL success = [bob removeOneTimeKeysForSession:bobSession];
     XCTAssertTrue(success);
@@ -82,13 +86,13 @@
     NSString *msg2 = @"Isn't life grand?";
     NSString *msg3 = @"Let's go to the opera.";
     
-    OLMMessage *eMsg1 = [bobSession encryptMessage:msg1];
-    OLMMessage *eMsg2 = [bobSession encryptMessage:msg2];
-    OLMMessage *eMsg3 = [bobSession encryptMessage:msg3];
+    OLMMessage *eMsg1 = [bobSession encryptMessage:msg1 error:nil];
+    OLMMessage *eMsg2 = [bobSession encryptMessage:msg2 error:nil];
+    OLMMessage *eMsg3 = [bobSession encryptMessage:msg3 error:nil];
     
-    NSString *dMsg1 = [aliceSession decryptMessage:eMsg1];
-    NSString *dMsg2 = [aliceSession decryptMessage:eMsg2];
-    NSString *dMsg3 = [aliceSession decryptMessage:eMsg3];
+    NSString *dMsg1 = [aliceSession decryptMessage:eMsg1 error:nil];
+    NSString *dMsg2 = [aliceSession decryptMessage:eMsg2 error:nil];
+    NSString *dMsg3 = [aliceSession decryptMessage:eMsg3 error:nil];
     XCTAssertEqualObjects(msg1, dMsg1);
     XCTAssertEqualObjects(msg2, dMsg2);
     XCTAssertEqualObjects(msg3, dMsg3);
@@ -113,6 +117,8 @@
 }
 
 - (void) testSessionSerialization {
+    NSError *error;
+
     OLMAccount *alice = [[OLMAccount alloc] initNewAccount];
     OLMAccount *bob = [[OLMAccount alloc] initNewAccount];
     [bob generateOneTimeKeys:1];
@@ -128,12 +134,14 @@
     }];
     XCTAssert([bobOneTimeKey isKindOfClass:[NSString class]]);
     
-    OLMSession *aliceSession = [[OLMSession alloc] initOutboundSessionWithAccount:alice theirIdentityKey:bobIdKey theirOneTimeKey:bobOneTimeKey];
+    OLMSession *aliceSession = [[OLMSession alloc] initOutboundSessionWithAccount:alice theirIdentityKey:bobIdKey theirOneTimeKey:bobOneTimeKey error:nil];
     NSString *message = @"Hello I'm Alice!";
-    OLMMessage *aliceToBobMsg = [aliceSession encryptMessage:message];
+    OLMMessage *aliceToBobMsg = [aliceSession encryptMessage:message error:&error];
+    XCTAssertNil(error);
+
     
-    OLMSession *bobSession = [[OLMSession alloc] initInboundSessionWithAccount:bob oneTimeKeyMessage:aliceToBobMsg.ciphertext];
-    NSString *plaintext = [bobSession decryptMessage:aliceToBobMsg];
+    OLMSession *bobSession = [[OLMSession alloc] initInboundSessionWithAccount:bob oneTimeKeyMessage:aliceToBobMsg.ciphertext error:nil];
+    NSString *plaintext = [bobSession decryptMessage:aliceToBobMsg error:nil];
     XCTAssertEqualObjects(message, plaintext);
     BOOL success = [bob removeOneTimeKeysForSession:bobSession];
     XCTAssertTrue(success);
@@ -142,16 +150,16 @@
     NSString *msg2 = @"Isn't life grand?";
     NSString *msg3 = @"Let's go to the opera.";
     
-    OLMMessage *eMsg1 = [bobSession encryptMessage:msg1];
-    OLMMessage *eMsg2 = [bobSession encryptMessage:msg2];
-    OLMMessage *eMsg3 = [bobSession encryptMessage:msg3];
+    OLMMessage *eMsg1 = [bobSession encryptMessage:msg1 error:nil];
+    OLMMessage *eMsg2 = [bobSession encryptMessage:msg2 error:nil];
+    OLMMessage *eMsg3 = [bobSession encryptMessage:msg3 error:nil];
     
     NSData *aliceData = [NSKeyedArchiver archivedDataWithRootObject:aliceSession];
     OLMSession *alice2 = [NSKeyedUnarchiver unarchiveObjectWithData:aliceData];
     
-    NSString *dMsg1 = [alice2 decryptMessage:eMsg1];
-    NSString *dMsg2 = [alice2 decryptMessage:eMsg2];
-    NSString *dMsg3 = [alice2 decryptMessage:eMsg3];
+    NSString *dMsg1 = [alice2 decryptMessage:eMsg1 error:nil];
+    NSString *dMsg2 = [alice2 decryptMessage:eMsg2 error:nil];
+    NSString *dMsg3 = [alice2 decryptMessage:eMsg3 error:nil];
     XCTAssertEqualObjects(msg1, dMsg1);
     XCTAssertEqualObjects(msg2, dMsg2);
     XCTAssertEqualObjects(msg3, dMsg3);

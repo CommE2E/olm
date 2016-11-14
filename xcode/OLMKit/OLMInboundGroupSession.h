@@ -19,11 +19,11 @@
 
 @interface OLMInboundGroupSession : NSObject <OLMSerializable, NSSecureCoding>
 
-- (instancetype) initInboundGroupSessionWithSessionKey:(NSString*)sessionKey;
+- (instancetype) initInboundGroupSessionWithSessionKey:(NSString*)sessionKey error:(NSError**)error;
 
 - (NSString*)sessionIdentifier;
 
 /** base64 ciphertext -> UTF-8 plaintext */
-- (NSString*)decryptMessage:(NSString*)message messageIndex:(NSUInteger*)messageIndex;
+- (NSString*)decryptMessage:(NSString*)message messageIndex:(NSUInteger*)messageIndex error:(NSError**)error;
 
 @end

@@ -26,6 +26,6 @@
 - (NSString*)sessionKey;
 
 /** UTF-8 plaintext -> base64 ciphertext */
-- (NSString*)encryptMessage:(NSString*)message;
+- (NSString*)encryptMessage:(NSString*)message error:(NSError**)error;
 
 @end

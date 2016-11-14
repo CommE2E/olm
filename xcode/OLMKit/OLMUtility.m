@@ -10,6 +10,8 @@
 
 #include "olm/olm.h"
 
+NSString *const OLMErrorDomain = @"org.matrix.olm";
+
 @interface OLMUtility()
 
 @property (nonatomic) OlmUtility *utility;
@@ -61,7 +63,7 @@
     size_t result = olm_sha256(_utility, message.bytes, message.length, shaData.mutableBytes, shaData.length);
     if (result == olm_error()) {
         const char *error = olm_utility_last_error(_utility);
-        NSAssert(NO, @"olm_sha256 error: %s", error);
+        NSLog(@"olm_sha256 error: %s", error);
         return nil;
     }
     

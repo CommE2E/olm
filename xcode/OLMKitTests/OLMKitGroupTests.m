@@ -37,6 +37,7 @@
 }
 
 - (void)testAliceAndBob {
+    NSError *error;
 
     OLMOutboundGroupSession *aliceSession = [[OLMOutboundGroupSession alloc] initOutboundGroupSession];
     XCTAssertGreaterThan(aliceSession.sessionIdentifier.length, 0);
@@ -47,18 +48,23 @@
     NSString *sessionKey = aliceSession.sessionKey;
 
     NSString *message = @"Hello!";
-    NSString *aliceToBobMsg = [aliceSession encryptMessage:message];
+    NSString *aliceToBobMsg = [aliceSession encryptMessage:message error:&error];
 
     XCTAssertEqual(aliceSession.messageIndex, 1);
     XCTAssertGreaterThanOrEqual(aliceToBobMsg.length, 0);
+    XCTAssertNil(error);
 
-    OLMInboundGroupSession *bobSession = [[OLMInboundGroupSession alloc] initInboundGroupSessionWithSessionKey:sessionKey];
+    OLMInboundGroupSession *bobSession = [[OLMInboundGroupSession alloc] initInboundGroupSessionWithSessionKey:sessionKey error:&error];
     XCTAssertEqualObjects(aliceSession.sessionIdentifier, bobSession.sessionIdentifier);
+    XCTAssertNil(error);
 
     NSUInteger messageIndex;
-    NSString *plaintext = [bobSession decryptMessage:aliceToBobMsg messageIndex:&messageIndex];
+
+    NSString *plaintext = [bobSession decryptMessage:aliceToBobMsg messageIndex:&messageIndex error:&error];
     XCTAssertEqualObjects(message, plaintext);
+
     XCTAssertEqual(messageIndex, 0);
+    XCTAssertNil(error);
 }
 
 - (void)testOutboundGroupSessionSerialization {
@@ -76,7 +82,7 @@
 
     OLMOutboundGroupSession *aliceSession = [[OLMOutboundGroupSession alloc] initOutboundGroupSession];
 
-    OLMInboundGroupSession *bobSession = [[OLMInboundGroupSession alloc] initInboundGroupSessionWithSessionKey:aliceSession.sessionKey];
+    OLMInboundGroupSession *bobSession = [[OLMInboundGroupSession alloc] initInboundGroupSessionWithSessionKey:aliceSession.sessionKey error:nil];
 
     NSData *bobData = [NSKeyedArchiver archivedDataWithRootObject:bobSession];
     OLMInboundGroupSession *bobSession2 = [NSKeyedUnarchiver unarchiveObjectWithData:bobData];

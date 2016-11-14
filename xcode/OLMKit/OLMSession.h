@@ -13,11 +13,11 @@
 
 @interface OLMSession : NSObject <OLMSerializable, NSSecureCoding>
 
-- (instancetype) initOutboundSessionWithAccount:(OLMAccount*)account theirIdentityKey:(NSString*)theirIdentityKey theirOneTimeKey:(NSString*)theirOneTimeKey;
+- (instancetype) initOutboundSessionWithAccount:(OLMAccount*)account theirIdentityKey:(NSString*)theirIdentityKey theirOneTimeKey:(NSString*)theirOneTimeKey error:(NSError**)error;
 
-- (instancetype) initInboundSessionWithAccount:(OLMAccount*)account oneTimeKeyMessage:(NSString*)oneTimeKeyMessage;
+- (instancetype) initInboundSessionWithAccount:(OLMAccount*)account oneTimeKeyMessage:(NSString*)oneTimeKeyMessage error:(NSError**)error;
 
-- (instancetype) initInboundSessionWithAccount:(OLMAccount*)account theirIdentityKey:(NSString*)theirIdentityKey oneTimeKeyMessage:(NSString*)oneTimeKeyMessage;
+- (instancetype) initInboundSessionWithAccount:(OLMAccount*)account theirIdentityKey:(NSString*)theirIdentityKey oneTimeKeyMessage:(NSString*)oneTimeKeyMessage error:(NSError**)error;
 
 - (NSString*) sessionIdentifier;
 
@@ -26,9 +26,9 @@
 - (BOOL) matchesInboundSessionFrom:(NSString*)theirIdentityKey oneTimeKeyMessage:(NSString *)oneTimeKeyMessage;
 
 /** UTF-8 plaintext -> base64 ciphertext */
-- (OLMMessage*) encryptMessage:(NSString*)message;
+- (OLMMessage*) encryptMessage:(NSString*)message error:(NSError**)error;
 
 /** base64 ciphertext -> UTF-8 plaintext */
-- (NSString*) decryptMessage:(OLMMessage*)message;
+- (NSString*) decryptMessage:(OLMMessage*)message error:(NSError**)error;
 
 @end
