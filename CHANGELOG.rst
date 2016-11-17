@@ -1,3 +1,10 @@
+Changes in `2.0.1 <http://matrix.org/git/olm/commit/?h=2.0.1>`_
+===============================================================
+
+This release includes the following changes since 2.0.0
+
+* Add OLMKit, the Objective-C wrapper.
+
 Changes in `2.0.0 <http://matrix.org/git/olm/commit/?h=2.0.0>`_
 ===============================================================
 
