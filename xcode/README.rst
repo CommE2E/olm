@@ -18,5 +18,9 @@ Run `pod install` and open `OLMKit.xcworkspace`.
 
 The project contains only tests files. The libolm and the Objective-C wrapper source files are loaded via the OLMKit CocoaPods pod.
 
-To add a new source file, add it to the file system and run `pod update` to make CocoaPods insert into OLMKit.xcworkspace. 
+To add a new source file, add it to the file system and run `pod update` to make CocoaPods insert it into OLMKit.xcworkspace. 
+
+Release
+-------
+See ../README.rst for the release of the CocoaPod.
 

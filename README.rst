@@ -60,7 +60,7 @@ Release process
 
     # OLMKit CocoaPod release
     # Make sure the version OLMKit.podspec is the same as the git tag
-    # (this should be checked before git tagging)
+    # (this must be checked before git tagging)
     pod spec lint OLMKit.podspec --use-libraries --allow-warnings
     pod trunk push OLMKit.podspec --use-libraries --allow-warnings
     # Check the pod has been successully published with:
