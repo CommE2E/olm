@@ -167,9 +167,9 @@
 }
 
 - (BOOL)matchesInboundSession:(NSString *)oneTimeKeyMessage {
-    NSData *otk = [oneTimeKeyMessage dataUsingEncoding:NSUTF8StringEncoding];
+    NSMutableData *otk = [NSMutableData dataWithData:[oneTimeKeyMessage dataUsingEncoding:NSUTF8StringEncoding]];
 
-    size_t result = olm_matches_inbound_session(_session, otk.bytes, otk.length);
+    size_t result = olm_matches_inbound_session(_session, otk.mutableBytes, otk.length);
     if (result == 1) {
         return YES;
     }
@@ -184,11 +184,11 @@
 
 - (BOOL)matchesInboundSessionFrom:(NSString *)theirIdentityKey oneTimeKeyMessage:(NSString *)oneTimeKeyMessage {
     NSData *idKey = [theirIdentityKey dataUsingEncoding:NSUTF8StringEncoding];
-    NSData *otk = [oneTimeKeyMessage dataUsingEncoding:NSUTF8StringEncoding];
+    NSMutableData *otk = [NSMutableData dataWithData:[oneTimeKeyMessage dataUsingEncoding:NSUTF8StringEncoding]];
 
     size_t result = olm_matches_inbound_session_from(_session,
                                                      idKey.bytes, idKey.length,
-                                                     otk.bytes, otk.length);
+                                                     otk.mutableBytes, otk.length);
     if (result == 1) {
         return YES;
     }

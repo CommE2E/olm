@@ -74,7 +74,7 @@
     return self;
 }
 
-- (size_t) maxOneTimeKeys {
+- (NSUInteger) maxOneTimeKeys {
     return olm_account_max_number_of_one_time_keys(_account);
 }
 
@@ -156,7 +156,7 @@
 - (BOOL) removeOneTimeKeysForSession:(OLMSession *)session {
     NSParameterAssert(session != nil);
     if (!session) {
-        return nil;
+        return NO;
     }
     size_t result = olm_remove_one_time_keys(self.account, session.session);
     if (result == olm_error()) {
