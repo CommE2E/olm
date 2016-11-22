@@ -11,6 +11,7 @@ android {
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
+        version "0.3.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -61,6 +62,17 @@ android {
     }
 
     clean.dependsOn cleanNative
+
+
+    libraryVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.aar')) {
+                def fileName = outputFile.name.replace(".aar", "-${version}.aar")
+                output.outputFile = new File(outputFile.parent, fileName)
+            }
+        }
+    }
 }
 
 def getNdkFolder() {
