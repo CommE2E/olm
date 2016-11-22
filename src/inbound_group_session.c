@@ -263,7 +263,8 @@ size_t olm_group_decrypt_max_plaintext_length(
 static size_t _decrypt(
     OlmInboundGroupSession *session,
     uint8_t * message, size_t message_length,
-    uint8_t * plaintext, size_t max_plaintext_length
+    uint8_t * plaintext, size_t max_plaintext_length,
+    uint32_t * message_index
 ) {
     struct _OlmDecodeGroupMessageResults decoded_results;
     size_t max_length, r;
@@ -284,6 +285,10 @@ static size_t _decrypt(
     if (!decoded_results.has_message_index || !decoded_results.ciphertext) {
         session->last_error = OLM_BAD_MESSAGE_FORMAT;
         return (size_t)-1;
+    }
+
+    if (message_index != NULL) {
+        *message_index = decoded_results.message_index;
     }
 
     /* verify the signature. We could do this before decoding the message, but
@@ -349,7 +354,8 @@ static size_t _decrypt(
 size_t olm_group_decrypt(
     OlmInboundGroupSession *session,
     uint8_t * message, size_t message_length,
-    uint8_t * plaintext, size_t max_plaintext_length
+    uint8_t * plaintext, size_t max_plaintext_length,
+    uint32_t * message_index
 ) {
     size_t raw_message_length;
 
@@ -361,7 +367,8 @@ size_t olm_group_decrypt(
 
     return _decrypt(
         session, message, raw_message_length,
-        plaintext, max_plaintext_length
+        plaintext, max_plaintext_length,
+        message_index
     );
 }
 

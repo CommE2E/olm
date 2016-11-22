@@ -96,7 +96,7 @@ size_t olm_init_outbound_group_session_random_length(
  */
 size_t olm_init_outbound_group_session(
     OlmOutboundGroupSession *session,
-    uint8_t const * random, size_t random_length
+    uint8_t *random, size_t random_length
 );
 
 /**

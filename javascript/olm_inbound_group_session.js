@@ -73,10 +73,12 @@ InboundGroupSession.prototype['decrypt'] = restore_stack(function(
     // So we copy the array to a new buffer
     var message_buffer = stack(message_array);
     var plaintext_buffer = stack(max_plaintext_length + NULL_BYTE_PADDING_LENGTH);
+    var message_index = stack(4);
     var plaintext_length = inbound_group_session_method(Module["_olm_group_decrypt"])(
         this.ptr,
         message_buffer, message_array.length,
-        plaintext_buffer, max_plaintext_length
+        plaintext_buffer, max_plaintext_length,
+        message_index
     );
 
     // Pointer_stringify requires a null-terminated argument (the optional
@@ -86,7 +88,10 @@ InboundGroupSession.prototype['decrypt'] = restore_stack(function(
         0, "i8"
     );
 
-    return Pointer_stringify(plaintext_buffer);
+    return {
+        "plaintext": Pointer_stringify(plaintext_buffer),
+        "message_index": Module['getValue'](message_index, "i32")
+    }
 });
 
 InboundGroupSession.prototype['session_id'] = restore_stack(function() {
