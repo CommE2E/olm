@@ -2,8 +2,8 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := olm
-MAJOR := 1
-MINOR := 3
+MAJOR := 2
+MINOR := 0
 PATCH := 0
 OLM_VERSION := $(MAJOR).$(MINOR).$(PATCH)
 SRC_ROOT_DIR := ../../../../../../..

@@ -180,13 +180,16 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEn
 }
 
 
-JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jstring aEncryptedMsg, jboolean aIsUtf8ConversionRequired)
+JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jstring aEncryptedMsg, jobject aDecryptIndex, jboolean aIsUtf8ConversionRequired)
 {
     jstring decryptedMsgRetValue = 0;
     OlmInboundGroupSession *sessionPtr = NULL;
     const char *encryptedMsgPtr = NULL;
     uint8_t *plainTextMsgPtr = NULL;
     uint8_t *tempEncryptedPtr = NULL;
+    uint32_t messageIndex = 0;
+    jclass indexObjJClass = 0;
+    jfieldID indexMsgFieldId;
 
     LOGD("## decryptMessageJni(): inbound group session IN");
 
@@ -198,9 +201,21 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
     {
         LOGE(" ## decryptMessageJni(): failure - invalid encrypted message");
     }
+    else if(0 == aDecryptIndex)
+    {
+        LOGE(" ## decryptMessageJni(): failure - invalid index object");
+    }
     else if(0 == (encryptedMsgPtr = env->GetStringUTFChars(aEncryptedMsg, 0)))
     {
         LOGE(" ## decryptMessageJni(): failure - encrypted message JNI allocation OOM");
+    }
+    else if(0 == (indexObjJClass = env->GetObjectClass(aDecryptIndex)))
+    {
+        LOGE("## decryptMessageJni(): failure - unable to get index class");
+    }
+    else if(0 == (indexMsgFieldId = env->GetFieldID(indexObjJClass,"mIndex","J")))
+    {
+        LOGE("## decryptMessageJni(): failure - unable to get index type field");
     }
     else
     {
@@ -238,13 +253,17 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
                                                            tempEncryptedPtr,
                                                            encryptedMsgLength,
                                                            plainTextMsgPtr,
-                                                           maxPlainTextLength);
+                                                           maxPlainTextLength,
+                                                           &messageIndex);
                 if(plaintextLength == olm_error())
                 {
                     LOGE(" ## decryptMessageJni(): failure - olm_group_decrypt Msg=%s",(const char *)olm_inbound_group_session_last_error(sessionPtr));
                 }
                 else
                 {
+                    // update index
+                    env->SetLongField(aDecryptIndex, indexMsgFieldId, (jlong)messageIndex);
+
                     // UTF-8 conversion workaround for issue on Android versions older than Marshmallow (23)
                     if(aIsUtf8ConversionRequired)
                     {

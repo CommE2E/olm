@@ -45,6 +45,14 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     private transient long mNativeId;
 
     /**
+     * Wrapper class to be used in {@link #decryptMessage(String, DecryptIndex)}
+     */
+    static public class DecryptIndex {
+        /** decrypt index **/
+        public long mIndex;
+    }
+
+    /**
      * Constructor.<br>
      * Create and save a new native session instance ID and start a new inbound group session.
      * The session key parameter is retrieved from an outbound group session
@@ -136,13 +144,14 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     /**
      * Decrypt the message passed in parameter.
      * @param aEncryptedMsg the message to be decrypted
+     * @param aDecryptIndex_out decrypted message index
      * @return the decrypted message if operation succeed, null otherwise.
      */
-    public String decryptMessage(String aEncryptedMsg) {
-        String decryptedMessage = decryptMessageJni(aEncryptedMsg, OlmManager.ENABLE_STRING_UTF8_SPECIFIC_CONVERSION);
+    public String decryptMessage(String aEncryptedMsg, DecryptIndex aDecryptIndex_out) {
+        String decryptedMessage = decryptMessageJni(aEncryptedMsg, aDecryptIndex_out, OlmManager.ENABLE_STRING_UTF8_SPECIFIC_CONVERSION);
         return decryptedMessage;
     }
-    private native String decryptMessageJni(String aEncryptedMsg, boolean aIsUtf8ConversionRequired);
+    private native String decryptMessageJni(String aEncryptedMsg, DecryptIndex aDecryptIndex_out, boolean aIsUtf8ConversionRequired);
 
 
     /**

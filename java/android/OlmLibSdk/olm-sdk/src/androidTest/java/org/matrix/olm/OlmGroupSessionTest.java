@@ -151,8 +151,10 @@ public class OlmGroupSessionTest {
     @Test
     public void test10InboundDecryptMessage() {
         // test decrypted message
-        mBobDecryptedMessage = mBobInboundGroupSession.decryptMessage(mAliceToBobMessage);
+        OlmInboundGroupSession.DecryptIndex index = new OlmInboundGroupSession.DecryptIndex();
+        mBobDecryptedMessage = mBobInboundGroupSession.decryptMessage(mAliceToBobMessage, index);
         assertFalse(TextUtils.isEmpty(mBobDecryptedMessage));
+        assertTrue(0==index.mIndex);
     }
 
     @Test
@@ -435,8 +437,10 @@ public class OlmGroupSessionTest {
             assertTrue("Exception in test18TestBadCharacterCrashInDecrypt, Exception code=" + e.getExceptionCode(), false);
         }
 
-        String decryptedMessage = bobInboundGroupSession.decryptMessage(msgToDecryptWithEmoji);
+        OlmInboundGroupSession.DecryptIndex index = new OlmInboundGroupSession.DecryptIndex();
+        String decryptedMessage = bobInboundGroupSession.decryptMessage(msgToDecryptWithEmoji, index);
         assertNotNull(decryptedMessage);
+        assertTrue(13==index.mIndex);
     }
 
 }
