@@ -56,6 +56,9 @@ public class OlmManager {
      * Get the OLM lib version.
      * @return the lib version as a string
      */
-    public native String getOlmLibVersion();
+    public String getOlmLibVersion(){
+        return getOlmLibVersionJni();
+    }
+    public native String getOlmLibVersionJni();
 }
 

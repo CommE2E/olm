@@ -465,14 +465,14 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz
 }
 
 
-JNIEXPORT jstring OLM_MANAGER_FUNC_DEF(getOlmLibVersion)(JNIEnv* env, jobject thiz)
+JNIEXPORT jstring OLM_MANAGER_FUNC_DEF(getOlmLibVersionJni)(JNIEnv* env, jobject thiz)
 {
   uint8_t majorVer=0, minorVer=0, patchVer=0;
   jstring returnValueStr=0;
   char buff[150];
 
   olm_get_library_version(&majorVer, &minorVer, &patchVer);
-  LOGD("## getOlmLibVersion(): Major=%d Minor=%d Patch=%d", majorVer, minorVer, patchVer);
+  LOGD("## getOlmLibVersionJni(): Major=%d Minor=%d Patch=%d", majorVer, minorVer, patchVer);
 
   snprintf(buff, sizeof(buff), " V%d.%d.%d", majorVer, minorVer, patchVer);
   returnValueStr = env->NewStringUTF((const char*)buff);
