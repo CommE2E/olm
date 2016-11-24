@@ -65,7 +65,8 @@
                 *error = [NSError errorWithDomain:OLMErrorDomain
                                              code:0
                                          userInfo:@{
-                                                    NSLocalizedDescriptionKey: [NSString stringWithFormat:@"olm_init_inbound_group_session error: %@", errorString]
+                                                    NSLocalizedDescriptionKey: errorString,
+                                                    NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"olm_init_inbound_group_session error: %@", errorString]
                                                     }];
             }
 
@@ -110,7 +111,8 @@
             *error = [NSError errorWithDomain:OLMErrorDomain
                                          code:0
                                      userInfo:@{
-                                                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"olm_group_decrypt_max_plaintext_length error: %@", errorString]
+                                                NSLocalizedDescriptionKey: errorString,
+                                                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"olm_group_decrypt_max_plaintext_length error: %@", errorString]
                                                 }];
         }
         
@@ -132,7 +134,8 @@
             *error = [NSError errorWithDomain:OLMErrorDomain
                                          code:0
                                      userInfo:@{
-                                                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"olm_group_decrypt error: %@", errorString]
+                                                NSLocalizedDescriptionKey: errorString,
+                                                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"olm_group_decrypt error: %@", errorString]
                                                 }];
         }
 

@@ -118,7 +118,8 @@
             *error = [NSError errorWithDomain:OLMErrorDomain
                                          code:0
                                      userInfo:@{
-                                                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"olm_group_encrypt error: %@", errorString]
+                                                NSLocalizedDescriptionKey: errorString,
+                                                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"olm_group_encrypt error: %@", errorString]
                                                 }];
         }
 

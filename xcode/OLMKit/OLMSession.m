@@ -88,7 +88,8 @@
             *error = [NSError errorWithDomain:OLMErrorDomain
                                          code:0
                                      userInfo:@{
-                                                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"olm_create_outbound_session error: %@", errorString]
+                                                NSLocalizedDescriptionKey: errorString,
+                                                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"olm_create_outbound_session error: %@", errorString]
                                                 }];
         }
 
@@ -114,7 +115,8 @@
             *error = [NSError errorWithDomain:OLMErrorDomain
                                          code:0
                                      userInfo:@{
-                                                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"olm_create_inbound_session error: %@", errorString]
+                                                NSLocalizedDescriptionKey: errorString,
+                                                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"olm_create_inbound_session error: %@", errorString]
                                                 }];
         }
 
@@ -141,7 +143,8 @@
             *error = [NSError errorWithDomain:OLMErrorDomain
                                          code:0
                                      userInfo:@{
-                                                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"olm_create_inbound_session_from error: %@", errorString]
+                                                NSLocalizedDescriptionKey: errorString,
+                                                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"olm_create_inbound_session_from error: %@", errorString]
                                                 }];
         }
 
@@ -222,7 +225,8 @@
             *error = [NSError errorWithDomain:OLMErrorDomain
                                          code:0
                                      userInfo:@{
-                                                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"olm_encrypt error: %@", errorString]
+                                                NSLocalizedDescriptionKey: errorString,
+                                                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"olm_encrypt error: %@", errorString]
                                                 }];
         }
 
@@ -251,7 +255,8 @@
             *error = [NSError errorWithDomain:OLMErrorDomain
                                          code:0
                                      userInfo:@{
-                                                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"olm_decrypt_max_plaintext_length error: %@", errorString]
+                                                NSLocalizedDescriptionKey: errorString,
+                                                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"olm_decrypt_max_plaintext_length error: %@", errorString]
                                                 }];
         }
 
@@ -271,7 +276,8 @@
             *error = [NSError errorWithDomain:OLMErrorDomain
                                          code:0
                                      userInfo:@{
-                                                NSLocalizedDescriptionKey: [NSString stringWithFormat:@"olm_decrypt error: %@", errorString]
+                                                NSLocalizedDescriptionKey: errorString,
+                                                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"olm_decrypt error: %@", errorString]
                                                 }];
         }
 
