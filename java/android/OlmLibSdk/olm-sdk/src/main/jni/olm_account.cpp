@@ -18,12 +18,6 @@
 
 using namespace AndroidOlmSdk;
 
-/*jstring serializeDataWithKey(JNIEnv *env, jobject thiz,
-                                jstring aKey,
-                                jobject aErrorMsg,
-                                olmPickleLengthFuncPtr<OlmAccount*> aGetLengthFunc,
-                                olmPickleFuncPtr<OlmAccount*> aGetPickleFunc,
-                                olmLastErrorFuncPtr<OlmAccount*> aGetLastErrorFunc);*/
 
 /**
 * Init memory allocation for account creation.
