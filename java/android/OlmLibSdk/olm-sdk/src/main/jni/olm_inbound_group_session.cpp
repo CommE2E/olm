@@ -180,7 +180,7 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEn
 }
 
 
-JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jstring aEncryptedMsg, jobject aDecryptIndex, jboolean aIsUtf8ConversionRequired)
+JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jstring aEncryptedMsg, jobject aDecryptIndex, jobject aErrorMsg, jboolean aIsUtf8ConversionRequired)
 {
     jstring decryptedMsgRetValue = 0;
     OlmInboundGroupSession *sessionPtr = NULL;
@@ -190,6 +190,10 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
     uint32_t messageIndex = 0;
     jclass indexObjJClass = 0;
     jfieldID indexMsgFieldId;
+    jclass errorMsgJClass = 0;
+    jmethodID errorMsgMethodId = 0;
+    jstring errorJstring = 0;
+    const char *errorMsgPtr = NULL;
 
     LOGD("## decryptMessageJni(): inbound group session IN");
 
@@ -204,6 +208,18 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
     else if(0 == aDecryptIndex)
     {
         LOGE(" ## decryptMessageJni(): failure - invalid index object");
+    }
+    else if(0 == aErrorMsg)
+    {
+        LOGE(" ## decryptMessageJni(): failure - invalid error object");
+    }
+    else if(0 == (errorMsgJClass = env->GetObjectClass(aErrorMsg)))
+    {
+        LOGE(" ## decryptMessageJni(): failure - unable to get error class");
+    }
+    else if(0 == (errorMsgMethodId = env->GetMethodID(errorMsgJClass, "append", "(Ljava/lang/String;)Ljava/lang/StringBuffer;")))
+    {
+        LOGE(" ## decryptMessageJni(): failure - unable to get error method ID");
     }
     else if(0 == (encryptedMsgPtr = env->GetStringUTFChars(aEncryptedMsg, 0)))
     {
@@ -238,7 +254,12 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
                                                                                encryptedMsgLength);
             if(maxPlainTextLength == olm_error())
             {
-                LOGE(" ## decryptMessageJni(): failure - olm_group_decrypt_max_plaintext_length Msg=%s",(const char *)olm_inbound_group_session_last_error(sessionPtr));
+                errorMsgPtr = olm_inbound_group_session_last_error(sessionPtr);
+                LOGE(" ## decryptMessageJni(): failure - olm_group_decrypt_max_plaintext_length Msg=%s",errorMsgPtr);
+                if(0 != (errorJstring = env->NewStringUTF(errorMsgPtr)))
+                {
+                    env->CallObjectMethod(aErrorMsg, errorMsgMethodId, errorJstring);
+                }
             }
             else
             {
@@ -257,7 +278,13 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
                                                            &messageIndex);
                 if(plaintextLength == olm_error())
                 {
-                    LOGE(" ## decryptMessageJni(): failure - olm_group_decrypt Msg=%s",(const char *)olm_inbound_group_session_last_error(sessionPtr));
+                    errorMsgPtr = olm_inbound_group_session_last_error(sessionPtr);
+                    LOGE(" ## decryptMessageJni(): failure - olm_group_decrypt Msg=%s",errorMsgPtr);
+
+                    if(0 != (errorJstring = env->NewStringUTF(errorMsgPtr)))
+                    {
+                        env->CallObjectMethod(aErrorMsg, errorMsgMethodId, errorJstring);
+                    }
                 }
                 else
                 {

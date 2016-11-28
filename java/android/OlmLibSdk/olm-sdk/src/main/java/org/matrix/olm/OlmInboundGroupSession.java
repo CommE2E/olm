@@ -45,7 +45,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     private transient long mNativeId;
 
     /**
-     * Wrapper class to be used in {@link #decryptMessage(String, DecryptIndex)}
+     * Wrapper class to be used in {@link #decryptMessage(String, DecryptIndex, StringBuffer)}
      */
     static public class DecryptIndex {
         /** decrypt index **/
@@ -142,16 +142,26 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
 
 
     /**
-     * Decrypt the message passed in parameter.
+     * Decrypt the message passed in parameter.<br>
+     * In case of error, null is returned and an error message description is provided in aErrorMsg.
      * @param aEncryptedMsg the message to be decrypted
      * @param aDecryptIndex_out decrypted message index
+     * @param aErrorMsg error message description
      * @return the decrypted message if operation succeed, null otherwise.
      */
-    public String decryptMessage(String aEncryptedMsg, DecryptIndex aDecryptIndex_out) {
-        String decryptedMessage = decryptMessageJni(aEncryptedMsg, aDecryptIndex_out, OlmManager.ENABLE_STRING_UTF8_SPECIFIC_CONVERSION);
+    public String decryptMessage(String aEncryptedMsg, DecryptIndex aDecryptIndex_out, StringBuffer aErrorMsg) {
+        String decryptedMessage = null;
+
+        // sanity check
+        if(null == aErrorMsg) {
+            Log.e(LOG_TAG,"## decryptMessage(): invalid parameter - aErrorMsg=null");
+        } else {
+            aErrorMsg.setLength(0);
+            decryptedMessage = decryptMessageJni(aEncryptedMsg, aDecryptIndex_out, aErrorMsg, OlmManager.ENABLE_STRING_UTF8_SPECIFIC_CONVERSION);
+        }
         return decryptedMessage;
     }
-    private native String decryptMessageJni(String aEncryptedMsg, DecryptIndex aDecryptIndex_out, boolean aIsUtf8ConversionRequired);
+    private native String decryptMessageJni(String aEncryptedMsg, DecryptIndex aDecryptIndex_out, StringBuffer aErrorMsg, boolean aIsUtf8ConversionRequired);
 
 
     /**
