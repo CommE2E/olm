@@ -21,5 +21,13 @@ if (typeof(window) !== 'undefined') {
 }
 
 (function() {
-    var module; // Shadow the Node 'module' object so that emscripten won't try
-                // to fiddle with it.
+    /* applications should define OLM_OPTIONS in the environment to override
+     * emscripten module settings */
+    var Module = {};
+    if (typeof(OLM_OPTIONS) !== 'undefined') {
+        for (var key in OLM_OPTIONS) {
+            if (OLM_OPTIONS.hasOwnProperty(key)) {
+                Module[key] = OLM_OPTIONS[key];
+            }
+        }
+    }
