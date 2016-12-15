@@ -63,20 +63,38 @@ OutboundGroupSession.prototype['create'] = restore_stack(function() {
     );
 });
 
-OutboundGroupSession.prototype['encrypt'] = restore_stack(function(plaintext) {
-    var plaintext_array = array_from_string(plaintext);
-    var message_length = outbound_group_session_method(
-        Module['_olm_group_encrypt_message_length']
-    )(this.ptr, plaintext_array.length);
-    var plaintext_buffer = stack(plaintext_array);
-    var message_buffer = stack(message_length + NULL_BYTE_PADDING_LENGTH);
-    outbound_group_session_method(Module['_olm_group_encrypt'])(
-        this.ptr,
-        plaintext_buffer, plaintext_array.length,
-        message_buffer, message_length
-    );
-    return Pointer_stringify(message_buffer);
-});
+OutboundGroupSession.prototype['encrypt'] = function(plaintext) {
+    var plaintext_buffer, message_buffer, plaintext_length;
+    try {
+        plaintext_length = Module['lengthBytesUTF8'](plaintext);
+
+        var message_length = outbound_group_session_method(
+            Module['_olm_group_encrypt_message_length']
+        )(this.ptr, plaintext_length);
+
+        // need to allow space for the terminator (which stringToUTF8 always
+        // writes), hence + 1.
+        plaintext_buffer = malloc(plaintext_length + 1);
+        Module['stringToUTF8'](plaintext, plaintext_buffer, plaintext_length + 1);
+
+        message_buffer = malloc(message_length + NULL_BYTE_PADDING_LENGTH);
+        outbound_group_session_method(Module['_olm_group_encrypt'])(
+            this.ptr,
+            plaintext_buffer, plaintext_length,
+            message_buffer, message_length
+        );
+        return Module['UTF8ToString'](message_buffer);
+    } finally {
+        if (plaintext_buffer !== undefined) {
+            // don't leave a copy of the plaintext in the heap.
+            bzero(plaintext_buffer, plaintext_length + 1);
+            free(plaintext_buffer);
+        }
+        if (message_buffer !== undefined) {
+            free(message_buffer);
+        }
+    }
+};
 
 OutboundGroupSession.prototype['session_id'] = restore_stack(function() {
     var length = outbound_group_session_method(

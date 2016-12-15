@@ -4,9 +4,11 @@ var free = Module['_free'];
 var Pointer_stringify = Module['Pointer_stringify'];
 var OLM_ERROR = Module['_olm_error']();
 
-/* The 'length' argument to Pointer_stringify doesn't work if the input includes
- * characters >= 128; we therefore need to add a NULL character to all of our
- * strings. This acts as a symbolic constant to help show what we're doing.
+/* The 'length' argument to Pointer_stringify doesn't work if the input
+ * includes characters >= 128, which makes Pointer_stringify unreliable. We
+ * could use it on strings which are known to be ascii, but that seems
+ * dangerous. Instead we add a NULL character to all of our strings and just
+ * use UTF8ToString.
  */
 var NULL_BYTE_PADDING_LENGTH = 1;
 
@@ -37,6 +39,13 @@ function restore_stack(wrapped) {
         } finally {
             runtime.stackRestore(sp);
         }
+    }
+}
+
+/* set a memory area to zero */
+function bzero(ptr, n) {
+    while(n-- > 0) {
+        Module['HEAP8'][ptr++] = 0;
     }
 }
 
@@ -297,59 +306,94 @@ Session.prototype['matches_inbound_from'] = restore_stack(function(
 Session.prototype['encrypt'] = restore_stack(function(
     plaintext
 ) {
-    var random_length = session_method(
-        Module['_olm_encrypt_random_length']
-    )(this.ptr);
-    var message_type = session_method(
-        Module['_olm_encrypt_message_type']
-    )(this.ptr);
-    var plaintext_array = array_from_string(plaintext);
-    var message_length = session_method(
-        Module['_olm_encrypt_message_length']
-    )(this.ptr, plaintext_array.length);
-    var random = random_stack(random_length);
-    var plaintext_buffer = stack(plaintext_array);
-    var message_buffer = stack(message_length + NULL_BYTE_PADDING_LENGTH);
-    session_method(Module['_olm_encrypt'])(
-        this.ptr,
-        plaintext_buffer, plaintext_array.length,
-        random, random_length,
-        message_buffer, message_length
-    );
-    return {
-        "type": message_type,
-        "body": Pointer_stringify(message_buffer)
-    };
+    var plaintext_buffer, message_buffer, plaintext_length;
+    try {
+        var random_length = session_method(
+            Module['_olm_encrypt_random_length']
+        )(this.ptr);
+        var message_type = session_method(
+            Module['_olm_encrypt_message_type']
+        )(this.ptr);
+
+        plaintext_length = Module['lengthBytesUTF8'](plaintext);
+        var message_length = session_method(
+            Module['_olm_encrypt_message_length']
+        )(this.ptr, plaintext_length);
+
+        var random = random_stack(random_length);
+
+        // need to allow space for the terminator (which stringToUTF8 always
+        // writes), hence + 1.
+        plaintext_buffer = malloc(plaintext_length + 1);
+        Module['stringToUTF8'](plaintext, plaintext_buffer, plaintext_length + 1);
+
+        message_buffer = malloc(message_length + NULL_BYTE_PADDING_LENGTH);
+
+        session_method(Module['_olm_encrypt'])(
+            this.ptr,
+            plaintext_buffer, plaintext_length,
+            random, random_length,
+            message_buffer, message_length
+        );
+        return {
+            "type": message_type,
+            "body": Module['UTF8ToString'](message_buffer),
+        };
+    } finally {
+        if (plaintext_buffer !== undefined) {
+            // don't leave a copy of the plaintext in the heap.
+            bzero(plaintext_buffer, plaintext_length + 1);
+            free(plaintext_buffer);
+        }
+        if (message_buffer !== undefined) {
+            free(message_buffer);
+        }
+    }
 });
 
 Session.prototype['decrypt'] = restore_stack(function(
     message_type, message
 ) {
-    var message_array = array_from_string(message);
-    var message_buffer = stack(message_array);
-    var max_plaintext_length = session_method(
-        Module['_olm_decrypt_max_plaintext_length']
-    )(this.ptr, message_type, message_buffer, message_array.length);
-    // caculating the length destroys the input buffer.
-    // So we copy the array to a new buffer
-    var message_buffer = stack(message_array);
-    var plaintext_buffer = stack(
-        max_plaintext_length + NULL_BYTE_PADDING_LENGTH
-    );
-    var plaintext_length = session_method(Module["_olm_decrypt"])(
-        this.ptr, message_type,
-        message_buffer, message.length,
-        plaintext_buffer, max_plaintext_length
-    );
+    var message_buffer, plaintext_buffer, max_plaintext_length;
 
-    // Pointer_stringify requires a null-terminated argument (the optional
-    // 'len' argument doesn't work for UTF-8 data).
-    Module['setValue'](
-        plaintext_buffer+plaintext_length,
-        0, "i8"
-    );
+    try {
+        message_buffer = malloc(message.length);
+        Module['writeAsciiToMemory'](message, message_buffer, true);
 
-    return Pointer_stringify(plaintext_buffer);
+        max_plaintext_length = session_method(
+            Module['_olm_decrypt_max_plaintext_length']
+        )(this.ptr, message_type, message_buffer, message.length);
+
+        // caculating the length destroys the input buffer, so we need to re-copy it.
+        Module['writeAsciiToMemory'](message, message_buffer, true);
+
+        plaintext_buffer = malloc(max_plaintext_length + NULL_BYTE_PADDING_LENGTH);
+
+        var plaintext_length = session_method(Module["_olm_decrypt"])(
+            this.ptr, message_type,
+            message_buffer, message.length,
+            plaintext_buffer, max_plaintext_length
+        );
+
+        // UTF8ToString requires a null-terminated argument, so add the
+        // null terminator.
+        Module['setValue'](
+            plaintext_buffer+plaintext_length,
+            0, "i8"
+        );
+
+        return UTF8ToString(plaintext_buffer);
+    } finally {
+        if (message_buffer !== undefined) {
+            free(message_buffer);
+        }
+        if (plaintext_buffer !== undefined) {
+            // don't leave a copy of the plaintext in the heap.
+            bzero(plaintext_buffer, max_plaintext_length + NULL_BYTE_PADDING_LENGTH);
+            free(plaintext_buffer);
+        }
+    }
+
 });
 
 function Utility() {
