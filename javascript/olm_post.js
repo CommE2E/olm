@@ -42,6 +42,13 @@ function restore_stack(wrapped) {
     }
 }
 
+/* set a memory area to zero */
+function bzero(ptr, n) {
+    while(n-- > 0) {
+        Module['HEAP8'][ptr++] = 0;
+    }
+}
+
 function Account() {
     var size = Module['_olm_account_size']();
     this.buf = malloc(size);
@@ -299,7 +306,7 @@ Session.prototype['matches_inbound_from'] = restore_stack(function(
 Session.prototype['encrypt'] = restore_stack(function(
     plaintext
 ) {
-    var plaintext_buffer, message_buffer;
+    var plaintext_buffer, message_buffer, plaintext_length;
     try {
         var random_length = session_method(
             Module['_olm_encrypt_random_length']
@@ -308,7 +315,7 @@ Session.prototype['encrypt'] = restore_stack(function(
             Module['_olm_encrypt_message_type']
         )(this.ptr);
 
-        var plaintext_length = Module['lengthBytesUTF8'](plaintext);
+        plaintext_length = Module['lengthBytesUTF8'](plaintext);
         var message_length = session_method(
             Module['_olm_encrypt_message_length']
         )(this.ptr, plaintext_length);
@@ -334,6 +341,8 @@ Session.prototype['encrypt'] = restore_stack(function(
         };
     } finally {
         if (plaintext_buffer !== undefined) {
+            // don't leave a copy of the plaintext in the heap.
+            bzero(plaintext_buffer, plaintext_length + 1);
             free(plaintext_buffer);
         }
         if (message_buffer !== undefined) {
@@ -345,13 +354,13 @@ Session.prototype['encrypt'] = restore_stack(function(
 Session.prototype['decrypt'] = restore_stack(function(
     message_type, message
 ) {
-    var message_buffer, plaintext_buffer;
+    var message_buffer, plaintext_buffer, max_pliantext_length;
 
     try {
         message_buffer = malloc(message.length);
         Module['writeAsciiToMemory'](message, message_buffer, true);
 
-        var max_plaintext_length = session_method(
+        max_plaintext_length = session_method(
             Module['_olm_decrypt_max_plaintext_length']
         )(this.ptr, message_type, message_buffer, message.length);
 
@@ -379,6 +388,8 @@ Session.prototype['decrypt'] = restore_stack(function(
             free(message_buffer);
         }
         if (plaintext_buffer !== undefined) {
+            // don't leave a copy of the plaintext in the heap.
+            bzero(plaintext_buffer, max_plaintext_length + NULL_BYTE_PADDING_LENGTH);
             free(plaintext_buffer);
         }
     }

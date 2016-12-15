@@ -64,9 +64,9 @@ OutboundGroupSession.prototype['create'] = restore_stack(function() {
 });
 
 OutboundGroupSession.prototype['encrypt'] = function(plaintext) {
-    var plaintext_buffer, message_buffer;
+    var plaintext_buffer, message_buffer, plaintext_length;
     try {
-        var plaintext_length = Module['lengthBytesUTF8'](plaintext);
+        plaintext_length = Module['lengthBytesUTF8'](plaintext);
 
         var message_length = outbound_group_session_method(
             Module['_olm_group_encrypt_message_length']
@@ -86,6 +86,8 @@ OutboundGroupSession.prototype['encrypt'] = function(plaintext) {
         return Module['UTF8ToString'](message_buffer);
     } finally {
         if (plaintext_buffer !== undefined) {
+            // don't leave a copy of the plaintext in the heap.
+            bzero(plaintext_buffer, plaintext_length + 1);
             free(plaintext_buffer);
         }
         if (message_buffer !== undefined) {

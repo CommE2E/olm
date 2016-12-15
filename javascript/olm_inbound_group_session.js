@@ -64,7 +64,7 @@ InboundGroupSession.prototype['create'] = restore_stack(function(session_key) {
 InboundGroupSession.prototype['decrypt'] = restore_stack(function(
     message
 ) {
-    var message_buffer, plaintext_buffer;
+    var message_buffer, plaintext_buffer, plaintext_length;
 
     try {
         message_buffer = malloc(message.length);
@@ -80,7 +80,7 @@ InboundGroupSession.prototype['decrypt'] = restore_stack(function(
         plaintext_buffer = malloc(max_plaintext_length + NULL_BYTE_PADDING_LENGTH);
         var message_index = stack(4);
 
-        var plaintext_length = inbound_group_session_method(
+        plaintext_length = inbound_group_session_method(
             Module["_olm_group_decrypt"]
         )(
             this.ptr,
@@ -105,6 +105,8 @@ InboundGroupSession.prototype['decrypt'] = restore_stack(function(
             free(message_buffer);
         }
         if (plaintext_buffer !== undefined) {
+            // don't leave a copy of the plaintext in the heap.
+            bzero(plaintext_buffer, plaintext_length + NULL_BYTE_PADDING_LENGTH);
             free(plaintext_buffer);
         }
     }
