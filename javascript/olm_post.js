@@ -354,7 +354,7 @@ Session.prototype['encrypt'] = restore_stack(function(
 Session.prototype['decrypt'] = restore_stack(function(
     message_type, message
 ) {
-    var message_buffer, plaintext_buffer, max_pliantext_length;
+    var message_buffer, plaintext_buffer, max_plaintext_length;
 
     try {
         message_buffer = malloc(message.length);
