@@ -335,6 +335,14 @@ Session.prototype['encrypt'] = restore_stack(function(
             random, random_length,
             message_buffer, message_length
         );
+
+        // UTF8ToString requires a null-terminated argument, so add the
+        // null terminator.
+        Module['setValue'](
+            message_buffer+message_length,
+            0, "i8"
+        );
+
         return {
             "type": message_type,
             "body": Module['UTF8ToString'](message_buffer),

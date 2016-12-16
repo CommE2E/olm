@@ -83,6 +83,14 @@ OutboundGroupSession.prototype['encrypt'] = function(plaintext) {
             plaintext_buffer, plaintext_length,
             message_buffer, message_length
         );
+
+        // UTF8ToString requires a null-terminated argument, so add the
+        // null terminator.
+        Module['setValue'](
+            message_buffer+message_length,
+            0, "i8"
+        );
+
         return Module['UTF8ToString'](message_buffer);
     } finally {
         if (plaintext_buffer !== undefined) {
