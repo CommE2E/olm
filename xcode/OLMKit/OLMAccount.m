@@ -66,6 +66,7 @@
     size_t randomLength = olm_create_account_random_length(_account);
     NSMutableData *random = [OLMUtility randomBytesOfLength:randomLength];
     size_t accountResult = olm_create_account(_account, random.mutableBytes, random.length);
+    [random resetBytesInRange:NSMakeRange(0, random.length)];
     if (accountResult == olm_error()) {
         const char *error = olm_account_last_error(_account);
         NSLog(@"error creating account: %s", error);
@@ -147,6 +148,7 @@
     size_t randomLength = olm_account_generate_one_time_keys_random_length(_account, numberOfKeys);
     NSMutableData *random = [OLMUtility randomBytesOfLength:randomLength];
     size_t result = olm_account_generate_one_time_keys(_account, numberOfKeys, random.mutableBytes, random.length);
+    [random resetBytesInRange:NSMakeRange(0, random.length)];
     if (result == olm_error()) {
         const char *error = olm_account_last_error(_account);
         NSLog(@"error generating keys: %s", error);

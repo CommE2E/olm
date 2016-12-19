@@ -55,6 +55,7 @@
         NSMutableData *random = [OLMUtility randomBytesOfLength:olm_init_outbound_group_session_random_length(session)];
 
         size_t result = olm_init_outbound_group_session(session, random.mutableBytes, random.length);
+        [random resetBytesInRange:NSMakeRange(0, random.length)];
         if (result == olm_error())   {
             const char *error = olm_outbound_group_session_last_error(session);
             NSLog(@"olm_init_outbound_group_session error: %s", error);
@@ -97,6 +98,7 @@
         return nil;
     }
     NSString *sessionKey = [[NSString alloc] initWithData:sessionKeyData encoding:NSUTF8StringEncoding];
+    [sessionKeyData resetBytesInRange:NSMakeRange(0, sessionKeyData.length)];
     return sessionKey;
 }
 

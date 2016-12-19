@@ -78,6 +78,7 @@
     NSData *idKey = [theirIdentityKey dataUsingEncoding:NSUTF8StringEncoding];
     NSData *otKey = [theirOneTimeKey dataUsingEncoding:NSUTF8StringEncoding];
     size_t result = olm_create_outbound_session(_session, account.account, idKey.bytes, idKey.length, otKey.bytes, otKey.length, random.mutableBytes, random.length);
+    [random resetBytesInRange:NSMakeRange(0, random.length)];
     if (result == olm_error()) {
         const char *olm_error = olm_session_last_error(_session);
 
@@ -215,6 +216,7 @@
         return nil;
     }
     size_t result = olm_encrypt(_session, plaintextData.bytes, plaintextData.length, random.mutableBytes, random.length, ciphertext.mutableBytes, ciphertext.length);
+    [random resetBytesInRange:NSMakeRange(0, random.length)];
     if (result == olm_error()) {
         const char *olm_error = olm_session_last_error(_session);
 
