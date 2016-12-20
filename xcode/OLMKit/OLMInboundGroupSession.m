@@ -143,6 +143,7 @@
     }
     plaintextData.length = plaintextLength;
     NSString *plaintext = [[NSString alloc] initWithData:plaintextData encoding:NSUTF8StringEncoding];
+    [plaintextData resetBytesInRange:NSMakeRange(0, plaintextData.length)];
 
     if (messageIndex)
     {
