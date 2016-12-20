@@ -32,6 +32,12 @@ To build the javascript bindings, install emscripten from http://kripken.github.
 .. code:: bash
 
     make js
+	
+To build the android project for Android bindings, run:
+
+	.. code:: bash
+	cd java/android/OlmLibSdk/OlmLibSdk
+	./gradlew clean assembleRelease
 
 Release process
 ---------------
