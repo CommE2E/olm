@@ -130,8 +130,8 @@ bool setRandomInBuffer(JNIEnv *env, uint8_t **aBuffer2Ptr, size_t aRandomSize)
 jlong getInstanceId(JNIEnv* aJniEnv, jobject aJavaObject, const char *aCallingClass)
 {
   jlong instanceId = 0;
-  jfieldID instanceIdField;
-  jclass loaderClass;
+  jfieldID instanceIdField = 0;
+  jclass loaderClass = 0;
   jclass requiredClass = 0;
 
   if(NULL!=aJniEnv)
@@ -147,7 +147,6 @@ jlong getInstanceId(JNIEnv* aJniEnv, jobject aJavaObject, const char *aCallingCl
       if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeId", "J")))
       {
         instanceId = aJniEnv->GetLongField(aJavaObject, instanceIdField);
-        aJniEnv->DeleteLocalRef(loaderClass);
         LOGD("## getInstanceId(): read from java instanceId=%lld",instanceId);
       }
       else
@@ -164,7 +163,14 @@ jlong getInstanceId(JNIEnv* aJniEnv, jobject aJavaObject, const char *aCallingCl
   {
     LOGE("## getInstanceId() ERROR! aJniEnv=NULL");
   }
+
   LOGD("## getInstanceId() success - instanceId=%p (jlong)(intptr_t)instanceId=%lld",(void*)instanceId, (jlong)(intptr_t)instanceId);
+
+  if (loaderClass)
+  {
+    aJniEnv->DeleteLocalRef(loaderClass);
+  }
+
   return instanceId;
 }
 
