@@ -50,7 +50,8 @@ olm_session.cpp \
 olm_jni_helper.cpp \
 olm_inbound_group_session.cpp \
 olm_outbound_group_session.cpp \
-olm_utility.cpp
+olm_utility.cpp \
+olm_manager.cpp
 
 LOCAL_LDLIBS := -llog
 
