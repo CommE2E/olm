@@ -244,7 +244,16 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
 
         if( null != (identityKeysBuffer = identityKeysJni())) {
             try {
-                identityKeysJsonObj = new JSONObject(new String(identityKeysBuffer));
+                String identityKeysString;
+
+                try {
+                    identityKeysString = new String(identityKeysBuffer, "UTF-8");
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "## identityKeys(): Exception : cannot convert with utf-8 charset " + e.getMessage());
+                    identityKeysString = new String(identityKeysBuffer);
+                }
+
+                identityKeysJsonObj = new JSONObject(identityKeysString);
                 //Log.d(LOG_TAG, "## identityKeys(): Identity Json keys=" + identityKeysJsonObj.toString());
             } catch (JSONException e) {
                 identityKeysJsonObj = null;
@@ -301,12 +310,21 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * @return one time keys in string dictionary if operation succeed, null otherwise
      */
     public Map<String, Map<String, String>> oneTimeKeys() {
-        byte identityKeysBuffer[];
+        byte oneTimeKeysBuffer[];
         JSONObject oneTimeKeysJsonObj = null;
 
-        if( null != (identityKeysBuffer = oneTimeKeysJni())) {
+        if( null != (oneTimeKeysBuffer = oneTimeKeysJni())) {
             try {
-                oneTimeKeysJsonObj = new JSONObject(new String(identityKeysBuffer));
+                String oneTimeKeysString;
+
+                try {
+                    oneTimeKeysString = new String(oneTimeKeysBuffer, "UTF-8");
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "## oneTimeKeys(): Exception : cannot convert with utf-8 charset " + e.getMessage());
+                    oneTimeKeysString = new String(oneTimeKeysBuffer);
+                }
+
+                oneTimeKeysJsonObj = new JSONObject(new String(oneTimeKeysString));
                 //Log.d(LOG_TAG, "## oneTimeKeys(): OneTime Json keys=" + oneTimeKeysJsonObj.toString());
             } catch (JSONException e) {
                 oneTimeKeysJsonObj = null;
