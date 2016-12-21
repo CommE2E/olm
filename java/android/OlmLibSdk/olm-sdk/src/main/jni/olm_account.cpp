@@ -113,7 +113,7 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(initNewAccountJni)(JNIEnv *env, jobject thi
             // create account
             accountRetCode = olm_create_account(accountPtr, (void*)randomBuffPtr, randomSize);
             if(accountRetCode == olm_error()) {
-                LOGE("## initNewAccount(): failure - account creation failed Msg=%s", (const char *)olm_account_last_error(accountPtr));
+                LOGE("## initNewAccount(): failure - account creation failed Msg=%s", olm_account_last_error(accountPtr));
              }
 
             LOGD("## initNewAccount(): success - OLM account created");
@@ -147,16 +147,16 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(identityKeysJni)(JNIEnv *env, jobject 
     size_t keysResult;
     jbyteArray byteArrayRetValue = NULL;
 
-    LOGD("## identityKeys(): accountPtr =%p",accountPtr);
-
     if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
     {
         LOGE("## identityKeys(): failure - invalid Account ptr=NULL");
     }
     else
-    {   // identity keys allocation
+    {
+        LOGD("## identityKeys(): accountPtr =%p", accountPtr);
+        // identity keys allocation
         identityKeysLength = olm_account_identity_keys_length(accountPtr);
-        if(NULL == (identityKeysBytesPtr=(uint8_t*)malloc(identityKeysLength*sizeof(uint8_t))))
+        if(NULL == (identityKeysBytesPtr=(uint8_t*)malloc(identityKeysLength)))
         {
             LOGE("## identityKeys(): failure - identity keys array OOM");
         }
@@ -459,20 +459,7 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz
 }
 
 
-JNIEXPORT jstring OLM_MANAGER_FUNC_DEF(getOlmLibVersionJni)(JNIEnv* env, jobject thiz)
-{
-  uint8_t majorVer=0, minorVer=0, patchVer=0;
-  jstring returnValueStr=0;
-  char buff[150];
 
-  olm_get_library_version(&majorVer, &minorVer, &patchVer);
-  LOGD("## getOlmLibVersionJni(): Major=%d Minor=%d Patch=%d", majorVer, minorVer, patchVer);
-
-  snprintf(buff, sizeof(buff), "%d.%d.%d", majorVer, minorVer, patchVer);
-  returnValueStr = env->NewStringUTF((const char*)buff);
-
-  return returnValueStr;
-}
 
 /**
 * Serialize and encrypt account instance into a base64 string.<br>

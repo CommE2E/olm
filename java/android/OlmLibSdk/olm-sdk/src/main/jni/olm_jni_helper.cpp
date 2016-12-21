@@ -32,7 +32,6 @@ using namespace AndroidOlmSdk;
 bool setRandomInBuffer(JNIEnv *env, uint8_t **aBuffer2Ptr, size_t aRandomSize)
 {
     bool retCode = false;
-    struct timeval timeValue;
     int bufferLen = aRandomSize*sizeof(uint8_t);
 
     if(NULL == aBuffer2Ptr)
@@ -98,7 +97,7 @@ bool setRandomInBuffer(JNIEnv *env, uint8_t **aBuffer2Ptr, size_t aRandomSize)
         if (!secureRandomSucceeds)
         {
             LOGE("## setRandomInBuffer(): SecureRandom failed, use a fallback");
-
+            struct timeval timeValue;
             gettimeofday(&timeValue, NULL);
             srand(timeValue.tv_usec); // init seed
 
