@@ -36,21 +36,6 @@ OlmUtility* initializeUtilityMemory()
     return utilityPtr;
 }
 
-JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(getOlmLibVersionJni)(JNIEnv* env, jobject thiz)
-{
-  uint8_t majorVer=0, minorVer=0, patchVer=0;
-  jstring returnValueStr=0;
-  char buff[150];
-
-  olm_get_library_version(&majorVer, &minorVer, &patchVer);
-  LOGD("## getOlmLibVersionJni(): Major=%d Minor=%d Patch=%d", majorVer, minorVer, patchVer);
-
-  snprintf(buff, sizeof(buff), "%d.%d.%d", majorVer, minorVer, patchVer);
-  returnValueStr = env->NewStringUTF((const char*)buff);
-
-  return returnValueStr;
-}
-
 JNIEXPORT jlong OLM_UTILITY_FUNC_DEF(initUtilityJni)(JNIEnv *env, jobject thiz)
 {
     OlmUtility* utilityPtr = NULL;
@@ -245,4 +230,19 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jst
     }
 
     return sha256RetValue;
+}
+
+JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(getOlmLibVersionJni)(JNIEnv* env, jobject thiz)
+{
+  uint8_t majorVer=0, minorVer=0, patchVer=0;
+  jstring returnValueStr=0;
+  char buff[150];
+
+  olm_get_library_version(&majorVer, &minorVer, &patchVer);
+  LOGD("## getOlmLibVersionJni(): Major=%d Minor=%d Patch=%d", majorVer, minorVer, patchVer);
+
+  snprintf(buff, sizeof(buff), "%d.%d.%d", majorVer, minorVer, patchVer);
+  returnValueStr = env->NewStringUTF((const char*)buff);
+
+  return returnValueStr;
 }
