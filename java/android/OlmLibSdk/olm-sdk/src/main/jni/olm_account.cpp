@@ -393,7 +393,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublishedJni)(JNIEnv *env, 
  * @param aMessage message to sign
  * @return the signed message, null otherwise
 **/
-JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz, jstring aMessage)
+JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aMessage)
 {
     OlmAccount* accountPtr = NULL;
     size_t signatureLength;
@@ -411,48 +411,41 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz
     }
     else
     {
-        // convert message from JAVA to C string
-        const char* messageToSign = env->GetStringUTFChars(aMessage, 0);
-        if(NULL == messageToSign)
+        int messageLength = env->GetArrayLength(aMessage);
+        unsigned char* messageToSign = new unsigned char[messageLength];
+        env->GetByteArrayRegion(aMessage, 0, messageLength, reinterpret_cast<jbyte*>(messageToSign));
+
+        // signature memory allocation
+        signatureLength = olm_account_signature_length(accountPtr);
+        if(NULL == (signedMsgPtr = (void*)malloc((signatureLength+1)*sizeof(uint8_t))))
         {
-            LOGE("## signMessageJni(): failure - message JNI allocation OOM");
+            LOGE("## signMessageJni(): failure - signature allocation OOM");
         }
         else
-        {
-            int messageLength = env->GetStringUTFLength(aMessage);
-
-            // signature memory allocation
-            signatureLength = olm_account_signature_length(accountPtr);
-            if(NULL == (signedMsgPtr = (void*)malloc((signatureLength+1)*sizeof(uint8_t))))
+        {   // sign message
+            resultSign = olm_account_sign(accountPtr,
+                                         (void*)messageToSign,
+                                         (size_t)messageLength,
+                                         signedMsgPtr,
+                                         signatureLength);
+            if(resultSign == olm_error())
             {
-                LOGE("## signMessageJni(): failure - signature allocation OOM");
+                LOGE("## signMessageJni(): failure - error signing message Msg=%s",(const char *)olm_account_last_error(accountPtr));
             }
             else
-            {   // sign message
-                resultSign = olm_account_sign(accountPtr,
-                                             (void*)messageToSign,
-                                             (size_t)messageLength,
-                                             signedMsgPtr,
-                                             signatureLength);
-                if(resultSign == olm_error())
-                {
-                    LOGE("## signMessageJni(): failure - error signing message Msg=%s",(const char *)olm_account_last_error(accountPtr));
-                }
-                else
-                {
-                    // info: signatureLength is always equal to resultSign
-                    (static_cast<char*>(signedMsgPtr))[signatureLength] = static_cast<char>('\0');
-                    // convert to jstring
-                    signedMsgRetValue = env->NewStringUTF((const char*)signedMsgPtr); // UTF8
-                    LOGD("## signMessageJni(): success - retCode=%lu signatureLength=%lu", static_cast<long unsigned int>(resultSign), static_cast<long unsigned int>(signatureLength));
-                }
-
-                free(signedMsgPtr);
+            {
+                // info: signatureLength is always equal to resultSign
+                (static_cast<char*>(signedMsgPtr))[signatureLength] = static_cast<char>('\0');
+                // convert to jstring
+                signedMsgRetValue = env->NewStringUTF((const char*)signedMsgPtr); // UTF8
+                LOGD("## signMessageJni(): success - retCode=%lu signatureLength=%lu", static_cast<long unsigned int>(resultSign), static_cast<long unsigned int>(signatureLength));
             }
 
-            // release messageToSign
-            env->ReleaseStringUTFChars(aMessage, messageToSign);
+            free(signedMsgPtr);
         }
+
+        // release messageToSign
+        free(messageToSign);
     }
 
     return signedMsgRetValue;

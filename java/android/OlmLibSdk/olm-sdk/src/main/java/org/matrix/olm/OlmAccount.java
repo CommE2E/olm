@@ -383,9 +383,25 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * @return the signed message if operation succeed, null otherwise
      */
     public String signMessage(String aMessage) {
-        return signMessageJni(aMessage);
+        if (null == aMessage) {
+            return null;
+        }
+
+        byte[] utf8String = null;
+
+        try {
+            utf8String = aMessage.getBytes("UTF-8");
+        } catch (Exception e) {
+            Log.d(LOG_TAG,"## signMessage(): failed ="+e.getMessage());
+        }
+
+        if (null == utf8String) {
+            return null;
+        }
+
+        return signMessageJni(utf8String);
     }
-    private native String signMessageJni(String aMessage);
+    private native String signMessageJni(byte[] aMessage);
 
     /**
      * Return the number of unreleased OlmAccount instances.<br>
