@@ -33,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Map;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.assertFalse;
@@ -93,14 +94,14 @@ public class OlmSessionTest {
         assertTrue(0!=aliceAccount.getOlmAccountId());
 
         // get bob identity key
-        JSONObject bobIdentityKeysJson = bobAccount.identityKeys();
-        bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeysJson);
+        Map<String, String> bobIdentityKeys = bobAccount.identityKeys();
+        bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
         assertTrue(null!=bobIdentityKey);
 
         // get bob one time keys
         assertTrue(0==bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER));
-        JSONObject bobOneTimeKeysJsonObj = bobAccount.oneTimeKeys();
-        bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeysJsonObj,1);
+        Map<String, Map<String, String>> bobOneTimeKeys = bobAccount.oneTimeKeys();
+        bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys,1);
         assertNotNull(bobOneTimeKey);
 
         // CREATE ALICE SESSION
@@ -186,14 +187,14 @@ public class OlmSessionTest {
         assertTrue(0!=aliceAccount.getOlmAccountId());
 
         // get bob identity key
-        JSONObject bobIdentityKeysJson = bobAccount.identityKeys();
-        bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeysJson);
+        Map<String, String> bobIdentityKeys = bobAccount.identityKeys();
+        bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
         assertTrue(null!=bobIdentityKey);
 
         // get bob one time keys
         assertTrue(0==bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER));
-        JSONObject bobOneTimeKeysJsonObj = bobAccount.oneTimeKeys();
-        bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeysJsonObj,1);
+        Map<String, Map<String, String>> bobOneTimeKeys = bobAccount.oneTimeKeys();
+        bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys,1);
         assertNotNull(bobOneTimeKey);
 
         // CREATE ALICE SESSION
@@ -358,16 +359,16 @@ public class OlmSessionTest {
         }
 
         // get bob/luke identity key
-        JSONObject bobIdentityKeysJson = bobAccount.identityKeys();
-        JSONObject aliceIdentityKeysJson = aliceAccount.identityKeys();
-        String bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeysJson);
-        String aliceIdentityKey = TestHelper.getIdentityKey(aliceIdentityKeysJson);
+        Map<String, String> bobIdentityKeys = bobAccount.identityKeys();
+        Map<String, String> aliceIdentityKeys = aliceAccount.identityKeys();
+        String bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
+        String aliceIdentityKey = TestHelper.getIdentityKey(aliceIdentityKeys);
 
         // get bob/luke one time keys
         assertTrue(0 == bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER));
         assertTrue(0 == aliceAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER));
-        JSONObject bobOneTimeKeysJsonObj = bobAccount.oneTimeKeys();
-        String bobOneTimeKey1 = TestHelper.getOneTimeKey(bobOneTimeKeysJsonObj, 1);
+        Map<String, Map<String, String>> bobOneTimeKeys = bobAccount.oneTimeKeys();
+        String bobOneTimeKey1 = TestHelper.getOneTimeKey(bobOneTimeKeys, 1);
 
         // create alice inbound session for bob
         assertTrue(0==aliceSession.initOutboundSessionWithAccount(aliceAccount, bobIdentityKey, bobOneTimeKey1));
@@ -428,14 +429,14 @@ public class OlmSessionTest {
         assertTrue(0!=aliceAccount.getOlmAccountId());
 
         // get bob identity key
-        JSONObject bobIdentityKeysJson = bobAccount.identityKeys();
-        bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeysJson);
+        Map<String, String> bobIdentityKeys = bobAccount.identityKeys();
+        bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
         assertTrue(null!=bobIdentityKey);
 
         // get bob one time keys
         assertTrue(0==bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER));
-        JSONObject bobOneTimeKeysJsonObj = bobAccount.oneTimeKeys();
-        bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeysJsonObj,1);
+        Map<String, Map<String, String>> bobOneTimeKeys = bobAccount.oneTimeKeys();
+        bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys,1);
         assertNotNull(bobOneTimeKey);
 
         // CREATE ALICE SESSION
@@ -567,15 +568,15 @@ public class OlmSessionTest {
         }
 
         // get bob identity key
-        JSONObject bobIdentityKeysJson = bobAccount.identityKeys();
-        String bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeysJson);
+        Map<String, String> bobIdentityKeys = bobAccount.identityKeys();
+        String bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
         assertTrue(null != bobIdentityKey);
 
         // get bob one time keys
         assertTrue(0 == bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER));
-        JSONObject bobOneTimeKeysJsonObj = bobAccount.oneTimeKeys();
-        assertNotNull(bobOneTimeKeysJsonObj);
-        String bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeysJsonObj,1);
+        Map<String, Map<String, String>> bobOneTimeKeys = bobAccount.oneTimeKeys();
+        assertNotNull(bobOneTimeKeys);
+        String bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys,1);
         assertNotNull(bobOneTimeKey);
 
         // CREATE ALICE SESSION

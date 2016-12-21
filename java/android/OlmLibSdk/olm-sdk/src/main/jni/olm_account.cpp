@@ -468,7 +468,7 @@ JNIEXPORT jstring OLM_MANAGER_FUNC_DEF(getOlmLibVersionJni)(JNIEnv* env, jobject
   olm_get_library_version(&majorVer, &minorVer, &patchVer);
   LOGD("## getOlmLibVersionJni(): Major=%d Minor=%d Patch=%d", majorVer, minorVer, patchVer);
 
-  snprintf(buff, sizeof(buff), " V%d.%d.%d", majorVer, minorVer, patchVer);
+  snprintf(buff, sizeof(buff), "%d.%d.%d", majorVer, minorVer, patchVer);
   returnValueStr = env->NewStringUTF((const char*)buff);
 
   return returnValueStr;

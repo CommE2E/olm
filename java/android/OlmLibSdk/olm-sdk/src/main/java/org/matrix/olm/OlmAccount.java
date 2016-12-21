@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Account class used to create Olm sessions in conjunction with {@link OlmSession} class.<br>
@@ -226,16 +229,16 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     private native long createNewAccountJni();
 
     /**
-     * Return the identity keys (identity and fingerprint keys) in a JSON array.<br>
+     * Return the identity keys (identity and fingerprint keys) in a dictionary.<br>
      * Public API for {@link #identityKeysJni()}.<br>
      * Ex:<tt>
      * {
      *  "curve25519":"Vam++zZPMqDQM6ANKpO/uAl5ViJSHxV9hd+b0/fwRAg",
      *  "ed25519":"+v8SOlOASFTMrX3MCKBM4iVnYoZ+JIjpNt1fi8Z9O2I"
      * }</tt>
-     * @return identity keys in JSON array if operation succeed, null otherwise
+     * @return identity keys dictionary if operation succeeds, null otherwise
      */
-    public JSONObject identityKeys() {
+    public Map<String, String> identityKeys() {
         JSONObject identityKeysJsonObj = null;
         byte identityKeysBuffer[];
 
@@ -251,7 +254,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
             Log.e(LOG_TAG, "## identityKeys(): Failure - identityKeysJni()=null");
         }
 
-        return identityKeysJsonObj;
+        return toStringMap(identityKeysJsonObj);
     }
     /**
      * Get the public identity keys (Ed25519 fingerprint key and Curve25519 identity key).<br>
@@ -283,7 +286,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     private native int generateOneTimeKeysJni(int aNumberOfKeys);
 
     /**
-     * Return the "one time keys" in a JSON array.<br>
+     * Return the "one time keys" in a dictionary.<br>
      * The number of "one time keys", is specified by {@link #generateOneTimeKeys(int)}<br>
      * Ex:<tt>
      * { "curve25519":
@@ -295,9 +298,9 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * }</tt><br>
      * Public API for {@link #oneTimeKeysJni()}.<br>
      * Note: these keys are to be published on the server.
-     * @return one time keys in JSON array format if operation succeed, null otherwise
+     * @return one time keys in string dictionary if operation succeed, null otherwise
      */
-    public JSONObject oneTimeKeys() {
+    public Map<String, Map<String, String>> oneTimeKeys() {
         byte identityKeysBuffer[];
         JSONObject oneTimeKeysJsonObj = null;
 
@@ -313,7 +316,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
             Log.e(LOG_TAG, "## oneTimeKeys(): Failure - identityKeysJni()=null");
         }
 
-        return oneTimeKeysJsonObj;
+        return toStringMapMap(oneTimeKeysJsonObj);
     }
     /**
      * Get the public parts of the unpublished "one time keys" for the account.<br>
@@ -372,5 +375,66 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      */
     public int getUnreleasedCount() {
         return mUnreleasedCount;
+    }
+
+    /**
+     * Build a string-string dictionary from a jsonObject.<br>
+     * @param jsonObject the object to parse
+     * @return the map
+     */
+    private static Map<String, String> toStringMap(JSONObject jsonObject) {
+        if (null != jsonObject) {
+            HashMap<String, String> map = new HashMap<>();
+            Iterator<String> keysItr = jsonObject.keys();
+            while(keysItr.hasNext()) {
+                String key = keysItr.next();
+                try {
+                    Object value = jsonObject.get(key);
+
+                    if (value instanceof String) {
+                        map.put(key, (String) value);
+                    } else {
+                        Log.e(LOG_TAG, "## toStringMap(): unexpected type " + value.getClass());
+                    }
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "## toStringMap(): failed " + e.getMessage());
+                }
+            }
+
+            return map;
+        }
+
+        return null;
+    }
+
+    /**
+     * Build a string-string dictionary of string dictionary from a jsonObject.<br>
+     * @param jsonObject the object to parse
+     * @return the map
+     */
+    private static Map<String, Map<String, String>> toStringMapMap(JSONObject jsonObject) {
+        if (null != jsonObject) {
+            HashMap<String, Map<String, String>> map = new HashMap<>();
+
+            Iterator<String> keysItr = jsonObject.keys();
+            while(keysItr.hasNext()) {
+                String key = keysItr.next();
+                try {
+                    Object value = jsonObject.get(key);
+
+                    if (value instanceof JSONObject) {
+                        map.put(key, toStringMap((JSONObject) value));
+                    } else {
+                        Log.e(LOG_TAG, "## toStringMapMap(): unexpected type " + value.getClass());
+                    }
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "## toStringMapMap(): failed " + e.getMessage());
+                }
+            }
+
+            return map;
+        }
+
+        return null;
     }
 }

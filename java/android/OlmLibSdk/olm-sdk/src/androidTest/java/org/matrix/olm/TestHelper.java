@@ -19,7 +19,9 @@ package org.matrix.olm;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -31,15 +33,15 @@ public class TestHelper {
 
     /**
      * Return the identity key {@link OlmAccount#JSON_KEY_IDENTITY_KEY} from the JSON object.
-     * @param aIdentityKeysObj JSON result of {@link OlmAccount#identityKeys()}
+     * @param aIdentityKeysMap result of {@link OlmAccount#identityKeys()}
      * @return identity key string if operation succeed, null otherwise
      */
-    static public String getIdentityKey(JSONObject aIdentityKeysObj){
+    static public String getIdentityKey(Map<String, String> aIdentityKeysMap){
         String idKey = null;
 
         try {
-            idKey = aIdentityKeysObj.getString(OlmAccount.JSON_KEY_IDENTITY_KEY);
-        } catch (JSONException e) {
+            idKey = aIdentityKeysMap.get(OlmAccount.JSON_KEY_IDENTITY_KEY);
+        } catch (Exception e) {
             assertTrue("Exception MSg=" + e.getMessage(), false);
         }
         return idKey;
@@ -47,15 +49,15 @@ public class TestHelper {
 
     /**
      * Return the fingerprint key {@link OlmAccount#JSON_KEY_FINGER_PRINT_KEY} from the JSON object.
-     * @param aIdentityKeysObj JSON result of {@link OlmAccount#identityKeys()}
+     * @param aIdentityKeysMap result of {@link OlmAccount#identityKeys()}
      * @return fingerprint key string if operation succeed, null otherwise
      */
-    static public String getFingerprintKey(JSONObject aIdentityKeysObj){
+    static public String getFingerprintKey(Map<String, String> aIdentityKeysMap) {
         String fingerprintKey = null;
 
         try {
-            fingerprintKey = aIdentityKeysObj.getString(OlmAccount.JSON_KEY_FINGER_PRINT_KEY);
-        } catch (JSONException e) {
+            fingerprintKey = aIdentityKeysMap.get(OlmAccount.JSON_KEY_FINGER_PRINT_KEY);
+        } catch (Exception e) {
             assertTrue("Exception MSg=" + e.getMessage(), false);
         }
         return fingerprintKey;
@@ -63,26 +65,19 @@ public class TestHelper {
 
     /**
      * Return the first one time key from the JSON object.
-     * @param aIdentityKeysObj JSON result of {@link OlmAccount#oneTimeKeys()}
+     * @param aIdentityKeysMap result of {@link OlmAccount#oneTimeKeys()}
      * @param aKeyPosition the position of the key to be retrieved
      * @return one time key string if operation succeed, null otherwise
      */
-    static public String getOneTimeKey(JSONObject aIdentityKeysObj, int aKeyPosition) {
+    static public String getOneTimeKey(Map<String, Map<String, String>> aIdentityKeysMap, int aKeyPosition) {
         String firstOneTimeKey = null;
-        int i=0;
 
         try {
-            JSONObject generatedKeys = aIdentityKeysObj.getJSONObject(OlmAccount.JSON_KEY_ONE_TIME_KEY);
+            Map<String, String> generatedKeys = aIdentityKeysMap.get(OlmAccount.JSON_KEY_ONE_TIME_KEY);
             assertNotNull(OlmAccount.JSON_KEY_ONE_TIME_KEY + " object is missing", generatedKeys);
 
-            Iterator<String> generatedKeysIt = generatedKeys.keys();
-            while(i<aKeyPosition) {
-                if (generatedKeysIt.hasNext()) {
-                    firstOneTimeKey = generatedKeys.getString(generatedKeysIt.next());
-                    i++;
-                }
-            }
-        } catch (JSONException e) {
+            firstOneTimeKey = (new ArrayList<>(generatedKeys.values())).get(aKeyPosition - 1);
+        } catch (Exception e) {
             assertTrue("Exception Msg=" + e.getMessage(), false);
         }
         return firstOneTimeKey;

@@ -38,6 +38,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Map;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.assertFalse;
@@ -130,16 +131,16 @@ public class OlmAccountTest {
      */
     @Test
     public void test05IdentityKeys() {
-        JSONObject identityKeysJson = mOlmAccount.identityKeys();
-        assertNotNull(identityKeysJson);
-        Log.d(LOG_TAG,"## testIdentityKeys Keys="+identityKeysJson);
+        Map<String, String> identityKeys = mOlmAccount.identityKeys();
+        assertNotNull(identityKeys);
+        Log.d(LOG_TAG,"## testIdentityKeys Keys="+identityKeys);
 
         // is JSON_KEY_FINGER_PRINT_KEY present?
-        String fingerPrintKey = TestHelper.getFingerprintKey(identityKeysJson);
+        String fingerPrintKey = TestHelper.getFingerprintKey(identityKeys);
         assertTrue("fingerprint key missing",!TextUtils.isEmpty(fingerPrintKey));
 
         // is JSON_KEY_IDENTITY_KEY present?
-        String identityKey = TestHelper.getIdentityKey(identityKeysJson);
+        String identityKey = TestHelper.getIdentityKey(identityKeys);
         assertTrue("identity key missing",!TextUtils.isEmpty(identityKey));
     }
 
@@ -169,20 +170,19 @@ public class OlmAccountTest {
     @Test
     public void test08OneTimeKeysJsonFormat() {
         int oneTimeKeysCount = 0;
-        JSONObject generatedKeysJsonObj;
-        JSONObject oneTimeKeysJson = mOlmAccount.oneTimeKeys();
+        Map<String, Map<String, String>> oneTimeKeysJson = mOlmAccount.oneTimeKeys();
         assertNotNull(oneTimeKeysJson);
 
         try {
-            generatedKeysJsonObj = oneTimeKeysJson.getJSONObject(OlmAccount.JSON_KEY_ONE_TIME_KEY);
-            assertTrue(OlmAccount.JSON_KEY_ONE_TIME_KEY +" object is missing", null!=generatedKeysJsonObj);
+            Map<String, String> map = oneTimeKeysJson.get(OlmAccount.JSON_KEY_ONE_TIME_KEY);
+            assertTrue(OlmAccount.JSON_KEY_ONE_TIME_KEY +" object is missing", null!=map);
 
             // test the count of the generated one time keys:
-            oneTimeKeysCount = generatedKeysJsonObj.length();
+            oneTimeKeysCount = map.size();
 
             assertTrue("Expected count="+GENERATION_ONE_TIME_KEYS_NUMBER+" found="+oneTimeKeysCount,GENERATION_ONE_TIME_KEYS_NUMBER==oneTimeKeysCount);
 
-        } catch (JSONException e) {
+        } catch (Exception e) {
             assertTrue("Exception MSg="+e.getMessage(), false);
         }
     }
@@ -244,8 +244,8 @@ public class OlmAccountTest {
         assertTrue(0==retValue);
 
         // get keys references
-        JSONObject identityKeysRef = accountRef.identityKeys();
-        JSONObject oneTimeKeysRef = accountRef.oneTimeKeys();
+        Map<String, String> identityKeysRef = accountRef.identityKeys();
+        Map<String, Map<String, String>> oneTimeKeysRef = accountRef.oneTimeKeys();
         assertNotNull(identityKeysRef);
         assertNotNull(oneTimeKeysRef);
 
@@ -268,8 +268,8 @@ public class OlmAccountTest {
             assertNotNull(accountDeserial);
 
             // get de-serialized keys
-            JSONObject identityKeysDeserial = accountDeserial.identityKeys();
-            JSONObject oneTimeKeysDeserial = accountDeserial.oneTimeKeys();
+            Map<String, String>  identityKeysDeserial = accountDeserial.identityKeys();
+            Map<String, Map<String, String>> oneTimeKeysDeserial = accountDeserial.oneTimeKeys();
             assertNotNull(identityKeysDeserial);
             assertNotNull(oneTimeKeysDeserial);
 
@@ -363,43 +363,43 @@ public class OlmAccountTest {
             OlmAccount account9 = new OlmAccount();
             OlmAccount account10 = new OlmAccount();
 
-            JSONObject identityKeysJson1 = account1.identityKeys();
-            JSONObject identityKeysJson2 = account2.identityKeys();
-            JSONObject identityKeysJson3 = account3.identityKeys();
-            JSONObject identityKeysJson4 = account4.identityKeys();
-            JSONObject identityKeysJson5 = account5.identityKeys();
-            JSONObject identityKeysJson6 = account6.identityKeys();
-            JSONObject identityKeysJson7 = account7.identityKeys();
-            JSONObject identityKeysJson8 = account8.identityKeys();
-            JSONObject identityKeysJson9 = account9.identityKeys();
-            JSONObject identityKeysJson10 = account10.identityKeys();
+            Map<String, String> identityKeys1 = account1.identityKeys();
+            Map<String, String> identityKeys2 = account2.identityKeys();
+            Map<String, String> identityKeys3 = account3.identityKeys();
+            Map<String, String> identityKeys4 = account4.identityKeys();
+            Map<String, String> identityKeys5 = account5.identityKeys();
+            Map<String, String> identityKeys6 = account6.identityKeys();
+            Map<String, String> identityKeys7 = account7.identityKeys();
+            Map<String, String> identityKeys8 = account8.identityKeys();
+            Map<String, String> identityKeys9 = account9.identityKeys();
+            Map<String, String> identityKeys10 = account10.identityKeys();
 
-            String identityKey1 = TestHelper.getIdentityKey(identityKeysJson1);
-            String identityKey2 = TestHelper.getIdentityKey(identityKeysJson2);
+            String identityKey1 = TestHelper.getIdentityKey(identityKeys1);
+            String identityKey2 = TestHelper.getIdentityKey(identityKeys2);
             assertFalse(identityKey1.equals(identityKey2));
 
-            String identityKey3 = TestHelper.getIdentityKey(identityKeysJson3);
+            String identityKey3 = TestHelper.getIdentityKey(identityKeys3);
             assertFalse(identityKey2.equals(identityKey3));
 
-            String identityKey4 = TestHelper.getIdentityKey(identityKeysJson4);
+            String identityKey4 = TestHelper.getIdentityKey(identityKeys4);
             assertFalse(identityKey3.equals(identityKey4));
 
-            String identityKey5 = TestHelper.getIdentityKey(identityKeysJson5);
+            String identityKey5 = TestHelper.getIdentityKey(identityKeys5);
             assertFalse(identityKey4.equals(identityKey5));
 
-            String identityKey6 = TestHelper.getIdentityKey(identityKeysJson6);
+            String identityKey6 = TestHelper.getIdentityKey(identityKeys6);
             assertFalse(identityKey5.equals(identityKey6));
 
-            String identityKey7 = TestHelper.getIdentityKey(identityKeysJson7);
+            String identityKey7 = TestHelper.getIdentityKey(identityKeys7);
             assertFalse(identityKey6.equals(identityKey7));
 
-            String identityKey8 = TestHelper.getIdentityKey(identityKeysJson8);
+            String identityKey8 = TestHelper.getIdentityKey(identityKeys8);
             assertFalse(identityKey7.equals(identityKey8));
 
-            String identityKey9 = TestHelper.getIdentityKey(identityKeysJson9);
+            String identityKey9 = TestHelper.getIdentityKey(identityKeys9);
             assertFalse(identityKey8.equals(identityKey9));
 
-            String identityKey10 = TestHelper.getIdentityKey(identityKeysJson10);
+            String identityKey10 = TestHelper.getIdentityKey(identityKeys10);
             assertFalse(identityKey9.equals(identityKey10));
 
             account1.releaseAccount();

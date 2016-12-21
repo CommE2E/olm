@@ -27,6 +27,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
+import java.util.Map;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -76,9 +78,9 @@ public class OlmUtilityTest {
         assertNotNull(messageSignature);
 
         // get identities key (finger print key)
-        JSONObject identityKeysJson = account.identityKeys();
-        assertNotNull(identityKeysJson);
-        fingerPrintKey = TestHelper.getFingerprintKey(identityKeysJson);
+        Map<String, String> identityKeys = account.identityKeys();
+        assertNotNull(identityKeys);
+        fingerPrintKey = TestHelper.getFingerprintKey(identityKeys);
         assertTrue("fingerprint key missing",!TextUtils.isEmpty(fingerPrintKey));
 
         // instantiate utility object
