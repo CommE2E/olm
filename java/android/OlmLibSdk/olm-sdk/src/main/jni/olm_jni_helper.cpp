@@ -29,10 +29,11 @@ using namespace AndroidOlmSdk;
 * @param aRandomSize the number of random values to apply
 * @return true if operation succeed, false otherwise
 **/
-bool setRandomInBuffer(uint8_t **aBuffer2Ptr, size_t aRandomSize)
+bool setRandomInBuffer(JNIEnv *env, uint8_t **aBuffer2Ptr, size_t aRandomSize)
 {
     bool retCode = false;
     struct timeval timeValue;
+    int bufferLen = aRandomSize*sizeof(uint8_t);
 
     if(NULL == aBuffer2Ptr)
     {
@@ -42,7 +43,7 @@ bool setRandomInBuffer(uint8_t **aBuffer2Ptr, size_t aRandomSize)
     {
         LOGE("## setRandomInBuffer(): failure - random size=0");
     }
-    else if(NULL == (*aBuffer2Ptr = (uint8_t*)malloc(aRandomSize*sizeof(uint8_t))))
+    else if(NULL == (*aBuffer2Ptr = (uint8_t*)malloc(bufferLen)))
     {
         LOGE("## setRandomInBuffer(): failure - alloc mem OOM");
     }
@@ -50,15 +51,68 @@ bool setRandomInBuffer(uint8_t **aBuffer2Ptr, size_t aRandomSize)
     {
         LOGD("## setRandomInBuffer(): randomSize=%lu",static_cast<long unsigned int>(aRandomSize));
 
-        gettimeofday(&timeValue, NULL);
-        srand(timeValue.tv_usec); // init seed
+        bool secureRandomSucceeds = false;
 
-        for(size_t i=0;i<aRandomSize;i++)
+        // clear the buffer
+        memset(*aBuffer2Ptr, 0, bufferLen);
+
+        // use the secureRandom class
+        jclass cls = env->FindClass("java/security/SecureRandom");
+
+        if (cls)
         {
-            (*aBuffer2Ptr)[i] = (uint8_t)(rand()%ACCOUNT_CREATION_RANDOM_MODULO);
-            // debug purpose
-            //LOGD("## setRandomInBuffer(): randomBuffPtr[%ld]=%d",i, (*aBuffer2Ptr)[i]);
+            jobject newObj = 0;
+            jmethodID constructor = env->GetMethodID(cls, "<init>", "()V");
+            jmethodID nextByteMethod = env->GetMethodID(cls, "nextBytes", "([B)V");
+
+            if (constructor)
+            {
+                newObj = env->NewObject(cls, constructor);
+                jbyteArray tempByteArray = env->NewByteArray(bufferLen);
+
+                if (newObj && tempByteArray)
+                {
+                    env->CallVoidMethod(newObj, nextByteMethod, tempByteArray);
+
+                    jbyte* buffer = env->GetByteArrayElements(tempByteArray,0);
+
+                    if (buffer)
+                    {
+                        memcpy(*aBuffer2Ptr, buffer, bufferLen);
+                        secureRandomSucceeds = true;
+                    }
+                }
+
+                if (tempByteArray)
+                {
+                    env->DeleteLocalRef(tempByteArray);
+                }
+
+                if (newObj)
+                {
+                    env->DeleteLocalRef(newObj);
+                }
+            }
         }
+
+        if (!secureRandomSucceeds)
+        {
+            LOGE("## setRandomInBuffer(): SecureRandom failed, use a fallback");
+
+            gettimeofday(&timeValue, NULL);
+            srand(timeValue.tv_usec); // init seed
+
+            for(size_t i=0;i<aRandomSize;i++)
+            {
+                (*aBuffer2Ptr)[i] = (uint8_t)(rand()%ACCOUNT_CREATION_RANDOM_MODULO);
+            }
+        }
+
+        // debug purpose
+        /*for(int i = 0; i < aRandomSize; i++)
+        {
+            LOGD("## setRandomInBuffer(): randomBuffPtr[%ld]=%d",i, (*aBuffer2Ptr)[i]);
+        }*/
 
         retCode = true;
     }

@@ -67,7 +67,7 @@ extern "C" {
 #endif
 
 // internal helper functions
-bool setRandomInBuffer(uint8_t **aBuffer2Ptr, size_t aRandomSize);
+bool setRandomInBuffer(JNIEnv *env, uint8_t **aBuffer2Ptr, size_t aRandomSize);
 jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 jlong getInboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);

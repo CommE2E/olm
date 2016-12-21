@@ -104,7 +104,7 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(initNewAccountJni)(JNIEnv *env, jobject thi
         LOGD("## initNewAccount(): randomSize=%lu", static_cast<long unsigned int>(randomSize));
 
         // allocate random buffer
-        if((0!=randomSize) && !setRandomInBuffer(&randomBuffPtr, randomSize))
+        if((0!=randomSize) && !setRandomInBuffer(env, &randomBuffPtr, randomSize))
         {
             LOGE("## initNewAccount(): failure - random buffer init");
         }
@@ -234,7 +234,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeysJni)(JNIEnv *env, jobject
         randomLength = olm_account_generate_one_time_keys_random_length(accountPtr, (size_t)aNumberOfKeys);
         LOGD("## generateOneTimeKeysJni(): randomLength=%lu", static_cast<long unsigned int>(randomLength));
 
-        if((0!=randomLength) && !setRandomInBuffer(&randomBufferPtr, randomLength))
+        if((0!=randomLength) && !setRandomInBuffer(env, &randomBufferPtr, randomLength))
         {
             LOGE("## generateOneTimeKeysJni(): failure - random buffer init");
         }

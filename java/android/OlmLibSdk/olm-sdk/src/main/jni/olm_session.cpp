@@ -132,7 +132,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initOutboundSessionJni)(JNIEnv *env, jobject
     {   // allocate random buffer
         size_t randomSize = olm_create_outbound_session_random_length(sessionPtr);
         LOGD("## initOutboundSessionJni(): randomSize=%lu",static_cast<long unsigned int>(randomSize));
-        if((0!=randomSize) && !setRandomInBuffer(&randomBuffPtr, randomSize))
+        if((0!=randomSize) && !setRandomInBuffer(env, &randomBuffPtr, randomSize))
         {
             LOGE("## initOutboundSessionJni(): failure - random buffer init");
         }
@@ -497,7 +497,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
         // it just does not need new random data to encrypt a new message
         size_t randomLength = olm_encrypt_random_length(sessionPtr);
         LOGD("## encryptMessageJni(): randomLength=%lu", static_cast<long unsigned int>(randomLength));
-        if((0!=randomLength) && !setRandomInBuffer(&randomBuffPtr, randomLength))
+        if((0!=randomLength) && !setRandomInBuffer(env, &randomBuffPtr, randomLength))
         {
             LOGE("## encryptMessageJni(): failure - random buffer init");
         }

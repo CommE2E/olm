@@ -102,7 +102,7 @@ JNIEXPORT jint OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(initOutboundGroupSessionJni)(
         // compute random buffer
         size_t randomLength = olm_init_outbound_group_session_random_length(sessionPtr);
         LOGW(" ## initOutboundGroupSessionJni(): randomLength=%lu",static_cast<long unsigned int>(randomLength));
-        if((0!=randomLength) && !setRandomInBuffer(&randomBuffPtr, randomLength))
+        if((0!=randomLength) && !setRandomInBuffer(env, &randomBuffPtr, randomLength))
         {
             LOGE(" ## initOutboundGroupSessionJni(): failure - random buffer init");
         }
