@@ -1,8 +1,6 @@
-/**
- * Created by pedrocon on 06/10/2016.
- */
 /*
  * Copyright 2016 OpenMarket Ltd
+ * Copyright 2016 Vector Creations Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
