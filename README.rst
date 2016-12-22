@@ -44,15 +44,26 @@ To build the Xcode workspace for Objective-C bindings, run:
 Release process
 ---------------
 
-.. code:: bash
+First: bump version numbers in ``Makefile``, ``javascript/package.json``, and
+``OLMKit.podspec``.
 
-    # Bump version numbers in ``Makefile`` and ``javascript/package.json``
-    # Prepare changelog
-    git commit
+Also, ensure the changelog is up to date, and that everyting is committed to
+git.
+
+It's probably sensible to do the above on a release branch (``release-vx.y.z``
+by convention), and merge back to master once the release is complete.
+
+.. code:: bash
     make clean
+
+    # build and test C library
     make test
+
+    # build and test JS wrapper
     make js
+    (cd javascript && npm run test)
     npm pack javascript
+
     VERSION=x.y.z
     scp olm-$VERSION.tgz packages@ldc-prd-matrix-001:/sites/matrix/packages/npm/olm/
     git tag $VERSION -s
@@ -65,9 +76,6 @@ Release process
     pod trunk push OLMKit.podspec --use-libraries --allow-warnings
     # Check the pod has been successully published with:
     pod search OLMKit
-
-It's probably sensible to do the above on a release branch (``release-vx.y.z``
-by convention), and merge back to master once complete.
 
 
 Design
