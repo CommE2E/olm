@@ -1,0 +1,7 @@
+target "OLMKit" do
+pod 'OLMKit', :path => '../OLMKit.podspec'
+end
+
+target "OLMKitTests" do
+pod 'OLMKit', :path => '../OLMKit.podspec'
+end

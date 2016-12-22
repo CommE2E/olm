@@ -33,6 +33,14 @@ To build the javascript bindings, install emscripten from http://kripken.github.
 
     make js
 
+To build the Xcode workspace for Objective-C bindings, run:
+
+.. code:: bash
+
+    cd xcode
+    pod install
+    open OLMKit.xcworkspace
+
 Release process
 ---------------
 
@@ -49,6 +57,14 @@ Release process
     scp olm-$VERSION.tgz packages@ldc-prd-matrix-001:/sites/matrix/packages/npm/olm/
     git tag $VERSION -s
     git push --tags
+
+    # OLMKit CocoaPod release
+    # Make sure the version OLMKit.podspec is the same as the git tag
+    # (this must be checked before git tagging)
+    pod spec lint OLMKit.podspec --use-libraries --allow-warnings
+    pod trunk push OLMKit.podspec --use-libraries --allow-warnings
+    # Check the pod has been successully published with:
+    pod search OLMKit
 
 It's probably sensible to do the above on a release branch (``release-vx.y.z``
 by convention), and merge back to master once complete.
