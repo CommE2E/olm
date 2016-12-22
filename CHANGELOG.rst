@@ -1,9 +1,19 @@
-Changes in `2.0.1 <http://matrix.org/git/olm/commit/?h=2.0.1>`_
+Changes in `2.1.0 <http://matrix.org/git/olm/commit/?h=2.1.0>`_
 ===============================================================
 
-This release includes the following changes since 2.0.0
+This release includes the following changes since 2.0.0:
 
-* Add OLMKit, the Objective-C wrapper.
+* Add OLMKit, the Objective-C wrapper. Thanks to Chris Ballinger for the
+  initial work on this.
+
+Javascript wrapper:
+
+* Handle exceptions during loading better (don't leave a half-initialised
+  state).
+* Allow applications to tune emscripten options (such as the amount of heap).
+* Allocate memory for encrypted/decrypted messages on the empscripten heap,
+  rather than the stack, allowing more efficient memory use.
+
 
 Changes in `2.0.0 <http://matrix.org/git/olm/commit/?h=2.0.0>`_
 ===============================================================
@@ -22,6 +32,7 @@ This release includes the following changes since 1.3.0:
   specification <./docs/olm.rst>`_.
 * Add an ``install-headers`` target to the Makefile (and run it when installing
   the library). (Credit to Emmanuel Gil Peyrot).
+
 
 Changes in `1.3.0 <http://matrix.org/git/olm/commit/?h=1.3.0>`_
 ===============================================================
