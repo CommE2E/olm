@@ -11,5 +11,5 @@ make test
 
 . ~/.emsdk_set_env.sh
 make js
-(cd javascript && npm run test)
+(cd javascript && npm install && npm run test)
 npm pack javascript
