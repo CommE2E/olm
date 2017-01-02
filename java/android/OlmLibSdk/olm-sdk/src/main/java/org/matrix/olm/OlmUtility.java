@@ -30,7 +30,6 @@ public class OlmUtility {
 
     public static final int RANDOM_KEY_SIZE = 32;
     public static final int RANDOM_RANGE = 256;
-    private transient int mUnreleasedCount;
 
     /** Instance Id returned by JNI.
      * This value uniquely identifies this utility instance.
@@ -47,13 +46,10 @@ public class OlmUtility {
      * @return true if init succeed, false otherwise.
      */
     private boolean initUtility() {
-        boolean retCode = false;
-        if(0 != (mNativeId = initUtilityJni())){
-            mUnreleasedCount++;
-            retCode = true;
-        }
-        return retCode;
+        mNativeId = initUtilityJni();
+        return (0 != mNativeId);
     }
+
     private native long initUtilityJni();
 
     /**
@@ -62,7 +58,6 @@ public class OlmUtility {
      */
     public void releaseUtility(){
         releaseUtilityJni();
-        mUnreleasedCount--;
         mNativeId = 0;
     }
     private native void releaseUtilityJni();
@@ -148,11 +143,11 @@ public class OlmUtility {
     }
 
     /**
-     * Return the number of unreleased OlmUtility instances.<br>
-     * @return number of unreleased instances
+     * Return true the object resources have been released.<br>
+     * @return true the object resources have been released
      */
-    public int getUnreleasedCount() {
-        return mUnreleasedCount;
+    public boolean isReleased() {
+        return (0 == mNativeId);
     }
 }
 

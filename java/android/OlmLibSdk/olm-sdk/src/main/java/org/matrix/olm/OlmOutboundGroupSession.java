@@ -36,7 +36,6 @@ import java.io.Serializable;
 public class OlmOutboundGroupSession extends CommonSerializeUtils implements Serializable {
     private static final long serialVersionUID = -3133097431283604416L;
     private static final String LOG_TAG = "OlmOutboundGroupSession";
-    private transient int mUnreleasedCount;
 
     /** Session Id returned by JNI.<br>
      * This value uniquely identifies the native outbound group session instance.
@@ -156,7 +155,6 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      */
     public void releaseSession() {
         releaseSessionJni();
-        mUnreleasedCount--;
         mNativeId = 0;
     }
 
@@ -175,12 +173,8 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * @return true if init succeed, false otherwise.
      */
     private boolean createNewSession() {
-        boolean retCode = false;
-        if(0 != (mNativeId = createNewSessionJni())){
-            mUnreleasedCount++;
-            retCode = true;
-        }
-        return retCode;
+        mNativeId = createNewSessionJni();
+        return (0 != mNativeId);
     }
 
     /**
@@ -204,11 +198,9 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * @return session identifier if operation succeed, null otherwise.
      */
     public String sessionIdentifier() {
-        String retValue = null;
-        retValue = sessionIdentifierJni();
-
-        return retValue;
+        return sessionIdentifierJni();
     }
+
     private native String sessionIdentifierJni();
 
     /**
@@ -218,10 +210,7 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * @return current session index
      */
     public int messageIndex() {
-        int retValue =0;
-        retValue = messageIndexJni();
-
-        return retValue;
+        return messageIndexJni();
     }
     private native int messageIndexJni();
 
@@ -232,10 +221,7 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * @return outbound session key
      */
     public String sessionKey() {
-        String retValue = null;
-        retValue = sessionKeyJni();
-
-        return retValue;
+        return sessionKeyJni();
     }
     private native String sessionKeyJni();
 
@@ -257,10 +243,10 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
     private native String encryptMessageJni(String aClearMsg);
 
     /**
-     * Return the number of unreleased OlmOutboundGroupSession instances.<br>
-     * @return number of unreleased instances
+     * Return true the object resources have been released.<br>
+     * @return true the object resources have been released
      */
-    public int getUnreleasedCount() {
-        return mUnreleasedCount;
+    public boolean isReleased() {
+        return (0 == mNativeId);
     }
 }

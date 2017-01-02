@@ -180,8 +180,8 @@ public class OlmGroupSessionTest {
 
     @Test
     public void test14CheckUnreleaseedCount() {
-        assertTrue(0==mAliceOutboundGroupSession.getUnreleasedCount());
-        assertTrue(0==mBobInboundGroupSession.getUnreleasedCount());
+        assertTrue(mAliceOutboundGroupSession.isReleased());
+        assertTrue(mBobInboundGroupSession.isReleased());
     }
 
     @Test
@@ -235,8 +235,8 @@ public class OlmGroupSessionTest {
             outboundGroupSessionRef.releaseSession();
             outboundGroupSessionSerial.releaseSession();
 
-            assertTrue(0==outboundGroupSessionRef.getUnreleasedCount());
-            assertTrue(0==outboundGroupSessionSerial.getUnreleasedCount());
+            assertTrue(outboundGroupSessionRef.isReleased());
+            assertTrue(outboundGroupSessionSerial.isReleased());
         } catch (FileNotFoundException e) {
             Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception FileNotFoundException Msg=="+e.getMessage());
         } catch (ClassNotFoundException e) {
@@ -309,9 +309,9 @@ public class OlmGroupSessionTest {
             bobInboundGroupSessionRef.releaseSession();
             bobInboundGroupSessionSerial.releaseSession();
 
-            assertTrue(0==aliceOutboundGroupSession.getUnreleasedCount());
-            assertTrue(0==bobInboundGroupSessionRef.getUnreleasedCount());
-            assertTrue(0==bobInboundGroupSessionSerial.getUnreleasedCount());
+            assertTrue(aliceOutboundGroupSession.isReleased());
+            assertTrue(bobInboundGroupSessionRef.isReleased());
+            assertTrue(bobInboundGroupSessionSerial.isReleased());
         } catch (FileNotFoundException e) {
             Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception FileNotFoundException Msg=="+e.getMessage());
         } catch (ClassNotFoundException e) {
@@ -405,14 +405,14 @@ public class OlmGroupSessionTest {
             outboundGroupSession7.releaseSession();
             outboundGroupSession8.releaseSession();
 
-            assertTrue(0==outboundGroupSession1.getUnreleasedCount());
-            assertTrue(0==outboundGroupSession2.getUnreleasedCount());
-            assertTrue(0==outboundGroupSession3.getUnreleasedCount());
-            assertTrue(0==outboundGroupSession4.getUnreleasedCount());
-            assertTrue(0==outboundGroupSession5.getUnreleasedCount());
-            assertTrue(0==outboundGroupSession6.getUnreleasedCount());
-            assertTrue(0==outboundGroupSession7.getUnreleasedCount());
-            assertTrue(0==outboundGroupSession8.getUnreleasedCount());
+            assertTrue(outboundGroupSession1.isReleased());
+            assertTrue(outboundGroupSession2.isReleased());
+            assertTrue(outboundGroupSession3.isReleased());
+            assertTrue(outboundGroupSession4.isReleased());
+            assertTrue(outboundGroupSession5.isReleased());
+            assertTrue(outboundGroupSession6.isReleased());
+            assertTrue(outboundGroupSession7.isReleased());
+            assertTrue(outboundGroupSession8.isReleased());
         } catch (OlmException e) {
             assertTrue("Exception in OlmOutboundGroupSession, Exception code=" + e.getExceptionCode(), false);
         }

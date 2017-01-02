@@ -39,7 +39,6 @@ import java.util.Map;
 public class OlmAccount extends CommonSerializeUtils implements Serializable {
     private static final long serialVersionUID = 3497486121598434824L;
     private static final String LOG_TAG = "OlmAccount";
-    private transient int mUnreleasedCount;
 
     // JSON keys used in the JSON objects returned by JNI
     /** As well as the identity key, each device creates a number of Curve25519 key pairs which are
@@ -171,7 +170,6 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      */
     public void releaseAccount(){
         releaseAccountJni();
-        mUnreleasedCount--;
         mNativeId = 0;
     }
 
@@ -190,12 +188,8 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * @return true if init succeed, false otherwise.
      */
     private boolean initNewAccount() {
-        boolean retCode = false;
-        if(0 != (mNativeId = initNewAccountJni())){
-            mUnreleasedCount++;
-            retCode = true;
-        }
-        return retCode;
+        mNativeId = initNewAccountJni();
+        return (0 != mNativeId);
     }
 
     /**
@@ -213,12 +207,8 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * @return true if init succeed, false otherwise.
      */
     private boolean createNewAccount() {
-        boolean retCode = false;
-        if(0 != (mNativeId = createNewAccountJni())){
-            mUnreleasedCount++;
-            retCode = true;
-        }
-        return retCode;
+        mNativeId = initNewAccountJni();
+        return (0 != mNativeId);
     }
 
     /**
@@ -384,11 +374,11 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     private native String signMessageJni(byte[] aMessage);
 
     /**
-     * Return the number of unreleased OlmAccount instances.<br>
-     * @return number of unreleased instances
+     * Return true the object resources have been released.<br>
+     * @return true the object resources have been released
      */
-    public int getUnreleasedCount() {
-        return mUnreleasedCount;
+    public boolean isReleased() {
+        return (0 == mNativeId);
     }
 
     /**

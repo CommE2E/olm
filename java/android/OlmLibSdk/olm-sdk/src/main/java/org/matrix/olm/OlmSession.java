@@ -36,13 +36,11 @@ import java.io.Serializable;
 public class OlmSession extends CommonSerializeUtils implements Serializable {
     private static final long serialVersionUID = -8975488639186976419L;
     private static final String LOG_TAG = "OlmSession";
-    private transient int mUnreleasedCount;
 
     /** Session Id returned by JNI.
      * This value uniquely identifies the native session instance.
      **/
     private transient long mNativeId;
-
 
     public OlmSession() throws OlmException {
         if(!initNewSession()) {
@@ -160,7 +158,6 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      */
     public void releaseSession(){
         releaseSessionJni();
-        mUnreleasedCount--;
         mNativeId = 0;
     }
 
@@ -171,12 +168,8 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * @return true if init succeed, false otherwise.
      */
     private boolean initNewSession() {
-        boolean retCode = false;
-        if(0 != (mNativeId = initNewSessionJni())){
-            mUnreleasedCount++;
-            retCode = true;
-        }
-        return retCode;
+        mNativeId = initNewSessionJni();
+        return (0 != mNativeId);
     }
 
     /**
@@ -195,12 +188,8 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * @return true if init succeed, false otherwise.
      */
     private boolean createNewSession() {
-        boolean retCode = false;
-        if(0 != (mNativeId = createNewSessionJni())){
-            mUnreleasedCount++;
-            retCode = true;
-        }
-        return retCode;
+        mNativeId = initNewSessionJni();
+        return (0 != mNativeId);
     }
 
     /**
@@ -368,11 +357,11 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
     private native String decryptMessageJni(OlmMessage aEncryptedMsg, boolean aIsUtf8ConversionRequired);
 
     /**
-     * Return the number of unreleased OlmSession instances.<br>
-     * @return number of unreleased instances
+     * Return true the object resources have been released.<br>
+     * @return true the object resources have been released
      */
-    public int getUnreleasedCount() {
-        return mUnreleasedCount;
+    public boolean isReleased() {
+        return (0 == mNativeId);
     }
 }
 

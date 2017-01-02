@@ -106,12 +106,11 @@ public class OlmUtilityTest {
         assertFalse(String.valueOf(errorMsg).isEmpty());
 
         utility.releaseUtility();
-        assertTrue(0==utility.getUnreleasedCount());
+        assertTrue(utility.isReleased());
 
         account.releaseAccount();
-        assertTrue(0==account.getUnreleasedCount());
+        assertTrue(account.isReleased());
     }
-
 
     @Test
     public void test02sha256() {
@@ -122,6 +121,6 @@ public class OlmUtilityTest {
         assertFalse(TextUtils.isEmpty(hashResult));
 
         utility.releaseUtility();
-        assertTrue(0==utility.getUnreleasedCount());
+        assertTrue(utility.isReleased());
     }
 }

@@ -143,14 +143,14 @@ public class OlmSessionTest {
         // release accounts
         bobAccount.releaseAccount();
         aliceAccount.releaseAccount();
-        assertTrue(0==bobAccount.getUnreleasedCount());
-        assertTrue(0==aliceAccount.getUnreleasedCount());
+        assertTrue(bobAccount.isReleased());
+        assertTrue(aliceAccount.isReleased());
 
         // release sessions
         bobSession.releaseSession();
         aliceSession.releaseSession();
-        assertTrue(0==bobSession.getUnreleasedCount());
-        assertTrue(0==aliceSession.getUnreleasedCount());
+        assertTrue(bobSession.isReleased());
+        assertTrue(aliceSession.isReleased());
     }
 
 
@@ -273,13 +273,13 @@ public class OlmSessionTest {
         assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
         bobAccount.releaseAccount();
         aliceAccount.releaseAccount();
-        assertTrue(0==bobAccount.getUnreleasedCount());
-        assertTrue(0==aliceAccount.getUnreleasedCount());
+        assertTrue(bobAccount.isReleased());
+        assertTrue(aliceAccount.isReleased());
 
         bobSession.releaseSession();
         aliceSession.releaseSession();
-        assertTrue(0==bobSession.getUnreleasedCount());
-        assertTrue(0==aliceSession.getUnreleasedCount());
+        assertTrue(bobSession.isReleased());
+        assertTrue(aliceSession.isReleased());
     }
 
 
@@ -329,13 +329,13 @@ public class OlmSessionTest {
 
         aliceAccount.releaseAccount();
         bobAccount.releaseAccount();
-        assertTrue(0==aliceAccount.getUnreleasedCount());
-        assertTrue(0==bobAccount.getUnreleasedCount());
+        assertTrue(aliceAccount.isReleased());
+        assertTrue(bobAccount.isReleased());
 
         bobSession.releaseSession();
         aliceSession.releaseSession();
-        assertTrue(0==bobSession.getUnreleasedCount());
-        assertTrue(0==aliceSession.getUnreleasedCount());
+        assertTrue(bobSession.isReleased());
+        assertTrue(aliceSession.isReleased());
     }
 
     @Test
@@ -391,13 +391,13 @@ public class OlmSessionTest {
         assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
         aliceAccount.releaseAccount();
         bobAccount.releaseAccount();
-        assertTrue(0==aliceAccount.getUnreleasedCount());
-        assertTrue(0==bobAccount.getUnreleasedCount());
+        assertTrue(aliceAccount.isReleased());
+        assertTrue(bobAccount.isReleased());
 
         aliceSession.releaseSession();
         bobSession.releaseSession();
-        assertTrue(0==aliceSession.getUnreleasedCount());
-        assertTrue(0==bobSession.getUnreleasedCount());
+        assertTrue(aliceSession.isReleased());
+        assertTrue(bobSession.isReleased());
     }
 
     // ********************************************************
@@ -522,15 +522,15 @@ public class OlmSessionTest {
             assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
             bobAccount.releaseAccount();
             aliceAccount.releaseAccount();
-            assertTrue(0==bobAccount.getUnreleasedCount());
-            assertTrue(0==aliceAccount.getUnreleasedCount());
+            assertTrue(bobAccount.isReleased());
+            assertTrue(aliceAccount.isReleased());
 
             bobSession.releaseSession();
             aliceSession.releaseSession();
             aliceSessionDeserial.releaseSession();
-            assertTrue(0==bobSession.getUnreleasedCount());
-            assertTrue(0==aliceSession.getUnreleasedCount());
-            assertTrue(0==aliceSessionDeserial.getUnreleasedCount());
+            assertTrue(bobSession.isReleased());
+            assertTrue(aliceSession.isReleased());
+            assertTrue(aliceSessionDeserial.isReleased());
         }
         catch (FileNotFoundException e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception FileNotFoundException Msg=="+e.getMessage());
@@ -631,13 +631,13 @@ public class OlmSessionTest {
         assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
         aliceAccount.releaseAccount();
         bobAccount.releaseAccount();
-        assertTrue(0==aliceAccount.getUnreleasedCount());
-        assertTrue(0==bobAccount.getUnreleasedCount());
+        assertTrue(aliceAccount.isReleased());
+        assertTrue(bobAccount.isReleased());
 
         aliceSession.releaseSession();
         bobSession.releaseSession();
-        assertTrue(0==aliceSession.getUnreleasedCount());
-        assertTrue(0==bobSession.getUnreleasedCount());
+        assertTrue(aliceSession.isReleased());
+        assertTrue(bobSession.isReleased());
     }
 
 }
