@@ -63,7 +63,6 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      */
     private transient long mNativeId;
 
-
     public OlmAccount() throws OlmException {
         if(!initNewAccount()) {
             throw new OlmException(OlmException.EXCEPTION_CODE_INIT_ACCOUNT_CREATION,OlmException.EXCEPTION_MSG_INIT_ACCOUNT_CREATION);
@@ -162,7 +161,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * Getter on the account ID.
      * @return native account ID
      */
-    public long getOlmAccountId(){
+    long getOlmAccountId(){
         return mNativeId;
     }
 
