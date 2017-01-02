@@ -29,98 +29,79 @@ using namespace AndroidOlmSdk;
 **/
 bool setRandomInBuffer(JNIEnv *env, uint8_t **aBuffer2Ptr, size_t aRandomSize)
 {
-  bool retCode = false;
-  int bufferLen = aRandomSize*sizeof(uint8_t);
+    bool retCode = false;
+    int bufferLen = aRandomSize*sizeof(uint8_t);
 
-  if(NULL == aBuffer2Ptr)
-  {
-    LOGE("## setRandomInBuffer(): failure - aBuffer=NULL");
-  }
-  else if(0 == aRandomSize)
-  {
-    LOGE("## setRandomInBuffer(): failure - random size=0");
-  }
-  else if(NULL == (*aBuffer2Ptr = (uint8_t*)malloc(bufferLen)))
-  {
-    LOGE("## setRandomInBuffer(): failure - alloc mem OOM");
-  }
-  else
-  {
-    LOGD("## setRandomInBuffer(): randomSize=%lu",static_cast<long unsigned int>(aRandomSize));
-
-    bool secureRandomSucceeds = false;
-
-    // use the secureRandom class
-    jclass cls = env->FindClass("java/security/SecureRandom");
-
-    if (cls)
+    if (!aBuffer2Ptr)
     {
-      jobject newObj = 0;
-      jmethodID constructor = env->GetMethodID(cls, "<init>", "()V");
-      jmethodID nextByteMethod = env->GetMethodID(cls, "nextBytes", "([B)V");
+        LOGE("## setRandomInBuffer(): failure - aBuffer=NULL");
+    }
+    else if(!aRandomSize)
+    {
+        LOGE("## setRandomInBuffer(): failure - random size=0");
+    }
+    else if (!(*aBuffer2Ptr = (uint8_t*)malloc(bufferLen)))
+    {
+        LOGE("## setRandomInBuffer(): failure - alloc mem OOM");
+    }
+    else
+    {
+        LOGD("## setRandomInBuffer(): randomSize=%lu",static_cast<long unsigned int>(aRandomSize));
 
-      if (constructor)
-      {
-        newObj = env->NewObject(cls, constructor);
-        jbyteArray tempByteArray = env->NewByteArray(bufferLen);
+        // use the secureRandom class
+        jclass cls = env->FindClass("java/security/SecureRandom");
 
-        if (newObj && tempByteArray)
+        if (cls)
         {
-          env->CallVoidMethod(newObj, nextByteMethod, tempByteArray);
+            jobject newObj = 0;
+            jmethodID constructor = env->GetMethodID(cls, "<init>", "()V");
+            jmethodID nextByteMethod = env->GetMethodID(cls, "nextBytes", "([B)V");
 
-          jbyte* buffer = env->GetByteArrayElements(tempByteArray, NULL);
+            if (constructor)
+            {
+                newObj = env->NewObject(cls, constructor);
+                jbyteArray tempByteArray = env->NewByteArray(bufferLen);
 
-          if (buffer)
-          {
-            memcpy(*aBuffer2Ptr, buffer, bufferLen);
-            secureRandomSucceeds = true;
+                if (newObj && tempByteArray)
+                {
+                    env->CallVoidMethod(newObj, nextByteMethod, tempByteArray);
+                    jbyte* buffer = env->GetByteArrayElements(tempByteArray, NULL);
 
-            // clear tempByteArray to hide sensitive data.
-            memset(buffer, 0, bufferLen);
-            env->SetByteArrayRegion(tempByteArray, 0, bufferLen, buffer);
+                    if (buffer)
+                    {
+                        memcpy(*aBuffer2Ptr, buffer, bufferLen);
+                        retCode = true;
 
-            // ensure that the buffer is released
-            env->ReleaseByteArrayElements(tempByteArray, buffer, JNI_ABORT);
-          }
+                        // clear tempByteArray to hide sensitive data.
+                        memset(buffer, 0, bufferLen);
+                        env->SetByteArrayRegion(tempByteArray, 0, bufferLen, buffer);
+
+                        // ensure that the buffer is released
+                        env->ReleaseByteArrayElements(tempByteArray, buffer, JNI_ABORT);
+                    }
+                }
+
+                if (tempByteArray)
+                {
+                    env->DeleteLocalRef(tempByteArray);
+                }
+
+                if (newObj)
+                {
+                    env->DeleteLocalRef(newObj);
+                }
+            }
         }
 
-        if (tempByteArray)
+        // debug purpose
+        /*for(int i = 0; i < aRandomSize; i++)
         {
-          env->DeleteLocalRef(tempByteArray);
-        }
-
-        if (newObj)
-        {
-          env->DeleteLocalRef(newObj);
-        }
-      }
+            LOGD("## setRandomInBuffer(): randomBuffPtr[%ld]=%d",i, (*aBuffer2Ptr)[i]);
+        }*/
     }
 
-    if (!secureRandomSucceeds)
-    {
-      LOGE("## setRandomInBuffer(): SecureRandom failed, use a fallback");
-      struct timeval timeValue;
-      gettimeofday(&timeValue, NULL);
-      srand(timeValue.tv_usec); // init seed
-
-      for(size_t i=0;i<aRandomSize;i++)
-      {
-          (*aBuffer2Ptr)[i] = (uint8_t)(rand()%ACCOUNT_CREATION_RANDOM_MODULO);
-      }
-    }
-
-    // debug purpose
-    /*for(int i = 0; i < aRandomSize; i++)
-    {
-        LOGD("## setRandomInBuffer(): randomBuffPtr[%ld]=%d",i, (*aBuffer2Ptr)[i]);
-    }*/
-
-    retCode = true;
-  }
-
-  return retCode;
+    return retCode;
 }
-
 
 /**
 * Read the instance ID of the calling object.
@@ -131,49 +112,45 @@ bool setRandomInBuffer(JNIEnv *env, uint8_t **aBuffer2Ptr, size_t aRandomSize)
 **/
 jlong getInstanceId(JNIEnv* aJniEnv, jobject aJavaObject, const char *aCallingClass)
 {
-  jlong instanceId = 0;
-  jfieldID instanceIdField = 0;
-  jclass loaderClass = 0;
-  jclass requiredClass = 0;
-
-  if(NULL!=aJniEnv)
-  {
-    requiredClass = aJniEnv->FindClass(aCallingClass);
-
-    if((0 != requiredClass) && (JNI_TRUE != aJniEnv->IsInstanceOf(aJavaObject, requiredClass)))
+    jlong instanceId = 0;
+    if  (aJniEnv)
     {
-        LOGE("## getAccountInstanceId() failure - invalid instance of");
-    }
-    else if(0 != (loaderClass=aJniEnv->GetObjectClass(aJavaObject)))
-    {
-      if(0 != (instanceIdField=aJniEnv->GetFieldID(loaderClass, "mNativeId", "J")))
-      {
-        instanceId = aJniEnv->GetLongField(aJavaObject, instanceIdField);
-        LOGD("## getInstanceId(): read from java instanceId=%lld",instanceId);
-      }
-      else
-      {
-        LOGE("## getInstanceId() ERROR! GetFieldID=null");
-      }
+        jclass requiredClass = aJniEnv->FindClass(aCallingClass);
+        jclass loaderClass = 0;
+
+        if (requiredClass && (JNI_TRUE != aJniEnv->IsInstanceOf(aJavaObject, requiredClass)))
+        {
+            LOGE("## getAccountInstanceId() failure - invalid instance of");
+        }
+        else if (loaderClass = aJniEnv->GetObjectClass(aJavaObject))
+        {
+            jfieldID instanceIdField = aJniEnv->GetFieldID(loaderClass, "mNativeId", "J");
+
+            if (instanceIdField)
+            {
+                instanceId = aJniEnv->GetLongField(aJavaObject, instanceIdField);
+                LOGD("## getInstanceId(): read from java instanceId=%lld",instanceId);
+            }
+            else
+            {
+                LOGE("## getInstanceId() ERROR! GetFieldID=null");
+            }
+
+             aJniEnv->DeleteLocalRef(loaderClass);
+        }
+        else
+        {
+            LOGE("## getInstanceId() ERROR! GetObjectClass=null");
+        }
     }
     else
     {
-      LOGE("## getInstanceId() ERROR! GetObjectClass=null");
+        LOGE("## getInstanceId() ERROR! aJniEnv=NULL");
     }
-  }
-  else
-  {
-    LOGE("## getInstanceId() ERROR! aJniEnv=NULL");
-  }
 
-  LOGD("## getInstanceId() success - instanceId=%p (jlong)(intptr_t)instanceId=%lld",(void*)instanceId, (jlong)(intptr_t)instanceId);
+    LOGD("## getInstanceId() success - instanceId=%p (jlong)(intptr_t)instanceId=%lld",(void*)instanceId, (jlong)(intptr_t)instanceId);
 
-  if (loaderClass)
-  {
-    aJniEnv->DeleteLocalRef(loaderClass);
-  }
-
-  return instanceId;
+    return instanceId;
 }
 
 /**
@@ -184,11 +161,9 @@ jlong getInstanceId(JNIEnv* aJniEnv, jobject aJavaObject, const char *aCallingCl
 **/
 jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 {
-  jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_ACCOUNT);
-  return instanceId;
+    jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_ACCOUNT);
+    return instanceId;
 }
-
-
 
 /**
 * Read the session instance ID of the calling object (aJavaObject).<br>
@@ -198,8 +173,8 @@ jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 **/
 jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 {
-  jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_SESSION);
-  return instanceId;
+    jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_SESSION);
+    return instanceId;
 }
 
 /**
@@ -210,10 +185,9 @@ jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 **/
 jlong getInboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 {
-  jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_INBOUND_GROUP_SESSION);
-  return instanceId;
+    jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_INBOUND_GROUP_SESSION);
+    return instanceId;
 }
-
 
 /**
 * Read the outbound group session instance ID of the calling object (aJavaObject).<br>
@@ -223,8 +197,8 @@ jlong getInboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 **/
 jlong getOutboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 {
-  jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_OUTBOUND_GROUP_SESSION);
-  return instanceId;
+    jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_OUTBOUND_GROUP_SESSION);
+    return instanceId;
 }
 
 /**
@@ -235,10 +209,9 @@ jlong getOutboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 **/
 jlong getUtilityInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 {
-  jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_UTILITY);
-  return instanceId;
+    jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_UTILITY);
+    return instanceId;
 }
-
 
 /**
 * Convert a C string into a UTF-8 format string.
@@ -247,37 +220,37 @@ jlong getUtilityInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 */
 jstring javaCStringToUtf8(JNIEnv *env, uint8_t *aCStringMsgPtr, size_t aMsgLength)
 {
-  jstring convertedRetValue = 0;
-  jbyteArray tempByteArray = NULL;
+    jstring convertedRetValue = 0;
+    jbyteArray tempByteArray = NULL;
 
-  if((NULL == aCStringMsgPtr) || (NULL == env))
-  {
-    LOGE("## javaCStringToUtf8(): failure - invalid parameters (null)");
-  }
-  else if(NULL == (tempByteArray=env->NewByteArray(aMsgLength)))
-  {
-    LOGE("## javaCStringToUtf8(): failure - return byte array OOM");
-  }
-  else
-  {
-    env->SetByteArrayRegion(tempByteArray, 0, aMsgLength, (const jbyte*)aCStringMsgPtr);
-
-    // UTF-8 conversion from JAVA
-    jstring strEncode = (env)->NewStringUTF("UTF-8");
-    jclass jClass = env->FindClass("java/lang/String");
-    jmethodID cstor = env->GetMethodID(jClass, "<init>", "([BLjava/lang/String;)V");
-
-    if((0!=jClass) && (0!=jClass) && (0!=strEncode))
+    if (!aCStringMsgPtr || !env)
     {
-      convertedRetValue = (jstring) env->NewObject(jClass, cstor, tempByteArray, strEncode);
-      LOGD(" ## javaCStringToUtf8(): succeed");
-      env->DeleteLocalRef(tempByteArray);
+        LOGE("## javaCStringToUtf8(): failure - invalid parameters (null)");
+    }
+    else if (!(tempByteArray=env->NewByteArray(aMsgLength)))
+    {
+        LOGE("## javaCStringToUtf8(): failure - return byte array OOM");
     }
     else
     {
-      LOGE(" ## javaCStringToUtf8(): failure - invalid Java references");
-    }
-  }
+        env->SetByteArrayRegion(tempByteArray, 0, aMsgLength, (const jbyte*)aCStringMsgPtr);
 
-  return convertedRetValue;
+        // UTF-8 conversion from JAVA
+        jstring strEncode = (env)->NewStringUTF("UTF-8");
+        jclass jClass = env->FindClass("java/lang/String");
+        jmethodID cstor = env->GetMethodID(jClass, "<init>", "([BLjava/lang/String;)V");
+
+        if (jClass && strEncode)
+        {
+            convertedRetValue = (jstring) env->NewObject(jClass, cstor, tempByteArray, strEncode);
+            LOGD(" ## javaCStringToUtf8(): succeed");
+            env->DeleteLocalRef(tempByteArray);
+        }
+        else
+        {
+            LOGE(" ## javaCStringToUtf8(): failure - invalid Java references");
+        }
+    }
+
+    return convertedRetValue;
 }
