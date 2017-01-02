@@ -241,23 +241,13 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      */
     public Map<String, String> identityKeys() {
         JSONObject identityKeysJsonObj = null;
-        byte identityKeysBuffer[];
+        byte[] identityKeysBuffer = identityKeysJni();
 
-        if( null != (identityKeysBuffer = identityKeysJni())) {
+        if (null != identityKeysBuffer) {
             try {
-                String identityKeysString;
-
-                try {
-                    identityKeysString = new String(identityKeysBuffer, "UTF-8");
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, "## identityKeys(): Exception : cannot convert with utf-8 charset " + e.getMessage());
-                    identityKeysString = new String(identityKeysBuffer);
-                }
-
-                identityKeysJsonObj = new JSONObject(identityKeysString);
+                identityKeysJsonObj = new JSONObject(new String(identityKeysBuffer, "UTF-8"));
                 //Log.d(LOG_TAG, "## identityKeys(): Identity Json keys=" + identityKeysJsonObj.toString());
-            } catch (JSONException e) {
-                identityKeysJsonObj = null;
+            } catch (Exception e) {
                 Log.e(LOG_TAG, "## identityKeys(): Exception - Msg=" + e.getMessage());
             }
         } else {
@@ -311,24 +301,14 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * @return one time keys in string dictionary if operation succeed, null otherwise
      */
     public Map<String, Map<String, String>> oneTimeKeys() {
-        byte oneTimeKeysBuffer[];
         JSONObject oneTimeKeysJsonObj = null;
+        byte[] oneTimeKeysBuffer = oneTimeKeysJni();
 
-        if( null != (oneTimeKeysBuffer = oneTimeKeysJni())) {
+        if( null != oneTimeKeysBuffer) {
             try {
-                String oneTimeKeysString;
-
-                try {
-                    oneTimeKeysString = new String(oneTimeKeysBuffer, "UTF-8");
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, "## oneTimeKeys(): Exception : cannot convert with utf-8 charset " + e.getMessage());
-                    oneTimeKeysString = new String(oneTimeKeysBuffer);
-                }
-
-                oneTimeKeysJsonObj = new JSONObject(new String(oneTimeKeysString));
+                oneTimeKeysJsonObj = new JSONObject(new String(new String(oneTimeKeysBuffer, "UTF-8")));
                 //Log.d(LOG_TAG, "## oneTimeKeys(): OneTime Json keys=" + oneTimeKeysJsonObj.toString());
-            } catch (JSONException e) {
-                oneTimeKeysJsonObj = null;
+            } catch (Exception e) {
                 Log.e(LOG_TAG, "## oneTimeKeys(): Exception - Msg=" + e.getMessage());
             }
         } else {
