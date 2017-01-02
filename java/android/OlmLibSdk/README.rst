@@ -10,10 +10,10 @@ Installation
 	Copy the olm-sdk.aar into it.
 	In your build.gradle file, add in the android section
     	repositories {
-        	  flatDir {
+       		flatDir {
              	 dir 'libs'
-          	   }
-      		 }
+          	}
+      	}
 	Add in the dependencies category		 
 		compile(name: 'olm-sdk', ext: 'aar')
 
