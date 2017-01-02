@@ -26,17 +26,18 @@ using namespace AndroidOlmSdk;
 **/
 OlmAccount* initializeAccountMemory()
 {
-    OlmAccount* accountPtr = NULL;
     size_t accountSize = olm_account_size();
+    OlmAccount* accountPtr = (OlmAccount*)malloc(accountSize);
 
-    if(NULL != (accountPtr=(OlmAccount*)malloc(accountSize)))
-    { // init account object
-      accountPtr = olm_account(accountPtr);
-      LOGD("## initializeAccountMemory(): success - OLM account size=%lu",static_cast<long unsigned int>(accountSize));
+    if (accountPtr)
+    {
+        // init account object
+        accountPtr = olm_account(accountPtr);
+        LOGD("## initializeAccountMemory(): success - OLM account size=%lu",static_cast<long unsigned int>(accountSize));
     }
     else
     {
-      LOGE("## initializeAccountMemory(): failure - OOM");
+        LOGE("## initializeAccountMemory(): failure - OOM");
     }
 
     return accountPtr;
@@ -60,24 +61,24 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(createNewAccountJni)(JNIEnv *env, jobject t
  */
 JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(releaseAccountJni)(JNIEnv *env, jobject thiz)
 {
-  OlmAccount* accountPtr = NULL;
+    LOGD("## releaseAccountJni(): IN");
 
-  LOGD("## releaseAccountJni(): IN");
+    OlmAccount* accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz);
 
-  if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
-  {
-      LOGE(" ## releaseAccountJni(): failure - invalid Account ptr=NULL");
-  }
-  else
-  {
-    LOGD(" ## releaseAccountJni(): accountPtr=%p",accountPtr);
-    olm_clear_account(accountPtr);
+    if(!accountPtr)
+    {
+        LOGE(" ## releaseAccountJni(): failure - invalid Account ptr=NULL");
+    }
+    else
+    {
+        LOGD(" ## releaseAccountJni(): accountPtr=%p",accountPtr);
+        olm_clear_account(accountPtr);
 
-    LOGD(" ## releaseAccountJni(): IN");
-    // even if free(NULL) does not crash, logs are performed for debug purpose
-    free(accountPtr);
-    LOGD(" ## releaseAccountJni(): OUT");
-  }
+        LOGD(" ## releaseAccountJni(): IN");
+        // even if free(NULL) does not crash, logs are performed for debug purpose
+        free(accountPtr);
+        LOGD(" ## releaseAccountJni(): OUT");
+    }
 }
 
 /**
@@ -88,24 +89,25 @@ JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(releaseAccountJni)(JNIEnv *env, jobject thiz
 **/
 JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(initNewAccountJni)(JNIEnv *env, jobject thiz)
 {
-    OlmAccount *accountPtr = NULL;
-    uint8_t *randomBuffPtr = NULL;
-    size_t accountRetCode;
-    size_t randomSize;
+    OlmAccount *accountPtr = initializeAccountMemory();
 
     // init account memory allocation
-    if(NULL == (accountPtr = initializeAccountMemory()))
+    if (!accountPtr)
     {
         LOGE("## initNewAccount(): failure - init account OOM");
     }
     else
     {
         // get random buffer size
-        randomSize = olm_create_account_random_length(accountPtr);
+        size_t randomSize = olm_create_account_random_length(accountPtr);
+
         LOGD("## initNewAccount(): randomSize=%lu", static_cast<long unsigned int>(randomSize));
 
+        uint8_t *randomBuffPtr = NULL;
+        size_t accountRetCode;
+
         // allocate random buffer
-        if((0!=randomSize) && !setRandomInBuffer(env, &randomBuffPtr, randomSize))
+        if ((0 != randomSize) && !setRandomInBuffer(env, &randomBuffPtr, randomSize))
         {
             LOGE("## initNewAccount(): failure - random buffer init");
         }
@@ -113,24 +115,24 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(initNewAccountJni)(JNIEnv *env, jobject thi
         {
             // create account
             accountRetCode = olm_create_account(accountPtr, (void*)randomBuffPtr, randomSize);
-            if(accountRetCode == olm_error()) {
+
+            if (accountRetCode == olm_error())
+            {
                 LOGE("## initNewAccount(): failure - account creation failed Msg=%s", olm_account_last_error(accountPtr));
-             }
+            }
 
             LOGD("## initNewAccount(): success - OLM account created");
             LOGD("## initNewAccount(): success - accountPtr=%p (jlong)(intptr_t)accountPtr=%lld",accountPtr,(jlong)(intptr_t)accountPtr);
         }
-    }
 
-    if(NULL != randomBuffPtr)
-    {
-        free(randomBuffPtr);
+        if (randomBuffPtr)
+        {
+            free(randomBuffPtr);
+        }
     }
 
     return (jlong)(intptr_t)accountPtr;
 }
-
-
 
 // *********************************************************************
 // ************************* IDENTITY KEYS API *************************
@@ -142,34 +144,40 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(initNewAccountJni)(JNIEnv *env, jobject thi
 **/
 JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(identityKeysJni)(JNIEnv *env, jobject thiz)
 {
-    OlmAccount* accountPtr = NULL;
-    size_t identityKeysLength;
-    uint8_t *identityKeysBytesPtr;
-    size_t keysResult;
     jbyteArray byteArrayRetValue = NULL;
+    OlmAccount* accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz);
 
-    if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
+    if (NULL == accountPtr)
     {
         LOGE("## identityKeys(): failure - invalid Account ptr=NULL");
     }
     else
     {
         LOGD("## identityKeys(): accountPtr =%p", accountPtr);
+
         // identity keys allocation
-        identityKeysLength = olm_account_identity_keys_length(accountPtr);
-        if(NULL == (identityKeysBytesPtr=(uint8_t*)malloc(identityKeysLength)))
+        size_t identityKeysLength = olm_account_identity_keys_length(accountPtr);
+        uint8_t *identityKeysBytesPtr = (uint8_t*)malloc(identityKeysLength);
+
+        if (!identityKeysBytesPtr)
         {
             LOGE("## identityKeys(): failure - identity keys array OOM");
         }
         else
-        {   // retrieve key pairs in identityKeysBytesPtr
-            keysResult = olm_account_identity_keys(accountPtr, identityKeysBytesPtr, identityKeysLength);
-            if(keysResult == olm_error()) {
+        {
+            // retrieve key pairs in identityKeysBytesPtr
+            size_t keysResult = olm_account_identity_keys(accountPtr, identityKeysBytesPtr, identityKeysLength);
+
+            if(keysResult == olm_error())
+            {
                 LOGE("## identityKeys(): failure - error getting identity keys Msg=%s",(const char *)olm_account_last_error(accountPtr));
             }
             else
-            {   // allocate the byte array to be returned to java
-                if(NULL == (byteArrayRetValue=env->NewByteArray(identityKeysLength)))
+            {
+                // allocate the byte array to be returned to java
+                byteArrayRetValue = env->NewByteArray(identityKeysLength);
+
+                if(NULL == byteArrayRetValue)
                 {
                     LOGE("## identityKeys(): failure - return byte array OOM");
                 }
@@ -196,10 +204,10 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(identityKeysJni)(JNIEnv *env, jobject 
 **/
 JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(maxOneTimeKeysJni)(JNIEnv *env, jobject thiz)
 {
-    OlmAccount* accountPtr = NULL;
+    OlmAccount* accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz);
     size_t maxKeys = -1;
 
-    if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
+    if (!accountPtr)
     {
         LOGE("## maxOneTimeKey(): failure - invalid Account ptr=NULL");
     }
@@ -207,6 +215,7 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(maxOneTimeKeysJni)(JNIEnv *env, jobject thi
     {
         maxKeys = olm_account_max_number_of_one_time_keys(accountPtr);
     }
+
     LOGD("## maxOneTimeKey(): Max keys=%lu", static_cast<long unsigned int>(maxKeys));
 
     return (jlong)maxKeys;
@@ -219,23 +228,22 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(maxOneTimeKeysJni)(JNIEnv *env, jobject thi
 **/
 JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeysJni)(JNIEnv *env, jobject thiz, jint aNumberOfKeys)
 {
-    OlmAccount *accountPtr = NULL;
-    uint8_t *randomBufferPtr = NULL;
+    OlmAccount *accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz);
     jint retCode = ERROR_CODE_KO;
-    size_t randomLength;
-    size_t result;
 
-
-    if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
+    if (!accountPtr)
     {
         LOGE("## generateOneTimeKeysJni(): failure - invalid Account ptr");
     }
     else
-    {   // keys memory allocation
-        randomLength = olm_account_generate_one_time_keys_random_length(accountPtr, (size_t)aNumberOfKeys);
+    {
+        // keys memory allocation
+        size_t randomLength = olm_account_generate_one_time_keys_random_length(accountPtr, (size_t)aNumberOfKeys);
         LOGD("## generateOneTimeKeysJni(): randomLength=%lu", static_cast<long unsigned int>(randomLength));
 
-        if((0!=randomLength) && !setRandomInBuffer(env, &randomBufferPtr, randomLength))
+        uint8_t *randomBufferPtr = NULL;
+
+        if ( (0!=randomLength) && !setRandomInBuffer(env, &randomBufferPtr, randomLength))
         {
             LOGE("## generateOneTimeKeysJni(): failure - random buffer init");
         }
@@ -244,8 +252,9 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeysJni)(JNIEnv *env, jobject
             LOGD("## generateOneTimeKeysJni(): accountPtr =%p aNumberOfKeys=%d",accountPtr, aNumberOfKeys);
 
             // retrieve key pairs in keysBytesPtr
-            result = olm_account_generate_one_time_keys(accountPtr, (size_t)aNumberOfKeys, (void*)randomBufferPtr, randomLength);
-            if(result == olm_error()) {
+            size_t result = olm_account_generate_one_time_keys(accountPtr, (size_t)aNumberOfKeys, (void*)randomBufferPtr, randomLength);
+
+            if (result == olm_error()) {
                 LOGE("## generateOneTimeKeysJni(): failure - error generating one time keys Msg=%s",(const char *)olm_account_last_error(accountPtr));
             }
             else
@@ -254,11 +263,12 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeysJni)(JNIEnv *env, jobject
                 LOGD("## generateOneTimeKeysJni(): success - result=%lu", static_cast<long unsigned int>(result));
             }
         }
-    }
 
-    if(NULL != randomBufferPtr)
-    {
-        free(randomBufferPtr);
+
+        if (randomBufferPtr)
+        {
+            free(randomBufferPtr);
+        }
     }
 
     return retCode;
@@ -271,34 +281,38 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeysJni)(JNIEnv *env, jobject
 **/
 JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(oneTimeKeysJni)(JNIEnv *env, jobject thiz)
 {
-    OlmAccount* accountPtr = NULL;
-    size_t keysLength;
-    uint8_t *keysBytesPtr;
-    size_t keysResult;
     jbyteArray byteArrayRetValue = NULL;
+    OlmAccount* accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz);
 
     LOGD("## oneTimeKeysJni(): IN");
 
-    if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
+    if (!accountPtr)
     {
         LOGE("## oneTimeKeysJni(): failure - invalid Account ptr");
     }
     else
-    {   // keys memory allocation
-        keysLength = olm_account_one_time_keys_length(accountPtr);
-        if(NULL == (keysBytesPtr=(uint8_t *)malloc(keysLength*sizeof(uint8_t))))
+    {
+        // keys memory allocation
+        size_t keysLength = olm_account_one_time_keys_length(accountPtr);
+        uint8_t *keysBytesPtr = (uint8_t *)malloc(keysLength*sizeof(uint8_t));
+
+        if (!keysBytesPtr)
         {
             LOGE("## oneTimeKeysJni(): failure - one time keys array OOM");
         }
         else
-        {   // retrieve key pairs in keysBytesPtr
-            keysResult = olm_account_one_time_keys(accountPtr, keysBytesPtr, keysLength);
+        {
+            // retrieve key pairs in keysBytesPtr
+            size_t keysResult = olm_account_one_time_keys(accountPtr, keysBytesPtr, keysLength);
             if(keysResult == olm_error()) {
                 LOGE("## oneTimeKeysJni(): failure - error getting one time keys Msg=%s",(const char *)olm_account_last_error(accountPtr));
             }
             else
-            {   // allocate the byte array to be returned to java
-                if(NULL == (byteArrayRetValue=env->NewByteArray(keysLength)))
+            {
+                // allocate the byte array to be returned to java
+                byteArrayRetValue = env->NewByteArray(keysLength);
+
+                if (!byteArrayRetValue)
                 {
                     LOGE("## oneTimeKeysJni(): failure - return byte array OOM");
                 }
@@ -327,20 +341,20 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysForSessionJni)(JNIEnv *env,
     jint retCode = ERROR_CODE_KO;
     OlmAccount* accountPtr = NULL;
     OlmSession* sessionPtr = (OlmSession*)aNativeOlmSessionId;
-    size_t result;
 
-    if(NULL == sessionPtr)
+    if (!sessionPtr)
     {
         LOGE("## removeOneTimeKeysForSessionJni(): failure - invalid session ptr");
     }
-    else if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
+    else if(!(accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
     {
         LOGE("## removeOneTimeKeysForSessionJni(): failure - invalid account ptr");
     }
     else
     {
-        result = olm_remove_one_time_keys(accountPtr, sessionPtr);
-        if(result == olm_error())
+        size_t result = olm_remove_one_time_keys(accountPtr, sessionPtr);
+
+        if (result == olm_error())
         {   // the account doesn't have any matching "one time keys"..
             LOGW("## removeOneTimeKeysForSessionJni(): failure - removing one time keys Msg=%s",(const char *)olm_account_last_error(accountPtr));
 
@@ -363,17 +377,17 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysForSessionJni)(JNIEnv *env,
 JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublishedJni)(JNIEnv *env, jobject thiz)
 {
     jint retCode = ERROR_CODE_OK;
-    OlmAccount* accountPtr = NULL;
-    size_t result;
+    OlmAccount* accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz);
 
-    if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
+    if (!accountPtr)
     {
         LOGE("## markOneTimeKeysAsPublishedJni(): failure - invalid account ptr");
         retCode = ERROR_CODE_KO;
     }
     else
     {
-        result = olm_account_mark_keys_as_published(accountPtr);
+        size_t result = olm_account_mark_keys_as_published(accountPtr);
+
         if(result == olm_error())
         {
             LOGW("## markOneTimeKeysAsPublishedJni(): failure - Msg=%s",(const char *)olm_account_last_error(accountPtr));
@@ -396,64 +410,63 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublishedJni)(JNIEnv *env, 
 **/
 JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aMessage)
 {
-  OlmAccount* accountPtr = NULL;
-  size_t signatureLength;
-  void* signedMsgPtr;
-  size_t resultSign;
-  jstring signedMsgRetValue = NULL;
+    OlmAccount* accountPtr = NULL;
+    jstring signedMsgRetValue = NULL;
 
-  if(NULL == aMessage)
-  {
-    LOGE("## signMessageJni(): failure - invalid aMessage param");
-  }
-  else if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
-  {
-    LOGE("## signMessageJni(): failure - invalid account ptr");
-  }
-  else
-  {
-    int messageLength = env->GetArrayLength(aMessage);
-    jbyte* messageToSign = env->GetByteArrayElements(aMessage, NULL);
-
-    // signature memory allocation
-    signatureLength = olm_account_signature_length(accountPtr);
-
-    if(NULL == (signedMsgPtr = (void*)malloc((signatureLength+1)*sizeof(uint8_t))))
+    if (!aMessage)
     {
-      LOGE("## signMessageJni(): failure - signature allocation OOM");
+        LOGE("## signMessageJni(): failure - invalid aMessage param");
+    }
+    else if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
+    {
+        LOGE("## signMessageJni(): failure - invalid account ptr");
     }
     else
     {
-      // sign message
-      resultSign = olm_account_sign(accountPtr,
+        int messageLength = env->GetArrayLength(aMessage);
+        jbyte* messageToSign = env->GetByteArrayElements(aMessage, NULL);
+
+        // signature memory allocation
+        size_t signatureLength = olm_account_signature_length(accountPtr);
+        void* signedMsgPtr = malloc((signatureLength+1)*sizeof(uint8_t));
+
+        if (!signedMsgPtr)
+        {
+            LOGE("## signMessageJni(): failure - signature allocation OOM");
+        }
+        else
+        {
+            // sign message
+            size_t resultSign = olm_account_sign(accountPtr,
                                    (void*)messageToSign,
                                    (size_t)messageLength,
                                    signedMsgPtr,
                                    signatureLength);
-      if(resultSign == olm_error())
-      {
-        LOGE("## signMessageJni(): failure - error signing message Msg=%s",(const char *)olm_account_last_error(accountPtr));
-      }
-      else
-      {
-        // info: signatureLength is always equal to resultSign
-        (static_cast<char*>(signedMsgPtr))[signatureLength] = static_cast<char>('\0');
-        // convert to jstring
-        signedMsgRetValue = env->NewStringUTF((const char*)signedMsgPtr); // UTF8
-        LOGD("## signMessageJni(): success - retCode=%lu signatureLength=%lu", static_cast<long unsigned int>(resultSign), static_cast<long unsigned int>(signatureLength));
-      }
 
-      free(signedMsgPtr);
+            if (resultSign == olm_error())
+            {
+                LOGE("## signMessageJni(): failure - error signing message Msg=%s",(const char *)olm_account_last_error(accountPtr));
+            }
+            else
+            {
+                // info: signatureLength is always equal to resultSign
+                (static_cast<char*>(signedMsgPtr))[signatureLength] = static_cast<char>('\0');
+                // convert to jstring
+                signedMsgRetValue = env->NewStringUTF((const char*)signedMsgPtr); // UTF8
+                LOGD("## signMessageJni(): success - retCode=%lu signatureLength=%lu", static_cast<long unsigned int>(resultSign), static_cast<long unsigned int>(signatureLength));
+            }
+
+            free(signedMsgPtr);
+        }
+
+        // release messageToSign
+        if (messageToSign)
+        {
+            env->ReleaseByteArrayElements(aMessage, messageToSign, JNI_ABORT);
+        }
     }
 
-    // release messageToSign
-    if (messageToSign)
-    {
-      env->ReleaseByteArrayElements(aMessage, messageToSign, JNI_ABORT);
-    }
-  }
-
-  return signedMsgRetValue;
+    return signedMsgRetValue;
 }
 
 /**
@@ -464,45 +477,36 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz
 **/
 JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, jobject thiz, jstring aKey, jobject aErrorMsg)
 {
-    /*jstring pickledDataRetValue = serializeDataWithKey(env,thiz,
-                                                          aKey,
-                                                          aErrorMsg,
-                                                          olm_pickle_account_length,
-                                                          olm_pickle_account,
-                                                          olm_account_last_error);
-    return pickledDataRetValue;*/
-
     jstring pickledDataRetValue = 0;
     jclass errorMsgJClass = 0;
     jmethodID errorMsgMethodId = 0;
     jstring errorJstring = 0;
     const char *keyPtr = NULL;
-    void *pickledPtr = NULL;
     OlmAccount* accountPtr = NULL;
 
     LOGD("## serializeDataWithKeyJni(): IN");
 
-    if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
-    {
-        LOGE(" ## serializeDataWithKeyJni(): failure - invalid account ptr");
-    }
-    else if(0 == aKey)
+    if (!aKey)
     {
         LOGE(" ## serializeDataWithKeyJni(): failure - invalid key");
     }
-    else if(0 == aErrorMsg)
+    else if(!aErrorMsg)
     {
         LOGE(" ## serializeDataWithKeyJni(): failure - invalid error object");
     }
-    else if(0 == (errorMsgJClass = env->GetObjectClass(aErrorMsg)))
+    else if(!(accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
+    {
+       LOGE(" ## serializeDataWithKeyJni(): failure - invalid account ptr");
+    }
+    else if(!(errorMsgJClass = env->GetObjectClass(aErrorMsg)))
     {
         LOGE(" ## serializeDataWithKeyJni(): failure - unable to get error class");
     }
-    else if(0 == (errorMsgMethodId = env->GetMethodID(errorMsgJClass, "append", "(Ljava/lang/String;)Ljava/lang/StringBuffer;")))
+    else if(!(errorMsgMethodId = env->GetMethodID(errorMsgJClass, "append", "(Ljava/lang/String;)Ljava/lang/StringBuffer;")))
     {
         LOGE(" ## serializeDataWithKeyJni(): failure - unable to get error method ID");
     }
-    else if(NULL == (keyPtr = env->GetStringUTFChars(aKey, 0)))
+    else if(!(keyPtr = env->GetStringUTFChars(aKey, 0)))
     {
         LOGE(" ## serializeDataWithKeyJni(): failure - keyPtr JNI allocation OOM");
     }
@@ -513,7 +517,9 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, job
         LOGD(" ## serializeDataWithKeyJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
         LOGD(" ## serializeDataWithKeyJni(): key=%s",(char const *)keyPtr);
 
-        if(NULL == (pickledPtr = (void*)malloc((pickledLength+1)*sizeof(uint8_t))))
+        void *pickledPtr = malloc((pickledLength+1)*sizeof(uint8_t));
+
+        if (!pickledPtr)
         {
             LOGE(" ## serializeDataWithKeyJni(): failure - pickledPtr buffer OOM");
         }
@@ -524,7 +530,7 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, job
                                                keyLength,
                                                (void*)pickledPtr,
                                                pickledLength);
-            if(result == olm_error())
+            if (result == olm_error())
             {
                 const char *errorMsgPtr = olm_account_last_error(accountPtr);
                 LOGE(" ## serializeDataWithKeyJni(): failure - olm_pickle_account() Msg=%s",errorMsgPtr);
@@ -541,18 +547,15 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, job
                 pickledDataRetValue = env->NewStringUTF((const char*)pickledPtr);
                 LOGD(" ## serializeDataWithKeyJni(): success - result=%lu pickled=%s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
             }
+
+            free(pickledPtr);
         }
     }
 
     // free alloc
-    if(NULL != keyPtr)
+    if (keyPtr)
     {
-     env->ReleaseStringUTFChars(aKey, keyPtr);
-    }
-
-    if(NULL != pickledPtr)
-    {
-        free(pickledPtr);
+        env->ReleaseStringUTFChars(aKey, keyPtr);
     }
 
     return pickledDataRetValue;
@@ -568,24 +571,23 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(initWithSerializedDataJni)(JNIEnv *env, j
 
     LOGD("## initWithSerializedDataJni(): IN");
 
-    if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
-    //if(NULL == (accountPtr = initializeAccountMemory()))
-    {
-        LOGE(" ## initWithSerializedDataJni(): failure - account failure OOM");
-    }
-    else if(0 == aKey)
+    if (!aKey)
     {
         LOGE(" ## initWithSerializedDataJni(): failure - invalid key");
     }
-    else if(0 == aSerializedData)
+    else if (!aSerializedData)
     {
         LOGE(" ## initWithSerializedDataJni(): failure - serialized data");
     }
-    else if(NULL == (keyPtr = env->GetStringUTFChars(aKey, 0)))
+    else if (!(accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
+    {
+        LOGE(" ## initWithSerializedDataJni(): failure - account failure OOM");
+    }
+    else if (!(keyPtr = env->GetStringUTFChars(aKey, 0)))
     {
         LOGE(" ## initWithSerializedDataJni(): failure - keyPtr JNI allocation OOM");
     }
-    else if(NULL == (pickledPtr = env->GetStringUTFChars(aSerializedData, 0)))
+    else if (!(pickledPtr = env->GetStringUTFChars(aSerializedData, 0)))
     {
         LOGE(" ## initWithSerializedDataJni(): failure - pickledPtr JNI allocation OOM");
     }
@@ -615,12 +617,12 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(initWithSerializedDataJni)(JNIEnv *env, j
     }
 
     // free alloc
-    if(NULL != keyPtr)
+    if (keyPtr)
     {
         env->ReleaseStringUTFChars(aKey, keyPtr);
     }
 
-    if(NULL != pickledPtr)
+    if (pickledPtr)
     {
         env->ReleaseStringUTFChars(aSerializedData, pickledPtr);
     }
