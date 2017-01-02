@@ -396,64 +396,65 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublishedJni)(JNIEnv *env, 
 **/
 JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aMessage)
 {
-    OlmAccount* accountPtr = NULL;
-    size_t signatureLength;
-    void* signedMsgPtr;
-    size_t resultSign;
-    jstring signedMsgRetValue = NULL;
+  OlmAccount* accountPtr = NULL;
+  size_t signatureLength;
+  void* signedMsgPtr;
+  size_t resultSign;
+  jstring signedMsgRetValue = NULL;
 
-    if(NULL == aMessage)
+  if(NULL == aMessage)
+  {
+    LOGE("## signMessageJni(): failure - invalid aMessage param");
+  }
+  else if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
+  {
+    LOGE("## signMessageJni(): failure - invalid account ptr");
+  }
+  else
+  {
+    int messageLength = env->GetArrayLength(aMessage);
+    jbyte* messageToSign = env->GetByteArrayElements(aMessage, NULL);
+
+    // signature memory allocation
+    signatureLength = olm_account_signature_length(accountPtr);
+
+    if(NULL == (signedMsgPtr = (void*)malloc((signatureLength+1)*sizeof(uint8_t))))
     {
-        LOGE("## signMessageJni(): failure - invalid aMessage param");
-    }
-    else if(NULL == (accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
-    {
-        LOGE("## signMessageJni(): failure - invalid account ptr");
+      LOGE("## signMessageJni(): failure - signature allocation OOM");
     }
     else
     {
-        int messageLength = env->GetArrayLength(aMessage);
-        unsigned char* messageToSign = new unsigned char[messageLength];
-        env->GetByteArrayRegion(aMessage, 0, messageLength, reinterpret_cast<jbyte*>(messageToSign));
+      // sign message
+      resultSign = olm_account_sign(accountPtr,
+                                   (void*)messageToSign,
+                                   (size_t)messageLength,
+                                   signedMsgPtr,
+                                   signatureLength);
+      if(resultSign == olm_error())
+      {
+        LOGE("## signMessageJni(): failure - error signing message Msg=%s",(const char *)olm_account_last_error(accountPtr));
+      }
+      else
+      {
+        // info: signatureLength is always equal to resultSign
+        (static_cast<char*>(signedMsgPtr))[signatureLength] = static_cast<char>('\0');
+        // convert to jstring
+        signedMsgRetValue = env->NewStringUTF((const char*)signedMsgPtr); // UTF8
+        LOGD("## signMessageJni(): success - retCode=%lu signatureLength=%lu", static_cast<long unsigned int>(resultSign), static_cast<long unsigned int>(signatureLength));
+      }
 
-        // signature memory allocation
-        signatureLength = olm_account_signature_length(accountPtr);
-        if(NULL == (signedMsgPtr = (void*)malloc((signatureLength+1)*sizeof(uint8_t))))
-        {
-            LOGE("## signMessageJni(): failure - signature allocation OOM");
-        }
-        else
-        {   // sign message
-            resultSign = olm_account_sign(accountPtr,
-                                         (void*)messageToSign,
-                                         (size_t)messageLength,
-                                         signedMsgPtr,
-                                         signatureLength);
-            if(resultSign == olm_error())
-            {
-                LOGE("## signMessageJni(): failure - error signing message Msg=%s",(const char *)olm_account_last_error(accountPtr));
-            }
-            else
-            {
-                // info: signatureLength is always equal to resultSign
-                (static_cast<char*>(signedMsgPtr))[signatureLength] = static_cast<char>('\0');
-                // convert to jstring
-                signedMsgRetValue = env->NewStringUTF((const char*)signedMsgPtr); // UTF8
-                LOGD("## signMessageJni(): success - retCode=%lu signatureLength=%lu", static_cast<long unsigned int>(resultSign), static_cast<long unsigned int>(signatureLength));
-            }
-
-            free(signedMsgPtr);
-        }
-
-        // release messageToSign
-        free(messageToSign);
+      free(signedMsgPtr);
     }
 
-    return signedMsgRetValue;
+    // release messageToSign
+    if (messageToSign)
+    {
+      env->ReleaseByteArrayElements(aMessage, messageToSign, JNI_ABORT);
+    }
+  }
+
+  return signedMsgRetValue;
 }
-
-
-
 
 /**
 * Serialize and encrypt account instance into a base64 string.<br>
