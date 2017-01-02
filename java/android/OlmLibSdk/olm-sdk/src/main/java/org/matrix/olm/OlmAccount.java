@@ -306,7 +306,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
 
         if( null != oneTimeKeysBuffer) {
             try {
-                oneTimeKeysJsonObj = new JSONObject(new String(new String(oneTimeKeysBuffer, "UTF-8")));
+                oneTimeKeysJsonObj = new JSONObject(new String(oneTimeKeysBuffer, "UTF-8"));
                 //Log.d(LOG_TAG, "## oneTimeKeys(): OneTime Json keys=" + oneTimeKeysJsonObj.toString());
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## oneTimeKeys(): Exception - Msg=" + e.getMessage());
