@@ -262,30 +262,30 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionKeyJni)(JNIEnv *env
 }
 
 
-JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz, jstring aClearMsg)
+JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aClearMsgBuffer)
 {
     LOGD("## encryptMessageJni(): IN");
 
     jstring encryptedMsgRetValue = 0;
     OlmOutboundGroupSession *sessionPtr = NULL;
-    const char *clearMsgPtr = NULL;
+    jbyte* clearMsgPtr = NULL;
 
     if (!(sessionPtr = (OlmOutboundGroupSession*)getOutboundGroupSessionInstanceId(env,thiz)))
     {
         LOGE(" ## encryptMessageJni(): failure - invalid outbound group session ptr=NULL");
     }
-    else if (!aClearMsg)
+    else if (!aClearMsgBuffer)
     {
         LOGE(" ## encryptMessageJni(): failure - invalid clear message");
     }
-    else if (!(clearMsgPtr = env->GetStringUTFChars(aClearMsg, 0)))
+    else if (!(clearMsgPtr = env->GetByteArrayElements(aClearMsgBuffer, NULL)))
     {
         LOGE(" ## encryptMessageJni(): failure - clear message JNI allocation OOM");
     }
     else
     {
         // get clear message length
-        size_t clearMsgLength = (size_t)env->GetStringUTFLength(aClearMsg);
+        size_t clearMsgLength = (size_t)env->GetArrayLength(aClearMsgBuffer);
         LOGD(" ## encryptMessageJni(): clearMsgLength=%lu",static_cast<long unsigned int>(clearMsgLength));
 
         // compute max encrypted length
@@ -325,7 +325,7 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv 
     // free alloc
     if (clearMsgPtr)
     {
-        env->ReleaseStringUTFChars(aClearMsg, clearMsgPtr);
+        env->ReleaseByteArrayElements(aClearMsgBuffer, clearMsgPtr, JNI_ABORT);
     }
 
     return encryptedMsgRetValue;

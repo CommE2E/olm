@@ -235,12 +235,16 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
         String retValue = null;
 
         if(!TextUtils.isEmpty(aClearMsg)) {
-            retValue = encryptMessageJni(aClearMsg);
+            try {
+                retValue = encryptMessageJni(aClearMsg.getBytes("UTF-8"));
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "## encryptMessage() failed " + e.getMessage());
+            }
         }
 
         return retValue;
     }
-    private native String encryptMessageJni(String aClearMsg);
+    private native String encryptMessageJni(byte[] aClearMsgBuffer);
 
     /**
      * Return true the object resources have been released.<br>
