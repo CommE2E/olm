@@ -36,7 +36,7 @@ bool setRandomInBuffer(JNIEnv *env, uint8_t **aBuffer2Ptr, size_t aRandomSize)
     {
         LOGE("## setRandomInBuffer(): failure - aBuffer=NULL");
     }
-    else if(!aRandomSize)
+    else if (!aRandomSize)
     {
         LOGE("## setRandomInBuffer(): failure - random size=0");
     }
@@ -113,7 +113,8 @@ bool setRandomInBuffer(JNIEnv *env, uint8_t **aBuffer2Ptr, size_t aRandomSize)
 jlong getInstanceId(JNIEnv* aJniEnv, jobject aJavaObject, const char *aCallingClass)
 {
     jlong instanceId = 0;
-    if  (aJniEnv)
+
+    if (aJniEnv)
     {
         jclass requiredClass = aJniEnv->FindClass(aCallingClass);
         jclass loaderClass = 0;
@@ -227,7 +228,7 @@ jstring javaCStringToUtf8(JNIEnv *env, uint8_t *aCStringMsgPtr, size_t aMsgLengt
     {
         LOGE("## javaCStringToUtf8(): failure - invalid parameters (null)");
     }
-    else if (!(tempByteArray=env->NewByteArray(aMsgLength)))
+    else if (!(tempByteArray = env->NewByteArray(aMsgLength)))
     {
         LOGE("## javaCStringToUtf8(): failure - return byte array OOM");
     }

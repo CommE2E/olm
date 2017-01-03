@@ -21,15 +21,15 @@ using namespace AndroidOlmSdk;
 
 JNIEXPORT jstring OLM_MANAGER_FUNC_DEF(getOlmLibVersionJni)(JNIEnv* env, jobject thiz)
 {
-  uint8_t majorVer=0, minorVer=0, patchVer=0;
-  jstring returnValueStr=0;
-  char buff[150];
+    uint8_t majorVer=0, minorVer=0, patchVer=0;
+    jstring returnValueStr=0;
+    char buff[150];
 
-  olm_get_library_version(&majorVer, &minorVer, &patchVer);
-  LOGD("## getOlmLibVersionJni(): Major=%d Minor=%d Patch=%d", majorVer, minorVer, patchVer);
+    olm_get_library_version(&majorVer, &minorVer, &patchVer);
+    LOGD("## getOlmLibVersionJni(): Major=%d Minor=%d Patch=%d", majorVer, minorVer, patchVer);
 
-  snprintf(buff, sizeof(buff), "%d.%d.%d", majorVer, minorVer, patchVer);
-  returnValueStr = env->NewStringUTF((const char*)buff);
+    snprintf(buff, sizeof(buff), "%d.%d.%d", majorVer, minorVer, patchVer);
+    returnValueStr = env->NewStringUTF((const char*)buff);
 
-  return returnValueStr;
+    return returnValueStr;
 }

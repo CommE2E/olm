@@ -21,17 +21,17 @@ using namespace AndroidOlmSdk;
 
 OlmUtility* initializeUtilityMemory()
 {
-    OlmUtility* utilityPtr = NULL;
     size_t utilitySize = olm_utility_size();
+    OlmUtility* utilityPtr = (OlmUtility*)malloc(utilitySize);
 
-    if(NULL != (utilityPtr=(OlmUtility*)malloc(utilitySize)))
+    if (utilityPtr)
     {
-      utilityPtr = olm_utility(utilityPtr);
-      LOGD("## initializeUtilityMemory(): success - OLM utility size=%lu",static_cast<long unsigned int>(utilitySize));
+        utilityPtr = olm_utility(utilityPtr);
+        LOGD("## initializeUtilityMemory(): success - OLM utility size=%lu",static_cast<long unsigned int>(utilitySize));
     }
     else
     {
-      LOGE("## initializeUtilityMemory(): failure - OOM");
+        LOGE("## initializeUtilityMemory(): failure - OOM");
     }
 
     return utilityPtr;
@@ -39,12 +39,12 @@ OlmUtility* initializeUtilityMemory()
 
 JNIEXPORT jlong OLM_UTILITY_FUNC_DEF(initUtilityJni)(JNIEnv *env, jobject thiz)
 {
-    OlmUtility* utilityPtr = NULL;
+    OlmUtility* utilityPtr = initializeUtilityMemory();
 
     LOGD("## initUtilityJni(): IN");
 
     // init account memory allocation
-    if(NULL == (utilityPtr = initializeUtilityMemory()))
+    if (!utilityPtr)
     {
         LOGE(" ## initUtilityJni(): failure - init OOM");
     }
@@ -59,19 +59,19 @@ JNIEXPORT jlong OLM_UTILITY_FUNC_DEF(initUtilityJni)(JNIEnv *env, jobject thiz)
 
 JNIEXPORT void OLM_UTILITY_FUNC_DEF(releaseUtilityJni)(JNIEnv *env, jobject thiz)
 {
-  OlmUtility* utilityPtr = NULL;
+    OlmUtility* utilityPtr = (OlmUtility*)getUtilityInstanceId(env,thiz);
 
-  LOGD("## releaseUtilityJni(): IN");
+    LOGD("## releaseUtilityJni(): IN");
 
-  if(NULL == (utilityPtr = (OlmUtility*)getUtilityInstanceId(env,thiz)))
-  {
-      LOGE("## releaseUtilityJni(): failure - utility ptr=NULL");
-  }
-  else
-  {
-    olm_clear_utility(utilityPtr);
-    free(utilityPtr);
-  }
+    if (!utilityPtr)
+    {
+        LOGE("## releaseUtilityJni(): failure - utility ptr=NULL");
+    }
+    else
+    {
+        olm_clear_utility(utilityPtr);
+        free(utilityPtr);
+    }
 }
 
 
@@ -95,23 +95,23 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
 
     LOGD("## verifyEd25519SignatureJni(): IN");
 
-    if(NULL == (utilityPtr = (OlmUtility*)getUtilityInstanceId(env,thiz)))
+    if (!(utilityPtr = (OlmUtility*)getUtilityInstanceId(env,thiz)))
     {
         LOGE(" ## verifyEd25519SignatureJni(): failure - invalid utility ptr=NULL");
     }
-    else if((0 == aSignature) || (0 == aKey) || (0 == aMessage))
+    else if (!aSignature || !aKey || !aMessage)
     {
         LOGE(" ## verifyEd25519SignatureJni(): failure - invalid input parameters ");
     }
-    else if(0 == (signaturePtr = env->GetStringUTFChars(aSignature, 0)))
+    else if (!(signaturePtr = env->GetStringUTFChars(aSignature, 0)))
     {
         LOGE(" ## verifyEd25519SignatureJni(): failure - signature JNI allocation OOM");
     }
-    else if(0 == (keyPtr = env->GetStringUTFChars(aKey, 0)))
+    else if (!(keyPtr = env->GetStringUTFChars(aKey, 0)))
     {
         LOGE(" ## verifyEd25519SignatureJni(): failure - key JNI allocation OOM");
     }
-    else if(0 == (messagePtr = env->GetStringUTFChars(aMessage, 0)))
+    else if (!(messagePtr = env->GetStringUTFChars(aMessage, 0)))
     {
         LOGE(" ## verifyEd25519SignatureJni(): failure - message JNI allocation OOM");
     }
@@ -130,7 +130,7 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
                                            messageLength,
                                            (void*)signaturePtr,
                                            signatureLength);
-        if(result == olm_error()) {
+        if (result == olm_error()) {
             const char *errorMsgPtr = olm_utility_last_error(utilityPtr);
             errorMessageRetValue = env->NewStringUTF(errorMsgPtr);
             LOGE("## verifyEd25519SignatureJni(): failure - olm_ed25519_verify Msg=%s",errorMsgPtr);
@@ -142,17 +142,17 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
     }
 
     // free alloc
-    if(NULL != signaturePtr)
+    if (signaturePtr)
     {
         env->ReleaseStringUTFChars(aSignature, signaturePtr);
     }
 
-    if(NULL != keyPtr)
+    if (keyPtr)
     {
         env->ReleaseStringUTFChars(aKey, keyPtr);
     }
 
-    if(NULL != messagePtr)
+    if (messagePtr)
     {
         env->ReleaseStringUTFChars(aMessage, messagePtr);
     }
@@ -171,19 +171,18 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jst
     jstring sha256RetValue = 0;
     OlmUtility* utilityPtr = NULL;
     const char* messagePtr = NULL;
-    void *hashValuePtr = NULL;
 
     LOGD("## sha256Jni(): IN");
 
-    if(NULL == (utilityPtr = (OlmUtility*)getUtilityInstanceId(env,thiz)))
+    if (!(utilityPtr = (OlmUtility*)getUtilityInstanceId(env,thiz)))
     {
         LOGE(" ## sha256Jni(): failure - invalid utility ptr=NULL");
     }
-    else if(0 == aMessageToHash)
+    else if(!aMessageToHash)
     {
         LOGE(" ## sha256Jni(): failure - invalid message parameters ");
     }
-    else if(0 == (messagePtr = env->GetStringUTFChars(aMessageToHash, 0)))
+    else if(!(messagePtr = env->GetStringUTFChars(aMessageToHash, 0)))
     {
         LOGE(" ## sha256Jni(): failure - message JNI allocation OOM");
     }
@@ -192,8 +191,9 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jst
         // get lengths
         size_t messageLength = (size_t)env->GetStringUTFLength(aMessageToHash);
         size_t hashLength = olm_sha256_length(utilityPtr);
+        void* hashValuePtr = malloc((hashLength+1)*sizeof(uint8_t));
 
-        if(NULL == (hashValuePtr = static_cast<void*>(malloc((hashLength+1)*sizeof(uint8_t)))))
+        if (!hashValuePtr)
         {
             LOGE("## sha256Jni(): failure - hash value allocation OOM");
         }
@@ -204,7 +204,7 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jst
                                        messageLength,
                                        (void *)hashValuePtr,
                                        hashLength);
-            if(result == olm_error())
+            if (result == olm_error())
             {
                 LOGE("## sha256Jni(): failure - hash creation Msg=%s",(const char *)olm_utility_last_error(utilityPtr));
             }
@@ -216,16 +216,12 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jst
                 LOGD("## sha256Jni(): success - result=%lu hashValue=%s",static_cast<long unsigned int>(result), (char*)hashValuePtr);
                 sha256RetValue = env->NewStringUTF((const char*)hashValuePtr);
             }
+
+            free(hashValuePtr);
         }
-
     }
 
-    if(NULL != hashValuePtr)
-    {
-        free(hashValuePtr);
-    }
-
-    if(NULL != messagePtr)
+    if (messagePtr)
     {
         env->ReleaseStringUTFChars(aMessageToHash, messagePtr);
     }

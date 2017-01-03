@@ -335,7 +335,7 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
     public OlmMessage encryptMessage(String aClearMsg) {
         OlmMessage encryptedMsgRetValue = new OlmMessage();
 
-        if(0 != encryptMessageJni(aClearMsg, encryptedMsgRetValue)){
+        if (0 != encryptMessageJni(aClearMsg, encryptedMsgRetValue)){
             encryptedMsgRetValue = null;
         }
 
