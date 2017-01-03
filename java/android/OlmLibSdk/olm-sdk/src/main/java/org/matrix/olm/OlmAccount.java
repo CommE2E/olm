@@ -117,12 +117,17 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
             aErrorMsg.append("Invalid input parameters in serializeDataWithKey()");
         } else {
             aErrorMsg.setLength(0);
-            pickleRetValue = serializeDataWithKeyJni(aKey, aErrorMsg);
+            try {
+                pickleRetValue = serializeDataWithKeyJni(aKey.getBytes("UTF-8"), aErrorMsg);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "## serializeDataWithKey() failed " + e.getMessage());
+                aErrorMsg.append(e.getMessage());
+            }
         }
 
         return pickleRetValue;
     }
-    private native String serializeDataWithKeyJni(String aKey, StringBuffer aErrorMsg);
+    private native String serializeDataWithKeyJni(byte[] aKey, StringBuffer aErrorMsg);
 
 
     /**
@@ -138,23 +143,28 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
         boolean retCode = false;
         String jniError;
 
-        if(null == aErrorMsg) {
+        if (null == aErrorMsg) {
             Log.e(LOG_TAG, "## initWithSerializedData(): invalid input error parameter");
         } else {
             aErrorMsg.setLength(0);
 
-            if (TextUtils.isEmpty(aSerializedData) || TextUtils.isEmpty(aKey)) {
-                Log.e(LOG_TAG, "## initWithSerializedData(): invalid input parameters");
-            } else if (null == (jniError = initWithSerializedDataJni(aSerializedData, aKey))) {
-                retCode = true;
-            } else {
-                aErrorMsg.append(jniError);
+            try {
+                if (TextUtils.isEmpty(aSerializedData) || TextUtils.isEmpty(aKey)) {
+                    Log.e(LOG_TAG, "## initWithSerializedData(): invalid input parameters");
+                } else if (null == (jniError = initWithSerializedDataJni(aSerializedData.getBytes("UTF-8"), aKey.getBytes("UTF-8")))) {
+                    retCode = true;
+                } else {
+                    aErrorMsg.append(jniError);
+                }
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "## initWithSerializedData() failed " + e.getMessage());
+                aErrorMsg.append(e.getMessage());
             }
         }
 
         return retCode;
     }
-    private native String initWithSerializedDataJni(String aSerializedData, String aKey);
+    private native String initWithSerializedDataJni(byte[] aSerializedDataBuffer, byte[] aKeyBuffer);
 
     /**
      * Getter on the account ID.

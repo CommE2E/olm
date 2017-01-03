@@ -85,13 +85,13 @@ JNIEXPORT void OLM_UTILITY_FUNC_DEF(releaseUtilityJni)(JNIEnv *env, jobject thiz
  * @param aMessage the message which was signed
  * @return 0 if validation succeed, an error message string if operation failed
  */
-JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, jobject thiz, jstring aSignature, jstring aKey, jstring aMessage)
+JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, jobject thiz, jbyteArray aSignatureBuffer, jbyteArray aKeyBuffer, jbyteArray aMessageBuffer)
 {
     jstring errorMessageRetValue = 0;
     OlmUtility* utilityPtr = NULL;
-    const char* signaturePtr = NULL;
-    const char* keyPtr = NULL;
-    const char* messagePtr = NULL;
+    jbyte* signaturePtr = NULL;
+    jbyte* keyPtr = NULL;
+    jbyte* messagePtr = NULL;
 
     LOGD("## verifyEd25519SignatureJni(): IN");
 
@@ -99,27 +99,27 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
     {
         LOGE(" ## verifyEd25519SignatureJni(): failure - invalid utility ptr=NULL");
     }
-    else if (!aSignature || !aKey || !aMessage)
+    else if (!aSignatureBuffer || !aKeyBuffer || !aMessageBuffer)
     {
         LOGE(" ## verifyEd25519SignatureJni(): failure - invalid input parameters ");
     }
-    else if (!(signaturePtr = env->GetStringUTFChars(aSignature, 0)))
+    else if (!(signaturePtr = env->GetByteArrayElements(aSignatureBuffer, 0)))
     {
         LOGE(" ## verifyEd25519SignatureJni(): failure - signature JNI allocation OOM");
     }
-    else if (!(keyPtr = env->GetStringUTFChars(aKey, 0)))
+    else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, 0)))
     {
         LOGE(" ## verifyEd25519SignatureJni(): failure - key JNI allocation OOM");
     }
-    else if (!(messagePtr = env->GetStringUTFChars(aMessage, 0)))
+    else if (!(messagePtr = env->GetByteArrayElements(aMessageBuffer, 0)))
     {
         LOGE(" ## verifyEd25519SignatureJni(): failure - message JNI allocation OOM");
     }
     else
     {
-        size_t signatureLength = (size_t)env->GetStringUTFLength(aSignature);
-        size_t keyLength = (size_t)env->GetStringUTFLength(aKey);
-        size_t messageLength = (size_t)env->GetStringUTFLength(aMessage);
+        size_t signatureLength = (size_t)env->GetArrayLength(aSignatureBuffer);
+        size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
+        size_t messageLength = (size_t)env->GetArrayLength(aMessageBuffer);
         LOGD(" ## verifyEd25519SignatureJni(): signatureLength=%lu keyLength=%lu messageLength=%lu",static_cast<long unsigned int>(signatureLength),static_cast<long unsigned int>(keyLength),static_cast<long unsigned int>(messageLength));
         LOGD(" ## verifyEd25519SignatureJni(): key=%s",keyPtr);
 
@@ -144,17 +144,17 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
     // free alloc
     if (signaturePtr)
     {
-        env->ReleaseStringUTFChars(aSignature, signaturePtr);
+        env->ReleaseByteArrayElements(aSignatureBuffer, signaturePtr, JNI_ABORT);
     }
 
     if (keyPtr)
     {
-        env->ReleaseStringUTFChars(aKey, keyPtr);
+        env->ReleaseByteArrayElements(aKeyBuffer, keyPtr, JNI_ABORT);
     }
 
     if (messagePtr)
     {
-        env->ReleaseStringUTFChars(aMessage, messagePtr);
+        env->ReleaseByteArrayElements(aMessageBuffer, messagePtr, JNI_ABORT);
     }
 
     return errorMessageRetValue;
@@ -166,11 +166,11 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
 * @param aMessage
 * @return digest of the message if operation succeed, null otherwise
 **/
-JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jstring aMessageToHash)
+JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jbyteArray aMessageToHashBuffer)
 {
     jstring sha256RetValue = 0;
     OlmUtility* utilityPtr = NULL;
-    const char* messagePtr = NULL;
+    jbyte* messagePtr = NULL;
 
     LOGD("## sha256Jni(): IN");
 
@@ -178,18 +178,18 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jst
     {
         LOGE(" ## sha256Jni(): failure - invalid utility ptr=NULL");
     }
-    else if(!aMessageToHash)
+    else if(!aMessageToHashBuffer)
     {
         LOGE(" ## sha256Jni(): failure - invalid message parameters ");
     }
-    else if(!(messagePtr = env->GetStringUTFChars(aMessageToHash, 0)))
+    else if(!(messagePtr = env->GetByteArrayElements(aMessageToHashBuffer, 0)))
     {
         LOGE(" ## sha256Jni(): failure - message JNI allocation OOM");
     }
     else
     {
         // get lengths
-        size_t messageLength = (size_t)env->GetStringUTFLength(aMessageToHash);
+        size_t messageLength = (size_t)env->GetArrayLength(aMessageToHashBuffer);
         size_t hashLength = olm_sha256_length(utilityPtr);
         void* hashValuePtr = malloc((hashLength+1)*sizeof(uint8_t));
 
@@ -223,7 +223,7 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jst
 
     if (messagePtr)
     {
-        env->ReleaseStringUTFChars(aMessageToHash, messagePtr);
+        env->ReleaseByteArrayElements(aMessageToHashBuffer, messagePtr, JNI_ABORT);
     }
 
     return sha256RetValue;

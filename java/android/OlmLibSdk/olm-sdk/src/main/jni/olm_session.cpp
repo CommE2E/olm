@@ -107,7 +107,7 @@ JNIEXPORT jlong OLM_SESSION_FUNC_DEF(initNewSessionJni)(JNIEnv *env, jobject thi
 * @param aTheirOneTimeKey the one time key of the recipient
 * @return ERROR_CODE_OK if operation succeed, ERROR_CODE_KO otherwise
 **/
-JNIEXPORT jint OLM_SESSION_FUNC_DEF(initOutboundSessionJni)(JNIEnv *env, jobject thiz, jlong aOlmAccountId, jstring aTheirIdentityKey, jstring aTheirOneTimeKey)
+JNIEXPORT jint OLM_SESSION_FUNC_DEF(initOutboundSessionJni)(JNIEnv *env, jobject thiz, jlong aOlmAccountId, jbyteArray aTheirIdentityKeyBuffer, jbyteArray aTheirOneTimeKeyBuffer)
 {
     jint retCode = ERROR_CODE_KO;
     OlmSession* sessionPtr = NULL;
@@ -121,7 +121,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initOutboundSessionJni)(JNIEnv *env, jobject
     {
         LOGE("## initOutboundSessionJni(): failure - invalid Account ptr=NULL");
     }
-    else if (!aTheirIdentityKey || !aTheirOneTimeKey)
+    else if (!aTheirIdentityKeyBuffer || !aTheirOneTimeKeyBuffer)
     {
         LOGE("## initOutboundSessionJni(): failure - invalid keys");
     }
@@ -138,22 +138,22 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initOutboundSessionJni)(JNIEnv *env, jobject
         }
         else
         {
-            const char* theirIdentityKeyPtr = NULL;
-            const char* theirOneTimeKeyPtr = NULL;
+            jbyte* theirIdentityKeyPtr = NULL;
+            jbyte* theirOneTimeKeyPtr = NULL;
 
             // convert identity & one time keys to C strings
-            if (!(theirIdentityKeyPtr = env->GetStringUTFChars(aTheirIdentityKey, 0)))
+            if (!(theirIdentityKeyPtr = env->GetByteArrayElements(aTheirIdentityKeyBuffer, 0)))
             {
                 LOGE("## initOutboundSessionJni(): failure - identityKey JNI allocation OOM");
             }
-            else if (!(theirOneTimeKeyPtr = env->GetStringUTFChars(aTheirOneTimeKey, 0)))
+            else if (!(theirOneTimeKeyPtr = env->GetByteArrayElements(aTheirOneTimeKeyBuffer, 0)))
             {
                 LOGE("## initOutboundSessionJni(): failure - one time Key JNI allocation OOM");
             }
             else
             {
-                size_t theirIdentityKeyLength = (size_t)env->GetStringUTFLength(aTheirIdentityKey);
-                size_t theirOneTimeKeyLength  = (size_t)env->GetStringUTFLength(aTheirOneTimeKey);
+                size_t theirIdentityKeyLength = (size_t)env->GetArrayLength(aTheirIdentityKeyBuffer);
+                size_t theirOneTimeKeyLength  = (size_t)env->GetArrayLength(aTheirOneTimeKeyBuffer);
                 LOGD("## initOutboundSessionJni(): identityKey=%s oneTimeKey=%s",theirIdentityKeyPtr,theirOneTimeKeyPtr);
 
                 size_t sessionResult = olm_create_outbound_session(sessionPtr,
@@ -176,12 +176,12 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initOutboundSessionJni)(JNIEnv *env, jobject
 
             if (theirIdentityKeyPtr)
             {
-                env->ReleaseStringUTFChars(aTheirIdentityKey, theirIdentityKeyPtr);
+                env->ReleaseByteArrayElements(aTheirIdentityKeyBuffer, theirIdentityKeyPtr, JNI_ABORT);
             }
 
             if (theirOneTimeKeyPtr)
             {
-                env->ReleaseStringUTFChars(aTheirOneTimeKey, theirOneTimeKeyPtr);
+                env->ReleaseByteArrayElements(aTheirOneTimeKeyBuffer, theirOneTimeKeyPtr, JNI_ABORT);
             }
 
             if (randomBuffPtr)
@@ -205,7 +205,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initOutboundSessionJni)(JNIEnv *env, jobject
  * @param aOneTimeKeyMsg PRE_KEY message
  * @return ERROR_CODE_OK if operation succeed, ERROR_CODE_KO otherwise
  */
-JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionJni)(JNIEnv *env, jobject thiz, jlong aOlmAccountId, jstring aOneTimeKeyMsg)
+JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionJni)(JNIEnv *env, jobject thiz, jlong aOlmAccountId, jbyteArray aOneTimeKeyMsgBuffer)
 {
     jint retCode = ERROR_CODE_KO;
     OlmSession *sessionPtr = NULL;
@@ -220,13 +220,13 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionJni)(JNIEnv *env, jobject 
     {
         LOGE("## initInboundSessionJni(): failure - invalid Account ptr=NULL");
     }
-    else if (!aOneTimeKeyMsg)
+    else if (!aOneTimeKeyMsgBuffer)
     {
         LOGE("## initInboundSessionJni(): failure - invalid message");
     }
     else
     {
-        const char *messagePtr = env->GetStringUTFChars(aOneTimeKeyMsg, 0);
+        jbyte* messagePtr = env->GetByteArrayElements(aOneTimeKeyMsgBuffer, 0);
 
         if (!messagePtr)
         {
@@ -234,7 +234,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionJni)(JNIEnv *env, jobject 
         }
         else
         {
-            size_t messageLength = (size_t)env->GetStringUTFLength(aOneTimeKeyMsg);
+            size_t messageLength = (size_t)env->GetArrayLength(aOneTimeKeyMsgBuffer);
             LOGD("## initInboundSessionJni(): messageLength=%lu message=%s", static_cast<long unsigned int>(messageLength), messagePtr);
 
             sessionResult = olm_create_inbound_session(sessionPtr, accountPtr, (void*)messagePtr , messageLength);
@@ -250,7 +250,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionJni)(JNIEnv *env, jobject 
             }
 
             // free local alloc
-            env->ReleaseStringUTFChars(aOneTimeKeyMsg, messagePtr);
+            env->ReleaseByteArrayElements(aOneTimeKeyMsgBuffer, messagePtr, JNI_ABORT);
         }
     }
     return retCode;
@@ -264,13 +264,13 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionJni)(JNIEnv *env, jobject 
  * @param aOneTimeKeyMsg encrypted message
  * @return ERROR_CODE_OK if operation succeed, ERROR_CODE_KO otherwise
  */
-JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionFromIdKeyJni)(JNIEnv *env, jobject thiz, jlong aOlmAccountId, jstring aTheirIdentityKey, jstring aOneTimeKeyMsg)
+JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionFromIdKeyJni)(JNIEnv *env, jobject thiz, jlong aOlmAccountId, jbyteArray aTheirIdentityKeyBuffer, jbyteArray aOneTimeKeyMsgBuffer)
 {
     jint retCode = ERROR_CODE_KO;
     OlmSession *sessionPtr = NULL;
     OlmAccount *accountPtr = NULL;
-    const char *messagePtr = NULL;
-    const char *theirIdentityKeyPtr = NULL;
+    jbyte *messagePtr = NULL;
+    jbyte *theirIdentityKeyPtr = NULL;
     size_t sessionResult;
 
     if (!(sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
@@ -281,26 +281,26 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionFromIdKeyJni)(JNIEnv *env,
     {
         LOGE("## initInboundSessionFromIdKeyJni(): failure - invalid Account ptr=NULL");
     }
-    else if (!aTheirIdentityKey)
+    else if (!aTheirIdentityKeyBuffer)
     {
         LOGE("## initInboundSessionFromIdKeyJni(): failure - invalid theirIdentityKey");
     }
-    else if (!aOneTimeKeyMsg)
+    else if (!aOneTimeKeyMsgBuffer)
     {
         LOGE("## initInboundSessionJni(): failure - invalid one time key message");
     }
-    else if (!(messagePtr = env->GetStringUTFChars(aOneTimeKeyMsg, 0)))
+    else if (!(messagePtr = env->GetByteArrayElements(aOneTimeKeyMsgBuffer, 0)))
     {
         LOGE("## initInboundSessionFromIdKeyJni(): failure - message JNI allocation OOM");
     }
-    else if(!(theirIdentityKeyPtr = env->GetStringUTFChars(aTheirIdentityKey, 0)))
+    else if(!(theirIdentityKeyPtr = env->GetByteArrayElements(aTheirIdentityKeyBuffer, 0)))
     {
         LOGE("## initInboundSessionFromIdKeyJni(): failure - theirIdentityKey JNI allocation OOM");
     }
     else
     {
-        size_t messageLength = (size_t)env->GetStringUTFLength(aOneTimeKeyMsg);
-        size_t theirIdentityKeyLength = (size_t)env->GetStringUTFLength(aTheirIdentityKey);
+        size_t messageLength = (size_t)env->GetArrayLength(aOneTimeKeyMsgBuffer);
+        size_t theirIdentityKeyLength = (size_t)env->GetArrayLength(aTheirIdentityKeyBuffer);
 
         LOGD("## initInboundSessionFromIdKeyJni(): message=%s messageLength=%lu",messagePtr,static_cast<long unsigned int>(messageLength));
 
@@ -319,12 +319,12 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionFromIdKeyJni)(JNIEnv *env,
      // free local alloc
      if (messagePtr)
      {
-         env->ReleaseStringUTFChars(aOneTimeKeyMsg, messagePtr);
+        env->ReleaseByteArrayElements(aOneTimeKeyMsgBuffer, messagePtr, JNI_ABORT);
      }
 
      if (theirIdentityKeyPtr)
      {
-         env->ReleaseStringUTFChars(aTheirIdentityKey, theirIdentityKeyPtr);
+        env->ReleaseByteArrayElements(aTheirIdentityKeyBuffer, theirIdentityKeyPtr, JNI_ABORT);
      }
 
     return retCode;
@@ -336,27 +336,27 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionFromIdKeyJni)(JNIEnv *env,
  * @param aOneTimeKeyMsg PRE KEY message
  * @return ERROR_CODE_OK if match, ERROR_CODE_KO otherwise
  */
-JNIEXPORT jint OLM_SESSION_FUNC_DEF(matchesInboundSessionJni)(JNIEnv *env, jobject thiz, jstring aOneTimeKeyMsg)
+JNIEXPORT jint OLM_SESSION_FUNC_DEF(matchesInboundSessionJni)(JNIEnv *env, jobject thiz, jbyteArray aOneTimeKeyMsgBuffer)
 {
     jint retCode = ERROR_CODE_KO;
     OlmSession *sessionPtr = NULL;
-    const char *messagePtr = NULL;
+    jbyte *messagePtr = NULL;
 
     if (!(sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
     {
         LOGE("## matchesInboundSessionJni(): failure - invalid Session ptr=NULL");
     }
-    else if (!aOneTimeKeyMsg)
+    else if (!aOneTimeKeyMsgBuffer)
     {
         LOGE("## matchesInboundSessionJni(): failure - invalid one time key message");
     }
-    else if (!(messagePtr = env->GetStringUTFChars(aOneTimeKeyMsg, 0)))
+    else if (!(messagePtr = env->GetByteArrayElements(aOneTimeKeyMsgBuffer, 0)))
     {
         LOGE("## matchesInboundSessionJni(): failure - one time key JNI allocation OOM");
     }
     else
     {
-        size_t messageLength = (size_t)env->GetStringUTFLength(aOneTimeKeyMsg);
+        size_t messageLength = (size_t)env->GetArrayLength(aOneTimeKeyMsgBuffer);
 
         size_t matchResult = olm_matches_inbound_session(sessionPtr, (void*)messagePtr , messageLength);
         //if(matchResult == olm_error()) {
@@ -374,7 +374,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(matchesInboundSessionJni)(JNIEnv *env, jobje
     // free local alloc
     if (messagePtr)
     {
-        env->ReleaseStringUTFChars(aOneTimeKeyMsg, messagePtr);
+        env->ReleaseByteArrayElements(aOneTimeKeyMsgBuffer, messagePtr, JNI_ABORT);
     }
 
     return retCode;
@@ -388,37 +388,37 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(matchesInboundSessionJni)(JNIEnv *env, jobje
  * @param aOneTimeKeyMsg PRE KEY message
  * @return ERROR_CODE_OK if match, ERROR_CODE_KO otherwise
  */
-JNIEXPORT jint JNICALL OLM_SESSION_FUNC_DEF(matchesInboundSessionFromIdKeyJni)(JNIEnv *env, jobject thiz, jstring aTheirIdentityKey, jstring aOneTimeKeyMsg)
+JNIEXPORT jint JNICALL OLM_SESSION_FUNC_DEF(matchesInboundSessionFromIdKeyJni)(JNIEnv *env, jobject thiz, jbyteArray aTheirIdentityKeyBuffer, jbyteArray aOneTimeKeyMsgBuffer)
 {
     jint retCode = ERROR_CODE_KO;
     OlmSession *sessionPtr = NULL;
-    const char *messagePtr = NULL;
-    const char *theirIdentityKeyPtr = NULL;
+    jbyte *messagePtr = NULL;
+    jbyte *theirIdentityKeyPtr = NULL;
 
     if (!(sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
     {
         LOGE("## matchesInboundSessionFromIdKeyJni(): failure - invalid Session ptr=NULL");
     }
-    else if (!aTheirIdentityKey)
+    else if (!aTheirIdentityKeyBuffer)
     {
         LOGE("## matchesInboundSessionFromIdKeyJni(): failure - invalid theirIdentityKey");
     }
-    else if (!(theirIdentityKeyPtr = env->GetStringUTFChars(aTheirIdentityKey, 0)))
+    else if (!(theirIdentityKeyPtr = env->GetByteArrayElements(aTheirIdentityKeyBuffer, 0)))
     {
         LOGE("## matchesInboundSessionFromIdKeyJni(): failure - theirIdentityKey JNI allocation OOM");
     }
-    else if (!aOneTimeKeyMsg)
+    else if (!aOneTimeKeyMsgBuffer)
     {
         LOGE("## matchesInboundSessionFromIdKeyJni(): failure - invalid one time key message");
     }
-    else if (!(messagePtr = env->GetStringUTFChars(aOneTimeKeyMsg, 0)))
+    else if (!(messagePtr = env->GetByteArrayElements(aOneTimeKeyMsgBuffer, 0)))
     {
         LOGE("## matchesInboundSessionFromIdKeyJni(): failure - one time key JNI allocation OOM");
     }
     else
     {
-        size_t identityKeyLength = (size_t)env->GetStringUTFLength(aTheirIdentityKey);
-        size_t messageLength = (size_t)env->GetStringUTFLength(aOneTimeKeyMsg);
+        size_t identityKeyLength = (size_t)env->GetArrayLength(aTheirIdentityKeyBuffer);
+        size_t messageLength = (size_t)env->GetArrayLength(aOneTimeKeyMsgBuffer);
         size_t matchResult = olm_matches_inbound_session_from(sessionPtr, (void const *)theirIdentityKeyPtr, identityKeyLength, (void*)messagePtr , messageLength);
 
         //if(matchResult == olm_error()) {
@@ -437,12 +437,12 @@ JNIEXPORT jint JNICALL OLM_SESSION_FUNC_DEF(matchesInboundSessionFromIdKeyJni)(J
     // free local alloc
     if (theirIdentityKeyPtr)
     {
-        env->ReleaseStringUTFChars(aTheirIdentityKey, theirIdentityKeyPtr);
+        env->ReleaseByteArrayElements(aTheirIdentityKeyBuffer, theirIdentityKeyPtr, JNI_ABORT);
     }
 
     if (messagePtr)
     {
-        env->ReleaseStringUTFChars(aOneTimeKeyMsg, messagePtr);
+        env->ReleaseByteArrayElements(aOneTimeKeyMsgBuffer, messagePtr, JNI_ABORT);
     }
 
     return retCode;
@@ -455,11 +455,11 @@ JNIEXPORT jint JNICALL OLM_SESSION_FUNC_DEF(matchesInboundSessionFromIdKeyJni)(J
  * @param [out] aEncryptedMsg ciphered message
  * @return ERROR_CODE_OK if encrypt operation succeed, ERROR_CODE_KO otherwise
  */
-JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz, jstring aClearMsg, jobject aEncryptedMsg)
+JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aClearMsgBuffer, jobject aEncryptedMsg)
 {
     jint retCode = ERROR_CODE_KO;
     OlmSession *sessionPtr = NULL;
-    const char *clearMsgPtr = NULL;
+    jbyte *clearMsgPtr = NULL;
     jclass encryptedMsgJClass = 0;
     jfieldID encryptedMsgFieldId;
     jfieldID typeMsgFieldId;
@@ -470,7 +470,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
     {
         LOGE("## encryptMessageJni(): failure - invalid Session ptr=NULL");
     }
-    else if (!aClearMsg)
+    else if (!aClearMsgBuffer)
     {
         LOGE("## encryptMessageJni(): failure - invalid clear message");
     }
@@ -478,7 +478,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
     {
         LOGE("## encryptMessageJni(): failure - invalid encrypted message");
     }
-    else if (!(clearMsgPtr = env->GetStringUTFChars(aClearMsg, 0)))
+    else if (!(clearMsgPtr = env->GetByteArrayElements(aClearMsgBuffer, 0)))
     {
         LOGE("## encryptMessageJni(): failure - clear message JNI allocation OOM");
     }
@@ -514,7 +514,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
         else
         {
             // alloc buffer for encrypted message
-            size_t clearMsgLength = (size_t)env->GetStringUTFLength(aClearMsg);
+            size_t clearMsgLength = (size_t)env->GetArrayLength(aClearMsgBuffer);
             size_t encryptedMsgLength = olm_encrypt_message_length(sessionPtr, clearMsgLength);
 
             void *encryptedMsgPtr = malloc((encryptedMsgLength+1)*sizeof(uint8_t));
@@ -569,7 +569,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
     // free alloc
     if (clearMsgPtr)
     {
-        env->ReleaseStringUTFChars(aClearMsg, clearMsgPtr);
+        env->ReleaseByteArrayElements(aClearMsgBuffer, clearMsgPtr, JNI_ABORT);
     }
 
     return retCode;
@@ -760,13 +760,13 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, job
 * @param[out] aErrorMsg error message set if operation failed
 * @return a base64 string if operation succeed, null otherwise
 **/
-JNIEXPORT jstring OLM_SESSION_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, jobject thiz, jstring aKey, jobject aErrorMsg)
+JNIEXPORT jstring OLM_SESSION_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, jobject thiz, jbyteArray aKeyBuffer, jobject aErrorMsg)
 {
     jstring pickledDataRetValue = 0;
     jclass errorMsgJClass = 0;
     jmethodID errorMsgMethodId = 0;
     jstring errorJstring = 0;
-    const char *keyPtr = NULL;
+    jbyte* keyPtr = NULL;
     OlmSession* sessionPtr = NULL;
 
     LOGD("## serializeDataWithKeyJni(): IN");
@@ -775,7 +775,7 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, job
     {
         LOGE(" ## serializeDataWithKeyJni(): failure - invalid session ptr");
     }
-    else if (!aKey)
+    else if (!aKeyBuffer)
     {
         LOGE(" ## serializeDataWithKeyJni(): failure - invalid key");
     }
@@ -791,14 +791,14 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, job
     {
         LOGE(" ## serializeDataWithKeyJni(): failure - unable to get error method ID");
     }
-    else if (!(keyPtr = env->GetStringUTFChars(aKey, 0)))
+    else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, 0)))
     {
         LOGE(" ## serializeDataWithKeyJni(): failure - keyPtr JNI allocation OOM");
     }
     else
     {
         size_t pickledLength = olm_pickle_session_length(sessionPtr);
-        size_t keyLength = (size_t)env->GetStringUTFLength(aKey);
+        size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## serializeDataWithKeyJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
         LOGD(" ## serializeDataWithKeyJni(): key=%s",(char const *)keyPtr);
 
@@ -840,19 +840,19 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, job
     // free alloc
     if (keyPtr)
     {
-        env->ReleaseStringUTFChars(aKey, keyPtr);
+        env->ReleaseByteArrayElements(aKeyBuffer, keyPtr, JNI_ABORT);
     }
 
     return pickledDataRetValue;
 }
 
 
-JNIEXPORT jstring OLM_SESSION_FUNC_DEF(initWithSerializedDataJni)(JNIEnv *env, jobject thiz, jstring aSerializedData, jstring aKey)
+JNIEXPORT jstring OLM_SESSION_FUNC_DEF(initWithSerializedDataJni)(JNIEnv *env, jobject thiz, jbyteArray aSerializedDataBuffer, jbyteArray aKeyBuffer)
 {
     OlmSession* sessionPtr = NULL;
     jstring errorMessageRetValue = 0;
-    const char *keyPtr = NULL;
-    const char *pickledPtr = NULL;
+    jbyte* keyPtr = NULL;
+    jbyte* pickledPtr = NULL;
 
     LOGD("## initWithSerializedDataJni(): IN");
 
@@ -860,26 +860,26 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(initWithSerializedDataJni)(JNIEnv *env, j
     {
         LOGE(" ## initWithSerializedDataJni(): failure - session failure OOM");
     }
-    else if (!aKey)
+    else if (!aKeyBuffer)
     {
         LOGE(" ## initWithSerializedDataJni(): failure - invalid key");
     }
-    else if (!aSerializedData)
+    else if (!aSerializedDataBuffer)
     {
         LOGE(" ## initWithSerializedDataJni(): failure - serialized data");
     }
-    else if (!(keyPtr = env->GetStringUTFChars(aKey, 0)))
+    else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, 0)))
     {
         LOGE(" ## initWithSerializedDataJni(): failure - keyPtr JNI allocation OOM");
     }
-    else if (!(pickledPtr = env->GetStringUTFChars(aSerializedData, 0)))
+    else if (!(pickledPtr = env->GetByteArrayElements(aSerializedDataBuffer, 0)))
     {
         LOGE(" ## initWithSerializedDataJni(): failure - pickledPtr JNI allocation OOM");
     }
     else
     {
-        size_t pickledLength = (size_t)env->GetStringUTFLength(aSerializedData);
-        size_t keyLength = (size_t)env->GetStringUTFLength(aKey);
+        size_t pickledLength = (size_t)env->GetArrayLength(aSerializedDataBuffer);
+        size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## initWithSerializedDataJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
         LOGD(" ## initWithSerializedDataJni(): key=%s",(char const *)keyPtr);
         LOGD(" ## initWithSerializedDataJni(): pickled=%s",(char const *)pickledPtr);
@@ -905,12 +905,12 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(initWithSerializedDataJni)(JNIEnv *env, j
     // free alloc
     if (keyPtr)
     {
-        env->ReleaseStringUTFChars(aKey, keyPtr);
+        env->ReleaseByteArrayElements(aKeyBuffer, keyPtr, JNI_ABORT);
     }
 
     if (pickledPtr)
     {
-        env->ReleaseStringUTFChars(aSerializedData, pickledPtr);
+        env->ReleaseByteArrayElements(aSerializedDataBuffer, pickledPtr, JNI_ABORT);
     }
 
     return errorMessageRetValue;

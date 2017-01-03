@@ -127,12 +127,16 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
         if(TextUtils.isEmpty(aSessionKey)){
             Log.e(LOG_TAG, "## initInboundGroupSessionWithSessionKey(): invalid session key");
         } else {
-            retCode = initInboundGroupSessionWithSessionKeyJni(aSessionKey);
+            try {
+                retCode = initInboundGroupSessionWithSessionKeyJni(aSessionKey.getBytes("UTF-8"));
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "## initInboundGroupSessionWithSessionKey() failed " + e.getMessage());
+            }
         }
 
         return retCode;
     }
-    private native int initInboundGroupSessionWithSessionKeyJni(String aSessionKey);
+    private native int initInboundGroupSessionWithSessionKeyJni(byte[] aSessionKeyBuffer);
 
 
     /**
@@ -156,7 +160,11 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
         DecryptMessageResult result = new DecryptMessageResult();
 
         StringBuffer errorMsg = new StringBuffer();
-        result.mDecryptedMessage = decryptMessageJni(aEncryptedMsg, result, errorMsg);
+        try {
+            result.mDecryptedMessage = decryptMessageJni(aEncryptedMsg.getBytes("UTF-8"), result, errorMsg);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## decryptMessage() failed " + e.getMessage());
+        }
 
         // check if there is an error while decrypting
         if (0 != errorMsg.length()) {
@@ -166,7 +174,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
         return result;
     }
 
-    private native String decryptMessageJni(String aEncryptedMsg, DecryptMessageResult aDecryptMessageResult, StringBuffer aErrorMsg);
+    private native String decryptMessageJni(byte[] aEncryptedMsg, DecryptMessageResult aDecryptMessageResult, StringBuffer aErrorMsg);
 
     /**
      * Kick off the serialization mechanism.
@@ -217,7 +225,11 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
             aErrorMsg.append("Invalid input parameters in serializeDataWithKey()");
         } else {
             aErrorMsg.setLength(0);
-            pickleRetValue = serializeDataWithKeyJni(aKey, aErrorMsg);
+            try {
+                pickleRetValue = serializeDataWithKeyJni(aKey.getBytes("UTF-8"), aErrorMsg);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "## serializeDataWithKey() failed " + e.getMessage());
+            }
         }
 
         return pickleRetValue;
@@ -228,7 +240,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      * @param aErrorMsg error message description
      * @return pickled base64 string if operation succeed, null otherwise
      */
-    private native String serializeDataWithKeyJni(String aKey, StringBuffer aErrorMsg);
+    private native String serializeDataWithKeyJni(byte[] aKey, StringBuffer aErrorMsg);
 
 
     /**
@@ -248,13 +260,17 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
             Log.e(LOG_TAG, "## initWithSerializedData(): invalid input error parameter");
         } else {
             aErrorMsg.setLength(0);
-
-            if (TextUtils.isEmpty(aSerializedData) || TextUtils.isEmpty(aKey)) {
-                Log.e(LOG_TAG, "## initWithSerializedData(): invalid input parameters");
-            } else if (null == (jniError = initWithSerializedDataJni(aSerializedData, aKey))) {
-                retCode = true;
-            } else {
-                aErrorMsg.append(jniError);
+            try {
+                if (TextUtils.isEmpty(aSerializedData) || TextUtils.isEmpty(aKey)) {
+                    Log.e(LOG_TAG, "## initWithSerializedData(): invalid input parameters");
+                } else if (null == (jniError = initWithSerializedDataJni(aSerializedData.getBytes("UTF-8"), aKey.getBytes("UTF-8")))) {
+                    retCode = true;
+                } else {
+                    aErrorMsg.append(jniError);
+                }
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "## initWithSerializedData() failed " + e.getMessage());
+                aErrorMsg.append(e.getMessage());
             }
         }
 
@@ -266,7 +282,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      * @param aKey key used to encrypted in {@link #serializeDataWithKey(String, StringBuffer)}
      * @return null if operation succeed, an error message if operation failed
      */
-    private native String initWithSerializedDataJni(String aSerializedData, String aKey);
+    private native String initWithSerializedDataJni(byte[] aSerializedData, byte[] aKey);
 
     /**
      * Return true the object resources have been released.<br>

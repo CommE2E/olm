@@ -29,8 +29,8 @@ extern "C" {
 #endif
 JNIEXPORT jlong   OLM_UTILITY_FUNC_DEF(initUtilityJni)(JNIEnv *env, jobject thiz);
 JNIEXPORT void    OLM_UTILITY_FUNC_DEF(releaseUtilityJni)(JNIEnv *env, jobject thiz);
-JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, jobject thiz, jstring aSignature, jstring aKey, jstring aMessage);
-JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jstring aMessageToHash);
+JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, jobject thiz, jbyteArray aSignature, jbyteArray aKey, jbyteArray aMessage);
+JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jbyteArray aMessageToHash);
 #ifdef __cplusplus
 }
 #endif

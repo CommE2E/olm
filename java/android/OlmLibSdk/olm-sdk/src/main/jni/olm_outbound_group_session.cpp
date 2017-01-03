@@ -338,13 +338,13 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv 
 * @param[out] aErrorMsg error message set if operation failed
 * @return a base64 string if operation succeed, null otherwise
 **/
-JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, jobject thiz, jstring aKey, jobject aErrorMsg)
+JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, jobject thiz, jbyteArray aKeyBuffer, jobject aErrorMsg)
 {
     jstring pickledDataRetValue = 0;
     jclass errorMsgJClass = 0;
     jmethodID errorMsgMethodId = 0;
     jstring errorJstring = 0;
-    const char *keyPtr = NULL;
+    jbyte* keyPtr = NULL;
     OlmOutboundGroupSession* sessionPtr = NULL;
 
     LOGD("## outbound group session serializeDataWithKeyJni(): IN");
@@ -353,7 +353,7 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeDataWithKeyJni)(J
     {
         LOGE(" ## serializeDataWithKeyJni(): failure - invalid session ptr");
     }
-    else if (!aKey)
+    else if (!aKeyBuffer)
     {
         LOGE(" ## serializeDataWithKeyJni(): failure - invalid key");
     }
@@ -369,14 +369,14 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeDataWithKeyJni)(J
     {
         LOGE(" ## serializeDataWithKeyJni(): failure - unable to get error method ID");
     }
-    else if (!(keyPtr = env->GetStringUTFChars(aKey, 0)))
+    else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, 0)))
     {
         LOGE(" ## serializeDataWithKeyJni(): failure - keyPtr JNI allocation OOM");
     }
     else
     {
         size_t pickledLength = olm_pickle_outbound_group_session_length(sessionPtr);
-        size_t keyLength = (size_t)env->GetStringUTFLength(aKey);
+        size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## serializeDataWithKeyJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
         LOGD(" ## serializeDataWithKeyJni(): key=%s",(char const *)keyPtr);
 
@@ -418,19 +418,19 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeDataWithKeyJni)(J
     // free alloc
     if (keyPtr)
     {
-        env->ReleaseStringUTFChars(aKey, keyPtr);
+        env->ReleaseByteArrayElements(aKeyBuffer, keyPtr, JNI_ABORT);
     }
 
     return pickledDataRetValue;
 }
 
 
-JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(initWithSerializedDataJni)(JNIEnv *env, jobject thiz, jstring aSerializedData, jstring aKey)
+JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(initWithSerializedDataJni)(JNIEnv *env, jobject thiz, jbyteArray aSerializedDataBuffer, jbyteArray aKeyBuffer)
 {
     OlmOutboundGroupSession* sessionPtr = NULL;
     jstring errorMessageRetValue = 0;
-    const char *keyPtr = NULL;
-    const char *pickledPtr = NULL;
+    jbyte* keyPtr = NULL;
+    jbyte* pickledPtr = NULL;
 
     LOGD("## initWithSerializedDataJni(): IN");
 
@@ -438,26 +438,26 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(initWithSerializedDataJni)
     {
         LOGE(" ## initWithSerializedDataJni(): failure - session failure OOM");
     }
-    else if (!aKey)
+    else if (!aKeyBuffer)
     {
         LOGE(" ## initWithSerializedDataJni(): failure - invalid key");
     }
-    else if (!aSerializedData)
+    else if (!aSerializedDataBuffer)
     {
         LOGE(" ## initWithSerializedDataJni(): failure - serialized data");
     }
-    else if (!(keyPtr = env->GetStringUTFChars(aKey, 0)))
+    else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, 0)))
     {
         LOGE(" ## initWithSerializedDataJni(): failure - keyPtr JNI allocation OOM");
     }
-    else if (!(pickledPtr = env->GetStringUTFChars(aSerializedData, 0)))
+    else if (!(pickledPtr = env->GetByteArrayElements(aSerializedDataBuffer, 0)))
     {
         LOGE(" ## initWithSerializedDataJni(): failure - pickledPtr JNI allocation OOM");
     }
     else
     {
-        size_t pickledLength = (size_t)env->GetStringUTFLength(aSerializedData);
-        size_t keyLength = (size_t)env->GetStringUTFLength(aKey);
+        size_t pickledLength = (size_t)env->GetArrayLength(aSerializedDataBuffer);
+        size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## initWithSerializedDataJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
         LOGD(" ## initWithSerializedDataJni(): key=%s",(char const *)keyPtr);
         LOGD(" ## initWithSerializedDataJni(): pickled=%s",(char const *)pickledPtr);
@@ -482,12 +482,12 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(initWithSerializedDataJni)
     // free alloc
     if (keyPtr)
     {
-        env->ReleaseStringUTFChars(aKey, keyPtr);
+        env->ReleaseByteArrayElements(aKeyBuffer, keyPtr, JNI_ABORT);
     }
 
     if (pickledPtr)
     {
-        env->ReleaseStringUTFChars(aSerializedData, pickledPtr);
+        env->ReleaseByteArrayElements(aSerializedDataBuffer, pickledPtr, JNI_ABORT);
     }
 
     return errorMessageRetValue;

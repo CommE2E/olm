@@ -82,13 +82,17 @@ public class OlmUtility {
         } else {
             aError.setLength(0);
 
-            if (TextUtils.isEmpty(aSignature) || TextUtils.isEmpty(aFingerprintKey) || TextUtils.isEmpty(aMessage)) {
-                Log.e(LOG_TAG, "## verifyEd25519Signature(): invalid input parameters");
-                aError.append("JAVA sanity check failure - invalid input parameters");
-            } else if (null == (jniError = verifyEd25519SignatureJni(aSignature, aFingerprintKey, aMessage))) {
-                retCode = true;
-            } else {
-                aError.append(jniError);
+            try {
+                if (TextUtils.isEmpty(aSignature) || TextUtils.isEmpty(aFingerprintKey) || TextUtils.isEmpty(aMessage)) {
+                    Log.e(LOG_TAG, "## verifyEd25519Signature(): invalid input parameters");
+                    aError.append("JAVA sanity check failure - invalid input parameters");
+                } else if (null == (jniError = verifyEd25519SignatureJni(aSignature.getBytes("UTF-8"), aFingerprintKey.getBytes("UTF-8"), aMessage.getBytes("UTF-8")))) {
+                    retCode = true;
+                } else {
+                    aError.append(jniError);
+                }
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "## verifyEd25519Signature(): failed " + e.getMessage());
             }
         }
 
@@ -103,7 +107,7 @@ public class OlmUtility {
      * @param aMessage the signed message
      * @return null if validation succeed, the error message string if operation failed
      */
-    private native String verifyEd25519SignatureJni(String aSignature, String aFingerprintKey, String aMessage);
+    private native String verifyEd25519SignatureJni(byte[] aSignature, byte[] aFingerprintKey, byte[] aMessage);
 
 
     /**
@@ -115,14 +119,18 @@ public class OlmUtility {
      public String sha256(String aMessageToHash) {
         String hashRetValue = null;
 
-         if(null != aMessageToHash){
-            hashRetValue = sha256Jni(aMessageToHash);
+         if (null != aMessageToHash) {
+             try {
+                 hashRetValue = sha256Jni(aMessageToHash.getBytes("UTF-8"));
+             } catch (Exception e) {
+                 Log.e(LOG_TAG, "## sha256(): failed " + e.getMessage());
+             }
          }
 
         return hashRetValue;
-
     }
-    private native String sha256Jni(String aMessage);
+
+    private native String sha256Jni(byte[] aMessage);
 
 
     /**
