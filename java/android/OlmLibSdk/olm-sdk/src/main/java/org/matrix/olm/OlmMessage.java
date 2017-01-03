@@ -28,7 +28,7 @@ public class OlmMessage {
     /** normal message type **/
     public final static int MESSAGE_TYPE_MESSAGE = 1;
 
-    /** the encrypted message (ie. )**/
+    /** the encrypted message **/
     public String mCipherText;
 
     /** defined by {@link #MESSAGE_TYPE_MESSAGE} or {@link #MESSAGE_TYPE_PRE_KEY}**/
