@@ -113,7 +113,11 @@ public class OlmGroupSessionTest {
     @Test
     public void test05OutboundGroupEncryptMessage() {
         // alice encrypts a message to bob
-        mAliceToBobMessage = mAliceOutboundGroupSession.encryptMessage(CLEAR_MESSAGE1);
+        try {
+            mAliceToBobMessage = mAliceOutboundGroupSession.encryptMessage(CLEAR_MESSAGE1);
+        } catch (OlmOutboundGroupSession.EncryptMessageException e) {
+            assertTrue("Exception in bob encryptMessage, Exception code=" + e.getMessage(), false);
+        }
         assertFalse(TextUtils.isEmpty(mAliceToBobMessage));
 
         // test message index after encryption is incremented

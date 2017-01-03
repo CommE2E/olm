@@ -268,7 +268,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionKeyJni)(JNIEnv *
     return returnValue;
 }
 
-JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aClearMsgBuffer)
+JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aClearMsgBuffer, jobject aErrorMsg)
 {
     LOGD("## encryptMessageJni(): IN");
 
@@ -277,9 +277,16 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIE
     OlmOutboundGroupSession *sessionPtr = NULL;
     jbyte* clearMsgPtr = NULL;
 
+    jclass errorMsgJClass = 0;
+    jmethodID errorMsgMethodId = 0;
+
     if (!(sessionPtr = (OlmOutboundGroupSession*)getOutboundGroupSessionInstanceId(env,thiz)))
     {
         LOGE(" ## encryptMessageJni(): failure - invalid outbound group session ptr=NULL");
+    }
+    else if (!aErrorMsg)
+    {
+        LOGE(" ## encryptMessageJni(): failure - invalid error output");
     }
     else if (!aClearMsgBuffer)
     {
@@ -288,6 +295,14 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIE
     else if (!(clearMsgPtr = env->GetByteArrayElements(aClearMsgBuffer, NULL)))
     {
         LOGE(" ## encryptMessageJni(): failure - clear message JNI allocation OOM");
+    }
+    else if (!(errorMsgJClass = env->GetObjectClass(aErrorMsg)))
+    {
+        LOGE(" ## encryptMessageJni(): failure - unable to get error class");
+    }
+    else if (!(errorMsgMethodId = env->GetMethodID(errorMsgJClass, "append", "(Ljava/lang/String;)Ljava/lang/StringBuffer;")))
+    {
+        LOGE(" ## encryptMessageJni(): failure - unable to get error method ID");
     }
     else
     {
@@ -312,9 +327,19 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIE
                                                        clearMsgLength,
                                                        encryptedMsgPtr,
                                                        encryptedMsgLength);
+
+
             if (encryptedLength == olm_error())
             {
-                LOGE(" ## encryptMessageJni(): failure - olm_group_encrypt Msg=%s",(const char *)olm_outbound_group_session_last_error(sessionPtr));
+                const char * errorMsgPtr = olm_outbound_group_session_last_error(sessionPtr);
+                LOGE(" ## encryptMessageJni(): failure - olm_group_decrypt_max_plaintext_length Msg=%s",errorMsgPtr);
+
+                jstring errorJstring = env->NewStringUTF(errorMsgPtr);
+
+                if (errorJstring)
+                {
+                    env->CallObjectMethod(aErrorMsg, errorMsgMethodId, errorJstring);
+                }
             }
             else
             {
@@ -329,7 +354,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIE
 
             free(encryptedMsgPtr);
          }
-      }
+    }
 
     // free alloc
     if (clearMsgPtr)

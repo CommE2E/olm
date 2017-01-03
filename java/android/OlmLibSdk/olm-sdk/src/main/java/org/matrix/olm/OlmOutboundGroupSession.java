@@ -43,6 +43,15 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
     private transient long mNativeId;
 
     /**
+     * Exception triggered in {@link #encryptMessage(String)}
+     */
+    static public class EncryptMessageException extends Exception {
+        public EncryptMessageException(String message) {
+            super(message);
+        }
+    }
+
+    /**
      * Constructor.<br>
      * Create and save a new session native instance ID and
      * initialise a new outbound group session.<br>
@@ -252,22 +261,34 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * Encrypt some plain-text message.<br>
      * The message given as parameter is encrypted and returned as the return value.
      * @param aClearMsg message to be encrypted
-     * @return the encrypted message if operation succeed, null otherwise
+     * @return the encrypted message
+     * @exception EncryptMessageException the encryption failure reason
      */
-    public String encryptMessage(String aClearMsg) {
+    public String encryptMessage(String aClearMsg) throws EncryptMessageException {
         String retValue = null;
 
-        if(!TextUtils.isEmpty(aClearMsg)) {
+        if (!TextUtils.isEmpty(aClearMsg)) {
+            StringBuffer errorMsg = new StringBuffer();
+
             try {
-                retValue = new String(encryptMessageJni(aClearMsg.getBytes("UTF-8")), "UTF-8");
+                byte[] encryptedBuffer = encryptMessageJni(aClearMsg.getBytes("UTF-8"), errorMsg);
+
+                if (null != encryptedBuffer) {
+                    retValue = new String(encryptedBuffer , "UTF-8");
+                }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## encryptMessage() failed " + e.getMessage());
+                errorMsg.append(e.getMessage());
+            }
+
+            if (0 != errorMsg.length()) {
+                throw new EncryptMessageException(errorMsg.toString());
             }
         }
 
         return retValue;
     }
-    private native byte[] encryptMessageJni(byte[] aClearMsgBuffer);
+    private native byte[] encryptMessageJni(byte[] aClearMsgBuffer, StringBuffer aErrorMsg);
 
     /**
      * Return true the object resources have been released.<br>
