@@ -19,6 +19,7 @@ package org.matrix.olm;
 
 import android.content.Context;
 import android.support.test.runner.AndroidJUnit4;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -126,7 +127,13 @@ public class OlmSessionTest {
             assertTrue("Exception Msg="+e.getMessage(), false);
         }
         assertTrue(0!=bobSession.getOlmSessionId());
-        assertTrue(0==bobSession.initInboundSessionWithAccount(bobAccount, encryptedMsgToBob.mCipherText));
+
+        try {
+            bobSession.initInboundSessionWithAccount(bobAccount, encryptedMsgToBob.mCipherText);
+        } catch (Exception e) {
+            assertTrue("initInboundSessionWithAccount failed " + e.getMessage(), false);
+        }
+
         String decryptedMsg = bobSession.decryptMessage(encryptedMsgToBob);
         assertNotNull(decryptedMsg);
 
@@ -218,8 +225,14 @@ public class OlmSessionTest {
         } catch (OlmException e) {
             assertTrue("Exception Msg="+e.getMessage(), false);
         }
+
         assertTrue(0!=bobSession.getOlmSessionId());
-        assertTrue(0==bobSession.initInboundSessionWithAccount(bobAccount, encryptedAliceToBobMsg1.mCipherText));
+
+        try {
+            bobSession.initInboundSessionWithAccount(bobAccount, encryptedAliceToBobMsg1.mCipherText);
+        } catch (Exception e) {
+            assertTrue("initInboundSessionWithAccount failed " + e.getMessage(), false);
+        }
 
         // DECRYPT MESSAGE FROM ALICE
         String decryptedMsg01 = bobSession.decryptMessage(encryptedAliceToBobMsg1);
@@ -375,7 +388,11 @@ public class OlmSessionTest {
         assertFalse(bobSession.matchesInboundSession(encryptedAliceToBobMsg1.mCipherText));
 
         // init bob session with alice PRE KEY
-        assertTrue(0==bobSession.initInboundSessionWithAccount(bobAccount, encryptedAliceToBobMsg1.mCipherText));
+        try {
+            bobSession.initInboundSessionWithAccount(bobAccount, encryptedAliceToBobMsg1.mCipherText);
+        } catch (Exception e) {
+            assertTrue("initInboundSessionWithAccount failed " + e.getMessage(), false);
+        }
 
         // test matchesInboundSession() and matchesInboundSessionFrom()
         assertTrue(bobSession.matchesInboundSession(encryptedAliceToBobMsg1.mCipherText));
@@ -461,7 +478,13 @@ public class OlmSessionTest {
             assertTrue("Exception Msg="+e.getMessage(), false);
         }
         assertTrue(0!=bobSession.getOlmSessionId());
-        assertTrue(0==bobSession.initInboundSessionWithAccount(bobAccount, encryptedAliceToBobMsg1.mCipherText));
+
+        // init bob session with alice PRE KEY
+        try {
+            bobSession.initInboundSessionWithAccount(bobAccount, encryptedAliceToBobMsg1.mCipherText);
+        } catch (Exception e) {
+            assertTrue("initInboundSessionWithAccount failed " + e.getMessage(), false);
+        }
 
         // DECRYPT MESSAGE FROM ALICE
         String decryptedMsg01 = bobSession.decryptMessage(encryptedAliceToBobMsg1);
@@ -604,11 +627,42 @@ public class OlmSessionTest {
         OlmSession bobSession = null;
         try {
             bobSession = new OlmSession();
-            assertTrue(-1==bobSession.initInboundSessionWithAccount(null, encryptedMsgToBob.mCipherText));
-            assertTrue(-1==bobSession.initInboundSessionWithAccount(bobAccount, null));
-            assertTrue(-1==bobSession.initInboundSessionWithAccount(bobAccount, INVALID_PRE_KEY));
+            String errorMessage = null;
+            try {
+                bobSession.initInboundSessionWithAccount(null, encryptedMsgToBob.mCipherText);
+            } catch (Exception e) {
+                errorMessage = e.getMessage();
+            }
+
+            assertTrue(!TextUtils.isEmpty(errorMessage));
+
+            errorMessage = null;
+            try {
+                bobSession.initInboundSessionWithAccount(bobAccount, null);
+            } catch (Exception e) {
+                errorMessage = e.getMessage();
+            }
+
+            assertTrue(!TextUtils.isEmpty(errorMessage));
+
+            errorMessage = null;
+            try {
+                bobSession.initInboundSessionWithAccount(bobAccount, INVALID_PRE_KEY);
+            } catch (Exception e) {
+                errorMessage = e.getMessage();
+            }
+
+            assertTrue(!TextUtils.isEmpty(errorMessage));
+
             // init properly
-            assertTrue(0==bobSession.initInboundSessionWithAccount(bobAccount, encryptedMsgToBob.mCipherText));
+            errorMessage = null;
+            try {
+                bobSession.initInboundSessionWithAccount(bobAccount, encryptedMsgToBob.mCipherText);
+            } catch (Exception e) {
+                errorMessage = e.getMessage();
+            }
+
+            assertTrue(TextUtils.isEmpty(errorMessage));
         } catch (OlmException e) {
             assertTrue("Exception Msg="+e.getMessage(), false);
         }

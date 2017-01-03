@@ -205,12 +205,14 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initOutboundSessionJni)(JNIEnv *env, jobject
  * @param aOneTimeKeyMsg PRE_KEY message
  * @return ERROR_CODE_OK if operation succeed, ERROR_CODE_KO otherwise
  */
-JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionJni)(JNIEnv *env, jobject thiz, jlong aOlmAccountId, jbyteArray aOneTimeKeyMsgBuffer)
+JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionJni)(JNIEnv *env, jobject thiz, jlong aOlmAccountId, jbyteArray aOneTimeKeyMsgBuffer, jobject aErrorMsg)
 {
     jint retCode = ERROR_CODE_KO;
     OlmSession *sessionPtr = NULL;
     OlmAccount *accountPtr = NULL;
     size_t sessionResult;
+    jclass errorMsgJClass = 0;
+    jmethodID errorMsgMethodId = 0;
 
     if (!(sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
     {
@@ -223,6 +225,18 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionJni)(JNIEnv *env, jobject 
     else if (!aOneTimeKeyMsgBuffer)
     {
         LOGE("## initInboundSessionJni(): failure - invalid message");
+    }
+    else if (!aErrorMsg)
+    {
+        LOGE(" ## initInboundSessionJni(): failure - invalid error output");
+    }
+    else if (!(errorMsgJClass = env->GetObjectClass(aErrorMsg)))
+    {
+        LOGE(" ## initInboundSessionJni(): failure - unable to get error class");
+    }
+    else if (!(errorMsgMethodId = env->GetMethodID(errorMsgJClass, "append", "(Ljava/lang/String;)Ljava/lang/StringBuffer;")))
+    {
+        LOGE(" ## initInboundSessionJni(): failure - unable to get error method ID");
     }
     else
     {
@@ -241,7 +255,15 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(initInboundSessionJni)(JNIEnv *env, jobject 
 
             if (sessionResult == olm_error())
             {
-                LOGE("## initInboundSessionJni(): failure - init inbound session creation  Msg=%s",(const char *)olm_session_last_error(sessionPtr));
+                const char *errorMsgPtr = olm_session_last_error(sessionPtr);
+                LOGE("## initInboundSessionJni(): failure - init inbound session creation  Msg=%s", errorMsgPtr);
+
+                jstring errorJstring = env->NewStringUTF(errorMsgPtr);
+
+                if (errorJstring)
+                {
+                    env->CallObjectMethod(aErrorMsg, errorMsgMethodId, errorJstring);
+                }
             }
             else
             {
@@ -818,7 +840,7 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, job
                 const char *errorMsgPtr = olm_session_last_error(sessionPtr);
                 LOGE(" ## serializeDataWithKeyJni(): failure - olm_pickle_session() Msg=%s",errorMsgPtr);
 
-                if(0 != (errorJstring = env->NewStringUTF(errorMsgPtr)))
+                if ((errorJstring = env->NewStringUTF(errorMsgPtr)))
                 {
                     env->CallObjectMethod(aErrorMsg, errorMsgMethodId, errorJstring);
                 }
