@@ -62,7 +62,7 @@ bool setRandomInBuffer(JNIEnv *env, uint8_t **aBuffer2Ptr, size_t aRandomSize)
                 newObj = env->NewObject(cls, constructor);
                 jbyteArray tempByteArray = env->NewByteArray(bufferLen);
 
-                if (newObj && tempByteArray)
+                if (newObj && tempByteArray && !env->ExceptionOccurred())
                 {
                     env->CallVoidMethod(newObj, nextByteMethod, tempByteArray);
                     jbyte* buffer = env->GetByteArrayElements(tempByteArray, NULL);
