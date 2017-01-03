@@ -138,12 +138,13 @@ JNIEXPORT jint OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(initOutboundGroupSessionJni)(
 /**
 * Get a base64-encoded identifier for this outbound group session.
 */
-JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEnv *env, jobject thiz)
+JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEnv *env, jobject thiz)
 {
     LOGD("## sessionIdentifierJni(): outbound group session IN");
-    OlmOutboundGroupSession *sessionPtr = (OlmOutboundGroupSession*)getOutboundGroupSessionInstanceId(env,thiz);
-    jstring returnValueStr=0;
 
+    OlmOutboundGroupSession *sessionPtr = (OlmOutboundGroupSession*)getOutboundGroupSessionInstanceId(env,thiz);
+    jbyteArray returnValue = 0;
+    
     if (!sessionPtr)
     {
         LOGE(" ## sessionIdentifierJni(): failure - invalid outbound group session instance");
@@ -172,8 +173,11 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIE
             {
                 // update length
                 sessionIdPtr[result] = static_cast<char>('\0');
+
+                returnValue = env->NewByteArray(result);
+                env->SetByteArrayRegion(returnValue, 0 , result, (jbyte*)sessionIdPtr);
+
                 LOGD(" ## sessionIdentifierJni(): success - outbound group session identifier result=%lu sessionId=%s",static_cast<long unsigned int>(result), reinterpret_cast<char*>(sessionIdPtr));
-                returnValueStr = env->NewStringUTF((const char*)sessionIdPtr);
             }
 
             // free alloc
@@ -181,7 +185,7 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIE
         }
     }
 
-    return returnValueStr;
+    return returnValue;
 }
 
 
@@ -215,11 +219,12 @@ JNIEXPORT jint OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(messageIndexJni)(JNIEnv *env,
 /**
 * Get the base64-encoded current ratchet key for this session.<br>
 */
-JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionKeyJni)(JNIEnv *env, jobject thiz)
+JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionKeyJni)(JNIEnv *env, jobject thiz)
 {
     LOGD("## sessionKeyJni(): outbound group session IN");
+
     OlmOutboundGroupSession *sessionPtr = (OlmOutboundGroupSession*)getOutboundGroupSessionInstanceId(env,thiz);
-    jstring returnValueStr = 0;
+    jbyteArray returnValue = 0;
 
     if (!sessionPtr)
     {
@@ -250,7 +255,9 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionKeyJni)(JNIEnv *env
                 // update length
                 sessionKeyPtr[result] = static_cast<char>('\0');
                 LOGD(" ## sessionKeyJni(): success - outbound group session key result=%lu sessionKey=%s",static_cast<long unsigned int>(result), reinterpret_cast<char*>(sessionKeyPtr));
-                returnValueStr = env->NewStringUTF((const char*)sessionKeyPtr);
+
+                returnValue = env->NewByteArray(result);
+                env->SetByteArrayRegion(returnValue, 0 , result, (jbyte*)sessionKeyPtr);
             }
 
             // free alloc
@@ -258,15 +265,15 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionKeyJni)(JNIEnv *env
         }
     }
 
-    return returnValueStr;
+    return returnValue;
 }
 
-
-JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aClearMsgBuffer)
+JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aClearMsgBuffer)
 {
     LOGD("## encryptMessageJni(): IN");
 
-    jstring encryptedMsgRetValue = 0;
+    jbyteArray encryptedMsgRet = 0;
+
     OlmOutboundGroupSession *sessionPtr = NULL;
     jbyte* clearMsgPtr = NULL;
 
@@ -315,7 +322,9 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv 
                 encryptedMsgPtr[encryptedLength] = static_cast<char>('\0');
 
                 LOGD(" ## encryptMessageJni(): encrypted returnedLg=%lu plainTextMsgPtr=%s",static_cast<long unsigned int>(encryptedLength), reinterpret_cast<char*>(encryptedMsgPtr));
-                encryptedMsgRetValue = env->NewStringUTF((const char*)encryptedMsgPtr);
+
+                encryptedMsgRet = env->NewByteArray(encryptedLength);
+                env->SetByteArrayRegion(encryptedMsgRet, 0 , encryptedLength, (jbyte*)encryptedMsgPtr);
             }
 
             free(encryptedMsgPtr);
@@ -328,7 +337,7 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv 
         env->ReleaseByteArrayElements(aClearMsgBuffer, clearMsgPtr, JNI_ABORT);
     }
 
-    return encryptedMsgRetValue;
+    return encryptedMsgRet;
 }
 
 

@@ -118,7 +118,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
         } else {
             aErrorMsg.setLength(0);
             try {
-                pickleRetValue = serializeDataWithKeyJni(aKey.getBytes("UTF-8"), aErrorMsg);
+                pickleRetValue = new String(serializeDataWithKeyJni(aKey.getBytes("UTF-8"), aErrorMsg), "UTF-8");
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## serializeDataWithKey() failed " + e.getMessage());
                 aErrorMsg.append(e.getMessage());
@@ -127,7 +127,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
 
         return pickleRetValue;
     }
-    private native String serializeDataWithKeyJni(byte[] aKey, StringBuffer aErrorMsg);
+    private native byte[] serializeDataWithKeyJni(byte[] aKey, StringBuffer aErrorMsg);
 
 
     /**
@@ -164,6 +164,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
 
         return retCode;
     }
+    
     private native String initWithSerializedDataJni(byte[] aSerializedDataBuffer, byte[] aKeyBuffer);
 
     /**
@@ -363,25 +364,34 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * @return the signed message if operation succeed, null otherwise
      */
     public String signMessage(String aMessage) {
-        if (null == aMessage) {
-            return null;
+        String result = null;
+
+        if (null != aMessage) {
+            byte[] utf8String = null;
+
+            try {
+                utf8String = aMessage.getBytes("UTF-8");
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "## signMessage(): failed =" + e.getMessage());
+            }
+
+            if (null != utf8String) {
+                byte[] signedMessage = signMessageJni(utf8String);
+
+                if (null != signedMessage) {
+                    try {
+                        result = new String(signedMessage, "UTF-8");
+                    } catch (Exception e) {
+                        Log.e(LOG_TAG, "## signMessage(): failed =" + e.getMessage());
+                    }
+                }
+            }
         }
 
-        byte[] utf8String = null;
-
-        try {
-            utf8String = aMessage.getBytes("UTF-8");
-        } catch (Exception e) {
-            Log.d(LOG_TAG,"## signMessage(): failed ="+e.getMessage());
-        }
-
-        if (null == utf8String) {
-            return null;
-        }
-
-        return signMessageJni(utf8String);
+        return result;
     }
-    private native String signMessageJni(byte[] aMessage);
+
+    private native byte[] signMessageJni(byte[] aMessage);
 
     /**
      * Return true the object resources have been released.<br>

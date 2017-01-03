@@ -144,10 +144,16 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      * @return the session ID if operation succeed, null otherwise
      */
     public String sessionIdentifier() {
-        return sessionIdentifierJni();
-    }
-    private native String sessionIdentifierJni();
+        try {
+            return new String(sessionIdentifierJni(), "UTF-8");
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## sessionIdentifier() failed " + e.getMessage());
+        }
 
+        return null;
+    }
+
+    private native byte[] sessionIdentifierJni();
 
     /**
      * Decrypt the message passed in parameter.<br>
@@ -161,9 +167,14 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
 
         StringBuffer errorMsg = new StringBuffer();
         try {
-            result.mDecryptedMessage = decryptMessageJni(aEncryptedMsg.getBytes("UTF-8"), result, errorMsg);
+            byte[] decryptedMessageBuffer = decryptMessageJni(aEncryptedMsg.getBytes("UTF-8"), result, errorMsg);
+
+            if (null != decryptedMessageBuffer) {
+                result.mDecryptedMessage = new String(decryptedMessageBuffer, "UTF-8");
+            }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## decryptMessage() failed " + e.getMessage());
+            errorMsg.append(e.getMessage());
         }
 
         // check if there is an error while decrypting
@@ -174,7 +185,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
         return result;
     }
 
-    private native String decryptMessageJni(byte[] aEncryptedMsg, DecryptMessageResult aDecryptMessageResult, StringBuffer aErrorMsg);
+    private native byte[] decryptMessageJni(byte[] aEncryptedMsg, DecryptMessageResult aDecryptMessageResult, StringBuffer aErrorMsg);
 
     /**
      * Kick off the serialization mechanism.
@@ -226,9 +237,10 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
         } else {
             aErrorMsg.setLength(0);
             try {
-                pickleRetValue = serializeDataWithKeyJni(aKey.getBytes("UTF-8"), aErrorMsg);
+                pickleRetValue = new String(serializeDataWithKeyJni(aKey.getBytes("UTF-8"), aErrorMsg), "UTF-8");
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## serializeDataWithKey() failed " + e.getMessage());
+                aErrorMsg.append(e.getMessage());
             }
         }
 
@@ -240,7 +252,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      * @param aErrorMsg error message description
      * @return pickled base64 string if operation succeed, null otherwise
      */
-    private native String serializeDataWithKeyJni(byte[] aKey, StringBuffer aErrorMsg);
+    private native byte[] serializeDataWithKeyJni(byte[] aKey, StringBuffer aErrorMsg);
 
 
     /**

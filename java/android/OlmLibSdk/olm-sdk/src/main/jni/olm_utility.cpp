@@ -166,9 +166,10 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
 * @param aMessage
 * @return digest of the message if operation succeed, null otherwise
 **/
-JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jbyteArray aMessageToHashBuffer)
+JNIEXPORT jbyteArray OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jbyteArray aMessageToHashBuffer)
 {
-    jstring sha256RetValue = 0;
+    jbyteArray sha256Ret = 0;
+
     OlmUtility* utilityPtr = NULL;
     jbyte* messagePtr = NULL;
 
@@ -212,9 +213,10 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jby
             {
                 // update length
                 (static_cast<char*>(hashValuePtr))[result] = static_cast<char>('\0');
-
                 LOGD("## sha256Jni(): success - result=%lu hashValue=%s",static_cast<long unsigned int>(result), (char*)hashValuePtr);
-                sha256RetValue = env->NewStringUTF((const char*)hashValuePtr);
+
+                 sha256Ret = env->NewByteArray(result);
+                 env->SetByteArrayRegion(sha256Ret, 0 , result, (jbyte*)hashValuePtr);
             }
 
             free(hashValuePtr);
@@ -226,5 +228,5 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jby
         env->ReleaseByteArrayElements(aMessageToHashBuffer, messagePtr, JNI_ABORT);
     }
 
-    return sha256RetValue;
+    return sha256Ret;
 }

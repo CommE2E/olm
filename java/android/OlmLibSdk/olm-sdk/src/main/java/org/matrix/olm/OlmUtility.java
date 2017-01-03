@@ -121,7 +121,7 @@ public class OlmUtility {
 
          if (null != aMessageToHash) {
              try {
-                 hashRetValue = sha256Jni(aMessageToHash.getBytes("UTF-8"));
+                 hashRetValue = new String(sha256Jni(aMessageToHash.getBytes("UTF-8")), "UTF-8");
              } catch (Exception e) {
                  Log.e(LOG_TAG, "## sha256(): failed " + e.getMessage());
              }
@@ -130,7 +130,7 @@ public class OlmUtility {
         return hashRetValue;
     }
 
-    private native String sha256Jni(byte[] aMessage);
+    private native byte[] sha256Jni(byte[] aMessage);
 
 
     /**

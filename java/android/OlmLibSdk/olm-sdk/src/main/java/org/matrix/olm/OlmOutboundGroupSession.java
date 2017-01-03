@@ -208,10 +208,16 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * @return session identifier if operation succeed, null otherwise.
      */
     public String sessionIdentifier() {
-        return sessionIdentifierJni();
+        try {
+            return new String(sessionIdentifierJni(), "UTF-8");
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## sessionIdentifier() failed " + e.getMessage());
+        }
+
+        return null;
     }
 
-    private native String sessionIdentifierJni();
+    private native byte[] sessionIdentifierJni();
 
     /**
      * Get the current message index for this session.<br>
@@ -231,9 +237,16 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * @return outbound session key
      */
     public String sessionKey() {
-        return sessionKeyJni();
+        try {
+            return new String(sessionKeyJni(), "UTF-8");
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## sessionKey() failed " + e.getMessage());
+        }
+
+        return null;
     }
-    private native String sessionKeyJni();
+
+    private native byte[] sessionKeyJni();
 
     /**
      * Encrypt some plain-text message.<br>
@@ -246,7 +259,7 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
 
         if(!TextUtils.isEmpty(aClearMsg)) {
             try {
-                retValue = encryptMessageJni(aClearMsg.getBytes("UTF-8"));
+                retValue = new String(encryptMessageJni(aClearMsg.getBytes("UTF-8")), "UTF-8");
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## encryptMessage() failed " + e.getMessage());
             }
@@ -254,7 +267,7 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
 
         return retValue;
     }
-    private native String encryptMessageJni(byte[] aClearMsgBuffer);
+    private native byte[] encryptMessageJni(byte[] aClearMsgBuffer);
 
     /**
      * Return true the object resources have been released.<br>

@@ -405,10 +405,10 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublishedJni)(JNIEnv *env, 
  * @param aMessage message to sign
  * @return the signed message, null otherwise
 **/
-JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aMessage)
+JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aMessage)
 {
     OlmAccount* accountPtr = NULL;
-    jstring signedMsgRetValue = NULL;
+    jbyteArray signedMsgRetValueBuffer = NULL;
 
     if (!aMessage)
     {
@@ -425,7 +425,8 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz
 
         // signature memory allocation
         size_t signatureLength = olm_account_signature_length(accountPtr);
-        void* signedMsgPtr = malloc((signatureLength+1)*sizeof(uint8_t));
+        size_t bufferLen = signatureLength + 1;
+        void* signedMsgPtr = malloc(bufferLen * sizeof(uint8_t));
 
         if (!signedMsgPtr)
         {
@@ -448,9 +449,12 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz
             {
                 // info: signatureLength is always equal to resultSign
                 (static_cast<char*>(signedMsgPtr))[signatureLength] = static_cast<char>('\0');
-                // convert to jstring
-                signedMsgRetValue = env->NewStringUTF((const char*)signedMsgPtr); // UTF8
+
                 LOGD("## signMessageJni(): success - retCode=%lu signatureLength=%lu", static_cast<long unsigned int>(resultSign), static_cast<long unsigned int>(signatureLength));
+     	
+                signedMsgRetValueBuffer = env->NewByteArray(signatureLength);
+                env->SetByteArrayRegion(signedMsgRetValueBuffer, 0 , signatureLength, (jbyte*)signedMsgPtr);
+
             }
 
             free(signedMsgPtr);
@@ -463,7 +467,7 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz
         }
     }
 
-    return signedMsgRetValue;
+    return signedMsgRetValueBuffer;
 }
 
 /**
@@ -472,9 +476,9 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz
 * @param[out] aErrorMsg error message set if operation failed
 * @return a base64 string if operation succeed, null otherwise
 **/
-JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, jobject thiz, jbyteArray aKeyBuffer, jobject aErrorMsg)
+JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, jobject thiz, jbyteArray aKeyBuffer, jobject aErrorMsg)
 {
-    jstring pickledDataRetValue = 0;
+    jbyteArray pickledDataRetValue = 0;
     jclass errorMsgJClass = 0;
     jmethodID errorMsgMethodId = 0;
     jstring errorJstring = 0;
@@ -541,8 +545,11 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, job
             {
                 // build success output
                 (static_cast<char*>(pickledPtr))[pickledLength] = static_cast<char>('\0');
-                pickledDataRetValue = env->NewStringUTF((const char*)pickledPtr);
+
                 LOGD(" ## serializeDataWithKeyJni(): success - result=%lu pickled=%s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
+
+                pickledDataRetValue = env->NewByteArray(pickledLength+1);
+                env->SetByteArrayRegion(pickledDataRetValue, 0 , pickledLength+1, (jbyte*)pickledPtr);
             }
 
             free(pickledPtr);

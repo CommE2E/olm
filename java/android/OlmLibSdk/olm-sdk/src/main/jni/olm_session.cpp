@@ -580,9 +580,10 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
  * @param aEncryptedMsg message to decrypt
  * @return decrypted message if operation succeed, null otherwise
  */
-JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jobject aEncryptedMsg)
+JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jobject aEncryptedMsg)
 {
-    jstring decryptedMsgRetValue = 0;
+    jbyteArray decryptedMsgRet = 0;
+
     jclass encryptedMsgJClass = 0;
     jstring encryptedMsgJstring = 0; // <= obtained from encryptedMsgFieldId
     // field IDs
@@ -668,16 +669,10 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject t
             }
             else
             {
-                decryptedMsgRetValue = javaCStringToUtf8(env, plainTextMsgPtr, plaintextLength);
+                decryptedMsgRet = env->NewByteArray(plaintextLength);
+                env->SetByteArrayRegion(decryptedMsgRet, 0 , plaintextLength, (jbyte*)plainTextMsgPtr);
 
-                if (!decryptedMsgRetValue)
-                {
-                    LOGE(" ## decryptMessageJni(): UTF-8 Conversion failure - javaCStringToUtf8() returns null");
-                }
-                else
-                {
-                    LOGD(" ## decryptMessageJni(): UTF-8 Conversion - decrypted returnedLg=%lu OK",static_cast<long unsigned int>(plaintextLength));
-                }
+                LOGD(" ## decryptMessageJni(): UTF-8 Conversion - decrypted returnedLg=%lu OK",static_cast<long unsigned int>(plaintextLength));
             }
         }
     }
@@ -698,7 +693,7 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject t
         free(plainTextMsgPtr);
     }
 
-    return decryptedMsgRetValue;
+    return decryptedMsgRet;
 }
 
 
@@ -706,9 +701,9 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject t
 * Get the session identifier for this session.
 * @return the session identifier if operation succeed, null otherwise
 */
-JNIEXPORT jstring OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, jobject thiz)
+JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, jobject thiz)
 {
-     jstring returnValueStr=0;
+     jbyteArray returnValue = 0;
 
      LOGD("## getSessionIdentifierJni(): IN ");
 
@@ -744,13 +739,16 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, job
                  (static_cast<char*>(sessionIdPtr))[result] = static_cast<char>('\0');
 
                  LOGD("## getSessionIdentifierJni(): success - result=%lu sessionId=%s",static_cast<long unsigned int>(result), (char*)sessionIdPtr);
-                 returnValueStr = env->NewStringUTF((const char*)sessionIdPtr);
+
+                 returnValue = env->NewByteArray(result);
+                 env->SetByteArrayRegion(returnValue, 0 , result, (jbyte*)sessionIdPtr);
              }
+
              free(sessionIdPtr);
          }
      }
 
-     return returnValueStr;
+     return returnValue;
 }
 
 

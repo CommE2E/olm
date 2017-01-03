@@ -137,10 +137,10 @@ JNIEXPORT jint OLM_INBOUND_GROUP_SESSION_FUNC_DEF(initInboundGroupSessionWithSes
 /**
 * Get a base64-encoded identifier for this inbound group session.
 */
-JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEnv *env, jobject thiz)
+JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEnv *env, jobject thiz)
 {
     OlmInboundGroupSession *sessionPtr = NULL;
-    jstring returnValueStr=0;
+    jbyteArray returnValue = 0;
 
     LOGD("## sessionIdentifierJni(): inbound group session IN");
 
@@ -170,22 +170,26 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEn
             }
             else
             {
-                // update length
+            
                 sessionIdPtr[result] = static_cast<char>('\0');
                 LOGD(" ## sessionIdentifierJni(): success - inbound group session result=%lu sessionId=%s",static_cast<long unsigned int>(result), (char*)sessionIdPtr);
-                returnValueStr = env->NewStringUTF((const char*)sessionIdPtr);
+
+                returnValue = env->NewByteArray(result);
+                env->SetByteArrayRegion(returnValue, 0 , result, (jbyte*)sessionIdPtr);
             }
+
             free(sessionIdPtr);
         }
     }
 
-    return returnValueStr;
+    return returnValue;
 }
 
 
-JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aEncryptedMsgBuffer, jobject aDecryptionResult, jobject aErrorMsg)
+JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aEncryptedMsgBuffer, jobject aDecryptionResult, jobject aErrorMsg)
 {
-    jstring decryptedMsgRetValue = 0;
+    jbyteArray decryptedMsgBuffer = 0;
+
     OlmInboundGroupSession *sessionPtr = NULL;
     jbyte *encryptedMsgPtr = NULL;
     jclass indexObjJClass = 0;
@@ -298,17 +302,10 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
                     // update index
                     env->SetLongField(aDecryptionResult, indexMsgFieldId, (jlong)messageIndex);
 
-                    // convert to utf8
-                    decryptedMsgRetValue = javaCStringToUtf8(env, plainTextMsgPtr, plaintextLength);
+                    decryptedMsgBuffer = env->NewByteArray(plaintextLength);
+                    env->SetByteArrayRegion(decryptedMsgBuffer, 0 , plaintextLength, (jbyte*)plainTextMsgPtr);
 
-                    if (!decryptedMsgRetValue)
-                    {
-                        LOGE(" ## decryptMessageJni(): UTF-8 Conversion failure - javaCStringToUtf8() returns null");
-                    }
-                    else
-                    {
-                        LOGD(" ## decryptMessageJni(): UTF-8 Conversion - decrypted returnedLg=%lu OK",static_cast<long unsigned int>(plaintextLength));
-                    }
+                    LOGD(" ## decryptMessageJni(): UTF-8 Conversion - decrypted returnedLg=%lu OK",static_cast<long unsigned int>(plaintextLength));
                 }
 
                 if (plainTextMsgPtr)
@@ -330,7 +327,7 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
         env->ReleaseByteArrayElements(aEncryptedMsgBuffer, encryptedMsgPtr, JNI_ABORT);
     }
 
-    return decryptedMsgRetValue;
+    return decryptedMsgBuffer;
 }
 
 
@@ -340,9 +337,10 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
 * @param[out] aErrorMsg error message set if operation failed
 * @return a base64 string if operation succeed, null otherwise
 **/
-JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, jobject thiz, jbyteArray aKeyBuffer, jobject aErrorMsg)
+JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, jobject thiz, jbyteArray aKeyBuffer, jobject aErrorMsg)
 {
-    jstring pickledDataRetValue = 0;
+    jbyteArray pickledDataRet = 0;
+
     jclass errorMsgJClass = 0;
     jmethodID errorMsgMethodId = 0;
     jbyte* keyPtr = NULL;
@@ -408,10 +406,11 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(serializeDataWithKeyJni)(JN
             }
             else
             {
-                // build success output
-                (static_cast<char*>(pickledPtr))[pickledLength] = static_cast<char>('\0');
-                pickledDataRetValue = env->NewStringUTF((const char*)pickledPtr);
+             	(static_cast<char*>(pickledPtr))[pickledLength] = static_cast<char>('\0');
                 LOGD(" ## serializeDataWithKeyJni(): success - result=%lu pickled=%s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
+
+                pickledDataRet = env->NewByteArray(pickledLength);
+                env->SetByteArrayRegion(pickledDataRet, 0 , pickledLength, (jbyte*)pickledPtr);
             }
 
             free(pickledPtr);
@@ -424,7 +423,7 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(serializeDataWithKeyJni)(JN
         env->ReleaseByteArrayElements(aKeyBuffer, keyPtr, JNI_ABORT);
     }
 
-    return pickledDataRetValue;
+    return pickledDataRet;
 }
 
 

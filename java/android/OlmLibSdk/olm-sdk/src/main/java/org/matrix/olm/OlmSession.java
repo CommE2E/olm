@@ -302,10 +302,16 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * @return the session ID as a String if operation succeed, null otherwise
      */
     public String sessionIdentifier() {
-        return getSessionIdentifierJni();
+        try {
+            return new String(getSessionIdentifierJni(), "UTF-8");
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## sessionIdentifier(): " + e.getMessage());
+        }
+
+        return null;
     }
 
-    private native String getSessionIdentifierJni();
+    private native byte[] getSessionIdentifierJni();
 
     /**
      * Checks if the PRE_KEY({@link OlmMessage#MESSAGE_TYPE_PRE_KEY}) message is for this in-bound session.<br>
@@ -383,10 +389,16 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * @return the decrypted message if operation succeed, null otherwise
      */
     public String decryptMessage(OlmMessage aEncryptedMsg) {
-        return decryptMessageJni(aEncryptedMsg);
+        try {
+            return new String(decryptMessageJni(aEncryptedMsg), "UTF-8");
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## decryptMessage(): failed " + e.getMessage());
+        }
+
+        return null;
     }
 
-    private native String decryptMessageJni(OlmMessage aEncryptedMsg);
+    private native byte[] decryptMessageJni(OlmMessage aEncryptedMsg);
 
     /**
      * Return true the object resources have been released.<br>
