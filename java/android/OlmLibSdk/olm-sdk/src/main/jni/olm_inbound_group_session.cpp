@@ -183,7 +183,7 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEn
 }
 
 
-JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jstring aEncryptedMsg, jobject aDecryptIndex, jobject aErrorMsg, jboolean aIsUtf8ConversionRequired)
+JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jstring aEncryptedMsg, jobject aDecryptionResult, jobject aErrorMsg)
 {
     jstring decryptedMsgRetValue = 0;
     OlmInboundGroupSession *sessionPtr = NULL;
@@ -204,7 +204,7 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
     {
         LOGE(" ## decryptMessageJni(): failure - invalid encrypted message");
     }
-    else if (!aDecryptIndex)
+    else if (!aDecryptionResult)
     {
         LOGE(" ## decryptMessageJni(): failure - invalid index object");
     }
@@ -224,7 +224,7 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
     {
         LOGE(" ## decryptMessageJni(): failure - encrypted message JNI allocation OOM");
     }
-    else if (!(indexObjJClass = env->GetObjectClass(aDecryptIndex)))
+    else if (!(indexObjJClass = env->GetObjectClass(aDecryptionResult)))
     {
         LOGE("## decryptMessageJni(): failure - unable to get index class");
     }
@@ -296,28 +296,18 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *
                 else
                 {
                     // update index
-                    env->SetLongField(aDecryptIndex, indexMsgFieldId, (jlong)messageIndex);
+                    env->SetLongField(aDecryptionResult, indexMsgFieldId, (jlong)messageIndex);
 
-                    // UTF-8 conversion workaround for issue on Android versions older than Marshmallow (23)
-                    if (aIsUtf8ConversionRequired)
+                    // convert to utf8
+                    decryptedMsgRetValue = javaCStringToUtf8(env, plainTextMsgPtr, plaintextLength);
+
+                    if (!decryptedMsgRetValue)
                     {
-                        decryptedMsgRetValue = javaCStringToUtf8(env, plainTextMsgPtr, plaintextLength);
-                        if(0 == decryptedMsgRetValue)
-                        {
-                            LOGE(" ## decryptMessageJni(): UTF-8 Conversion failure - javaCStringToUtf8() returns null");
-                        }
-                        else
-                        {
-                            LOGD(" ## decryptMessageJni(): UTF-8 Conversion - decrypted returnedLg=%lu OK",static_cast<long unsigned int>(plaintextLength));
-                        }
+                        LOGE(" ## decryptMessageJni(): UTF-8 Conversion failure - javaCStringToUtf8() returns null");
                     }
                     else
                     {
-                        // update decrypted buffer size
-                        plainTextMsgPtr[plaintextLength] = static_cast<char>('\0');
-
-                        LOGD(" ## decryptMessageJni(): decrypted returnedLg=%lu plainTextMsgPtr=%s",static_cast<long unsigned int>(plaintextLength), (char*)plainTextMsgPtr);
-                        decryptedMsgRetValue = env->NewStringUTF((const char*)plainTextMsgPtr);
+                        LOGD(" ## decryptMessageJni(): UTF-8 Conversion - decrypted returnedLg=%lu OK",static_cast<long unsigned int>(plaintextLength));
                     }
                 }
 

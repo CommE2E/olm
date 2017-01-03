@@ -61,13 +61,8 @@ public class OlmGroupSessionTest {
 
     @BeforeClass
     public static void setUpClass(){
-
-        // enable UTF-8 specific conversion for pre Marshmallow(23) android versions,
-        // due to issue described here: https://github.com/eclipsesource/J2V8/issues/142
-        boolean isSpecificUtf8ConversionEnabled = android.os.Build.VERSION.SDK_INT < 23;
-
         // load native lib
-        mOlmManager = new OlmManager(isSpecificUtf8ConversionEnabled);
+        mOlmManager = new OlmManager();
 
         String version = mOlmManager.getOlmLibVersion();
         assertNotNull(version);
@@ -151,13 +146,18 @@ public class OlmGroupSessionTest {
 
     @Test
     public void test10InboundDecryptMessage() {
-        // test decrypted message
-        StringBuffer errorMsg = new StringBuffer();
-        OlmInboundGroupSession.DecryptIndex index = new OlmInboundGroupSession.DecryptIndex();
+        mBobDecryptedMessage = null;
+        OlmInboundGroupSession.DecryptMessageResult result = null;
 
-        mBobDecryptedMessage = mBobInboundGroupSession.decryptMessage(mAliceToBobMessage, index, errorMsg);
+        try {
+            result = mBobInboundGroupSession.decryptMessage(mAliceToBobMessage);
+        } catch (Exception e) {
+        }
+
+        // test decrypted message
+        mBobDecryptedMessage = result.mDecryptedMessage;
         assertFalse(TextUtils.isEmpty(mBobDecryptedMessage));
-        assertTrue(0==index.mIndex);
+        assertTrue(0 == result.mIndex);
     }
 
     @Test
@@ -440,14 +440,17 @@ public class OlmGroupSessionTest {
             assertTrue("Exception in test18TestBadCharacterCrashInDecrypt, Exception code=" + e.getExceptionCode(), false);
         }
 
-        StringBuffer errorMsg = new StringBuffer();
-        OlmInboundGroupSession.DecryptIndex index = new OlmInboundGroupSession.DecryptIndex();
+        OlmInboundGroupSession.DecryptMessageResult result = null;
 
-        String decryptedMessage = bobInboundGroupSession.decryptMessage(msgToDecryptWithEmoji, index, errorMsg);
-        assertNotNull(decryptedMessage);
-        assertTrue(13==index.mIndex);
+        try {
+            result = bobInboundGroupSession.decryptMessage(msgToDecryptWithEmoji);
+        } catch (Exception e) {
+            assertTrue("Exception in test18TestBadCharacterCrashInDecrypt, Exception code=" + e.getMessage(), false);
+        }
+
+        assertNotNull(result.mDecryptedMessage);
+        assertTrue(13 == result.mIndex);
     }
-
 
     /**
      * Specific test to check an error message is returned by decryptMessage() API.<br>
@@ -458,8 +461,6 @@ public class OlmGroupSessionTest {
     public void test19TestErrorMessageReturnedInDecrypt() {
         OlmInboundGroupSession bobInboundGroupSession=null;
         final String EXPECTED_ERROR_MESSAGE= "INVALID_BASE64";
-        StringBuffer errorMsg = new StringBuffer();
-        OlmInboundGroupSession.DecryptIndex index = new OlmInboundGroupSession.DecryptIndex();
 
         String sessionKeyRef    = "AgAAAAycZE6AekIctJWYxd2AWLOY15YmxZODm/WkgbpWkyycp6ytSp/R+wo84jRrzBNWmv6ySLTZ9R0EDOk9VI2eZyQ6Efdwyo1mAvrWvTkZl9yALPdkOIVHywyG65f1SNiLrnsln3hgsT1vUrISGyKtsljoUgQpr3JDPEhD0ilAi63QBjhnGCW252b+7nF+43rb6O6lwm93LaVwe2341Gdp6EkhTUvetALezEqDOtKN00wVqAbq0RQAnUJIowxHbMswg+FyoR1K1oCjnVEoF23O9xlAn5g1XtuBZP3moJlR2lwsBA";
         String corruptedEncryptedMsg = "AwgANYTHINGf87ge45ge7gr*/rg5ganything4gr41rrgr4re55tanythingmcsXUkhDv0UePj922kgf+";
@@ -471,12 +472,15 @@ public class OlmGroupSessionTest {
             assertTrue("Exception in test19TestErrorMessageReturnedInDecrypt, Exception code=" + e.getExceptionCode(), false);
         }
 
-        String decryptedMessage = bobInboundGroupSession.decryptMessage(corruptedEncryptedMsg, index, errorMsg);
-        assertTrue(0!=EXPECTED_ERROR_MESSAGE.length());
-        assertTrue(EXPECTED_ERROR_MESSAGE.equals(errorMsg.toString()));
-        assertTrue(null==decryptedMessage);
-        assertTrue(0==index.mIndex);
-    }
+        String exceptionMessage = null;
+        try {
+            bobInboundGroupSession.decryptMessage(corruptedEncryptedMsg);
+        } catch (OlmInboundGroupSession.DecryptMessageException e) {
+            exceptionMessage = e.getMessage();
+        }
 
+        assertTrue(0!=EXPECTED_ERROR_MESSAGE.length());
+        assertTrue(EXPECTED_ERROR_MESSAGE.equals(exceptionMessage));
+    }
 }
 

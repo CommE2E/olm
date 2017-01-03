@@ -44,12 +44,8 @@ public class OlmUtilityTest {
 
     @BeforeClass
     public static void setUpClass(){
-        // enable UTF-8 specific conversion for pre Marshmallow(23) android versions,
-        // due to issue described here: https://github.com/eclipsesource/J2V8/issues/142
-        boolean isSpecificUtf8ConversionEnabled = android.os.Build.VERSION.SDK_INT < 23;
-
         // load native lib
-        mOlmManager = new OlmManager(isSpecificUtf8ConversionEnabled);
+        mOlmManager = new OlmManager();
 
         String version = mOlmManager.getOlmLibVersion();
         assertNotNull(version);

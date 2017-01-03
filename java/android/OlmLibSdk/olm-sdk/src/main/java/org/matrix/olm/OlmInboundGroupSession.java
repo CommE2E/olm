@@ -42,11 +42,23 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     private transient long mNativeId;
 
     /**
-     * Wrapper class to be used in {@link #decryptMessage(String, DecryptIndex, StringBuffer)}
+     * Result in {@link #decryptMessage(String)}
      */
-    static public class DecryptIndex {
+    static class DecryptMessageResult {
+        /** decrypt message **/
+        public String mDecryptedMessage;
+
         /** decrypt index **/
         public long mIndex;
+    }
+
+    /**
+     * Exception triggered in {@link #decryptMessage(String)}
+     */
+    static public class DecryptMessageException extends Exception {
+        public DecryptMessageException(String message) {
+            super(message);
+        }
     }
 
     /**
@@ -59,7 +71,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      */
     public OlmInboundGroupSession(String aSessionKey) throws OlmException {
         if(createNewSession()) {
-            if( 0 != initInboundGroupSessionWithSessionKey(aSessionKey)) {
+            if (0 != initInboundGroupSessionWithSessionKey(aSessionKey)) {
                 releaseSession();// prevent memory leak before throwing
                 throw new OlmException(OlmException.EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION,OlmException.EXCEPTION_MSG_INIT_INBOUND_GROUP_SESSION);
             }
@@ -137,24 +149,24 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      * Decrypt the message passed in parameter.<br>
      * In case of error, null is returned and an error message description is provided in aErrorMsg.
      * @param aEncryptedMsg the message to be decrypted
-     * @param aDecryptIndex_out decrypted message index
-     * @param aErrorMsg error message description
-     * @return the decrypted message if operation succeed, null otherwise.
+     * @return the decrypted message information
+     * @exception DecryptMessageException if there is an error while
      */
-    public String decryptMessage(String aEncryptedMsg, DecryptIndex aDecryptIndex_out, StringBuffer aErrorMsg) {
-        String decryptedMessage = null;
+    public DecryptMessageResult decryptMessage(String aEncryptedMsg) throws DecryptMessageException {
+        DecryptMessageResult result = new DecryptMessageResult();
 
-        // sanity check
-        if(null == aErrorMsg) {
-            Log.e(LOG_TAG,"## decryptMessage(): invalid parameter - aErrorMsg=null");
-        } else {
-            aErrorMsg.setLength(0);
-            decryptedMessage = decryptMessageJni(aEncryptedMsg, aDecryptIndex_out, aErrorMsg, OlmManager.ENABLE_STRING_UTF8_SPECIFIC_CONVERSION);
+        StringBuffer errorMsg = new StringBuffer();
+        result.mDecryptedMessage = decryptMessageJni(aEncryptedMsg, result, errorMsg);
+
+        // check if there is an error while decrypting
+        if (0 != errorMsg.length()) {
+            throw new DecryptMessageException(errorMsg.toString());
         }
-        return decryptedMessage;
-    }
-    private native String decryptMessageJni(String aEncryptedMsg, DecryptIndex aDecryptIndex_out, StringBuffer aErrorMsg, boolean aIsUtf8ConversionRequired);
 
+        return result;
+    }
+
+    private native String decryptMessageJni(String aEncryptedMsg, DecryptMessageResult aDecryptMessageResult, StringBuffer aErrorMsg);
 
     /**
      * Kick off the serialization mechanism.

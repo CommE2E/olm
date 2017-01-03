@@ -580,7 +580,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
  * @param aEncryptedMsg message to decrypt
  * @return decrypted message if operation succeed, null otherwise
  */
-JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jobject aEncryptedMsg, jboolean aIsUtf8ConversionRequired)
+JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jobject aEncryptedMsg)
 {
     jstring decryptedMsgRetValue = 0;
     jclass encryptedMsgJClass = 0;
@@ -668,26 +668,15 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject t
             }
             else
             {
-                // UTF-8 conversion workaround for issue on Android versions older than Marshmallow (23)
-                if (aIsUtf8ConversionRequired)
+                decryptedMsgRetValue = javaCStringToUtf8(env, plainTextMsgPtr, plaintextLength);
+
+                if (!decryptedMsgRetValue)
                 {
-                    decryptedMsgRetValue = javaCStringToUtf8(env, plainTextMsgPtr, plaintextLength);
-                    if(0 == decryptedMsgRetValue)
-                    {
-                        LOGE(" ## decryptMessageJni(): UTF-8 Conversion failure - javaCStringToUtf8() returns null");
-                    }
-                    else
-                    {
-                        LOGD(" ## decryptMessageJni(): UTF-8 Conversion - decrypted returnedLg=%lu OK",static_cast<long unsigned int>(plaintextLength));
-                    }
+                    LOGE(" ## decryptMessageJni(): UTF-8 Conversion failure - javaCStringToUtf8() returns null");
                 }
                 else
                 {
-                    // update decrypted buffer size
-                    plainTextMsgPtr[plaintextLength] = static_cast<char>('\0');
-
-                    LOGD("## decryptMessageJni(): decrypted returnedLg=%lu plainTextMsgPtr=%s",static_cast<long unsigned int>(plaintextLength), (char*)(plainTextMsgPtr));
-                    decryptedMsgRetValue = env->NewStringUTF((const char*)(plainTextMsgPtr));
+                    LOGD(" ## decryptMessageJni(): UTF-8 Conversion - decrypted returnedLg=%lu OK",static_cast<long unsigned int>(plaintextLength));
                 }
             }
         }
