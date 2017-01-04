@@ -209,8 +209,6 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     protected String serialize(String aKey, StringBuffer aErrorMsg) {
         String pickleRetValue = null;
 
-        aErrorMsg.setLength(0);
-
         // sanity check
         if(null == aErrorMsg) {
             Log.e(LOG_TAG,"## serialize(): invalid parameter - aErrorMsg=null");
@@ -218,6 +216,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
         } else if(TextUtils.isEmpty(aKey)) {
             aErrorMsg.append("Invalid input parameters in serialize()");
         } else {
+            aErrorMsg.setLength(0);
             try {
                 pickleRetValue = new String(serializeJni(aKey.getBytes("UTF-8")), "UTF-8");
             } catch (Exception e) {

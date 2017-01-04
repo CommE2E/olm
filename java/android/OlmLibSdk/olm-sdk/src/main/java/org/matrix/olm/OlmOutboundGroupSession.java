@@ -43,15 +43,6 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
     private transient long mNativeId;
 
     /**
-     * Exception triggered in {@link #encryptMessage(String)}
-     */
-    static public class EncryptMessageException extends Exception {
-        public EncryptMessageException(String message) {
-            super(message);
-        }
-    }
-
-    /**
      * Constructor.<br>
      * Create and save a new session native instance ID and
      * initialise a new outbound group session.<br>
@@ -60,10 +51,7 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      */
     public OlmOutboundGroupSession() throws OlmException {
         if(createNewSession()) {
-            if( 0 != initOutboundGroupSession()) {
-                releaseSession();// prevent memory leak before throwing
-                throw new OlmException(OlmException.EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION, OlmException.EXCEPTION_MSG_INIT_OUTBOUND_GROUP_SESSION);
-            }
+            initOutboundGroupSession();
         } else {
             throw new OlmException(OlmException.EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION, OlmException.EXCEPTION_MSG_NEW_OUTBOUND_GROUP_SESSION);
         }
@@ -114,25 +102,29 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
 
     /**
      * Start a new outbound group session.<br>
-     * @return 0 if operation succeed, -1 otherwise
+     * @exception OlmException the failre reason
      */
-    private int initOutboundGroupSession() {
-        return initOutboundGroupSessionJni();
+    private void initOutboundGroupSession() throws OlmException {
+        try {
+            initOutboundGroupSessionJni();
+        } catch (Exception e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION, e.getMessage());
+        }
     }
-    private native int initOutboundGroupSessionJni();
+
+    private native void initOutboundGroupSessionJni();
 
     /**
      * Get a base64-encoded identifier for this session.
-     * @return session identifier if operation succeed, null otherwise.
+     * @return session identifier
      */
-    public String sessionIdentifier() {
+    public String sessionIdentifier() throws OlmException {
         try {
             return new String(sessionIdentifierJni(), "UTF-8");
         } catch (Exception e) {
             Log.e(LOG_TAG, "## sessionIdentifier() failed " + e.getMessage());
+            throw new OlmException(OlmException.EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_IDENTIFIER, e.getMessage());
         }
-
-        return null;
     }
 
     private native byte[] sessionIdentifierJni();
@@ -153,15 +145,15 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * Each message is sent with a different ratchet key. This method returns the
      * ratchet key that will be used for the next message.
      * @return outbound session key
+     * @exception OlmException the failure reason
      */
-    public String sessionKey() {
+    public String sessionKey() throws OlmException {
         try {
             return new String(sessionKeyJni(), "UTF-8");
         } catch (Exception e) {
             Log.e(LOG_TAG, "## sessionKey() failed " + e.getMessage());
+            throw new OlmException(OlmException.EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_KEY, e.getMessage());
         }
-
-        return null;
     }
 
     private native byte[] sessionKeyJni();
@@ -171,33 +163,27 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * The message given as parameter is encrypted and returned as the return value.
      * @param aClearMsg message to be encrypted
      * @return the encrypted message
-     * @exception EncryptMessageException the encryption failure reason
+     * @exception OlmException the encryption failure reason
      */
-    public String encryptMessage(String aClearMsg) throws EncryptMessageException {
+    public String encryptMessage(String aClearMsg) throws OlmException {
         String retValue = null;
 
         if (!TextUtils.isEmpty(aClearMsg)) {
-            StringBuffer errorMsg = new StringBuffer();
-
             try {
-                byte[] encryptedBuffer = encryptMessageJni(aClearMsg.getBytes("UTF-8"), errorMsg);
+                byte[] encryptedBuffer = encryptMessageJni(aClearMsg.getBytes("UTF-8"));
 
                 if (null != encryptedBuffer) {
                     retValue = new String(encryptedBuffer , "UTF-8");
                 }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## encryptMessage() failed " + e.getMessage());
-                errorMsg.append(e.getMessage());
-            }
-
-            if (0 != errorMsg.length()) {
-                throw new EncryptMessageException(errorMsg.toString());
+                throw new OlmException(OlmException.EXCEPTION_CODE_OUTBOUND_GROUP_ENCRYPT_MESSAGE, e.getMessage());
             }
         }
 
         return retValue;
     }
-    private native byte[] encryptMessageJni(byte[] aClearMsgBuffer, StringBuffer aErrorMsg);
+    private native byte[] encryptMessageJni(byte[] aClearMsgBuffer);
 
 
     //==============================================================================================================
@@ -242,9 +228,8 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
         } else if(TextUtils.isEmpty(aKey)) {
             aErrorMsg.append("Invalid input parameters in serialize()");
         } else {
-            aErrorMsg.setLength(0);
             try {
-                pickleRetValue = serializeJni(aKey.getBytes("UTF-8"), aErrorMsg);
+                pickleRetValue = serializeJni(aKey.getBytes("UTF-8"));
             } catch (Exception e) {
                 Log.e(LOG_TAG,"## serialize(): failed " + e.getMessage());
                 aErrorMsg.append(e.getMessage());
@@ -253,7 +238,7 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
 
         return pickleRetValue;
     }
-    private native String serializeJni(byte[] aKey, StringBuffer aErrorMsg);
+    private native String serializeJni(byte[] aKey);
 
 
     /**

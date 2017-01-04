@@ -90,7 +90,14 @@ public class OlmGroupSessionTest {
     @Test
     public void test02GetOutboundGroupSessionIdentifier() {
         // test session ID
-        mAliceSessionIdentifier = mAliceOutboundGroupSession.sessionIdentifier();
+        mAliceSessionIdentifier = null;
+
+        try {
+            mAliceSessionIdentifier = mAliceOutboundGroupSession.sessionIdentifier();
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         assertNotNull(mAliceSessionIdentifier);
         assertTrue(mAliceSessionIdentifier.length() > 0);
     }
@@ -98,7 +105,13 @@ public class OlmGroupSessionTest {
     @Test
     public void test03GetOutboundGroupSessionKey() {
         // test session Key
-        mAliceOutboundSessionKey = mAliceOutboundGroupSession.sessionKey();
+        mAliceOutboundSessionKey = null;
+
+        try {
+            mAliceOutboundSessionKey = mAliceOutboundGroupSession.sessionKey();
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(mAliceOutboundSessionKey);
         assertTrue(mAliceOutboundSessionKey.length() > 0);
     }
@@ -115,7 +128,7 @@ public class OlmGroupSessionTest {
         // alice encrypts a message to bob
         try {
             mAliceToBobMessage = mAliceOutboundGroupSession.encryptMessage(CLEAR_MESSAGE1);
-        } catch (OlmOutboundGroupSession.EncryptMessageException e) {
+        } catch (Exception e) {
             assertTrue("Exception in bob encryptMessage, Exception code=" + e.getMessage(), false);
         }
         assertFalse(TextUtils.isEmpty(mAliceToBobMessage));
@@ -275,7 +288,13 @@ public class OlmGroupSessionTest {
         assertNotNull(aliceOutboundGroupSession);
 
         // get the session key from the outbound group session
-        String sessionKeyRef = aliceOutboundGroupSession.sessionKey();
+        String sessionKeyRef = null;
+
+        try {
+            sessionKeyRef = aliceOutboundGroupSession.sessionKey();
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(sessionKeyRef);
 
         // bob creates INBOUND GROUP SESSION
@@ -285,7 +304,6 @@ public class OlmGroupSessionTest {
             assertTrue("Exception in OlmInboundGroupSession, Exception code=" + e.getExceptionCode(), false);
         }
         assertNotNull(bobInboundGroupSessionRef);
-
 
         // serialize alice session
         Context context = getInstrumentation().getContext();
