@@ -55,7 +55,6 @@ namespace AndroidOlmSdk
 {
     // Error codes definition
     static const int ERROR_CODE_OK = 0;
-    static const int ERROR_CODE_NO_MATCHING_ONE_TIME_KEYS = ERROR_CODE_OK+1;
     static const int ERROR_CODE_KO = -1;
 
     // constants

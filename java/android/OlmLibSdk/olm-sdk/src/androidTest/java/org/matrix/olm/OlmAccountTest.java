@@ -128,7 +128,12 @@ public class OlmAccountTest {
      */
     @Test
     public void test05IdentityKeys() {
-        Map<String, String> identityKeys = mOlmAccount.identityKeys();
+        Map<String, String> identityKeys = null;
+        try {
+            identityKeys = mOlmAccount.identityKeys();
+        } catch (Exception e) {
+            assertTrue("identityKeys failed " + e.getMessage(), false);
+        }
         assertNotNull(identityKeys);
         Log.d(LOG_TAG,"## testIdentityKeys Keys="+identityKeys);
 
@@ -157,8 +162,15 @@ public class OlmAccountTest {
      */
     @Test
     public void test07GenerateOneTimeKeys() {
-        int retValue = mOlmAccount.generateOneTimeKeys(GENERATION_ONE_TIME_KEYS_NUMBER);
-        assertTrue(0==retValue);
+        String error = null;
+
+        try {
+            mOlmAccount.generateOneTimeKeys(GENERATION_ONE_TIME_KEYS_NUMBER);
+        } catch (Exception e) {
+            error = e.getMessage();
+        }
+
+        assertTrue(null == error);
     }
 
     /**
@@ -167,7 +179,13 @@ public class OlmAccountTest {
     @Test
     public void test08OneTimeKeysJsonFormat() {
         int oneTimeKeysCount = 0;
-        Map<String, Map<String, String>> oneTimeKeysJson = mOlmAccount.oneTimeKeys();
+        Map<String, Map<String, String>> oneTimeKeysJson = null;
+
+        try {
+            oneTimeKeysJson = mOlmAccount.oneTimeKeys();
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(oneTimeKeysJson);
 
         try {
@@ -195,26 +213,40 @@ public class OlmAccountTest {
         long sessionId = olmSession.getOlmSessionId();
         assertTrue(0 != sessionId);
 
-        int sessionRetCode = mOlmAccount.removeOneTimeKeysForSession(olmSession);
-        // test against no matching keys
-        assertTrue(1 == sessionRetCode);
+        String errorMessage = null;
+
+        try {
+            mOlmAccount.removeOneTimeKeys(olmSession);
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+        }
+        assertTrue(null != errorMessage);
 
         olmSession.releaseSession();
         sessionId = olmSession.getOlmSessionId();
-        assertTrue("sessionRetCode="+sessionRetCode,0 == sessionId);
+        assertTrue(0 == sessionId);
     }
 
     @Test
     public void test11MarkOneTimeKeysAsPublished() {
-        int retCode = mOlmAccount.markOneTimeKeysAsPublished();
-        // if OK => retCode=0
-        assertTrue(0 == retCode);
+        try {
+            mOlmAccount.markOneTimeKeysAsPublished();
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
     }
 
     @Test
     public void test12SignMessage() {
         String clearMsg = "String to be signed by olm";
-        String signedMsg  = mOlmAccount.signMessage(clearMsg);
+        String signedMsg  = null;
+
+        try {
+            signedMsg = mOlmAccount.signMessage(clearMsg);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         assertNotNull(signedMsg);
         // additional tests are performed in test01VerifyEd25519Signing()
     }
@@ -237,12 +269,29 @@ public class OlmAccountTest {
             assertTrue(e.getMessage(),false);
         }
 
-        int retValue = accountRef.generateOneTimeKeys(GENERATION_ONE_TIME_KEYS_NUMBER);
-        assertTrue(0==retValue);
+        try {
+            accountRef.generateOneTimeKeys(GENERATION_ONE_TIME_KEYS_NUMBER);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(),false);
+        }
 
         // get keys references
-        Map<String, String> identityKeysRef = accountRef.identityKeys();
-        Map<String, Map<String, String>> oneTimeKeysRef = accountRef.oneTimeKeys();
+        Map<String, String> identityKeysRef = null;
+
+        try {
+            identityKeysRef = accountRef.identityKeys();
+        } catch (Exception e) {
+            assertTrue("identityKeys failed " + e.getMessage(), false);
+        }
+
+        Map<String, Map<String, String>> oneTimeKeysRef = null;
+
+        try {
+            oneTimeKeysRef = accountRef.oneTimeKeys();
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         assertNotNull(identityKeysRef);
         assertNotNull(oneTimeKeysRef);
 
@@ -304,12 +353,25 @@ public class OlmAccountTest {
     @Test
     public void test14GenerateOneTimeKeysError() {
         // keys number = 0 => no error
-        int retValue = mOlmAccount.generateOneTimeKeys(0);
-        assertTrue(0==retValue);
+
+        String errorMessage = null;
+        try {
+            mOlmAccount.generateOneTimeKeys(0);
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+        }
+
+        assertTrue(null == errorMessage);
 
         // keys number = negative value
-        retValue = mOlmAccount.generateOneTimeKeys(-50);
-        assertTrue(-1==retValue);
+        errorMessage = null;
+        try {
+            mOlmAccount.generateOneTimeKeys(-50);
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+        }
+
+        assertTrue(null != errorMessage);
     }
 
     @Test
@@ -321,9 +383,16 @@ public class OlmAccountTest {
             assertTrue(e.getMessage(),false);
         }
 
-        int sessionRetCode = olmAccount.removeOneTimeKeysForSession(null);
+        boolean sessionRetCode = true;
+
+        try {
+            sessionRetCode = olmAccount.removeOneTimeKeys(null);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         // test against no matching keys
-        assertTrue(-1 == sessionRetCode);
+        assertFalse(sessionRetCode);
 
         olmAccount.releaseAccount();
     }
@@ -336,7 +405,13 @@ public class OlmAccountTest {
         } catch (OlmException e) {
             assertTrue(e.getMessage(),false);
         }
-        String signedMsg  = olmAccount.signMessage(null);
+        String signedMsg = null;
+
+        try {
+            signedMsg = olmAccount.signMessage(null);
+        } catch (Exception e) {
+        }
+
         assertNull(signedMsg);
 
         olmAccount.releaseAccount();

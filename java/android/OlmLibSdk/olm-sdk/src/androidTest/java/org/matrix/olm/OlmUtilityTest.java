@@ -71,11 +71,25 @@ public class OlmUtilityTest {
         assertNotNull(account);
 
         // sign message
-        String messageSignature = account.signMessage(message);
+        String messageSignature = null;
+
+        try {
+            messageSignature = account.signMessage(message);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         assertNotNull(messageSignature);
 
         // get identities key (finger print key)
-        Map<String, String> identityKeys = account.identityKeys();
+        Map<String, String> identityKeys = null;
+
+        try {
+            identityKeys = account.identityKeys();
+        } catch (Exception e) {
+            assertTrue("identityKeys failed " + e.getMessage(), false);
+        }
+
         assertNotNull(identityKeys);
         fingerPrintKey = TestHelper.getFingerprintKey(identityKeys);
         assertTrue("fingerprint key missing",!TextUtils.isEmpty(fingerPrintKey));

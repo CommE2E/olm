@@ -63,9 +63,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     private transient long mNativeId;
 
     public OlmAccount() throws OlmException {
-        if(!initNewAccount()) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_ACCOUNT_CREATION,OlmException.EXCEPTION_MSG_INIT_ACCOUNT_CREATION);
-        }
+        initNewAccount();
     }
 
     /**
@@ -97,11 +95,14 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * Create and initialize a native account instance.<br>
      * Wrapper for {@link #initNewAccountJni()}.
      * To be called before any other API call.
-     * @return true if init succeed, false otherwise.
+     * @exception OlmException the failure reason
      */
-    private boolean initNewAccount() {
-        mNativeId = initNewAccountJni();
-        return (0 != mNativeId);
+    private void initNewAccount() throws OlmException {
+        try {
+            mNativeId = initNewAccountJni();
+        } catch (Exception e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_ACCOUNT_CREATION, e.getMessage());
+        }
     }
 
     /**
@@ -147,10 +148,19 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      *  "ed25519":"+v8SOlOASFTMrX3MCKBM4iVnYoZ+JIjpNt1fi8Z9O2I"
      * }</tt>
      * @return identity keys dictionary if operation succeeds, null otherwise
+     * @exception OlmException the failure reason
      */
-    public Map<String, String> identityKeys() {
+    public Map<String, String> identityKeys() throws OlmException {
         JSONObject identityKeysJsonObj = null;
-        byte[] identityKeysBuffer = identityKeysJni();
+
+        byte[] identityKeysBuffer;
+
+        try {
+            identityKeysBuffer = identityKeysJni();
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## identityKeys(): Failure - " + e.getMessage());
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_IDENTITY_KEYS, e.getMessage());
+        }
 
         if (null != identityKeysBuffer) {
             try {
@@ -165,6 +175,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
 
         return toStringMap(identityKeysJsonObj);
     }
+
     /**
      * Get the public identity keys (Ed25519 fingerprint key and Curve25519 identity key).<br>
      * Keys are Base64 encoded.
@@ -180,6 +191,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     public long maxOneTimeKeys() {
         return maxOneTimeKeysJni();
     }
+
     private native long maxOneTimeKeysJni();
 
     /**
@@ -187,12 +199,17 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * by this account exceeds {@link #maxOneTimeKeys()}, the old keys are discarded.<br>
      * The corresponding keys are retrieved by {@link #oneTimeKeys()}.
      * @param aNumberOfKeys number of keys to generate
-     * @return 0 if operation succeed, -1 otherwise
+     * @exception OlmException the failure reason
      */
-    public int generateOneTimeKeys(int aNumberOfKeys) {
-        return generateOneTimeKeysJni(aNumberOfKeys);
+    public void generateOneTimeKeys(int aNumberOfKeys) throws OlmException {
+        try {
+            generateOneTimeKeysJni(aNumberOfKeys);
+        } catch (Exception e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_GENERATE_ONE_TIME_KEYS, e.getMessage());
+        }
     }
-    private native int generateOneTimeKeysJni(int aNumberOfKeys);
+
+    private native void generateOneTimeKeysJni(int aNumberOfKeys);
 
     /**
      * Return the "one time keys" in a dictionary.<br>
@@ -207,11 +224,18 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * }</tt><br>
      * Public API for {@link #oneTimeKeysJni()}.<br>
      * Note: these keys are to be published on the server.
-     * @return one time keys in string dictionary if operation succeed, null otherwise
+     * @return one time keys in string dictionary.
+     * @exception OlmException the failure reason
      */
-    public Map<String, Map<String, String>> oneTimeKeys() {
+    public Map<String, Map<String, String>> oneTimeKeys() throws OlmException {
         JSONObject oneTimeKeysJsonObj = null;
-        byte[] oneTimeKeysBuffer = oneTimeKeysJni();
+        byte[] oneTimeKeysBuffer;
+
+        try {
+            oneTimeKeysBuffer = oneTimeKeysJni();
+        } catch (Exception e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_ONE_TIME_KEYS, e.getMessage());
+        }
 
         if( null != oneTimeKeysBuffer) {
             try {
@@ -226,6 +250,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
 
         return toStringMapMap(oneTimeKeysJsonObj);
     }
+
     /**
      * Get the public parts of the unpublished "one time keys" for the account.<br>
      * The returned data is a JSON-formatted object with the single property
@@ -238,62 +263,67 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     /**
      * Remove the "one time keys" that the session used from the account.
      * @param aSession session instance
-     * @return 0 if operation succeed, 1 if no matching keys in the sessions to be removed, -1 if operation failed
+     * @return true if the operation succeeded.
+     * @throws OlmException the failure reason
      */
-    public int removeOneTimeKeysForSession(OlmSession aSession) {
-        int retCode = -1;
+    public boolean removeOneTimeKeys(OlmSession aSession) throws OlmException {
+        boolean res = false;
 
-        if(null != aSession) {
-            retCode = removeOneTimeKeysForSessionJni(aSession.getOlmSessionId());
-            Log.d(LOG_TAG,"## removeOneTimeKeysForSession(): result="+retCode);
+        if (null != aSession) {
+            try {
+                res = (removeOneTimeKeysJni(aSession.getOlmSessionId()) >= 0);
+                Log.d(LOG_TAG,"## removeOneTimeKeysForSession(): result=" + res);
+            } catch (Exception e) {
+                throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_REMOVE_ONE_TIME_KEYS, e.getMessage());
+            }
         }
 
-        return retCode;
+        return res;
     }
+
     /**
      * Remove the "one time keys" that the session used from the account.
      * @param aNativeOlmSessionId native session instance identifier
      * @return 0 if operation succeed, 1 if no matching keys in the sessions to be removed, -1 if operation failed
      */
-    private native int removeOneTimeKeysForSessionJni(long aNativeOlmSessionId);
+    private native int removeOneTimeKeysJni(long aNativeOlmSessionId);
 
     /**
      * Marks the current set of "one time keys" as being published.
-     * @return 0 if operation succeed, -1 otherwise
+     * @exception OlmException the failure reason
      */
-    public int markOneTimeKeysAsPublished() {
-        return markOneTimeKeysAsPublishedJni();
+    public void markOneTimeKeysAsPublished() throws OlmException {
+        try {
+            markOneTimeKeysAsPublishedJni();
+        } catch (Exception e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_MARK_ONE_KEYS_AS_PUBLISHED, e.getMessage());
+        }
     }
-    private native int markOneTimeKeysAsPublishedJni();
+
+    private native void markOneTimeKeysAsPublishedJni();
 
     /**
      * Sign a message with the ed25519 fingerprint key for this account.<br>
      * The signed message is returned by the method.
      * @param aMessage message to sign
-     * @return the signed message if operation succeed, null otherwise
+     * @return the signed message
      */
-    public String signMessage(String aMessage) {
+    public String signMessage(String aMessage) throws OlmException {
         String result = null;
 
         if (null != aMessage) {
-            byte[] utf8String = null;
-
             try {
-                utf8String = aMessage.getBytes("UTF-8");
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "## signMessage(): failed =" + e.getMessage());
-            }
+                byte[] utf8String = aMessage.getBytes("UTF-8");
 
-            if (null != utf8String) {
-                byte[] signedMessage = signMessageJni(utf8String);
+                if (null != utf8String) {
+                    byte[] signedMessage = signMessageJni(utf8String);
 
-                if (null != signedMessage) {
-                    try {
+                    if (null != signedMessage) {
                         result = new String(signedMessage, "UTF-8");
-                    } catch (Exception e) {
-                        Log.e(LOG_TAG, "## signMessage(): failed =" + e.getMessage());
                     }
                 }
+            } catch (Exception e) {
+                throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_SIGN_MESSAGE, e.getMessage());
             }
         }
 
@@ -407,7 +437,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
         } else {
             aErrorMsg.setLength(0);
             try {
-                pickleRetValue = new String(serializeJni(aKey.getBytes("UTF-8"), aErrorMsg), "UTF-8");
+                pickleRetValue = new String(serializeJni(aKey.getBytes("UTF-8")), "UTF-8");
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## serialize() failed " + e.getMessage());
                 aErrorMsg.append(e.getMessage());
@@ -417,7 +447,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
         return pickleRetValue;
     }
 
-    private native byte[] serializeJni(byte[] aKey, StringBuffer aErrorMsg);
+    private native byte[] serializeJni(byte[] aKey);
 
     /**
      * Loads an account from a pickled base64 string.<br>

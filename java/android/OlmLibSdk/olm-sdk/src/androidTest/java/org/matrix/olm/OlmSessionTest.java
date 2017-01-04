@@ -92,13 +92,32 @@ public class OlmSessionTest {
         assertTrue(0!=aliceAccount.getOlmAccountId());
 
         // get bob identity key
-        Map<String, String> bobIdentityKeys = bobAccount.identityKeys();
+        Map<String, String> bobIdentityKeys = null;
+
+        try {
+            bobIdentityKeys = bobAccount.identityKeys();
+        } catch (Exception e) {
+            assertTrue("identityKeys failed " + e.getMessage(), false);
+        }
+
         bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
         assertTrue(null!=bobIdentityKey);
 
         // get bob one time keys
-        assertTrue(0==bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER));
-        Map<String, Map<String, String>> bobOneTimeKeys = bobAccount.oneTimeKeys();
+        try {
+            bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
+        Map<String, Map<String, String>> bobOneTimeKeys = null;
+
+        try {
+            bobOneTimeKeys = bobAccount.oneTimeKeys();
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys,1);
         assertNotNull(bobOneTimeKey);
 
@@ -141,7 +160,13 @@ public class OlmSessionTest {
         assertTrue(clearMsg.equals(decryptedMsg));
 
         // clean objects..
-        assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
+        boolean res = false;
+        try {
+            res = bobAccount.removeOneTimeKeys(bobSession);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+        assertTrue(res);
 
         // release accounts
         bobAccount.releaseAccount();
@@ -191,13 +216,32 @@ public class OlmSessionTest {
         assertTrue(0!=aliceAccount.getOlmAccountId());
 
         // get bob identity key
-        Map<String, String> bobIdentityKeys = bobAccount.identityKeys();
+        Map<String, String> bobIdentityKeys = null;
+
+        try {
+            bobIdentityKeys = bobAccount.identityKeys();
+        } catch (Exception e) {
+            assertTrue("identityKeys failed " + e.getMessage(), false);
+        }
+
         bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
         assertTrue(null!=bobIdentityKey);
 
         // get bob one time keys
-        assertTrue(0==bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER));
-        Map<String, Map<String, String>> bobOneTimeKeys = bobAccount.oneTimeKeys();
+        try {
+            bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
+        Map<String, Map<String, String>> bobOneTimeKeys = null;
+
+        try {
+            bobOneTimeKeys = bobAccount.oneTimeKeys();
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys,1);
         assertNotNull(bobOneTimeKey);
 
@@ -279,7 +323,14 @@ public class OlmSessionTest {
         assertTrue(clearMsg1.equals(decryptedMsg1));
 
         // clean objects..
-        assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
+        boolean res = false;
+        try {
+            res = bobAccount.removeOneTimeKeys(bobSession);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+        assertTrue(res);
+
         bobAccount.releaseAccount();
         aliceAccount.releaseAccount();
         assertTrue(bobAccount.isReleased());
@@ -369,15 +420,46 @@ public class OlmSessionTest {
         }
 
         // get bob/luke identity key
-        Map<String, String> bobIdentityKeys = bobAccount.identityKeys();
-        Map<String, String> aliceIdentityKeys = aliceAccount.identityKeys();
+        Map<String, String> bobIdentityKeys = null;
+
+        try {
+            bobIdentityKeys = bobAccount.identityKeys();
+        } catch (Exception e) {
+            assertTrue("identityKeys failed " + e.getMessage(), false);
+        }
+
+        Map<String, String> aliceIdentityKeys = null;
+
+        try {
+            aliceIdentityKeys = aliceAccount.identityKeys();
+        } catch (Exception e) {
+            assertTrue("identityKeys failed " + e.getMessage(), false);
+        }
+
         String bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
         String aliceIdentityKey = TestHelper.getIdentityKey(aliceIdentityKeys);
 
         // get bob/luke one time keys
-        assertTrue(0 == bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER));
-        assertTrue(0 == aliceAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER));
-        Map<String, Map<String, String>> bobOneTimeKeys = bobAccount.oneTimeKeys();
+        try {
+            bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
+        try {
+            aliceAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
+        Map<String, Map<String, String>> bobOneTimeKeys = null;
+
+        try {
+            bobOneTimeKeys = bobAccount.oneTimeKeys();
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         String bobOneTimeKey1 = TestHelper.getOneTimeKey(bobOneTimeKeys, 1);
 
         // create alice inbound session for bob
@@ -401,7 +483,14 @@ public class OlmSessionTest {
         //assertTrue(false==bobSession.matchesInboundSessionFrom(bobIdentityKey, encryptedAliceToBobMsg1.mCipherText));
 
         // release objects
-        assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
+        boolean res = false;
+        try {
+            res = bobAccount.removeOneTimeKeys(bobSession);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+        assertTrue(res);
+
         aliceAccount.releaseAccount();
         bobAccount.releaseAccount();
         assertTrue(aliceAccount.isReleased());
@@ -443,13 +532,32 @@ public class OlmSessionTest {
         assertTrue(0!=aliceAccount.getOlmAccountId());
 
         // get bob identity key
-        Map<String, String> bobIdentityKeys = bobAccount.identityKeys();
+        Map<String, String> bobIdentityKeys = null;
+
+        try {
+            bobIdentityKeys = bobAccount.identityKeys();
+        } catch (Exception e) {
+            assertTrue("identityKeys failed " + e.getMessage(), false);
+        }
+
         bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
         assertTrue(null!=bobIdentityKey);
 
         // get bob one time keys
-        assertTrue(0==bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER));
-        Map<String, Map<String, String>> bobOneTimeKeys = bobAccount.oneTimeKeys();
+        try {
+            bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
+        Map<String, Map<String, String>> bobOneTimeKeys = null;
+
+        try {
+            bobOneTimeKeys = bobAccount.oneTimeKeys();
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys,1);
         assertNotNull(bobOneTimeKey);
 
@@ -538,7 +646,14 @@ public class OlmSessionTest {
             assertTrue(clearMsg3.equals(decryptedMsg3));
 
             // clean objects..
-            assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
+            boolean res = false;
+            try {
+                res = bobAccount.removeOneTimeKeys(bobSession);
+            } catch (Exception e) {
+                assertTrue(e.getMessage(), false);
+            }
+            assertTrue(res);
+
             bobAccount.releaseAccount();
             aliceAccount.releaseAccount();
             assertTrue(bobAccount.isReleased());
@@ -588,13 +703,32 @@ public class OlmSessionTest {
         }
 
         // get bob identity key
-        Map<String, String> bobIdentityKeys = bobAccount.identityKeys();
+        Map<String, String> bobIdentityKeys = null;
+
+        try {
+            bobIdentityKeys = bobAccount.identityKeys();
+        } catch (Exception e) {
+            assertTrue("identityKeys failed " + e.getMessage(), false);
+        }
+
         String bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
         assertTrue(null != bobIdentityKey);
 
         // get bob one time keys
-        assertTrue(0 == bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER));
-        Map<String, Map<String, String>> bobOneTimeKeys = bobAccount.oneTimeKeys();
+        try {
+            bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
+        Map<String, Map<String, String>> bobOneTimeKeys = null;
+
+        try {
+            bobOneTimeKeys = bobAccount.oneTimeKeys();
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         assertNotNull(bobOneTimeKeys);
         String bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys,1);
         assertNotNull(bobOneTimeKey);
@@ -678,7 +812,14 @@ public class OlmSessionTest {
         assertTrue(!aliceSession.matchesInboundSessionFrom(null,null));
 
         // release objects
-        assertTrue(0==bobAccount.removeOneTimeKeysForSession(bobSession));
+        boolean res = false;
+        try {
+            res = bobAccount.removeOneTimeKeys(bobSession);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+        assertTrue(res);
+
         aliceAccount.releaseAccount();
         bobAccount.releaseAccount();
         assertTrue(aliceAccount.isReleased());

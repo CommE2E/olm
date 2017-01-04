@@ -39,6 +39,13 @@ public class OlmException extends IOException {
     public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_SERIALIZATION = 12;
     public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_DESERIALIZATION = 13;
 
+    public static final int EXCEPTION_CODE_ACCOUNT_IDENTITY_KEYS = 20;
+    public static final int EXCEPTION_CODE_ACCOUNT_GENERATE_ONE_TIME_KEYS = 21;
+    public static final int EXCEPTION_CODE_ACCOUNT_ONE_TIME_KEYS = 22;
+    public static final int EXCEPTION_CODE_ACCOUNT_REMOVE_ONE_TIME_KEYS = 23;
+    public static final int EXCEPTION_CODE_ACCOUNT_MARK_ONE_KEYS_AS_PUBLISHED = 24;
+    public static final int EXCEPTION_CODE_ACCOUNT_SIGN_MESSAGE = 25;
+
     // exception human readable messages
     public static final String EXCEPTION_MSG_NEW_OUTBOUND_GROUP_SESSION = "createNewSession() failed";
     public static final String EXCEPTION_MSG_NEW_INBOUND_GROUP_SESSION = "createNewSession() failed";
