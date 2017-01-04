@@ -123,7 +123,7 @@ jlong getInstanceId(JNIEnv* aJniEnv, jobject aJavaObject, const char *aCallingCl
         {
             LOGE("## getAccountInstanceId() failure - invalid instance of");
         }
-        else if (loaderClass = aJniEnv->GetObjectClass(aJavaObject))
+        else if ((loaderClass = aJniEnv->GetObjectClass(aJavaObject)))
         {
             jfieldID instanceIdField = aJniEnv->GetFieldID(loaderClass, "mNativeId", "J");
 
