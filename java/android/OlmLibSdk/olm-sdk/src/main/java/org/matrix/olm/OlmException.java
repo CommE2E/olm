@@ -24,41 +24,40 @@ import java.io.IOException;
  */
 public class OlmException extends IOException {
     // exception codes
-    public static final int EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION = 0;
-    public static final int EXCEPTION_CODE_CREATE_INBOUND_GROUP_SESSION = 1;
-    public static final int EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION = 2;
-    public static final int EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION = 3;
-    public static final int EXCEPTION_CODE_ACCOUNT_SERIALIZATION = 4;
-    public static final int EXCEPTION_CODE_ACCOUNT_DESERIALIZATION = 5;
-    public static final int EXCEPTION_CODE_SESSION_SERIALIZATION = 6;
-    public static final int EXCEPTION_CODE_SESSION_DESERIALIZATION = 7;
-    public static final int EXCEPTION_CODE_INIT_ACCOUNT_CREATION = 8;
-    public static final int EXCEPTION_CODE_INIT_SESSION_CREATION = 9;
-    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_SERIALIZATION = 10;
-    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_DESERIALIZATION = 11;
-    public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_SERIALIZATION = 12;
-    public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_DESERIALIZATION = 13;
 
-    public static final int EXCEPTION_CODE_ACCOUNT_IDENTITY_KEYS = 20;
-    public static final int EXCEPTION_CODE_ACCOUNT_GENERATE_ONE_TIME_KEYS = 21;
-    public static final int EXCEPTION_CODE_ACCOUNT_ONE_TIME_KEYS = 22;
-    public static final int EXCEPTION_CODE_ACCOUNT_REMOVE_ONE_TIME_KEYS = 23;
-    public static final int EXCEPTION_CODE_ACCOUNT_MARK_ONE_KEYS_AS_PUBLISHED = 24;
-    public static final int EXCEPTION_CODE_ACCOUNT_SIGN_MESSAGE = 25;
+    public static final int EXCEPTION_CODE_INIT_ACCOUNT_CREATION = 10;
 
-    public static final int EXCEPTION_CODE_SESSION_IDENTIFIER = 30;
-    public static final int EXCEPTION_CODE_SESSION_DECRYPT_SESSION = 31;
+    public static final int EXCEPTION_CODE_ACCOUNT_SERIALIZATION = 20;
+    public static final int EXCEPTION_CODE_ACCOUNT_DESERIALIZATION = 21;
+    public static final int EXCEPTION_CODE_ACCOUNT_IDENTITY_KEYS = 22;
+    public static final int EXCEPTION_CODE_ACCOUNT_GENERATE_ONE_TIME_KEYS = 23;
+    public static final int EXCEPTION_CODE_ACCOUNT_ONE_TIME_KEYS = 24;
+    public static final int EXCEPTION_CODE_ACCOUNT_REMOVE_ONE_TIME_KEYS = 25;
+    public static final int EXCEPTION_CODE_ACCOUNT_MARK_ONE_KEYS_AS_PUBLISHED = 26;
+    public static final int EXCEPTION_CODE_ACCOUNT_SIGN_MESSAGE = 27;
 
-    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_IDENTIFIER = 40;
-    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_KEY = 41;
-    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_ENCRYPT_MESSAGE = 42;
+    public static final int EXCEPTION_CODE_CREATE_INBOUND_GROUP_SESSION = 30;
+    public static final int EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION = 31;
+    public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_IDENTIFIER = 32;
+    public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_DECRYPT_SESSION = 33;
+
+    public static final int EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION = 40;
+    public static final int EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION = 41;
+    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_IDENTIFIER = 42;
+    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_KEY = 43;
+    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_ENCRYPT_MESSAGE = 44;
+
+    public static final int EXCEPTION_CODE_INIT_SESSION_CREATION = 50;
+    public static final int EXCEPTION_CODE_SESSION_INIT_OUTBOUND_SESSION = 51;
+    public static final int EXCEPTION_CODE_SESSION_INIT_INBOUND_SESSION = 52;
+    public static final int EXCEPTION_CODE_SESSION_INIT_INBOUND_SESSION_FROM = 53;
+    public static final int EXCEPTION_CODE_SESSION_ENCRYPT_MESSAGE = 54;
+    public static final int EXCEPTION_CODE_SESSION_DECRYPT_MESSAGE = 55;
+    public static final int EXCEPTION_CODE_SESSION_SESSION_IDENTIFIER = 56;
 
     // exception human readable messages
     public static final String EXCEPTION_MSG_NEW_OUTBOUND_GROUP_SESSION = "createNewSession() failed";
     public static final String EXCEPTION_MSG_NEW_INBOUND_GROUP_SESSION = "createNewSession() failed";
-    public static final String EXCEPTION_MSG_INIT_OUTBOUND_GROUP_SESSION = "initOutboundGroupSession() failed";
-    public static final String EXCEPTION_MSG_INIT_INBOUND_GROUP_SESSION = " initInboundGroupSessionWithSessionKey() failed";
-    public static final String EXCEPTION_MSG_INIT_NEW_ACCOUNT_DESERIALIZATION = "initNewAccount() failure";
     public static final String EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION = "invalid de-serialized parameters";
     public static final String EXCEPTION_MSG_INIT_ACCOUNT_CREATION = "initNewAccount() failed";
     public static final String EXCEPTION_MSG_INIT_SESSION_CREATION = "initNewSession() failed";

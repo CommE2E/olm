@@ -124,25 +124,23 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * @param aAccount the account to associate with this session
      * @param aTheirIdentityKey the identity key of the recipient
      * @param aTheirOneTimeKey the one time key of the recipient
-     * @return 0 if operation succeed, -1 otherwise
+     * @exception OlmException the failure reason
      */
-    public int initOutboundSession(OlmAccount aAccount, String aTheirIdentityKey, String aTheirOneTimeKey) {
-        int retCode=-1;
-
+    public void initOutboundSession(OlmAccount aAccount, String aTheirIdentityKey, String aTheirOneTimeKey) throws OlmException {
         if ((null == aAccount) || TextUtils.isEmpty(aTheirIdentityKey) || TextUtils.isEmpty(aTheirOneTimeKey)) {
             Log.e(LOG_TAG, "## initOutboundSession(): invalid input parameters");
+            throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_INIT_OUTBOUND_SESSION, "invalid input parameters");
         } else {
             try {
-                retCode = initOutboundSessionJni(aAccount.getOlmAccountId(), aTheirIdentityKey.getBytes("UTF-8"), aTheirOneTimeKey.getBytes("UTF-8"));
+                initOutboundSessionJni(aAccount.getOlmAccountId(), aTheirIdentityKey.getBytes("UTF-8"), aTheirOneTimeKey.getBytes("UTF-8"));
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## initOutboundSession(): " + e.getMessage());
+                throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_INIT_OUTBOUND_SESSION, e.getMessage());
             }
         }
-
-        return retCode;
     }
 
-    private native int initOutboundSessionJni(long aOlmAccountId, byte[] aTheirIdentityKey, byte[] aTheirOneTimeKey);
+    private native void initOutboundSessionJni(long aOlmAccountId, byte[] aTheirIdentityKey, byte[] aTheirOneTimeKey);
 
     /**
      * Create a new in-bound session for sending/receiving messages from an
@@ -150,29 +148,23 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
      * @param aAccount the account to associate with this session
      * @param aPreKeyMsg PRE KEY message
-     * @exception Exception the failure reason
+     * @exception OlmException the failure reason
      */
-    public void initInboundSession(OlmAccount aAccount, String aPreKeyMsg) throws Exception {
+    public void initInboundSession(OlmAccount aAccount, String aPreKeyMsg) throws OlmException {
         if ((null == aAccount) || TextUtils.isEmpty(aPreKeyMsg)){
             Log.e(LOG_TAG, "## initInboundSession(): invalid input parameters");
-            throw new Exception("invalid input parameters");
+            throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_INIT_INBOUND_SESSION, "invalid input parameters");
         } else {
-            StringBuffer errorMsg = new StringBuffer();
-
             try {
-                initInboundSessionJni(aAccount.getOlmAccountId(), aPreKeyMsg.getBytes("UTF-8"), errorMsg);
+                initInboundSessionJni(aAccount.getOlmAccountId(), aPreKeyMsg.getBytes("UTF-8"));
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## initInboundSession(): " + e.getMessage());
-                errorMsg.append(errorMsg);
-            }
-
-            if (errorMsg.length() != 0) {
-                throw new Exception(errorMsg.toString());
+                throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_INIT_INBOUND_SESSION, e.getMessage());
             }
         }
     }
 
-    private native int initInboundSessionJni(long aOlmAccountId, byte[] aOneTimeKeyMsg, StringBuffer aErrorMsg);
+    private native void initInboundSessionJni(long aOlmAccountId, byte[] aOneTimeKeyMsg);
 
     /**
      * Create a new in-bound session for sending/receiving messages from an
@@ -183,38 +175,42 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * @param aAccount the account to associate with this session
      * @param aTheirIdentityKey the sender identity key
      * @param aPreKeyMsg PRE KEY message
-     * @return 0 if operation succeed, -1 otherwise
+     * @exception OlmException the failure reason
      */
-    public int initInboundSessionFrom(OlmAccount aAccount, String aTheirIdentityKey, String aPreKeyMsg) {
-        int retCode=-1;
-
-        if((null==aAccount) || TextUtils.isEmpty(aPreKeyMsg)){
+    public void initInboundSessionFrom(OlmAccount aAccount, String aTheirIdentityKey, String aPreKeyMsg) throws OlmException {
+        if ( (null==aAccount) || TextUtils.isEmpty(aPreKeyMsg)){
             Log.e(LOG_TAG, "## initInboundSessionFrom(): invalid input parameters");
+            throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_INIT_INBOUND_SESSION_FROM, "invalid input parameters");
         } else {
             try {
-                retCode = initInboundSessionFromIdKeyJni(aAccount.getOlmAccountId(), aTheirIdentityKey.getBytes("UTF-8"), aPreKeyMsg.getBytes("UTF-8"));
+                initInboundSessionFromIdKeyJni(aAccount.getOlmAccountId(), aTheirIdentityKey.getBytes("UTF-8"), aPreKeyMsg.getBytes("UTF-8"));
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## initInboundSessionFrom(): " + e.getMessage());
+                throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_INIT_INBOUND_SESSION_FROM, e.getMessage());
             }
         }
-
-        return retCode;
     }
 
-    private native int initInboundSessionFromIdKeyJni(long aOlmAccountId, byte[] aTheirIdentityKey, byte[] aOneTimeKeyMsg);
+    private native void initInboundSessionFromIdKeyJni(long aOlmAccountId, byte[] aTheirIdentityKey, byte[] aOneTimeKeyMsg);
 
     /**
      * Get the session identifier.<br> Will be the same for both ends of the
      * conversation. The session identifier is returned as a String object.
      * Session Id sample: "session_id":"M4fOVwD6AABrkTKl"
      * Public API for {@link #getSessionIdentifierJni()}.
-     * @return the session ID as a String if operation succeed, null otherwise
+     * @return the session ID
+     * @exception OlmException the failure reason
      */
-    public String sessionIdentifier() {
+    public String sessionIdentifier() throws OlmException {
         try {
-            return new String(getSessionIdentifierJni(), "UTF-8");
+            byte[] buffer = getSessionIdentifierJni();
+
+            if (null != buffer) {
+                return new String(buffer, "UTF-8");
+            }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## sessionIdentifier(): " + e.getMessage());
+            throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_SESSION_IDENTIFIER, e.getMessage());
         }
 
         return null;
@@ -272,39 +268,46 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * The encrypted message is returned in a OlmMessage object.
      * Public API for {@link #encryptMessageJni(byte[], OlmMessage)}.
      * @param aClearMsg message to encrypted
-     * @return the encrypted message if operation succeed, null otherwise
+     * @return the encrypted message
+     * @exception OlmException the failure reason
      */
-    public OlmMessage encryptMessage(String aClearMsg) {
+    public OlmMessage encryptMessage(String aClearMsg) throws OlmException {
+        if (null == aClearMsg) {
+            return null;
+        }
+
         OlmMessage encryptedMsgRetValue = new OlmMessage();
 
         try {
-            if (0 != encryptMessageJni(aClearMsg.getBytes("UTF-8"), encryptedMsgRetValue)) {
-                encryptedMsgRetValue = null;
-            }
+            encryptMessageJni(aClearMsg.getBytes("UTF-8"), encryptedMsgRetValue);
         } catch (Exception e) {
             Log.e(LOG_TAG, "## encryptMessage(): failed " + e.getMessage());
-            encryptedMsgRetValue = null;
+            throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_ENCRYPT_MESSAGE, e.getMessage());
         }
 
         return encryptedMsgRetValue;
     }
 
-    private native int encryptMessageJni(byte[] aClearMsg, OlmMessage aEncryptedMsg);
+    private native void encryptMessageJni(byte[] aClearMsg, OlmMessage aEncryptedMsg);
 
     /**
      * Decrypt a message using the session.<br>
      * The encrypted message is given as a OlmMessage object.
      * @param aEncryptedMsg message to decrypt
-     * @return the decrypted message if operation succeed, null otherwise
+     * @return the decrypted message
+     * @exception OlmException the failure reason
      */
-    public String decryptMessage(OlmMessage aEncryptedMsg) {
+    public String decryptMessage(OlmMessage aEncryptedMsg) throws OlmException {
+        if (null == aEncryptedMsg) {
+            return null;
+        }
+
         try {
             return new String(decryptMessageJni(aEncryptedMsg), "UTF-8");
         } catch (Exception e) {
             Log.e(LOG_TAG, "## decryptMessage(): failed " + e.getMessage());
+            throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_DECRYPT_MESSAGE, e.getMessage());
         }
-
-        return null;
     }
 
     private native byte[] decryptMessageJni(OlmMessage aEncryptedMsg);
@@ -353,7 +356,7 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
         } else {
             aErrorMsg.setLength(0);
             try {
-                pickleRetValue = serializeJni(aKey.getBytes("UTF-8"), aErrorMsg);
+                pickleRetValue = serializeJni(aKey.getBytes("UTF-8"));
             } catch (Exception e) {
                 Log.e(LOG_TAG,"## serializeDataWithKey(): failed " + e.getMessage());
                 aErrorMsg.append(e.getMessage());
@@ -362,7 +365,7 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
 
         return pickleRetValue;
     }
-    private native String serializeJni(byte[] aKey, StringBuffer aErrorMsg);
+    private native String serializeJni(byte[] aKey);
 
     /**
      * Loads an account from a pickled base64 string.<br>

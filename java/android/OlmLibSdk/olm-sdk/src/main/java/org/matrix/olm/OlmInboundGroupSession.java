@@ -141,7 +141,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
             return new String(sessionIdentifierJni(), "UTF-8");
         } catch (Exception e) {
             Log.e(LOG_TAG, "## sessionIdentifier() failed " + e.getMessage());
-            throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_IDENTIFIER, e.getMessage());
+            throw new OlmException(OlmException.EXCEPTION_CODE_INBOUND_GROUP_SESSION_IDENTIFIER, e.getMessage());
         }
     }
 
@@ -165,7 +165,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## decryptMessage() failed " + e.getMessage());
-            throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_DECRYPT_SESSION, e.getMessage());
+            throw new OlmException(OlmException.EXCEPTION_CODE_INBOUND_GROUP_SESSION_DECRYPT_SESSION, e.getMessage());
         }
 
         return result;

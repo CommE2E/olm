@@ -131,9 +131,18 @@ public class OlmSessionTest {
         assertTrue(0!=aliceSession.getOlmSessionId());
 
         // CREATE ALICE OUTBOUND SESSION and encrypt message to bob
-        assertNotNull(aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey));
+        try {
+            aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         String clearMsg = "Heloo bob , this is alice!";
-        OlmMessage encryptedMsgToBob = aliceSession.encryptMessage(clearMsg);
+        OlmMessage encryptedMsgToBob = null;
+        try {
+            encryptedMsgToBob = aliceSession.encryptMessage(clearMsg);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(encryptedMsgToBob);
         assertNotNull(encryptedMsgToBob.mCipherText);
         Log.d(LOG_TAG,"## test01AliceToBob(): encryptedMsg="+encryptedMsgToBob.mCipherText);
@@ -153,7 +162,12 @@ public class OlmSessionTest {
             assertTrue("initInboundSessionWithAccount failed " + e.getMessage(), false);
         }
 
-        String decryptedMsg = bobSession.decryptMessage(encryptedMsgToBob);
+        String decryptedMsg = null;
+        try {
+            decryptedMsg = bobSession.decryptMessage(encryptedMsgToBob);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(decryptedMsg);
 
         // MESSAGE COMPARISON: decrypted vs encrypted
@@ -255,10 +269,22 @@ public class OlmSessionTest {
         assertTrue(0!=aliceSession.getOlmSessionId());
 
         // CREATE ALICE OUTBOUND SESSION and encrypt message to bob
-        assertNotNull(aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey));
+        try {
+            aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         String helloClearMsg = "Hello I'm Alice!";
 
-        OlmMessage encryptedAliceToBobMsg1 = aliceSession.encryptMessage(helloClearMsg);
+        OlmMessage encryptedAliceToBobMsg1 = null;
+
+        try {
+            encryptedAliceToBobMsg1 = aliceSession.encryptMessage(helloClearMsg);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         assertNotNull(encryptedAliceToBobMsg1);
         assertNotNull(encryptedAliceToBobMsg1.mCipherText);
 
@@ -279,7 +305,12 @@ public class OlmSessionTest {
         }
 
         // DECRYPT MESSAGE FROM ALICE
-        String decryptedMsg01 = bobSession.decryptMessage(encryptedAliceToBobMsg1);
+        String decryptedMsg01 = null;
+        try {
+            decryptedMsg01 = bobSession.decryptMessage(encryptedAliceToBobMsg1);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(decryptedMsg01);
 
         // MESSAGE COMPARISON: decrypted vs encrypted
@@ -291,19 +322,54 @@ public class OlmSessionTest {
         String clearMsg3 = "Let's go to the opera.";
 
         // bob encrypts messages
-        OlmMessage encryptedMsg1 = bobSession.encryptMessage(clearMsg1);
+        OlmMessage encryptedMsg1 = null;
+        try {
+            encryptedMsg1 = bobSession.encryptMessage(clearMsg1);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(encryptedMsg1);
-        OlmMessage encryptedMsg2 = bobSession.encryptMessage(clearMsg2);
+
+        OlmMessage encryptedMsg2 = null;
+        try {
+            encryptedMsg2 = bobSession.encryptMessage(clearMsg2);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(encryptedMsg2);
-        OlmMessage encryptedMsg3 = bobSession.encryptMessage(clearMsg3);
+
+
+        OlmMessage encryptedMsg3 = null;
+        try {
+            encryptedMsg3 = bobSession.encryptMessage(clearMsg3);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(encryptedMsg3);
 
         // alice decrypts bob's messages
-        String decryptedMsg1 = aliceSession.decryptMessage(encryptedMsg1);
+        String decryptedMsg1 = null;
+        try {
+            decryptedMsg1 = aliceSession.decryptMessage(encryptedMsg1);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         assertNotNull(decryptedMsg1);
-        String decryptedMsg2 = aliceSession.decryptMessage(encryptedMsg2);
+        String decryptedMsg2 = null;
+        try {
+            decryptedMsg2 = aliceSession.decryptMessage(encryptedMsg2);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         assertNotNull(decryptedMsg2);
-        String decryptedMsg3 = aliceSession.decryptMessage(encryptedMsg3);
+        String decryptedMsg3 = null;
+        try {
+            decryptedMsg3 = aliceSession.decryptMessage(encryptedMsg3);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(decryptedMsg3);
 
         // comparison tests
@@ -313,9 +379,22 @@ public class OlmSessionTest {
 
         // and one more from alice to bob
         clearMsg1 = "another message from Alice to Bob!!";
-        encryptedMsg1 = aliceSession.encryptMessage(clearMsg1);
+        encryptedMsg1 = null;
+
+        try {
+            encryptedMsg1 = aliceSession.encryptMessage(clearMsg1);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(encryptedMsg1);
-        decryptedMsg1 = bobSession.decryptMessage(encryptedMsg1);
+
+        decryptedMsg1 = null;
+        try {
+            decryptedMsg1 = bobSession.decryptMessage(encryptedMsg1);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         assertNotNull(decryptedMsg1);
         assertTrue(clearMsg1.equals(decryptedMsg1));
 
@@ -378,10 +457,21 @@ public class OlmSessionTest {
         }
         assertTrue(0!=bobSession.getOlmSessionId());
 
-        String aliceSessionId = aliceSession.sessionIdentifier();
+        String aliceSessionId = null;
+        try {
+            aliceSessionId = aliceSession.sessionIdentifier();
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         assertNotNull(aliceSessionId);
 
-        String bobSessionId = bobSession.sessionIdentifier();
+        String bobSessionId = null;
+        try {
+            bobSessionId = bobSession.sessionIdentifier();
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(bobSessionId);
 
         // must be the same for both ends of the conversation
@@ -463,10 +553,21 @@ public class OlmSessionTest {
         String bobOneTimeKey1 = TestHelper.getOneTimeKey(bobOneTimeKeys, 1);
 
         // create alice inbound session for bob
-        assertTrue(0==aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey1));
+        try {
+            aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey1);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
 
         String aliceClearMsg = "hello helooo to bob!";
-        OlmMessage encryptedAliceToBobMsg1 = aliceSession.encryptMessage(aliceClearMsg);
+        OlmMessage encryptedAliceToBobMsg1 = null;
+
+        try {
+            encryptedAliceToBobMsg1 = aliceSession.encryptMessage(aliceClearMsg);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         assertFalse(bobSession.matchesInboundSession(encryptedAliceToBobMsg1.mCipherText));
 
         // init bob session with alice PRE KEY
@@ -571,10 +672,20 @@ public class OlmSessionTest {
         assertTrue(0!=aliceSession.getOlmSessionId());
 
         // CREATE ALICE OUTBOUND SESSION and encrypt message to bob
-        assertNotNull(aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey));
+        try {
+            aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         String helloClearMsg = "Hello I'm Alice!";
 
-        OlmMessage encryptedAliceToBobMsg1 = aliceSession.encryptMessage(helloClearMsg);
+        OlmMessage encryptedAliceToBobMsg1 = null;
+        try {
+            encryptedAliceToBobMsg1 = aliceSession.encryptMessage(helloClearMsg);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(encryptedAliceToBobMsg1);
         assertNotNull(encryptedAliceToBobMsg1.mCipherText);
 
@@ -595,7 +706,14 @@ public class OlmSessionTest {
         }
 
         // DECRYPT MESSAGE FROM ALICE
-        String decryptedMsg01 = bobSession.decryptMessage(encryptedAliceToBobMsg1);
+        String decryptedMsg01 = null;
+
+        try {
+            decryptedMsg01 = bobSession.decryptMessage(encryptedAliceToBobMsg1);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         assertNotNull(decryptedMsg01);
 
         // MESSAGE COMPARISON: decrypted vs encrypted
@@ -607,11 +725,28 @@ public class OlmSessionTest {
         String clearMsg3 = "Let's go to the opera.";
 
         // bob encrypts messages
-        OlmMessage encryptedMsg1 = bobSession.encryptMessage(clearMsg1);
+        OlmMessage encryptedMsg1 = null;
+        try {
+            encryptedMsg1 = bobSession.encryptMessage(clearMsg1);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(encryptedMsg1);
-        OlmMessage encryptedMsg2 = bobSession.encryptMessage(clearMsg2);
+
+        OlmMessage encryptedMsg2 = null;
+        try {
+            encryptedMsg2 = bobSession.encryptMessage(clearMsg2);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(encryptedMsg2);
-        OlmMessage encryptedMsg3 = bobSession.encryptMessage(clearMsg3);
+
+        OlmMessage encryptedMsg3 = null;
+        try {
+            encryptedMsg3 = bobSession.encryptMessage(clearMsg3);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(encryptedMsg3);
 
         // serialize alice session
@@ -742,26 +877,70 @@ public class OlmSessionTest {
         }
 
         // SANITY CHECK TESTS FOR: initOutboundSessionWithAccount()
-        assertTrue(-1==aliceSession.initOutboundSession(null, bobIdentityKey, bobOneTimeKey));
-        assertTrue(-1==aliceSession.initOutboundSession(aliceAccount, null, bobOneTimeKey));
-        assertTrue(-1==aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, null));
-        assertTrue(-1==aliceSession.initOutboundSession(null, null, null));
+        String errorMessage = null;
+        try {
+            aliceSession.initOutboundSession(null, bobIdentityKey, bobOneTimeKey);
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+        }
+        assertTrue(null != errorMessage);
+
+        errorMessage = null;
+        try {
+            aliceSession.initOutboundSession(aliceAccount, null, bobOneTimeKey);
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+        }
+        assertTrue(null != errorMessage);
+
+        errorMessage = null;
+        try {
+            aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, null);
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+        }
+        assertTrue(null != errorMessage);
+
+        errorMessage = null;
+        try {
+            aliceSession.initOutboundSession(null, null, null);
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+        }
+        assertTrue(null != errorMessage);
 
         // init properly
-        assertTrue(0==aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey));
+        errorMessage = null;
+        try {
+            aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey);
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+        }
+        assertTrue(null == errorMessage);
 
         // SANITY CHECK TESTS FOR: encryptMessage()
-        assertTrue(null==aliceSession.encryptMessage(null));
+        OlmMessage message = null;
+        try {
+            message = aliceSession.encryptMessage(null);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+        assertTrue(null==message);
 
         // encrypt properly
-        OlmMessage encryptedMsgToBob = aliceSession.encryptMessage("A message for bob");
+        OlmMessage encryptedMsgToBob = null;
+        try {
+            encryptedMsgToBob = aliceSession.encryptMessage("A message for bob");
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertNotNull(encryptedMsgToBob);
 
         // SANITY CHECK TESTS FOR: initInboundSessionWithAccount()
         OlmSession bobSession = null;
         try {
             bobSession = new OlmSession();
-            String errorMessage = null;
+            errorMessage = null;
             try {
                 bobSession.initInboundSession(null, encryptedMsgToBob.mCipherText);
             } catch (Exception e) {
@@ -802,7 +981,13 @@ public class OlmSessionTest {
         }
 
         // SANITY CHECK TESTS FOR: decryptMessage()
-        String decryptedMsg = aliceSession.decryptMessage(null);
+        String decryptedMsg = null;
+        try {
+            decryptedMsg = aliceSession.decryptMessage(null);
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
+
         assertTrue(null==decryptedMsg);
 
         // SANITY CHECK TESTS FOR: matchesInboundSession()
