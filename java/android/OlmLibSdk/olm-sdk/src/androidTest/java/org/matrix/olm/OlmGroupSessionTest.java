@@ -138,7 +138,13 @@ public class OlmGroupSessionTest {
     @Test
     public void test08GetInboundGroupSessionIdentifier() {
         // check both session identifiers are equals
-        mBobSessionIdentifier = mBobInboundGroupSession.sessionIdentifier();
+        mBobSessionIdentifier = null;
+
+        try {
+            mBobSessionIdentifier = mBobInboundGroupSession.sessionIdentifier();
+        } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
+        }
         assertFalse(TextUtils.isEmpty(mBobSessionIdentifier));
     }
 
@@ -479,7 +485,7 @@ public class OlmGroupSessionTest {
         String exceptionMessage = null;
         try {
             bobInboundGroupSession.decryptMessage(corruptedEncryptedMsg);
-        } catch (OlmInboundGroupSession.DecryptMessageException e) {
+        } catch (OlmException e) {
             exceptionMessage = e.getMessage();
         }
 

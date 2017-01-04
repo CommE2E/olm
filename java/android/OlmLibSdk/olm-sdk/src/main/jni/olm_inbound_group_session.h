@@ -32,12 +32,12 @@ extern "C" {
 JNIEXPORT void OLM_INBOUND_GROUP_SESSION_FUNC_DEF(releaseSessionJni)(JNIEnv *env, jobject thiz);
 JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *env, jobject thiz);
 
-JNIEXPORT jint OLM_INBOUND_GROUP_SESSION_FUNC_DEF(initInboundGroupSessionJni)(JNIEnv *env, jobject thiz, jbyteArray aSessionKeyBuffer);
+JNIEXPORT void OLM_INBOUND_GROUP_SESSION_FUNC_DEF(initInboundGroupSessionJni)(JNIEnv *env, jobject thiz, jbyteArray aSessionKeyBuffer);
 JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEnv *env, jobject thiz);
-JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aEncryptedMsg, jobject aDecryptIndex, jobject aErrorMsg);
+JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aEncryptedMsg, jobject aDecryptIndex);
 
 // serialization
-JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thiz, jbyteArray aKey, jobject aErrorMsg);
+JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thiz, jbyteArray aKey);
 JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz, jbyteArray aSerializedData, jbyteArray aKey);
 
 

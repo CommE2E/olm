@@ -46,6 +46,10 @@ public class OlmException extends IOException {
     public static final int EXCEPTION_CODE_ACCOUNT_MARK_ONE_KEYS_AS_PUBLISHED = 24;
     public static final int EXCEPTION_CODE_ACCOUNT_SIGN_MESSAGE = 25;
 
+    public static final int EXCEPTION_CODE_SESSION_IDENTIFIER = 30;
+    public static final int EXCEPTION_CODE_SESSION_DECRYPT_SESSION = 31;
+
+
     // exception human readable messages
     public static final String EXCEPTION_MSG_NEW_OUTBOUND_GROUP_SESSION = "createNewSession() failed";
     public static final String EXCEPTION_MSG_NEW_INBOUND_GROUP_SESSION = "createNewSession() failed";

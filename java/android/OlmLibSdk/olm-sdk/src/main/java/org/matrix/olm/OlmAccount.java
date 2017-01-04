@@ -307,6 +307,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * The signed message is returned by the method.
      * @param aMessage message to sign
      * @return the signed message
+     * @exception OlmException the failure reason
      */
     public String signMessage(String aMessage) throws OlmException {
         String result = null;
