@@ -476,7 +476,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject t
 * @param[out] aErrorMsg error message set if operation failed
 * @return a base64 string if operation succeed, null otherwise
 **/
-JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, jobject thiz, jbyteArray aKeyBuffer, jobject aErrorMsg)
+JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thiz, jbyteArray aKeyBuffer, jobject aErrorMsg)
 {
     jbyteArray pickledDataRetValue = 0;
     jclass errorMsgJClass = 0;
@@ -485,44 +485,44 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, 
     jbyte* keyPtr = NULL;
     OlmAccount* accountPtr = NULL;
 
-    LOGD("## serializeDataWithKeyJni(): IN");
+    LOGD("## serializeJni(): IN");
 
     if (!aKeyBuffer)
     {
-        LOGE(" ## serializeDataWithKeyJni(): failure - invalid key");
+        LOGE(" ## serializeJni(): failure - invalid key");
     }
     else if (!aErrorMsg)
     {
-        LOGE(" ## serializeDataWithKeyJni(): failure - invalid error object");
+        LOGE(" ## serializeJni(): failure - invalid error object");
     }
     else if (!(accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
     {
-       LOGE(" ## serializeDataWithKeyJni(): failure - invalid account ptr");
+       LOGE(" ## serializeJni(): failure - invalid account ptr");
     }
     else if (!(errorMsgJClass = env->GetObjectClass(aErrorMsg)))
     {
-        LOGE(" ## serializeDataWithKeyJni(): failure - unable to get error class");
+        LOGE(" ## serializeJni(): failure - unable to get error class");
     }
     else if (!(errorMsgMethodId = env->GetMethodID(errorMsgJClass, "append", "(Ljava/lang/String;)Ljava/lang/StringBuffer;")))
     {
-        LOGE(" ## serializeDataWithKeyJni(): failure - unable to get error method ID");
+        LOGE(" ## serializeJni(): failure - unable to get error method ID");
     }
     else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, NULL)))
     {
-        LOGE(" ## serializeDataWithKeyJni(): failure - keyPtr JNI allocation OOM");
+        LOGE(" ## serializeJni(): failure - keyPtr JNI allocation OOM");
     }
     else
     {
         size_t pickledLength = olm_pickle_account_length(accountPtr);
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
-        LOGD(" ## serializeDataWithKeyJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
-        LOGD(" ## serializeDataWithKeyJni(): key=%s",(char const *)keyPtr);
+        LOGD(" ## serializeJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
+        LOGD(" ## serializeJni(): key=%s",(char const *)keyPtr);
 
         void *pickledPtr = malloc((pickledLength+1)*sizeof(uint8_t));
 
         if (!pickledPtr)
         {
-            LOGE(" ## serializeDataWithKeyJni(): failure - pickledPtr buffer OOM");
+            LOGE(" ## serializeJni(): failure - pickledPtr buffer OOM");
         }
         else
         {
@@ -534,7 +534,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, 
             if (result == olm_error())
             {
                 const char *errorMsgPtr = olm_account_last_error(accountPtr);
-                LOGE(" ## serializeDataWithKeyJni(): failure - olm_pickle_account() Msg=%s",errorMsgPtr);
+                LOGE(" ## serializeJni(): failure - olm_pickle_account() Msg=%s",errorMsgPtr);
 
                 if(0 != (errorJstring = env->NewStringUTF(errorMsgPtr)))
                 {
@@ -546,7 +546,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, 
                 // build success output
                 (static_cast<char*>(pickledPtr))[pickledLength] = static_cast<char>('\0');
 
-                LOGD(" ## serializeDataWithKeyJni(): success - result=%lu pickled=%s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
+                LOGD(" ## serializeJni(): success - result=%lu pickled=%s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
 
                 pickledDataRetValue = env->NewByteArray(pickledLength+1);
                 env->SetByteArrayRegion(pickledDataRetValue, 0 , pickledLength+1, (jbyte*)pickledPtr);
@@ -566,42 +566,42 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeDataWithKeyJni)(JNIEnv *env, 
 }
 
 
-JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(initWithSerializedDataJni)(JNIEnv *env, jobject thiz, jbyteArray aSerializedDataBuffer, jbyteArray aKeyBuffer)
+JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz, jbyteArray aSerializedDataBuffer, jbyteArray aKeyBuffer)
 {
     OlmAccount* accountPtr = NULL;
     jstring errorMessageRetValue = 0;
     jbyte* keyPtr = NULL;
     jbyte* pickledPtr = NULL;
 
-    LOGD("## initWithSerializedDataJni(): IN");
+    LOGD("## deserializeJni(): IN");
 
     if (!aKeyBuffer)
     {
-        LOGE(" ## initWithSerializedDataJni(): failure - invalid key");
+        LOGE(" ## deserializeJni(): failure - invalid key");
     }
     else if (!aSerializedDataBuffer)
     {
-        LOGE(" ## initWithSerializedDataJni(): failure - serialized data");
+        LOGE(" ## deserializeJni(): failure - serialized data");
     }
     else if (!(accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
     {
-        LOGE(" ## initWithSerializedDataJni(): failure - account failure OOM");
+        LOGE(" ## deserializeJni(): failure - account failure OOM");
     }
     else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, 0)))
     {
-        LOGE(" ## initWithSerializedDataJni(): failure - keyPtr JNI allocation OOM");
+        LOGE(" ## deserializeJni(): failure - keyPtr JNI allocation OOM");
     }
     else if (!(pickledPtr = env->GetByteArrayElements(aSerializedDataBuffer, 0)))
     {
-        LOGE(" ## initWithSerializedDataJni(): failure - pickledPtr JNI allocation OOM");
+        LOGE(" ## deserializeJni(): failure - pickledPtr JNI allocation OOM");
     }
     else
     {
         size_t pickledLength = (size_t)env->GetArrayLength(aSerializedDataBuffer);
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
-        LOGD(" ## initWithSerializedDataJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
-        LOGD(" ## initWithSerializedDataJni(): key=%s",(char const *)keyPtr);
-        LOGD(" ## initWithSerializedDataJni(): pickled=%s",(char const *)pickledPtr);
+        LOGD(" ## deserializeJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
+        LOGD(" ## deserializeJni(): key=%s",(char const *)keyPtr);
+        LOGD(" ## deserializeJni(): pickled=%s",(char const *)pickledPtr);
 
         size_t result = olm_unpickle_account(accountPtr,
                                              (void const *)keyPtr,
@@ -611,12 +611,12 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(initWithSerializedDataJni)(JNIEnv *env, j
         if (result == olm_error())
         {
             const char *errorMsgPtr = olm_account_last_error(accountPtr);
-            LOGE(" ## initWithSerializedDataJni(): failure - olm_unpickle_account() Msg=%s",errorMsgPtr);
+            LOGE(" ## deserializeJni(): failure - olm_unpickle_account() Msg=%s",errorMsgPtr);
             errorMessageRetValue = env->NewStringUTF(errorMsgPtr);
         }
         else
         {
-            LOGD(" ## initWithSerializedDataJni(): success - result=%lu ", static_cast<long unsigned int>(result));
+            LOGD(" ## deserializeJni(): success - result=%lu ", static_cast<long unsigned int>(result));
         }
     }
 

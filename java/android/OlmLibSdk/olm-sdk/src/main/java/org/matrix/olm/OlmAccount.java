@@ -69,105 +69,6 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     }
 
     /**
-     * Kick off the serialization mechanism.
-     * @param aOutStream output stream for serializing
-     * @throws IOException exception
-     */
-    private void writeObject(ObjectOutputStream aOutStream) throws IOException {
-        serializeObject(aOutStream);
-    }
-
-    /**
-     * Kick off the deserialization mechanism.
-     * @param aInStream input stream
-     * @throws IOException exception
-     * @throws ClassNotFoundException exception
-     */
-    private void readObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException {
-        deserializeObject(aInStream);
-    }
-
-    @Override
-    protected boolean createNewObjectFromSerialization() {
-        return createNewAccount();
-    }
-
-    @Override
-    protected void releaseObjectFromSerialization() {
-        releaseAccount();
-    }
-
-    /**
-     * Return an account as a base64 string.<br>
-     * The account is serialized and encrypted with aKey.
-     * In case of failure, an error human readable
-     * description is provide in aErrorMsg.
-     * @param aKey encryption key
-     * @param aErrorMsg error message description
-     * @return pickled base64 string if operation succeed, null otherwise
-     */
-    @Override
-    protected String serializeDataWithKey(String aKey, StringBuffer aErrorMsg) {
-        String pickleRetValue = null;
-
-        // sanity check
-        if(null == aErrorMsg) {
-            Log.e(LOG_TAG,"## serializeDataWithKey(): invalid parameter - aErrorMsg=null");
-        } else if(TextUtils.isEmpty(aKey)) {
-            aErrorMsg.append("Invalid input parameters in serializeDataWithKey()");
-        } else {
-            aErrorMsg.setLength(0);
-            try {
-                pickleRetValue = new String(serializeDataWithKeyJni(aKey.getBytes("UTF-8"), aErrorMsg), "UTF-8");
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "## serializeDataWithKey() failed " + e.getMessage());
-                aErrorMsg.append(e.getMessage());
-            }
-        }
-
-        return pickleRetValue;
-    }
-    private native byte[] serializeDataWithKeyJni(byte[] aKey, StringBuffer aErrorMsg);
-
-
-    /**
-     * Loads an account from a pickled base64 string.<br>
-     * See {@link #serializeDataWithKey(String, StringBuffer)}
-     * @param aSerializedData pickled account in a base64 string format
-     * @param aKey key used to encrypted
-     * @param aErrorMsg error message description
-     * @return true if operation succeed, false otherwise
-     */
-    @Override
-    protected boolean initWithSerializedData(String aSerializedData, String aKey, StringBuffer aErrorMsg) {
-        boolean retCode = false;
-        String jniError;
-
-        if (null == aErrorMsg) {
-            Log.e(LOG_TAG, "## initWithSerializedData(): invalid input error parameter");
-        } else {
-            aErrorMsg.setLength(0);
-
-            try {
-                if (TextUtils.isEmpty(aSerializedData) || TextUtils.isEmpty(aKey)) {
-                    Log.e(LOG_TAG, "## initWithSerializedData(): invalid input parameters");
-                } else if (null == (jniError = initWithSerializedDataJni(aSerializedData.getBytes("UTF-8"), aKey.getBytes("UTF-8")))) {
-                    retCode = true;
-                } else {
-                    aErrorMsg.append(jniError);
-                }
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "## initWithSerializedData() failed " + e.getMessage());
-                aErrorMsg.append(e.getMessage());
-            }
-        }
-
-        return retCode;
-    }
-    
-    private native String initWithSerializedDataJni(byte[] aSerializedDataBuffer, byte[] aKeyBuffer);
-
-    /**
      * Getter on the account ID.
      * @return native account ID
      */
@@ -228,6 +129,14 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * @return native account instance identifier (see {@link #mNativeId})
      */
     private native long createNewAccountJni();
+
+    /**
+     * Return true the object resources have been released.<br>
+     * @return true the object resources have been released
+     */
+    public boolean isReleased() {
+        return (0 == mNativeId);
+    }
 
     /**
      * Return the identity keys (identity and fingerprint keys) in a dictionary.<br>
@@ -394,14 +303,6 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     private native byte[] signMessageJni(byte[] aMessage);
 
     /**
-     * Return true the object resources have been released.<br>
-     * @return true the object resources have been released
-     */
-    public boolean isReleased() {
-        return (0 == mNativeId);
-    }
-
-    /**
      * Build a string-string dictionary from a jsonObject.<br>
      * @param jsonObject the object to parse
      * @return the map
@@ -461,4 +362,95 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
 
         return null;
     }
+
+    //==============================================================================================================
+    // Serialization management
+    //==============================================================================================================
+
+    /**
+     * Kick off the serialization mechanism.
+     * @param aOutStream output stream for serializing
+     * @throws IOException exception
+     */
+    private void writeObject(ObjectOutputStream aOutStream) throws IOException {
+        serialize(aOutStream);
+    }
+
+    /**
+     * Kick off the deserialization mechanism.
+     * @param aInStream input stream
+     * @throws IOException exception
+     * @throws ClassNotFoundException exception
+     */
+    private void readObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException {
+        deserialize(aInStream);
+    }
+
+    /**
+     * Return an account as a base64 string.<br>
+     * The account is serialized and encrypted with aKey.
+     * In case of failure, an error human readable
+     * description is provide in aErrorMsg.
+     * @param aKey encryption key
+     * @param aErrorMsg error message description
+     * @return pickled base64 string if operation succeed, null otherwise
+     */
+    @Override
+    protected String serialize(String aKey, StringBuffer aErrorMsg) {
+        String pickleRetValue = null;
+
+        // sanity check
+        if(null == aErrorMsg) {
+            Log.e(LOG_TAG,"## serialize(): invalid parameter - aErrorMsg=null");
+        } else if(TextUtils.isEmpty(aKey)) {
+            aErrorMsg.append("Invalid input parameters in serializeDataWithKey()");
+        } else {
+            aErrorMsg.setLength(0);
+            try {
+                pickleRetValue = new String(serializeJni(aKey.getBytes("UTF-8"), aErrorMsg), "UTF-8");
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "## serialize() failed " + e.getMessage());
+                aErrorMsg.append(e.getMessage());
+            }
+        }
+
+        return pickleRetValue;
+    }
+
+    private native byte[] serializeJni(byte[] aKey, StringBuffer aErrorMsg);
+
+    /**
+     * Loads an account from a pickled base64 string.<br>
+     * See {@link #serialize(String, StringBuffer)}
+     * @param aSerializedData pickled account in a base64 string format
+     * @param aKey key used to encrypted
+     */
+    @Override
+    protected void deserialize(String aSerializedData, String aKey) throws IOException {
+        if (!createNewAccount()) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_ACCOUNT_CREATION,OlmException.EXCEPTION_MSG_INIT_ACCOUNT_CREATION);
+        }
+
+        StringBuffer errorMsg = new StringBuffer();
+
+        try {
+            String jniError;
+            if (TextUtils.isEmpty(aSerializedData) || TextUtils.isEmpty(aKey)) {
+                Log.e(LOG_TAG, "## deserialize(): invalid input parameters");
+                errorMsg.append("invalid input parameters");
+            } else if (null != (jniError = deserializeJni(aSerializedData.getBytes("UTF-8"), aKey.getBytes("UTF-8")))) {
+                errorMsg.append(jniError);
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## deserialize() failed " + e.getMessage());
+            errorMsg.append(e.getMessage());
+        }
+
+        if (errorMsg.length() > 0) {
+            releaseAccount();
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, String.valueOf(errorMsg));
+        }
+    }
+
+    private native String deserializeJni(byte[] aSerializedDataBuffer, byte[] aKeyBuffer);
 }

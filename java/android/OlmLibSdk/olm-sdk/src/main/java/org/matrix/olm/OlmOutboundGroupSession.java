@@ -70,105 +70,6 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
     }
 
     /**
-     * Kick off the serialization mechanism.
-     * @param aOutStream output stream for serializing
-     * @throws IOException exception
-     */
-    private void writeObject(ObjectOutputStream aOutStream) throws IOException {
-        serializeObject(aOutStream);
-    }
-
-    /**
-     * Kick off the deserialization mechanism.
-     * @param aInStream input stream
-     * @throws IOException exception
-     * @throws ClassNotFoundException exception
-     */
-    private void readObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException {
-        deserializeObject(aInStream);
-    }
-
-    @Override
-    protected boolean createNewObjectFromSerialization() {
-        return createNewSession();
-    }
-
-    @Override
-    protected void releaseObjectFromSerialization() {
-        releaseSession();
-    }
-
-    /**
-     * Return the current outbound group session as a base64 serialized string.<br>
-     * The session is serialized and encrypted with aKey.
-     * In case of failure, an error human readable
-     * description is provide in aErrorMsg.
-     * @param aKey encryption key
-     * @param aErrorMsg error message description
-     * @return pickled base64 string if operation succeed, null otherwise
-     */
-    @Override
-    protected String serializeDataWithKey(String aKey, StringBuffer aErrorMsg) {
-        String pickleRetValue = null;
-
-        // sanity check
-        if(null == aErrorMsg) {
-            Log.e(LOG_TAG,"## serializeDataWithKey(): invalid parameter - aErrorMsg=null");
-        } else if(TextUtils.isEmpty(aKey)) {
-            aErrorMsg.append("Invalid input parameters in serializeDataWithKey()");
-        } else {
-            aErrorMsg.setLength(0);
-            try {
-                pickleRetValue = serializeDataWithKeyJni(aKey.getBytes("UTF-8"), aErrorMsg);
-            } catch (Exception e) {
-                Log.e(LOG_TAG,"## serializeDataWithKey(): failed " + e.getMessage());
-                aErrorMsg.append(e.getMessage());
-            }
-        }
-
-        return pickleRetValue;
-    }
-    private native String serializeDataWithKeyJni(byte[] aKey, StringBuffer aErrorMsg);
-
-
-    /**
-     * Load an outbound group session from a pickled base64 string.<br>
-     * See {@link #serializeDataWithKey(String, StringBuffer)}
-     * @param aSerializedData pickled outbound group session in a base64 string format
-     * @param aKey encrypting key used in {@link #serializeDataWithKey(String, StringBuffer)}
-     * @param aErrorMsg error message description
-     * @return true if operation succeed, false otherwise
-     */
-    @Override
-    protected boolean initWithSerializedData(String aSerializedData, String aKey, StringBuffer aErrorMsg) {
-        boolean retCode = false;
-        String jniError;
-
-        if(null == aErrorMsg) {
-            Log.e(LOG_TAG, "## initWithSerializedData(): invalid input error parameter");
-        } else {
-            aErrorMsg.setLength(0);
-
-            try {
-                if (TextUtils.isEmpty(aSerializedData) || TextUtils.isEmpty(aKey)) {
-                    Log.e(LOG_TAG, "## initWithSerializedData(): invalid input parameters");
-                } else if (null == (jniError = initWithSerializedDataJni(aSerializedData.getBytes("UTF-8"), aKey.getBytes("UTF-8")))) {
-                    retCode = true;
-                } else {
-                    aErrorMsg.append(jniError);
-                }
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "## initWithSerializedData(): failed " + e.getMessage());
-                aErrorMsg.append(e.getMessage());
-            }
-        }
-
-        return retCode;
-    }
-    private native String initWithSerializedDataJni(byte[] aSerializedData, byte[] aKey);
-
-
-    /**
      * Release native session and invalid its JAVA reference counter part.<br>
      * Public API for {@link #releaseSessionJni()}.
      */
@@ -202,6 +103,14 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * @return native session instance identifier (see {@link #mNativeId})
      */
     private native long createNewSessionJni();
+
+    /**
+     * Return true the object resources have been released.<br>
+     * @return true the object resources have been released
+     */
+    public boolean isReleased() {
+        return (0 == mNativeId);
+    }
 
     /**
      * Start a new outbound group session.<br>
@@ -290,11 +199,96 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
     }
     private native byte[] encryptMessageJni(byte[] aClearMsgBuffer, StringBuffer aErrorMsg);
 
+
+    //==============================================================================================================
+    // Serialization management
+    //==============================================================================================================
+
     /**
-     * Return true the object resources have been released.<br>
-     * @return true the object resources have been released
+     * Kick off the serialization mechanism.
+     * @param aOutStream output stream for serializing
+     * @throws IOException exception
      */
-    public boolean isReleased() {
-        return (0 == mNativeId);
+    private void writeObject(ObjectOutputStream aOutStream) throws IOException {
+        serialize(aOutStream);
     }
+
+    /**
+     * Kick off the deserialization mechanism.
+     * @param aInStream input stream
+     * @throws IOException exception
+     * @throws ClassNotFoundException exception
+     */
+    private void readObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException {
+        deserialize(aInStream);
+    }
+
+    /**
+     * Return the current outbound group session as a base64 serialized string.<br>
+     * The session is serialized and encrypted with aKey.
+     * In case of failure, an error human readable
+     * description is provide in aErrorMsg.
+     * @param aKey encryption key
+     * @param aErrorMsg error message description
+     * @return pickled base64 string if operation succeed, null otherwise
+     */
+    @Override
+    protected String serialize(String aKey, StringBuffer aErrorMsg) {
+        String pickleRetValue = null;
+
+        // sanity check
+        if(null == aErrorMsg) {
+            Log.e(LOG_TAG,"## serialize(): invalid parameter - aErrorMsg=null");
+        } else if(TextUtils.isEmpty(aKey)) {
+            aErrorMsg.append("Invalid input parameters in serialize()");
+        } else {
+            aErrorMsg.setLength(0);
+            try {
+                pickleRetValue = serializeJni(aKey.getBytes("UTF-8"), aErrorMsg);
+            } catch (Exception e) {
+                Log.e(LOG_TAG,"## serialize(): failed " + e.getMessage());
+                aErrorMsg.append(e.getMessage());
+            }
+        }
+
+        return pickleRetValue;
+    }
+    private native String serializeJni(byte[] aKey, StringBuffer aErrorMsg);
+
+
+    /**
+     * Loads an account from a pickled base64 string.<br>
+     * See {@link #serialize(String, StringBuffer)}
+     * @param aSerializedData pickled account in a base64 string format
+     * @param aKey key used to encrypted
+     */
+    @Override
+    protected void deserialize(String aSerializedData, String aKey) throws IOException {
+        if (!createNewSession()) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_ACCOUNT_CREATION,OlmException.EXCEPTION_MSG_INIT_ACCOUNT_CREATION);
+        }
+
+        StringBuffer errorMsg = new StringBuffer();
+
+        try {
+            String jniError;
+            if (TextUtils.isEmpty(aSerializedData) || TextUtils.isEmpty(aKey)) {
+                Log.e(LOG_TAG, "## deserialize(): invalid input parameters");
+                errorMsg.append("invalid input parameters");
+            } else if (null != (jniError = deserializeJni(aSerializedData.getBytes("UTF-8"), aKey.getBytes("UTF-8")))) {
+                errorMsg.append(jniError);
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## deserialize() failed " + e.getMessage());
+            errorMsg.append(e.getMessage());
+        }
+
+        if (errorMsg.length() > 0) {
+            releaseSession();
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, String.valueOf(errorMsg));
+        }
+    }
+
+    private native String deserializeJni(byte[] aSerializedData, byte[] aKey);
+
 }

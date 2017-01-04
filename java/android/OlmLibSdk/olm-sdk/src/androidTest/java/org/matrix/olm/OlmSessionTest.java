@@ -112,7 +112,7 @@ public class OlmSessionTest {
         assertTrue(0!=aliceSession.getOlmSessionId());
 
         // CREATE ALICE OUTBOUND SESSION and encrypt message to bob
-        assertNotNull(aliceSession.initOutboundSessionWithAccount(aliceAccount, bobIdentityKey, bobOneTimeKey));
+        assertNotNull(aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey));
         String clearMsg = "Heloo bob , this is alice!";
         OlmMessage encryptedMsgToBob = aliceSession.encryptMessage(clearMsg);
         assertNotNull(encryptedMsgToBob);
@@ -129,7 +129,7 @@ public class OlmSessionTest {
         assertTrue(0!=bobSession.getOlmSessionId());
 
         try {
-            bobSession.initInboundSessionWithAccount(bobAccount, encryptedMsgToBob.mCipherText);
+            bobSession.initInboundSession(bobAccount, encryptedMsgToBob.mCipherText);
         } catch (Exception e) {
             assertTrue("initInboundSessionWithAccount failed " + e.getMessage(), false);
         }
@@ -211,7 +211,7 @@ public class OlmSessionTest {
         assertTrue(0!=aliceSession.getOlmSessionId());
 
         // CREATE ALICE OUTBOUND SESSION and encrypt message to bob
-        assertNotNull(aliceSession.initOutboundSessionWithAccount(aliceAccount, bobIdentityKey, bobOneTimeKey));
+        assertNotNull(aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey));
         String helloClearMsg = "Hello I'm Alice!";
 
         OlmMessage encryptedAliceToBobMsg1 = aliceSession.encryptMessage(helloClearMsg);
@@ -229,7 +229,7 @@ public class OlmSessionTest {
         assertTrue(0!=bobSession.getOlmSessionId());
 
         try {
-            bobSession.initInboundSessionWithAccount(bobAccount, encryptedAliceToBobMsg1.mCipherText);
+            bobSession.initInboundSession(bobAccount, encryptedAliceToBobMsg1.mCipherText);
         } catch (Exception e) {
             assertTrue("initInboundSessionWithAccount failed " + e.getMessage(), false);
         }
@@ -381,7 +381,7 @@ public class OlmSessionTest {
         String bobOneTimeKey1 = TestHelper.getOneTimeKey(bobOneTimeKeys, 1);
 
         // create alice inbound session for bob
-        assertTrue(0==aliceSession.initOutboundSessionWithAccount(aliceAccount, bobIdentityKey, bobOneTimeKey1));
+        assertTrue(0==aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey1));
 
         String aliceClearMsg = "hello helooo to bob!";
         OlmMessage encryptedAliceToBobMsg1 = aliceSession.encryptMessage(aliceClearMsg);
@@ -389,7 +389,7 @@ public class OlmSessionTest {
 
         // init bob session with alice PRE KEY
         try {
-            bobSession.initInboundSessionWithAccount(bobAccount, encryptedAliceToBobMsg1.mCipherText);
+            bobSession.initInboundSession(bobAccount, encryptedAliceToBobMsg1.mCipherText);
         } catch (Exception e) {
             assertTrue("initInboundSessionWithAccount failed " + e.getMessage(), false);
         }
@@ -463,7 +463,7 @@ public class OlmSessionTest {
         assertTrue(0!=aliceSession.getOlmSessionId());
 
         // CREATE ALICE OUTBOUND SESSION and encrypt message to bob
-        assertNotNull(aliceSession.initOutboundSessionWithAccount(aliceAccount, bobIdentityKey, bobOneTimeKey));
+        assertNotNull(aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey));
         String helloClearMsg = "Hello I'm Alice!";
 
         OlmMessage encryptedAliceToBobMsg1 = aliceSession.encryptMessage(helloClearMsg);
@@ -481,7 +481,7 @@ public class OlmSessionTest {
 
         // init bob session with alice PRE KEY
         try {
-            bobSession.initInboundSessionWithAccount(bobAccount, encryptedAliceToBobMsg1.mCipherText);
+            bobSession.initInboundSession(bobAccount, encryptedAliceToBobMsg1.mCipherText);
         } catch (Exception e) {
             assertTrue("initInboundSessionWithAccount failed " + e.getMessage(), false);
         }
@@ -608,13 +608,13 @@ public class OlmSessionTest {
         }
 
         // SANITY CHECK TESTS FOR: initOutboundSessionWithAccount()
-        assertTrue(-1==aliceSession.initOutboundSessionWithAccount(null, bobIdentityKey, bobOneTimeKey));
-        assertTrue(-1==aliceSession.initOutboundSessionWithAccount(aliceAccount, null, bobOneTimeKey));
-        assertTrue(-1==aliceSession.initOutboundSessionWithAccount(aliceAccount, bobIdentityKey, null));
-        assertTrue(-1==aliceSession.initOutboundSessionWithAccount(null, null, null));
+        assertTrue(-1==aliceSession.initOutboundSession(null, bobIdentityKey, bobOneTimeKey));
+        assertTrue(-1==aliceSession.initOutboundSession(aliceAccount, null, bobOneTimeKey));
+        assertTrue(-1==aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, null));
+        assertTrue(-1==aliceSession.initOutboundSession(null, null, null));
 
         // init properly
-        assertTrue(0==aliceSession.initOutboundSessionWithAccount(aliceAccount, bobIdentityKey, bobOneTimeKey));
+        assertTrue(0==aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey));
 
         // SANITY CHECK TESTS FOR: encryptMessage()
         assertTrue(null==aliceSession.encryptMessage(null));
@@ -629,7 +629,7 @@ public class OlmSessionTest {
             bobSession = new OlmSession();
             String errorMessage = null;
             try {
-                bobSession.initInboundSessionWithAccount(null, encryptedMsgToBob.mCipherText);
+                bobSession.initInboundSession(null, encryptedMsgToBob.mCipherText);
             } catch (Exception e) {
                 errorMessage = e.getMessage();
             }
@@ -638,7 +638,7 @@ public class OlmSessionTest {
 
             errorMessage = null;
             try {
-                bobSession.initInboundSessionWithAccount(bobAccount, null);
+                bobSession.initInboundSession(bobAccount, null);
             } catch (Exception e) {
                 errorMessage = e.getMessage();
             }
@@ -647,7 +647,7 @@ public class OlmSessionTest {
 
             errorMessage = null;
             try {
-                bobSession.initInboundSessionWithAccount(bobAccount, INVALID_PRE_KEY);
+                bobSession.initInboundSession(bobAccount, INVALID_PRE_KEY);
             } catch (Exception e) {
                 errorMessage = e.getMessage();
             }
@@ -657,7 +657,7 @@ public class OlmSessionTest {
             // init properly
             errorMessage = null;
             try {
-                bobSession.initInboundSessionWithAccount(bobAccount, encryptedMsgToBob.mCipherText);
+                bobSession.initInboundSession(bobAccount, encryptedMsgToBob.mCipherText);
             } catch (Exception e) {
                 errorMessage = e.getMessage();
             }

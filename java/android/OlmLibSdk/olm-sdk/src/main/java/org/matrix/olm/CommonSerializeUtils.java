@@ -35,7 +35,7 @@ abstract class CommonSerializeUtils {
      * @param aOutStream output stream for serializing
      * @throws IOException exception
      */
-    protected void serializeObject(ObjectOutputStream aOutStream) throws IOException {
+    protected void serialize(ObjectOutputStream aOutStream) throws IOException {
         aOutStream.defaultWriteObject();
 
         // generate serialization key
@@ -43,7 +43,7 @@ abstract class CommonSerializeUtils {
 
         // compute pickle string
         StringBuffer errorMsg = new StringBuffer();
-        String pickledData = serializeDataWithKey(key, errorMsg);
+        String pickledData = serialize(key, errorMsg);
 
         if(null == pickledData) {
             throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_SERIALIZATION, String.valueOf(errorMsg));
@@ -59,33 +59,22 @@ abstract class CommonSerializeUtils {
      * @throws IOException exception
      * @throws ClassNotFoundException exception
      */
-    protected void deserializeObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException {
+    protected void deserialize(ObjectInputStream aInStream) throws IOException, ClassNotFoundException {
         aInStream.defaultReadObject();
-        StringBuffer errorMsg = new StringBuffer();
 
         String key = (String) aInStream.readObject();
         String pickledData = (String) aInStream.readObject();
 
-        if(TextUtils.isEmpty(key)) {
+        if (TextUtils.isEmpty(key)) {
             throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, OlmException.EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION+" key");
-
-        } else if(TextUtils.isEmpty(pickledData)) {
+        } else if (TextUtils.isEmpty(pickledData)) {
             throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, OlmException.EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION+" pickle");
-
-        } else if(!createNewObjectFromSerialization()) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, OlmException.EXCEPTION_MSG_INIT_NEW_ACCOUNT_DESERIALIZATION);
-
-        } else if(!initWithSerializedData(pickledData, key, errorMsg)) {
-            releaseObjectFromSerialization(); // prevent memory leak
-            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, String.valueOf(errorMsg));
-
-        } else {
-            Log.d(LOG_TAG,"## readObject(): success");
         }
+
+        deserialize(pickledData, key);
+        Log.d(LOG_TAG,"## deserializeObject(): success");
     }
 
-    protected abstract String serializeDataWithKey(String aKey, StringBuffer aErrorMsg);
-    protected abstract boolean initWithSerializedData(String aSerializedData, String aKey, StringBuffer aErrorMsg);
-    protected abstract boolean createNewObjectFromSerialization();
-    protected abstract void releaseObjectFromSerialization();
+    protected abstract String serialize(String aKey, StringBuffer aErrorMsg);
+    protected abstract void deserialize(String aSerializedData, String aKey) throws IOException;
 }
