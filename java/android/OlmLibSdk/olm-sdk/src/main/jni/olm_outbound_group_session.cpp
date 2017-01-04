@@ -381,11 +381,11 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIE
 * @param aKey key used to encrypt the serialized session data
 * @return a base64 string if operation succeed, null otherwise
 **/
-JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thiz, jbyteArray aKeyBuffer)
+JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thiz, jbyteArray aKeyBuffer)
 {
     const char* errorMessage = NULL;
+    jbyteArray returnValue = 0;
 
-    jstring pickledDataRetValue = 0;
     jbyte* keyPtr = NULL;
     OlmOutboundGroupSession* sessionPtr = NULL;
 
@@ -411,7 +411,6 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env,
         size_t pickledLength = olm_pickle_outbound_group_session_length(sessionPtr);
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## serializeJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
-        LOGD(" ## serializeJni(): key=%s",(char const *)keyPtr);
 
         void *pickledPtr = malloc((pickledLength+1)*sizeof(uint8_t));
 
@@ -436,8 +435,10 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env,
             {
                 // build success output
                 (static_cast<char*>(pickledPtr))[pickledLength] = static_cast<char>('\0');
-                pickledDataRetValue = env->NewStringUTF((const char*)pickledPtr);
                 LOGD(" ## serializeJni(): success - result=%lu pickled=%s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
+
+                returnValue = env->NewByteArray(pickledLength);
+                env->SetByteArrayRegion(returnValue, 0 , pickledLength, (jbyte*)pickledPtr);
             }
         }
 
@@ -455,7 +456,7 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env,
         env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
     }
 
-    return pickledDataRetValue;
+    return returnValue;
 }
 
 
@@ -493,7 +494,6 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *en
         size_t pickledLength = (size_t)env->GetArrayLength(aSerializedDataBuffer);
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## deserializeJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
-        LOGD(" ## deserializeJni(): key=%s",(char const *)keyPtr);
         LOGD(" ## deserializeJni(): pickled=%s",(char const *)pickledPtr);
 
         size_t result = olm_unpickle_outbound_group_session(sessionPtr,

@@ -361,7 +361,6 @@ JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *en
         size_t pickledLength = olm_pickle_inbound_group_session_length(sessionPtr);
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## serializeJni(): pickledLength=%lu keyLength=%lu", static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
-        LOGD(" ## serializeJni(): key=%s",(char const *)keyPtr);
 
         void *pickledPtr = malloc((pickledLength+1)*sizeof(uint8_t));
 
@@ -444,7 +443,6 @@ JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env
         size_t pickledLength = (size_t)env->GetArrayLength(aSerializedDataBuffer);
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## deserializeJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
-        LOGD(" ## deserializeJni(): key=%s",(char const *)keyPtr);
         LOGD(" ## deserializeJni(): pickled=%s",(char const *)pickledPtr);
 
         size_t result = olm_unpickle_inbound_group_session(sessionPtr,

@@ -39,11 +39,11 @@ abstract class CommonSerializeUtils {
         aOutStream.defaultWriteObject();
 
         // generate serialization key
-        String key = OlmUtility.getRandomKey();
+        byte[] key = OlmUtility.getRandomKey();
 
         // compute pickle string
         StringBuffer errorMsg = new StringBuffer();
-        String pickledData = serialize(key, errorMsg);
+        byte[] pickledData = serialize(key, errorMsg);
 
         if(null == pickledData) {
             throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_SERIALIZATION, String.valueOf(errorMsg));
@@ -62,12 +62,12 @@ abstract class CommonSerializeUtils {
     protected void deserialize(ObjectInputStream aInStream) throws IOException, ClassNotFoundException {
         aInStream.defaultReadObject();
 
-        String key = (String) aInStream.readObject();
-        String pickledData = (String) aInStream.readObject();
+        byte[] key = (byte[]) aInStream.readObject();
+        byte[] pickledData = (byte[]) aInStream.readObject();
 
-        if (TextUtils.isEmpty(key)) {
+        if (null == key) {
             throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, OlmException.EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION+" key");
-        } else if (TextUtils.isEmpty(pickledData)) {
+        } else if (null == pickledData) {
             throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, OlmException.EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION+" pickle");
         }
 
@@ -75,6 +75,6 @@ abstract class CommonSerializeUtils {
         Log.d(LOG_TAG,"## deserializeObject(): success");
     }
 
-    protected abstract String serialize(String aKey, StringBuffer aErrorMsg);
-    protected abstract void deserialize(String aSerializedData, String aKey) throws IOException;
+    protected abstract byte[] serialize(byte[] aKey, StringBuffer aErrorMsg);
+    protected abstract void deserialize(byte[] aSerializedData, byte[] aKey) throws IOException;
 }

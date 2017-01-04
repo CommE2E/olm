@@ -135,13 +135,13 @@ public class OlmUtility {
 
     /**
      * Helper method to compute a string based on random integers.
-     * @return string containing randoms integer values
+     * @return bytes buffer containing randoms integer values
      */
-    public static String getRandomKey() {
+    public static byte[] getRandomKey() {
         SecureRandom secureRandom = new SecureRandom();
         byte[] buffer = new byte[RANDOM_KEY_SIZE];
         secureRandom.nextBytes(buffer);
-        return new String(buffer);
+        return buffer;
     }
 
     /**

@@ -418,27 +418,27 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     }
 
     /**
-     * Return an account as a base64 string.<br>
+     * Return an account as a bytes buffer.<br>
      * The account is serialized and encrypted with aKey.
      * In case of failure, an error human readable
      * description is provide in aErrorMsg.
      * @param aKey encryption key
      * @param aErrorMsg error message description
-     * @return pickled base64 string if operation succeed, null otherwise
+     * @return the account as bytes buffer
      */
     @Override
-    protected String serialize(String aKey, StringBuffer aErrorMsg) {
-        String pickleRetValue = null;
+    protected byte[] serialize(byte[] aKey, StringBuffer aErrorMsg) {
+        byte[] pickleRetValue = null;
 
         // sanity check
         if(null == aErrorMsg) {
             Log.e(LOG_TAG,"## serialize(): invalid parameter - aErrorMsg=null");
-        } else if(TextUtils.isEmpty(aKey)) {
+        } else if (null ==  aKey) {
             aErrorMsg.append("Invalid input parameters in serializeDataWithKey()");
         } else {
             aErrorMsg.setLength(0);
             try {
-                pickleRetValue = new String(serializeJni(aKey.getBytes("UTF-8")), "UTF-8");
+                pickleRetValue = serializeJni(aKey);
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## serialize() failed " + e.getMessage());
                 aErrorMsg.append(e.getMessage());
@@ -451,13 +451,13 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     private native byte[] serializeJni(byte[] aKey);
 
     /**
-     * Loads an account from a pickled base64 string.<br>
-     * See {@link #serialize(String, StringBuffer)}
-     * @param aSerializedData pickled account in a base64 string format
+     * Loads an account from a pickled bytes buffer.<br>
+     * See {@link #serialize(byte[], StringBuffer)}
+     * @param aSerializedData bytes buffer
      * @param aKey key used to encrypted
      */
     @Override
-    protected void deserialize(String aSerializedData, String aKey) throws IOException {
+    protected void deserialize(byte[] aSerializedData, byte[] aKey) throws IOException {
         if (!createNewAccount()) {
             throw new OlmException(OlmException.EXCEPTION_CODE_INIT_ACCOUNT_CREATION,OlmException.EXCEPTION_MSG_INIT_ACCOUNT_CREATION);
         }
@@ -466,10 +466,10 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
 
         try {
             String jniError;
-            if (TextUtils.isEmpty(aSerializedData) || TextUtils.isEmpty(aKey)) {
+            if ((null == aSerializedData) || (null == aKey)) {
                 Log.e(LOG_TAG, "## deserialize(): invalid input parameters");
                 errorMsg.append("invalid input parameters");
-            } else if (null != (jniError = deserializeJni(aSerializedData.getBytes("UTF-8"), aKey.getBytes("UTF-8")))) {
+            } else if (null != (jniError = deserializeJni(aSerializedData, aKey))) {
                 errorMsg.append(jniError);
             }
         } catch (Exception e) {

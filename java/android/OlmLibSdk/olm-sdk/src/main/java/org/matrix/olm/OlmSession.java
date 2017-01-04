@@ -336,27 +336,27 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
     }
 
     /**
-     * Return a session as a base64 string.<br>
+     * Return a session as a bytes buffer.<br>
      * The account is serialized and encrypted with aKey.
      * In case of failure, an error human readable
      * description is provide in aErrorMsg.
      * @param aKey encryption key
      * @param aErrorMsg error message description
-     * @return pickled base64 string if operation succeed, null otherwise
+     * @return session as a bytes buffer
      */
     @Override
-    protected String serialize(String aKey, StringBuffer aErrorMsg) {
-        String pickleRetValue = null;
+    protected byte[] serialize(byte[] aKey, StringBuffer aErrorMsg) {
+        byte[] pickleRetValue = null;
 
         // sanity check
         if(null == aErrorMsg) {
             Log.e(LOG_TAG,"## serializeDataWithKey(): invalid parameter - aErrorMsg=null");
-        } else if(TextUtils.isEmpty(aKey)) {
+        } else if (null == aKey) {
             aErrorMsg.append("Invalid input parameters in serializeDataWithKey()");
         } else {
             aErrorMsg.setLength(0);
             try {
-                pickleRetValue = serializeJni(aKey.getBytes("UTF-8"));
+                pickleRetValue = serializeJni(aKey);
             } catch (Exception e) {
                 Log.e(LOG_TAG,"## serializeDataWithKey(): failed " + e.getMessage());
                 aErrorMsg.append(e.getMessage());
@@ -365,16 +365,16 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
 
         return pickleRetValue;
     }
-    private native String serializeJni(byte[] aKey);
+    private native byte[] serializeJni(byte[] aKey);
 
     /**
      * Loads an account from a pickled base64 string.<br>
-     * See {@link #serialize(String, StringBuffer)}
+     * See {@link #serialize(byte[], StringBuffer)}
      * @param aSerializedData pickled account in a base64 string format
      * @param aKey key used to encrypted
      */
     @Override
-    protected void deserialize(String aSerializedData, String aKey) throws IOException {
+    protected void deserialize(byte[] aSerializedData, byte[] aKey) throws IOException {
         if (!createNewSession()) {
             throw new OlmException(OlmException.EXCEPTION_CODE_INIT_ACCOUNT_CREATION,OlmException.EXCEPTION_MSG_INIT_ACCOUNT_CREATION);
         }
@@ -383,10 +383,10 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
 
         try {
             String jniError;
-            if (TextUtils.isEmpty(aSerializedData) || TextUtils.isEmpty(aKey)) {
+            if ((null == aSerializedData) || (null == aKey)) {
                 Log.e(LOG_TAG, "## deserialize(): invalid input parameters");
                 errorMsg.append("invalid input parameters");
-            } else if (null != (jniError = deserializeJni(aSerializedData.getBytes("UTF-8"), aKey.getBytes("UTF-8")))) {
+            } else if (null != (jniError = deserializeJni(aSerializedData, aKey))) {
                 errorMsg.append(jniError);
             }
         } catch (Exception e) {

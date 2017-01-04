@@ -44,7 +44,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     /**
      * Result in {@link #decryptMessage(String)}
      */
-    static class DecryptMessageResult {
+    public static class DecryptMessageResult {
         /** decrypt message **/
         public String mDecryptedMessage;
 
@@ -135,6 +135,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     /**
      * Retrieve the base64-encoded identifier for this inbound group session.
      * @return the session ID
+     * @throws OlmException the failure reason
      */
     public String sessionIdentifier() throws OlmException {
         try {
@@ -197,28 +198,28 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     }
 
     /**
-     * Return the current inbound group session as a base64 serialized string.<br>
+     * Return the current inbound group session as a bytes buffer.<br>
      * The session is serialized and encrypted with aKey.
      * In case of failure, an error human readable
      * description is provide in aErrorMsg.
      * @param aKey encryption key
      * @param aErrorMsg error message description
-     * @return pickled base64 string if operation succeed, null otherwise
+     * @return pickled bytes buffer if operation succeed, null otherwise
      */
     @Override
-    protected String serialize(String aKey, StringBuffer aErrorMsg) {
-        String pickleRetValue = null;
+    protected byte[] serialize(byte[] aKey, StringBuffer aErrorMsg) {
+        byte[] pickleRetValue = null;
 
         // sanity check
         if(null == aErrorMsg) {
             Log.e(LOG_TAG,"## serialize(): invalid parameter - aErrorMsg=null");
             aErrorMsg.append("aErrorMsg=null");
-        } else if(TextUtils.isEmpty(aKey)) {
+        } else if (null == aKey) {
             aErrorMsg.append("Invalid input parameters in serialize()");
         } else {
             aErrorMsg.setLength(0);
             try {
-                pickleRetValue = new String(serializeJni(aKey.getBytes("UTF-8")), "UTF-8");
+                pickleRetValue = serializeJni(aKey);
             } catch (Exception e) {
                 Log.e(LOG_TAG, "## serialize() failed " + e.getMessage());
                 aErrorMsg.append(e.getMessage());
@@ -228,7 +229,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
         return pickleRetValue;
     }
     /**
-     * JNI counter part of {@link #serialize(String, StringBuffer)}.
+     * JNI counter part of {@link #serialize(byte[], StringBuffer)}.
      * @param aKey encryption key
      * @return pickled base64 string if operation succeed, null otherwise
      */
@@ -236,12 +237,12 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
 
     /**
      * Loads an account from a pickled base64 string.<br>
-     * See {@link #serialize(String, StringBuffer)}
-     * @param aSerializedData pickled account in a base64 string format
+     * See {@link #serialize(byte[], StringBuffer)}
+     * @param aSerializedData pickled account in a bytes buffer
      * @param aKey key used to encrypted
      */
     @Override
-    protected void deserialize(String aSerializedData, String aKey) throws IOException {
+    protected void deserialize(byte[] aSerializedData, byte[] aKey) throws IOException {
         if (!createNewSession()) {
             throw new OlmException(OlmException.EXCEPTION_CODE_INIT_ACCOUNT_CREATION,OlmException.EXCEPTION_MSG_INIT_ACCOUNT_CREATION);
         }
@@ -250,10 +251,10 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
 
         try {
             String jniError;
-            if (TextUtils.isEmpty(aSerializedData) || TextUtils.isEmpty(aKey)) {
+            if ((null == aSerializedData) || (null == aKey)) {
                 Log.e(LOG_TAG, "## deserialize(): invalid input parameters");
                 errorMsg.append("invalid input parameters");
-            } else if (null != (jniError = deserializeJni(aSerializedData.getBytes("UTF-8"), aKey.getBytes("UTF-8")))) {
+            } else if (null != (jniError = deserializeJni(aSerializedData, aKey))) {
                 errorMsg.append(jniError);
             }
         } catch (Exception e) {
@@ -268,9 +269,9 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     }
 
     /**
-     * JNI counter part of {@link #deserialize(String, String)}.
-     * @param aSerializedData pickled session in a base64 string format
-     * @param aKey key used to encrypted in {@link #serialize(String, StringBuffer)}
+     * JNI counter part of {@link #deserialize(byte[], byte[])}.
+     * @param aSerializedData pickled session in a base64 sbytes buffer
+     * @param aKey key used to encrypted in {@link #serialize(byte[], StringBuffer)}
      * @return null if operation succeed, an error message if operation failed
      */
     private native String deserializeJni(byte[] aSerializedData, byte[] aKey);

@@ -558,7 +558,6 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thi
         size_t pickledLength = olm_pickle_account_length(accountPtr);
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## serializeJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
-        LOGD(" ## serializeJni(): key=%s",(char const *)keyPtr);
 
         void *pickledPtr = malloc((pickledLength+1)*sizeof(uint8_t));
 
@@ -586,8 +585,8 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thi
 
                 LOGD(" ## serializeJni(): success - result=%lu pickled=%s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
 
-                pickledDataRetValue = env->NewByteArray(pickledLength+1);
-                env->SetByteArrayRegion(pickledDataRetValue, 0 , pickledLength+1, (jbyte*)pickledPtr);
+                pickledDataRetValue = env->NewByteArray(pickledLength);
+                env->SetByteArrayRegion(pickledDataRetValue, 0 , pickledLength, (jbyte*)pickledPtr);
             }
 
             free(pickledPtr);
@@ -643,7 +642,6 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz
         size_t pickledLength = (size_t)env->GetArrayLength(aSerializedDataBuffer);
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## deserializeJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
-        LOGD(" ## deserializeJni(): key=%s",(char const *)keyPtr);
         LOGD(" ## deserializeJni(): pickled=%s",(char const *)pickledPtr);
 
         size_t result = olm_unpickle_account(accountPtr,
