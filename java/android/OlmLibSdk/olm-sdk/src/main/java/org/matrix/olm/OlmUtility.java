@@ -20,7 +20,7 @@ package org.matrix.olm;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 /**
  * Olm SDK helper class.
@@ -138,16 +138,10 @@ public class OlmUtility {
      * @return string containing randoms integer values
      */
     public static String getRandomKey() {
-        String keyRetValue;
-        Random rand = new Random();
-        StringBuilder strBuilder = new StringBuilder();
-
-        for(int i = 0; i< RANDOM_KEY_SIZE; i++) {
-            strBuilder.append(rand.nextInt(RANDOM_RANGE));
-        }
-        keyRetValue = strBuilder.toString();
-
-        return keyRetValue;
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] buffer = new byte[RANDOM_KEY_SIZE];
+        secureRandom.nextBytes(buffer);
+        return new String(buffer);
     }
 
     /**
