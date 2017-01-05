@@ -69,7 +69,7 @@ JNIEXPORT jlong OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv 
     {
         LOGE(" ## createNewSessionJni(): failure - outbound group session size = 0");
     }
-    else if (!(sessionPtr = (OlmOutboundGroupSession*)malloc(sessionSize)))
+    else if ((sessionPtr = (OlmOutboundGroupSession*)malloc(sessionSize)))
     {
         sessionPtr = olm_outbound_group_session(sessionPtr);
         LOGD(" ## createNewSessionJni(): success - outbound group session size=%lu",static_cast<long unsigned int>(sessionSize));
