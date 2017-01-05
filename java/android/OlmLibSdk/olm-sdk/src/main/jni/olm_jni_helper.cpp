@@ -62,22 +62,26 @@ bool setRandomInBuffer(JNIEnv *env, uint8_t **aBuffer2Ptr, size_t aRandomSize)
                 newObj = env->NewObject(cls, constructor);
                 jbyteArray tempByteArray = env->NewByteArray(bufferLen);
 
-                if (newObj && tempByteArray && !env->ExceptionOccurred())
+                if (newObj && tempByteArray)
                 {
                     env->CallVoidMethod(newObj, nextByteMethod, tempByteArray);
-                    jbyte* buffer = env->GetByteArrayElements(tempByteArray, NULL);
 
-                    if (buffer)
+                    if (!env->ExceptionOccurred())
                     {
-                        memcpy(*aBuffer2Ptr, buffer, bufferLen);
-                        retCode = true;
+                        jbyte* buffer = env->GetByteArrayElements(tempByteArray, NULL);
 
-                        // clear tempByteArray to hide sensitive data.
-                        memset(buffer, 0, bufferLen);
-                        env->SetByteArrayRegion(tempByteArray, 0, bufferLen, buffer);
+                        if (buffer)
+                        {
+                            memcpy(*aBuffer2Ptr, buffer, bufferLen);
+                            retCode = true;
 
-                        // ensure that the buffer is released
-                        env->ReleaseByteArrayElements(tempByteArray, buffer, JNI_ABORT);
+                            // clear tempByteArray to hide sensitive data.
+                            memset(buffer, 0, bufferLen);
+                            env->SetByteArrayRegion(tempByteArray, 0, bufferLen, buffer);
+
+                            // ensure that the buffer is released
+                            env->ReleaseByteArrayElements(tempByteArray, buffer, JNI_ABORT);
+                        }
                     }
                 }
 
