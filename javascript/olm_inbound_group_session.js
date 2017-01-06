@@ -123,4 +123,21 @@ InboundGroupSession.prototype['session_id'] = restore_stack(function() {
     return Pointer_stringify(session_id);
 });
 
+InboundGroupSession.prototype['first_known_index'] = restore_stack(function() {
+    return inbound_group_session_method(
+        Module['_olm_inbound_group_session_first_known_index']
+    )(this.ptr);
+});
+
+InboundGroupSession.prototype['export_session'] = restore_stack(function(message_index) {
+    var key_length = inbound_group_session_method(
+        Module['_olm_export_inbound_group_session_length']
+    )(this.ptr);
+    var key = stack(key_length + NULL_BYTE_PADDING_LENGTH);
+    outbound_group_session_method(Module['_olm_export_inbound_group_session'])(
+        this.ptr, key, key_length, message_index
+    );
+    return Pointer_stringify(key);
+});
+
 olm_exports['InboundGroupSession'] = InboundGroupSession;

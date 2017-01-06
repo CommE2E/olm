@@ -165,6 +165,37 @@ size_t olm_inbound_group_session_id(
     uint8_t * id, size_t id_length
 );
 
+/**
+ * Get the first message index we know how to decrypt.
+ */
+uint32_t olm_inbound_group_session_first_known_index(
+    const OlmInboundGroupSession *session
+);
+
+/**
+ * Get the number of bytes returned by olm_export_inbound_group_session()
+ */
+size_t olm_export_inbound_group_session_length(
+    const OlmInboundGroupSession *session
+);
+
+/**
+ * Export the base64-encoded ratchet key for this session, at the given index,
+ * in a format which can be used by olm_import_inbound_group_session
+ *
+ * Returns the length of the ratchet key on success or olm_error() on
+ * failure. On failure last_error will be set with an error code. The
+ * last_error will be:
+ *   * OUTPUT_BUFFER_TOO_SMALL if the buffer was too small
+ *   * OLM_UNKNOWN_MESSAGE_INDEX  if we do not have a session key corresponding to the
+ *     given index (ie, it was sent before the session key was shared with
+ *     us)
+ */
+size_t olm_export_inbound_group_session(
+    OlmInboundGroupSession *session,
+    uint8_t * key, size_t key_length, uint32_t message_index
+);
+
 
 #ifdef __cplusplus
 } // extern "C"

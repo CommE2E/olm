@@ -32,6 +32,7 @@
 #define GROUP_SESSION_ID_LENGTH  ED25519_PUBLIC_KEY_LENGTH
 #define PICKLE_VERSION           1
 #define SESSION_KEY_VERSION      2
+#define SESSION_EXPORT_VERSION   1
 
 struct OlmInboundGroupSession {
     /** our earliest known ratchet value */
@@ -70,6 +71,9 @@ size_t olm_clear_inbound_group_session(
     _olm_unset(session, sizeof(OlmInboundGroupSession));
     return sizeof(OlmInboundGroupSession);
 }
+
+#define SESSION_EXPORT_RAW_LENGTH \
+    (1 + 4 + MEGOLM_RATCHET_LENGTH + ED25519_PUBLIC_KEY_LENGTH)
 
 #define SESSION_KEY_RAW_LENGTH \
     (1 + 4 + MEGOLM_RATCHET_LENGTH + ED25519_PUBLIC_KEY_LENGTH\
@@ -258,6 +262,32 @@ size_t olm_group_decrypt_max_plaintext_length(
 }
 
 /**
+ * get a copy of the megolm ratchet, advanced
+ * to the relevant index. Returns 0 on success, -1 on error
+ */
+static size_t _get_megolm(
+    OlmInboundGroupSession *session, uint32_t message_index, Megolm *result
+) {
+    /* pick a megolm instance to use. If we're at or beyond the latest ratchet
+     * value, use that */
+    if ((message_index - session->latest_ratchet.counter) < (1U << 31)) {
+        megolm_advance_to(&session->latest_ratchet, message_index);
+        *result = session->latest_ratchet;
+        return 0;
+    } else if ((message_index - session->initial_ratchet.counter) >= (1U << 31)) {
+        /* the counter is before our intial ratchet - we can't decode this. */
+        session->last_error = OLM_UNKNOWN_MESSAGE_INDEX;
+        return (size_t)-1;
+    } else {
+        /* otherwise, start from the initial megolm. Take a copy so that we
+         * don't overwrite the initial megolm */
+        *result = session->initial_ratchet;
+        megolm_advance_to(result, message_index);
+        return 0;
+    }
+}
+
+/**
  * decrypt an un-base64-ed message
  */
 static size_t _decrypt(
@@ -268,8 +298,7 @@ static size_t _decrypt(
 ) {
     struct _OlmDecodeGroupMessageResults decoded_results;
     size_t max_length, r;
-    Megolm *megolm;
-    Megolm tmp_megolm;
+    Megolm megolm;
 
     _olm_decode_group_message(
         message, message_length,
@@ -316,33 +345,21 @@ static size_t _decrypt(
         return (size_t)-1;
     }
 
-    /* pick a megolm instance to use. If we're at or beyond the latest ratchet
-     * value, use that */
-    if ((decoded_results.message_index - session->latest_ratchet.counter) < (1U << 31)) {
-        megolm = &session->latest_ratchet;
-    } else if ((decoded_results.message_index - session->initial_ratchet.counter) >= (1U << 31)) {
-        /* the counter is before our intial ratchet - we can't decode this. */
-        session->last_error = OLM_UNKNOWN_MESSAGE_INDEX;
-        return (size_t)-1;
-    } else {
-        /* otherwise, start from the initial megolm. Take a copy so that we
-         * don't overwrite the initial megolm */
-        tmp_megolm = session->initial_ratchet;
-        megolm = &tmp_megolm;
+    r = _get_megolm(session, decoded_results.message_index, &megolm);
+    if (r == (size_t)-1) {
+        return r;
     }
-
-    megolm_advance_to(megolm, decoded_results.message_index);
 
     /* now try checking the mac, and decrypting */
     r = megolm_cipher->ops->decrypt(
         megolm_cipher,
-        megolm_get_data(megolm), MEGOLM_RATCHET_LENGTH,
+        megolm_get_data(&megolm), MEGOLM_RATCHET_LENGTH,
         message, message_length,
         decoded_results.ciphertext, decoded_results.ciphertext_length,
         plaintext, max_plaintext_length
     );
 
-    _olm_unset(&tmp_megolm, sizeof(tmp_megolm));
+    _olm_unset(&megolm, sizeof(megolm));
     if (r == (size_t)-1) {
         session->last_error = OLM_BAD_MESSAGE_MAC;
         return r;
@@ -390,4 +407,57 @@ size_t olm_inbound_group_session_id(
     return _olm_encode_base64(
         session->signing_key.public_key, GROUP_SESSION_ID_LENGTH, id
     );
+}
+
+uint32_t olm_inbound_group_session_first_known_index(
+    const OlmInboundGroupSession *session
+) {
+    return session->initial_ratchet.counter;
+}
+
+size_t olm_export_inbound_group_session_length(
+    const OlmInboundGroupSession *session
+) {
+    return _olm_encode_base64_length(SESSION_EXPORT_RAW_LENGTH);
+}
+
+size_t olm_export_inbound_group_session(
+    OlmInboundGroupSession *session,
+    uint8_t * key, size_t key_length, uint32_t message_index
+) {
+    uint8_t *raw;
+    uint8_t *ptr;
+    Megolm megolm;
+    size_t r;
+    size_t encoded_length = olm_export_inbound_group_session_length(session);
+
+    if (key_length < encoded_length) {
+        session->last_error = OLM_OUTPUT_BUFFER_TOO_SMALL;
+        return (size_t)-1;
+    }
+
+    r = _get_megolm(session, message_index, &megolm);
+    if (r == (size_t)-1) {
+        return r;
+    }
+
+    /* put the raw data at the end of the output buffer. */
+    raw = ptr = key + encoded_length - SESSION_EXPORT_RAW_LENGTH;
+    *ptr++ = SESSION_EXPORT_VERSION;
+
+    // Encode message index as a big endian 32-bit number.
+    for (unsigned i = 0; i < 4; i++) {
+        *ptr++ = 0xFF & (message_index >> 24); message_index <<= 8;
+    }
+
+    memcpy(ptr, megolm_get_data(&megolm), MEGOLM_RATCHET_LENGTH);
+    ptr += MEGOLM_RATCHET_LENGTH;
+
+    memcpy(
+        ptr, session->signing_key.public_key,
+        ED25519_PUBLIC_KEY_LENGTH
+    );
+    ptr += ED25519_PUBLIC_KEY_LENGTH;
+
+    return _olm_encode_base64(raw, SESSION_EXPORT_RAW_LENGTH, key);
 }
