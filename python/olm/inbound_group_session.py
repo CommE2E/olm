@@ -37,6 +37,10 @@ inbound_group_session_function(
 )
 
 inbound_group_session_function(
+    lib.olm_import_inbound_group_session, c_void_p, c_size_t
+)
+
+inbound_group_session_function(
     lib.olm_group_decrypt_max_plaintext_length, c_void_p, c_size_t
 )
 inbound_group_session_function(
@@ -80,6 +84,12 @@ class InboundGroupSession(object):
     def init(self, session_key):
         key_buffer = create_string_buffer(session_key)
         lib.olm_init_inbound_group_session(
+            self.ptr, key_buffer, len(session_key)
+        )
+
+    def import_session(self, session_key):
+        key_buffer = create_string_buffer(session_key)
+        lib.olm_import_inbound_group_session(
             self.ptr, key_buffer, len(session_key)
         )
 

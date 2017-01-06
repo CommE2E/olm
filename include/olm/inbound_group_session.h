@@ -85,7 +85,8 @@ size_t olm_unpickle_inbound_group_session(
 
 
 /**
- * Start a new inbound group session, based on the parameters supplied.
+ * Start a new inbound group session, from a key exported from
+ * olm_outbound_group_session_key
  *
  * Returns olm_error() on failure. On failure last_error will be set with an
  * error code. The last_error will be:
@@ -98,6 +99,23 @@ size_t olm_init_inbound_group_session(
     /* base64-encoded keys */
     uint8_t const * session_key, size_t session_key_length
 );
+
+/**
+ * Import an inbound group session, from a previous export.
+ *
+ * Returns olm_error() on failure. On failure last_error will be set with an
+ * error code. The last_error will be:
+ *
+ *  * OLM_INVALID_BASE64  if the session_key is not valid base64
+ *  * OLM_BAD_SESSION_KEY if the session_key is invalid
+ */
+size_t olm_import_inbound_group_session(
+    OlmInboundGroupSession *session,
+    /* base64-encoded keys; note that it will be overwritten with the base64-decoded
+       data. */
+    uint8_t const * session_key, size_t session_key_length
+);
+
 
 /**
  * Get an upper bound on the number of bytes of plain-text the decrypt method

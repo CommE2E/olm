@@ -61,6 +61,15 @@ InboundGroupSession.prototype['create'] = restore_stack(function(session_key) {
     );
 });
 
+InboundGroupSession.prototype['import_session'] = restore_stack(function(session_key) {
+    var key_array = array_from_string(session_key);
+    var key_buffer = stack(key_array);
+
+    inbound_group_session_method(Module['_olm_import_inbound_group_session'])(
+        this.ptr, key_buffer, key_array.length
+    );
+});
+
 InboundGroupSession.prototype['decrypt'] = restore_stack(function(
     message
 ) {

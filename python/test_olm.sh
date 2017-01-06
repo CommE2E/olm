@@ -10,10 +10,11 @@ ALICE_GROUP_SESSION=alice.group_session
 BOB_ACCOUNT=bob.account
 BOB_SESSION=bob.session
 BOB_GROUP_SESSION=bob.group_session
+CHARLIE_GROUP_SESSION=charlie.group_session
 
-rm $ALICE_ACCOUNT $BOB_ACCOUNT
-rm $ALICE_SESSION $BOB_SESSION
-rm $ALICE_GROUP_SESSION $BOB_GROUP_SESSION
+rm -f $ALICE_ACCOUNT $BOB_ACCOUNT
+rm -f $ALICE_SESSION $BOB_SESSION
+rm -f $ALICE_GROUP_SESSION $BOB_GROUP_SESSION $CHARLIE_GROUP_SESSION
 
 $OLM create_account $ALICE_ACCOUNT
 $OLM create_account $BOB_ACCOUNT
@@ -31,4 +32,8 @@ echo "Hello world" | $OLM encrypt $ALICE_SESSION - - | $OLM inbound $BOB_ACCOUNT
 
 $OLM outbound_group $ALICE_GROUP_SESSION
 $OLM group_credentials $ALICE_GROUP_SESSION | $OLM inbound_group $BOB_GROUP_SESSION
-echo "Hello group" | $OLM group_encrypt $ALICE_GROUP_SESSION - - | $OLM group_decrypt $BOB_GROUP_SESSION
+echo "Hello group" | $OLM group_encrypt $ALICE_GROUP_SESSION - group_message
+$OLM group_decrypt $BOB_GROUP_SESSION group_message
+
+$OLM export_inbound_group $BOB_GROUP_SESSION | $OLM import_inbound_group $CHARLIE_GROUP_SESSION
+$OLM group_decrypt $CHARLIE_GROUP_SESSION group_message

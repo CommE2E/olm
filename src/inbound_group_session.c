@@ -79,15 +79,17 @@ size_t olm_clear_inbound_group_session(
     (1 + 4 + MEGOLM_RATCHET_LENGTH + ED25519_PUBLIC_KEY_LENGTH\
         + ED25519_SIGNATURE_LENGTH)
 
-/** init the session keys from the un-base64-ed session keys */
 static size_t _init_group_session_keys(
     OlmInboundGroupSession *session,
-    const uint8_t *key_buf
+    const uint8_t *key_buf,
+    int export_format
 ) {
+    const uint8_t expected_version =
+        (export_format ? SESSION_EXPORT_VERSION : SESSION_KEY_VERSION);
     const uint8_t *ptr = key_buf;
     size_t version = *ptr++;
 
-    if (version != SESSION_KEY_VERSION) {
+    if (version != expected_version) {
         session->last_error = OLM_BAD_SESSION_KEY;
         return (size_t)-1;
     }
@@ -107,7 +109,7 @@ static size_t _init_group_session_keys(
     );
     ptr += ED25519_PUBLIC_KEY_LENGTH;
 
-    if (!_olm_crypto_ed25519_verify(
+    if (!export_format && !_olm_crypto_ed25519_verify(
         &session->signing_key, key_buf, ptr - key_buf, ptr
     )) {
         session->last_error = OLM_BAD_SIGNATURE;
@@ -135,8 +137,32 @@ size_t olm_init_inbound_group_session(
     }
 
     _olm_decode_base64(session_key, session_key_length, key_buf);
-    result = _init_group_session_keys(session, key_buf);
+    result = _init_group_session_keys(session, key_buf, 0);
     _olm_unset(key_buf, SESSION_KEY_RAW_LENGTH);
+    return result;
+}
+
+size_t olm_import_inbound_group_session(
+    OlmInboundGroupSession *session,
+    const uint8_t * session_key, size_t session_key_length
+) {
+    uint8_t key_buf[SESSION_EXPORT_RAW_LENGTH];
+    size_t raw_length = _olm_decode_base64_length(session_key_length);
+    size_t result;
+
+    if (raw_length == (size_t)-1) {
+        session->last_error = OLM_INVALID_BASE64;
+        return (size_t)-1;
+    }
+
+    if (raw_length != SESSION_EXPORT_RAW_LENGTH) {
+        session->last_error = OLM_BAD_SESSION_KEY;
+        return (size_t)-1;
+    }
+
+    _olm_decode_base64(session_key, session_key_length, key_buf);
+    result = _init_group_session_keys(session, key_buf, 1);
+    _olm_unset(key_buf, SESSION_EXPORT_RAW_LENGTH);
     return result;
 }
 

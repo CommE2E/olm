@@ -268,6 +268,19 @@ def build_arg_parser():
                                default=sys.stdin)
     inbound_group.set_defaults(func=do_inbound_group)
 
+    import_inbound_group = commands.add_parser(
+        "import_inbound_group",
+        help="Create an inbound group session based an exported inbound group"
+    )
+    import_inbound_group.add_argument("session_file", help="Local inbound group session file")
+    import_inbound_group.add_argument(
+        "export_file",
+        help="File to read credentials from (default stdin)",
+        type=argparse.FileType('r'), nargs='?',
+        default=sys.stdin,
+    )
+    import_inbound_group.set_defaults(func=do_import_inbound_group)
+
     group_decrypt = commands.add_parser("group_decrypt", help="Decrypt a group message")
     group_decrypt.add_argument("session_file", help="Local inbound group session file")
     group_decrypt.add_argument("message_file", help="Message file (default stdin)",
@@ -342,6 +355,19 @@ def do_inbound_group(args):
 
     session = InboundGroupSession()
     session.init(credentials['session_key'])
+    with open(args.session_file, "wb") as f:
+        f.write(session.pickle(args.key))
+
+def do_import_inbound_group(args):
+    if os.path.exists(args.session_file):
+        sys.stderr.write("Session %r file already exists\n" % (
+            args.session_file,
+        ))
+        sys.exit(1)
+    data = args.export_file.read().translate(None, "\r\n")
+
+    session = InboundGroupSession()
+    session.import_session(data)
     with open(args.session_file, "wb") as f:
         f.write(session.pickle(args.key))
 
