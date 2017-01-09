@@ -15,7 +15,17 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        debug {
+            resValue "string", "git_olm_revision", "\"${gitRevision()}\""
+            resValue "string", "git_olm_revision_unix_date", "\"${gitRevisionUnixDate()}\""
+            resValue "string", "git_olm_revision_date", "\"${gitRevisionDate()}\""
+        }
+
         release {
+            resValue "string", "git_olm_revision", "\"${gitRevision()}\""
+            resValue "string", "git_olm_revision_unix_date", "\"${gitRevisionUnixDate()}\""
+            resValue "string", "git_olm_revision_date", "\"${gitRevisionDate()}\""
+
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -91,6 +101,21 @@ def getNdkBuildCmd() {
         ndkBuildCmd += ".cmd"
 
     return ndkBuildCmd
+}
+
+def gitRevision() {
+    def cmd = "git rev-parse --short HEAD"
+    return cmd.execute().text.trim()
+}
+
+def gitRevisionUnixDate() {
+    def cmd = "git show -s --format=%ct HEAD^{commit}"
+    return cmd.execute().text.trim()
+}
+
+def gitRevisionDate() {
+    def cmd = "git show -s --format=%ci HEAD^{commit}"
+    return cmd.execute().text.trim()
 }
 
 dependencies {

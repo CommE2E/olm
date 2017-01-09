@@ -17,6 +17,7 @@
 
 package org.matrix.olm;
 
+import android.content.Context;
 import android.util.Log;
 
 /**
@@ -25,7 +26,6 @@ import android.util.Log;
  */
 public class OlmManager {
     private static final String LOG_TAG = "OlmManager";
-    private static final String SDK_OLM_VERSION = "V0.1.0_1";
 
     /**
      * Constructor.
@@ -41,8 +41,15 @@ public class OlmManager {
         }
     }
 
-    public String getSdkOlmVersion() {
-        return SDK_OLM_VERSION;
+    /**
+     * Provide the android library version
+     * @param context the context
+     * @return the library version
+     */
+    public String getSdkOlmVersion(Context context) {
+        String gitVersion = context.getResources().getString(R.string.git_olm_revision);
+        String date = context.getResources().getString(R.string.git_olm_revision_date);
+        return gitVersion + "-" + date;
     }
 
     /**
