@@ -27,33 +27,35 @@ public class OlmException extends IOException {
 
     public static final int EXCEPTION_CODE_INIT_ACCOUNT_CREATION = 10;
 
-    public static final int EXCEPTION_CODE_ACCOUNT_SERIALIZATION = 20;
-    public static final int EXCEPTION_CODE_ACCOUNT_DESERIALIZATION = 21;
-    public static final int EXCEPTION_CODE_ACCOUNT_IDENTITY_KEYS = 22;
-    public static final int EXCEPTION_CODE_ACCOUNT_GENERATE_ONE_TIME_KEYS = 23;
-    public static final int EXCEPTION_CODE_ACCOUNT_ONE_TIME_KEYS = 24;
-    public static final int EXCEPTION_CODE_ACCOUNT_REMOVE_ONE_TIME_KEYS = 25;
-    public static final int EXCEPTION_CODE_ACCOUNT_MARK_ONE_KEYS_AS_PUBLISHED = 26;
-    public static final int EXCEPTION_CODE_ACCOUNT_SIGN_MESSAGE = 27;
+    public static final int EXCEPTION_CODE_ACCOUNT_SERIALIZATION = 100;
+    public static final int EXCEPTION_CODE_ACCOUNT_DESERIALIZATION = 101;
+    public static final int EXCEPTION_CODE_ACCOUNT_IDENTITY_KEYS = 102;
+    public static final int EXCEPTION_CODE_ACCOUNT_GENERATE_ONE_TIME_KEYS = 103;
+    public static final int EXCEPTION_CODE_ACCOUNT_ONE_TIME_KEYS = 104;
+    public static final int EXCEPTION_CODE_ACCOUNT_REMOVE_ONE_TIME_KEYS = 105;
+    public static final int EXCEPTION_CODE_ACCOUNT_MARK_ONE_KEYS_AS_PUBLISHED = 106;
+    public static final int EXCEPTION_CODE_ACCOUNT_SIGN_MESSAGE = 107;
 
-    public static final int EXCEPTION_CODE_CREATE_INBOUND_GROUP_SESSION = 30;
-    public static final int EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION = 31;
-    public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_IDENTIFIER = 32;
-    public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_DECRYPT_SESSION = 33;
+    public static final int EXCEPTION_CODE_CREATE_INBOUND_GROUP_SESSION = 200;
+    public static final int EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION = 201;
+    public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_IDENTIFIER = 202;
+    public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_DECRYPT_SESSION = 203;
 
-    public static final int EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION = 40;
-    public static final int EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION = 41;
-    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_IDENTIFIER = 42;
-    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_KEY = 43;
-    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_ENCRYPT_MESSAGE = 44;
+    public static final int EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION = 300;
+    public static final int EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION = 301;
+    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_IDENTIFIER = 302;
+    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_KEY = 303;
+    public static final int EXCEPTION_CODE_OUTBOUND_GROUP_ENCRYPT_MESSAGE = 304;
 
-    public static final int EXCEPTION_CODE_INIT_SESSION_CREATION = 50;
-    public static final int EXCEPTION_CODE_SESSION_INIT_OUTBOUND_SESSION = 51;
-    public static final int EXCEPTION_CODE_SESSION_INIT_INBOUND_SESSION = 52;
-    public static final int EXCEPTION_CODE_SESSION_INIT_INBOUND_SESSION_FROM = 53;
-    public static final int EXCEPTION_CODE_SESSION_ENCRYPT_MESSAGE = 54;
-    public static final int EXCEPTION_CODE_SESSION_DECRYPT_MESSAGE = 55;
-    public static final int EXCEPTION_CODE_SESSION_SESSION_IDENTIFIER = 56;
+    public static final int EXCEPTION_CODE_INIT_SESSION_CREATION = 400;
+    public static final int EXCEPTION_CODE_SESSION_INIT_OUTBOUND_SESSION = 401;
+    public static final int EXCEPTION_CODE_SESSION_INIT_INBOUND_SESSION = 402;
+    public static final int EXCEPTION_CODE_SESSION_INIT_INBOUND_SESSION_FROM = 403;
+    public static final int EXCEPTION_CODE_SESSION_ENCRYPT_MESSAGE = 404;
+    public static final int EXCEPTION_CODE_SESSION_DECRYPT_MESSAGE = 405;
+    public static final int EXCEPTION_CODE_SESSION_SESSION_IDENTIFIER = 406;
+
+    public static final int EXCEPTION_CODE_UTILITY_VERIFY_SIGNATURE = 500;
 
     // exception human readable messages
     public static final String EXCEPTION_MSG_NEW_OUTBOUND_GROUP_SESSION = "createNewSession() failed";

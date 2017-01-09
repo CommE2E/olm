@@ -58,7 +58,7 @@ public class OlmUtilityTest {
     @Test
     public void test01VerifyEd25519Signing() {
         String fingerPrintKey = null;
-        StringBuffer errorMsg = new StringBuffer();
+        String errorMsg = null;
         String message = "{\"algorithms\":[\"m.megolm.v1.aes-sha2\",\"m.olm.v1.curve25519-aes-sha2\"],\"device_id\":\"YMBYCWTWCG\",\"keys\":{\"curve25519:YMBYCWTWCG\":\"KZFa5YUXV2EOdhK8dcGMMHWB67stdgAP4+xwiS69mCU\",\"ed25519:YMBYCWTWCG\":\"0cEgQJJqjgtXUGp4ZXQQmh36RAxwxr8HJw2E9v1gvA0\"},\"user_id\":\"@mxBob14774891254276b253f42-f267-43ec-bad9-767142bfea30:localhost:8480\"}";
         OlmAccount account = null;
 
@@ -98,22 +98,43 @@ public class OlmUtilityTest {
         OlmUtility utility = new OlmUtility();
 
         // verify signature
-        errorMsg.append("init with anything");
-        boolean isVerified = utility.verifyEd25519Signature(messageSignature, fingerPrintKey, message, errorMsg);
+        boolean isVerified;
+
+        isVerified = false;
+        errorMsg = null;
+        try {
+            isVerified = utility.verifyEd25519Signature(messageSignature, fingerPrintKey, message);
+        } catch (Exception e) {
+            errorMsg = e.getMessage();
+        }
         assertTrue(isVerified);
-        assertTrue(String.valueOf(errorMsg).isEmpty());
+        assertTrue(TextUtils.isEmpty(errorMsg));
 
         // check a bad signature is detected => errorMsg = BAD_MESSAGE_MAC
         String badSignature = "Bad signature Bad signature Bad signature..";
-        isVerified = utility.verifyEd25519Signature(badSignature, fingerPrintKey, message, errorMsg);
+
+        isVerified = false;
+        errorMsg = null;
+        try {
+            isVerified = utility.verifyEd25519Signature(badSignature, fingerPrintKey, message);
+        } catch (Exception e) {
+            errorMsg = e.getMessage();
+        }
         assertFalse(isVerified);
-        assertFalse(String.valueOf(errorMsg).isEmpty());
+        assertTrue(!TextUtils.isEmpty(errorMsg));
 
         // check bad fingerprint size => errorMsg = INVALID_BASE64
         String badSizeFingerPrintKey = fingerPrintKey.substring(fingerPrintKey.length()/2);
-        isVerified = utility.verifyEd25519Signature(messageSignature, badSizeFingerPrintKey, message, errorMsg);
+
+        isVerified = false;
+        errorMsg = null;
+        try {
+            isVerified = utility.verifyEd25519Signature(messageSignature, badSizeFingerPrintKey, message);
+        } catch (Exception e) {
+            errorMsg = e.getMessage();
+        }
         assertFalse(isVerified);
-        assertFalse(String.valueOf(errorMsg).isEmpty());
+        assertTrue(!TextUtils.isEmpty(errorMsg));
 
         utility.releaseUtility();
         assertTrue(utility.isReleased());

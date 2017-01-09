@@ -70,33 +70,28 @@ public class OlmUtility {
      * @param aSignature the base64-encoded message signature to be checked.
      * @param aFingerprintKey the ed25519 key (fingerprint key)
      * @param aMessage the signed message
-     * @param aError error message description
      * @return true if the signature is verified, false otherwise
+     * @exception OlmException the failure reason
      */
-    public boolean verifyEd25519Signature(String aSignature, String aFingerprintKey, String aMessage, StringBuffer aError) {
-        boolean retCode = false;
-        String jniError;
+    public boolean verifyEd25519Signature(String aSignature, String aFingerprintKey, String aMessage) throws OlmException {
+        String errorMessage = null;
 
-        if (null == aError) {
-            Log.e(LOG_TAG, "## verifyEd25519Signature(): invalid input error parameter");
-        } else {
-            aError.setLength(0);
-
-            try {
-                if (TextUtils.isEmpty(aSignature) || TextUtils.isEmpty(aFingerprintKey) || TextUtils.isEmpty(aMessage)) {
-                    Log.e(LOG_TAG, "## verifyEd25519Signature(): invalid input parameters");
-                    aError.append("JAVA sanity check failure - invalid input parameters");
-                } else if (null == (jniError = verifyEd25519SignatureJni(aSignature.getBytes("UTF-8"), aFingerprintKey.getBytes("UTF-8"), aMessage.getBytes("UTF-8")))) {
-                    retCode = true;
-                } else {
-                    aError.append(jniError);
-                }
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "## verifyEd25519Signature(): failed " + e.getMessage());
+        try {
+            if (TextUtils.isEmpty(aSignature) || TextUtils.isEmpty(aFingerprintKey) || TextUtils.isEmpty(aMessage)) {
+                Log.e(LOG_TAG, "## verifyEd25519Signature(): invalid input parameters");
+                errorMessage = "JAVA sanity check failure - invalid input parameters";
+            } else {
+                errorMessage =  verifyEd25519SignatureJni(aSignature.getBytes("UTF-8"), aFingerprintKey.getBytes("UTF-8"), aMessage.getBytes("UTF-8"));
             }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## verifyEd25519Signature(): failed " + e.getMessage());
         }
 
-        return retCode;
+        if (!TextUtils.isEmpty(errorMessage)) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_UTILITY_VERIFY_SIGNATURE, errorMessage);
+        }
+
+        return true;
     }
 
     /**
