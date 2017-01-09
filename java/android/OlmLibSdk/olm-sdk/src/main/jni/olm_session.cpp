@@ -461,15 +461,16 @@ JNIEXPORT jint JNICALL OLM_SESSION_FUNC_DEF(matchesInboundSessionFromIdKeyJni)(J
  * Encrypt a message using the session.<br>
  * @param aClearMsg clear text message
  * @param [out] aEncryptedMsg ciphered message
+ * @return the encrypted message
  */
-JNIEXPORT void OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aClearMsgBuffer, jobject aEncryptedMsg)
+JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aClearMsgBuffer, jobject aEncryptedMsg)
 {
+    jbyteArray encryptedMsgRet = 0;
     const char* errorMessage = NULL;
 
     OlmSession *sessionPtr = getSessionInstanceId(env, thiz);
     jbyte *clearMsgPtr = NULL;
     jclass encryptedMsgJClass = 0;
-    jfieldID encryptedMsgFieldId;
     jfieldID typeMsgFieldId;
 
     LOGD("## encryptMessageJni(): IN ");
@@ -497,11 +498,6 @@ JNIEXPORT void OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
     {
         LOGE("## encryptMessageJni(): failure - unable to get crypted message class");
         errorMessage = "unable to get crypted message class";
-    }
-    else if (!(encryptedMsgFieldId = env->GetFieldID(encryptedMsgJClass,"mCipherText","Ljava/lang/String;")))
-    {
-        LOGE("## encryptMessageJni(): failure - unable to get message field");
-        errorMessage = "unable to get message field";
     }
     else if (!(typeMsgFieldId = env->GetFieldID(encryptedMsgJClass,"mType","J")))
     {
@@ -532,7 +528,7 @@ JNIEXPORT void OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
             size_t clearMsgLength = (size_t)env->GetArrayLength(aClearMsgBuffer);
             size_t encryptedMsgLength = olm_encrypt_message_length(sessionPtr, clearMsgLength);
 
-            void *encryptedMsgPtr = malloc((encryptedMsgLength+1)*sizeof(uint8_t));
+            void *encryptedMsgPtr = malloc(encryptedMsgLength*sizeof(uint8_t));
 
             if (!encryptedMsgPtr)
             {
@@ -562,17 +558,13 @@ JNIEXPORT void OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
                 }
                 else
                 {
-                    // update encrypted buffer size
-                    (static_cast<char*>(encryptedMsgPtr))[result] = static_cast<char>('\0');
-
                     // update message type: PRE KEY or normal
                     env->SetLongField(aEncryptedMsg, typeMsgFieldId, (jlong)messageType);
 
-                    // update message: encryptedMsgPtr => encryptedJstring
-                    jstring encryptedJstring = env->NewStringUTF((const char*)encryptedMsgPtr);
-                    env->SetObjectField(aEncryptedMsg, encryptedMsgFieldId, (jobject)encryptedJstring);
+                    encryptedMsgRet = env->NewByteArray(encryptedMsgLength);
+                    env->SetByteArrayRegion(encryptedMsgRet, 0 , encryptedMsgLength, (jbyte*)encryptedMsgPtr);
 
-                    LOGD("## encryptMessageJni(): success - result=%lu Type=%lu utfLength=%lu encryptedMsg=%s", static_cast<long unsigned int>(result), static_cast<long unsigned int>(messageType), static_cast<long unsigned int>((size_t)env->GetStringUTFLength(encryptedJstring)), (const char*)encryptedMsgPtr);
+                    LOGD("## encryptMessageJni(): success - result=%lu Type=%lu utfLength=%lu encryptedMsg starts with %10s", static_cast<long unsigned int>(result), static_cast<long unsigned int>(messageType), static_cast<long unsigned int>((size_t)env->GetStringUTFLength(encryptedJstring)), (const char*)encryptedMsgPtr);
                 }
 
                 free(encryptedMsgPtr);
@@ -592,6 +584,8 @@ JNIEXPORT void OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
     {
         env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
     }
+
+    return encryptedMsgRet;
 }
 
 /**
@@ -682,7 +676,7 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobjec
             LOGD("## decryptMessageJni(): maxPlaintextLength=%lu",static_cast<long unsigned int>(maxPlainTextLength));
 
             // allocate output decrypted message
-            plainTextMsgPtr = static_cast<uint8_t*>(malloc((maxPlainTextLength+1)*sizeof(uint8_t)));
+            plainTextMsgPtr = static_cast<uint8_t*>(malloc(maxPlainTextLength*sizeof(uint8_t)));
 
             // decrypt, but before reload encrypted buffer (previous one was destroyed)
             memcpy(tempEncryptedPtr, encryptedMsgPtr, encryptedMsgLength);
@@ -756,7 +750,7 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, 
          size_t lengthSessionId = olm_session_id_length(sessionPtr);
          LOGD("## getSessionIdentifierJni(): lengthSessionId=%lu",static_cast<long unsigned int>(lengthSessionId));
 
-         void *sessionIdPtr = malloc((lengthSessionId+1)*sizeof(uint8_t));
+         void *sessionIdPtr = malloc(lengthSessionId*sizeof(uint8_t));
 
          if (!sessionIdPtr)
          {
@@ -774,10 +768,7 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, 
              }
              else
              {
-                 // update length
-                 (static_cast<char*>(sessionIdPtr))[result] = static_cast<char>('\0');
-
-                 LOGD("## getSessionIdentifierJni(): success - result=%lu sessionId=%s",static_cast<long unsigned int>(result), (char*)sessionIdPtr);
+                 LOGD("## getSessionIdentifierJni(): success - result=%lu sessionId= starts with %10s",static_cast<long unsigned int>(result), (char*)sessionIdPtr);
 
                  returnValue = env->NewByteArray(result);
                  env->SetByteArrayRegion(returnValue, 0 , result, (jbyte*)sessionIdPtr);
@@ -832,7 +823,7 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thi
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## serializeJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
 
-        void *pickledPtr = malloc((pickledLength+1)*sizeof(uint8_t));
+        void *pickledPtr = malloc(pickledLength*sizeof(uint8_t));
 
         if (!pickledPtr)
         {
@@ -853,9 +844,7 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thi
             }
             else
             {
-                // build success output
-                (static_cast<char*>(pickledPtr))[pickledLength] = static_cast<char>('\0');
-                LOGD(" ## serializeJni(): success - result=%lu pickled=%s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
+                LOGD(" ## serializeJni(): success - result=%lu pickled starts with %s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
 
                 returnValue = env->NewByteArray(pickledLength);
                 env->SetByteArrayRegion(returnValue, 0 , pickledLength, (jbyte*)pickledPtr);

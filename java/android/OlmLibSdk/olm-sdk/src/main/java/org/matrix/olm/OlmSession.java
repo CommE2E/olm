@@ -262,7 +262,7 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
         OlmMessage encryptedMsgRetValue = new OlmMessage();
 
         try {
-            encryptMessageJni(aClearMsg.getBytes("UTF-8"), encryptedMsgRetValue);
+            encryptedMsgRetValue.mCipherText = new String(encryptMessageJni(aClearMsg.getBytes("UTF-8"), encryptedMsgRetValue), "UTF-8");
         } catch (Exception e) {
             Log.e(LOG_TAG, "## encryptMessage(): failed " + e.getMessage());
             throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_ENCRYPT_MESSAGE, e.getMessage());
@@ -271,7 +271,7 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
         return encryptedMsgRetValue;
     }
 
-    private native void encryptMessageJni(byte[] aClearMsg, OlmMessage aEncryptedMsg);
+    private native byte[] encryptMessageJni(byte[] aClearMsg, OlmMessage aEncryptedMsg);
 
     /**
      * Decrypt a message using the session.<br>
@@ -314,7 +314,7 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * @throws IOException exception
      * @throws ClassNotFoundException exception
      */
-    private void readObject(ObjectInputStream aInStream) throws Exception  {
+    private void readObject(ObjectInputStream aInStream) throws Exception {
         deserialize(aInStream);
     }
 

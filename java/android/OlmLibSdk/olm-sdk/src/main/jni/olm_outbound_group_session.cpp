@@ -161,7 +161,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(J
         size_t lengthSessionId = olm_outbound_group_session_id_length(sessionPtr);
         LOGD(" ## sessionIdentifierJni(): outbound group session lengthSessionId=%lu",static_cast<long unsigned int>(lengthSessionId));
 
-        uint8_t *sessionIdPtr =  (uint8_t*)malloc((lengthSessionId+1)*sizeof(uint8_t));
+        uint8_t *sessionIdPtr =  (uint8_t*)malloc(lengthSessionId*sizeof(uint8_t));
 
         if (!sessionIdPtr)
         {
@@ -179,13 +179,10 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(J
             }
             else
             {
-                // update length
-                sessionIdPtr[result] = static_cast<char>('\0');
-
                 returnValue = env->NewByteArray(result);
                 env->SetByteArrayRegion(returnValue, 0 , result, (jbyte*)sessionIdPtr);
 
-                LOGD(" ## sessionIdentifierJni(): success - outbound group session identifier result=%lu sessionId=%s",static_cast<long unsigned int>(result), reinterpret_cast<char*>(sessionIdPtr));
+                LOGD(" ## sessionIdentifierJni(): success - outbound group session identifier result=%lu sessionId starts with %10s",static_cast<long unsigned int>(result), reinterpret_cast<char*>(sessionIdPtr));
             }
 
             // free alloc
@@ -251,7 +248,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionKeyJni)(JNIEnv *
         size_t sessionKeyLength = olm_outbound_group_session_key_length(sessionPtr);
         LOGD(" ## sessionKeyJni(): sessionKeyLength=%lu",static_cast<long unsigned int>(sessionKeyLength));
 
-        uint8_t *sessionKeyPtr = (uint8_t*)malloc((sessionKeyLength+1)*sizeof(uint8_t));
+        uint8_t *sessionKeyPtr = (uint8_t*)malloc(sessionKeyLength*sizeof(uint8_t));
 
         if (!sessionKeyPtr)
         {
@@ -269,9 +266,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionKeyJni)(JNIEnv *
             }
             else
             {
-                // update length
-                sessionKeyPtr[result] = static_cast<char>('\0');
-                LOGD(" ## sessionKeyJni(): success - outbound group session key result=%lu sessionKey=%s",static_cast<long unsigned int>(result), reinterpret_cast<char*>(sessionKeyPtr));
+                LOGD(" ## sessionKeyJni(): success - outbound group session key result=%lu sessionKey starts with %10s",static_cast<long unsigned int>(result), reinterpret_cast<char*>(sessionKeyPtr));
 
                 returnValue = env->NewByteArray(result);
                 env->SetByteArrayRegion(returnValue, 0 , result, (jbyte*)sessionKeyPtr);
@@ -323,7 +318,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIE
 
         // compute max encrypted length
         size_t encryptedMsgLength = olm_group_encrypt_message_length(sessionPtr,clearMsgLength);
-        uint8_t *encryptedMsgPtr = (uint8_t*)malloc((encryptedMsgLength+1)*sizeof(uint8_t));
+        uint8_t *encryptedMsgPtr = (uint8_t*)malloc(encryptedMsgLength*sizeof(uint8_t));
 
         if (!encryptedMsgPtr)
         {
@@ -348,10 +343,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIE
             }
             else
             {
-                // update decrypted buffer size
-                encryptedMsgPtr[encryptedLength] = static_cast<char>('\0');
-
-                LOGD(" ## encryptMessageJni(): encrypted returnedLg=%lu plainTextMsgPtr=%s",static_cast<long unsigned int>(encryptedLength), reinterpret_cast<char*>(encryptedMsgPtr));
+                LOGD(" ## encryptMessageJni(): encrypted returnedLg=%lu plainTextMsgPtr=%10s",static_cast<long unsigned int>(encryptedLength), reinterpret_cast<char*>(encryptedMsgPtr));
 
                 encryptedMsgRet = env->NewByteArray(encryptedLength);
                 env->SetByteArrayRegion(encryptedMsgRet, 0 , encryptedLength, (jbyte*)encryptedMsgPtr);
@@ -412,7 +404,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *e
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## serializeJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
 
-        void *pickledPtr = malloc((pickledLength+1)*sizeof(uint8_t));
+        void *pickledPtr = malloc(pickledLength*sizeof(uint8_t));
 
         if(!pickledPtr)
         {
@@ -433,9 +425,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *e
             }
             else
             {
-                // build success output
-                (static_cast<char*>(pickledPtr))[pickledLength] = static_cast<char>('\0');
-                LOGD(" ## serializeJni(): success - result=%lu pickled=%s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
+                LOGD(" ## serializeJni(): success - result=%lu pickled starts with %10s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
 
                 returnValue = env->NewByteArray(pickledLength);
                 env->SetByteArrayRegion(returnValue, 0 , pickledLength, (jbyte*)pickledPtr);

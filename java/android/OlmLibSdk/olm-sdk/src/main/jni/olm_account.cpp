@@ -462,8 +462,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject t
 
         // signature memory allocation
         size_t signatureLength = olm_account_signature_length(accountPtr);
-        size_t bufferLen = signatureLength + 1;
-        void* signedMsgPtr = malloc(bufferLen * sizeof(uint8_t));
+        void* signedMsgPtr = malloc(signatureLength * sizeof(uint8_t));
 
         if (!signedMsgPtr)
         {
@@ -486,14 +485,10 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject t
             }
             else
             {
-                // info: signatureLength is always equal to resultSign
-                (static_cast<char*>(signedMsgPtr))[signatureLength] = static_cast<char>('\0');
-
                 LOGD("## signMessageJni(): success - retCode=%lu signatureLength=%lu", static_cast<long unsigned int>(resultSign), static_cast<long unsigned int>(signatureLength));
      	
                 signedMsgRetValueBuffer = env->NewByteArray(signatureLength);
                 env->SetByteArrayRegion(signedMsgRetValueBuffer, 0 , signatureLength, (jbyte*)signedMsgPtr);
-
             }
 
             free(signedMsgPtr);
@@ -549,7 +544,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thi
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## serializeJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
 
-        void *pickledPtr = malloc((pickledLength+1)*sizeof(uint8_t));
+        void *pickledPtr = malloc(pickledLength*sizeof(uint8_t));
 
         if (!pickledPtr)
         {
@@ -570,11 +565,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thi
             }
             else
             {
-                // build success output
-                (static_cast<char*>(pickledPtr))[pickledLength] = static_cast<char>('\0');
-
-                LOGD(" ## serializeJni(): success - result=%lu pickled=%s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
-
+                LOGD(" ## serializeJni(): success - result=%lu pickled starts with = %10s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
                 pickledDataRetValue = env->NewByteArray(pickledLength);
                 env->SetByteArrayRegion(pickledDataRetValue, 0 , pickledLength, (jbyte*)pickledPtr);
             }
