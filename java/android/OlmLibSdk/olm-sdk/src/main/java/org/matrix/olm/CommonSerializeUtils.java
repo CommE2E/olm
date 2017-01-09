@@ -48,22 +48,32 @@ abstract class CommonSerializeUtils {
         if(null == pickledData) {
             throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_SERIALIZATION, String.valueOf(errorMsg));
         } else {
-            aOutStream.writeObject(key);
-            aOutStream.writeObject(pickledData);
+            aOutStream.writeObject(new String(key, "UTF-8"));
+            aOutStream.writeObject(new String(pickledData, "UTF-8"));
         }
     }
 
     /**
      * Kick off the deserialization mechanism.
      * @param aInStream input stream
-     * @throws IOException exception
-     * @throws ClassNotFoundException exception
+     * @throws Exception the exception
      */
-    protected void deserialize(ObjectInputStream aInStream) throws IOException, ClassNotFoundException {
+    protected void deserialize(ObjectInputStream aInStream) throws Exception {
         aInStream.defaultReadObject();
 
-        byte[] key = (byte[]) aInStream.readObject();
-        byte[] pickledData = (byte[]) aInStream.readObject();
+        String keyAsString = (String)aInStream.readObject();
+        String pickledDataAsString = (String)aInStream.readObject();
+
+        byte[] key;
+        byte[] pickledData;
+
+        try {
+            key = keyAsString.getBytes("UTF-8");
+            pickledData = pickledDataAsString.getBytes("UTF-8");
+
+        } catch (Exception e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, e.getMessage());
+        }
 
         if (null == key) {
             throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, OlmException.EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION+" key");
@@ -76,5 +86,5 @@ abstract class CommonSerializeUtils {
     }
 
     protected abstract byte[] serialize(byte[] aKey, StringBuffer aErrorMsg);
-    protected abstract void deserialize(byte[] aSerializedData, byte[] aKey) throws IOException;
+    protected abstract void deserialize(byte[] aSerializedData, byte[] aKey) throws Exception;
 }
