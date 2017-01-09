@@ -50,11 +50,8 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * @throws OlmException constructor failure
      */
     public OlmOutboundGroupSession() throws OlmException {
-        if(createNewSession()) {
-            initOutboundGroupSession();
-        } else {
-            throw new OlmException(OlmException.EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION, OlmException.EXCEPTION_MSG_NEW_OUTBOUND_GROUP_SESSION);
-        }
+        createNewSession();
+        initOutboundGroupSession();
     }
 
     /**
@@ -78,11 +75,14 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * Create and save the session native instance ID.
      * Wrapper for {@link #createNewSessionJni()}.<br>
      * To be called before any other API call.
-     * @return true if init succeed, false otherwise.
+     * @exception OlmException the exception.
      */
-    private boolean createNewSession() {
-        mNativeId = createNewSessionJni();
-        return (0 != mNativeId);
+    private void createNewSession() throws OlmException {
+        try {
+            mNativeId = createNewSessionJni();
+        } catch (Exception e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION, e.getMessage());
+        }
     }
 
     /**
@@ -203,10 +203,9 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
     /**
      * Kick off the deserialization mechanism.
      * @param aInStream input stream
-     * @throws IOException exception
-     * @throws ClassNotFoundException exception
+     * @throws Exception exception
      */
-    private void readObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException {
+    private void readObject(ObjectInputStream aInStream) throws Exception {
         deserialize(aInStream);
     }
 
@@ -247,31 +246,29 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * See {@link #serialize(byte[], StringBuffer)}
      * @param aSerializedData pickled account in a base64 bytes buffer
      * @param aKey key used to encrypted
+     * @exception Exception the exception
      */
     @Override
-    protected void deserialize(byte[] aSerializedData, byte[] aKey) throws IOException {
-        if (!createNewSession()) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_ACCOUNT_CREATION,OlmException.EXCEPTION_MSG_INIT_ACCOUNT_CREATION);
-        }
+    protected void deserialize(byte[] aSerializedData, byte[] aKey) throws Exception {
+        createNewSession();
 
-        StringBuffer errorMsg = new StringBuffer();
+        String errorMsg = null;
 
         try {
-            String jniError;
             if ((null == aSerializedData) || (null == aKey)) {
                 Log.e(LOG_TAG, "## deserialize(): invalid input parameters");
-                errorMsg.append("invalid input parameters");
-            } else if (null != (jniError = deserializeJni(aSerializedData, aKey))) {
-                errorMsg.append(jniError);
+                errorMsg = "invalid input parameters";
+            } else {
+                errorMsg = deserializeJni(aSerializedData, aKey);
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## deserialize() failed " + e.getMessage());
-            errorMsg.append(e.getMessage());
+            errorMsg = e.getMessage();
         }
 
-        if (errorMsg.length() > 0) {
+        if (!TextUtils.isEmpty(errorMsg)) {
             releaseSession();
-            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, String.valueOf(errorMsg));
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, errorMsg);
         }
     }
 

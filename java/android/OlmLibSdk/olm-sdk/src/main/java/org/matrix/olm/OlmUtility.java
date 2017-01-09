@@ -29,7 +29,6 @@ public class OlmUtility {
     private static final String LOG_TAG = "OlmUtility";
 
     public static final int RANDOM_KEY_SIZE = 32;
-    public static final int RANDOM_RANGE = 256;
 
     /** Instance Id returned by JNI.
      * This value uniquely identifies this utility instance.
@@ -46,11 +45,11 @@ public class OlmUtility {
      * @return true if init succeed, false otherwise.
      */
     private boolean initUtility() {
-        mNativeId = initUtilityJni();
+        mNativeId = createUtilityJni();
         return (0 != mNativeId);
     }
 
-    private native long initUtilityJni();
+    private native long createUtilityJni();
 
     /**
      * Release native instance.<br>
@@ -136,6 +135,12 @@ public class OlmUtility {
         SecureRandom secureRandom = new SecureRandom();
         byte[] buffer = new byte[RANDOM_KEY_SIZE];
         secureRandom.nextBytes(buffer);
+
+        // the key is saved as string
+        // so avoid the UTF8 marker bytes
+        for(int i = 0; i < RANDOM_KEY_SIZE; i++) {
+            buffer[i] = (byte)(buffer[i] & 0x7F);
+        }
         return buffer;
     }
 

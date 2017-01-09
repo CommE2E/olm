@@ -48,7 +48,16 @@ JNIEXPORT jlong OLM_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *env, jobject t
     LOGD("## createNewSessionJni(): IN");
     OlmSession* accountPtr = initializeSessionMemory();
 
-    LOGD(" ## createNewSessionJni(): success - accountPtr=%p (jlong)(intptr_t)accountPtr=%lld",accountPtr,(jlong)(intptr_t)accountPtr);
+    if (!accountPtr)
+    {
+        LOGE("## initNewAccount(): failure - init session OOM");
+        env->ThrowNew(env->FindClass("java/lang/Exception"), "init session OOM");
+    }
+    else
+    {
+        LOGD(" ## createNewSessionJni(): success - accountPtr=%p (jlong)(intptr_t)accountPtr=%lld",accountPtr,(jlong)(intptr_t)accountPtr);
+    }
+
     return (jlong)(intptr_t)accountPtr;
 }
 
@@ -68,31 +77,6 @@ JNIEXPORT void OLM_SESSION_FUNC_DEF(releaseSessionJni)(JNIEnv *env, jobject thiz
         // even if free(NULL) does not crash, logs are performed for debug purpose
         free(sessionPtr);
     }
-}
-
-/**
-* Initialize a new session and return it to JAVA side.<br>
-* Since a C prt is returned as a jlong, special care will be taken
-* to make the cast (OlmSession* => jlong) platform independent.
-* @return the initialized OlmSession* instance if init succeed, NULL otherwise
-**/
-JNIEXPORT jlong OLM_SESSION_FUNC_DEF(initNewSessionJni)(JNIEnv *env, jobject thiz)
-{
-    LOGD("## initNewSessionJni(): OlmSession IN");
-
-    OlmSession* sessionPtr = initializeSessionMemory();
-
-    // init account memory allocation
-    if (!sessionPtr)
-    {
-        LOGE(" ## initNewSessionJni(): failure - init session OOM");
-    }
-    else
-    {
-        LOGD(" ## initNewSessionJni(): success - OLM session created");
-    }
-
-    return (jlong)(intptr_t)sessionPtr;
 }
 
 // *********************************************************************

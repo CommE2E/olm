@@ -42,8 +42,6 @@ public class OlmManager {
     }
 
     public String getSdkOlmVersion() {
-        //Date currentDate = Calendar.getInstance().getTime();
-        //String retVal = new SimpleDateFormat("yyyyMMdd_HH:mm:ss").format(currentDate);
         return SDK_OLM_VERSION;
     }
 

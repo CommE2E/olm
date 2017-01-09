@@ -42,49 +42,13 @@ OlmAccount* initializeAccountMemory()
     return accountPtr;
 }
 
-JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(createNewAccountJni)(JNIEnv *env, jobject thiz)
-{
-    LOGD("## createNewAccountJni(): IN");
-    OlmAccount* accountPtr = initializeAccountMemory();
-
-    LOGD(" ## createNewAccountJni(): success - accountPtr=%p (jlong)(intptr_t)accountPtr=%lld",accountPtr,(jlong)(intptr_t)accountPtr);
-    return (jlong)(intptr_t)accountPtr;
-}
-
 /**
- * Release the account allocation made by initializeAccountMemory().<br>
- * This method MUST be called when java counter part account instance is done.
- *
- */
-JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(releaseAccountJni)(JNIEnv *env, jobject thiz)
-{
-    LOGD("## releaseAccountJni(): IN");
-
-    OlmAccount* accountPtr = getAccountInstanceId(env, thiz);
-
-    if (!accountPtr)
-    {
-        LOGE(" ## releaseAccountJni(): failure - invalid Account ptr=NULL");
-    }
-    else
-    {
-        LOGD(" ## releaseAccountJni(): accountPtr=%p",accountPtr);
-        olm_clear_account(accountPtr);
-
-        LOGD(" ## releaseAccountJni(): IN");
-        // even if free(NULL) does not crash, logs are performed for debug purpose
-        free(accountPtr);
-        LOGD(" ## releaseAccountJni(): OUT");
-    }
-}
-
-/**
-* Initialize a new account and return it to JAVA side.<br>
+* Create a new account and return it to JAVA side.<br>
 * Since a C prt is returned as a jlong, special care will be taken
 * to make the cast (OlmAccount* => jlong) platform independent.
 * @return the initialized OlmAccount* instance
 **/
-JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(initNewAccountJni)(JNIEnv *env, jobject thiz)
+JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(createNewAccountJni)(JNIEnv *env, jobject thiz)
 {
     const char* errorMessage = NULL;
     OlmAccount *accountPtr = initializeAccountMemory();
@@ -138,6 +102,32 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(initNewAccountJni)(JNIEnv *env, jobject thi
     }
 
     return (jlong)(intptr_t)accountPtr;
+}
+/**
+ * Release the account allocation made by initializeAccountMemory().<br>
+ * This method MUST be called when java counter part account instance is done.
+ *
+ */
+JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(releaseAccountJni)(JNIEnv *env, jobject thiz)
+{
+    LOGD("## releaseAccountJni(): IN");
+
+    OlmAccount* accountPtr = getAccountInstanceId(env, thiz);
+
+    if (!accountPtr)
+    {
+        LOGE(" ## releaseAccountJni(): failure - invalid Account ptr=NULL");
+    }
+    else
+    {
+        LOGD(" ## releaseAccountJni(): accountPtr=%p",accountPtr);
+        olm_clear_account(accountPtr);
+
+        LOGD(" ## releaseAccountJni(): IN");
+        // even if free(NULL) does not crash, logs are performed for debug purpose
+        free(accountPtr);
+        LOGD(" ## releaseAccountJni(): OUT");
+    }
 }
 
 // *********************************************************************

@@ -55,6 +55,7 @@ public class OlmException extends IOException {
     public static final int EXCEPTION_CODE_SESSION_DECRYPT_MESSAGE = 405;
     public static final int EXCEPTION_CODE_SESSION_SESSION_IDENTIFIER = 406;
 
+    public static final int EXCEPTION_CODE_UTILITY_CREATION = 501;
     public static final int EXCEPTION_CODE_UTILITY_VERIFY_SIGNATURE = 500;
 
     // exception human readable messages

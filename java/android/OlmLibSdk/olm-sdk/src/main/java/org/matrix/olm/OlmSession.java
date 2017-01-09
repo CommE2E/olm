@@ -43,9 +43,7 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
     private transient long mNativeId;
 
     public OlmSession() throws OlmException {
-        if(!initNewSession()) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_SESSION_CREATION, OlmException.EXCEPTION_MSG_INIT_SESSION_CREATION);
-        }
+        createNewSession();
     }
 
     /**
@@ -60,7 +58,7 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * Destroy the corresponding OLM session native object.<br>
      * This method must ALWAYS be called when this JAVA instance
      * is destroyed (ie. garbage collected) to prevent memory leak in native side.
-     * See {@link #initNewSessionJni()}.
+     * See {@link #createNewSessionJni()}.
      */
     private native void releaseSessionJni();
 
@@ -74,33 +72,18 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
     }
 
     /**
-     * Create and save the session native instance ID.
-     * Wrapper for {@link #initNewSessionJni()}.<br>
-     * To be called before any other API call.
-     * @return true if init succeed, false otherwise.
-     */
-    private boolean initNewSession() {
-        mNativeId = initNewSessionJni();
-        return (0 != mNativeId);
-    }
-
-    /**
-     * Create the corresponding OLM session in native side.<br>
-     * Do not forget to call {@link #releaseSession()} when JAVA side is done.
-     * @return native session instance identifier (see {@link #mNativeId})
-     */
-    private native long initNewSessionJni();
-
-    /**
      * Create a native account instance without any initialization.<br>
      * Since the account is left uninitialized, this
      * method is intended to be used in the serialization mechanism (see {@link #readObject(ObjectInputStream)}).<br>
      * Public wrapper for {@link #createNewSessionJni()}.
-     * @return true if init succeed, false otherwise.
+     * @exception OlmException the exception
      */
-    private boolean createNewSession() {
-        mNativeId = initNewSessionJni();
-        return (0 != mNativeId);
+    private void createNewSession() throws OlmException {
+        try {
+            mNativeId = createNewSessionJni();
+        } catch (Exception e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_SESSION_CREATION, e.getMessage());
+        }
     }
 
     /**
@@ -331,7 +314,7 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * @throws IOException exception
      * @throws ClassNotFoundException exception
      */
-    private void readObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException {
+    private void readObject(ObjectInputStream aInStream) throws Exception  {
         deserialize(aInStream);
     }
 
@@ -374,10 +357,8 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * @param aKey key used to encrypted
      */
     @Override
-    protected void deserialize(byte[] aSerializedData, byte[] aKey) throws IOException {
-        if (!createNewSession()) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_ACCOUNT_CREATION,OlmException.EXCEPTION_MSG_INIT_ACCOUNT_CREATION);
-        }
+    protected void deserialize(byte[] aSerializedData, byte[] aKey) throws Exception {
+        createNewSession();
 
         StringBuffer errorMsg = new StringBuffer();
 

@@ -37,20 +37,21 @@ OlmUtility* initializeUtilityMemory()
     return utilityPtr;
 }
 
-JNIEXPORT jlong OLM_UTILITY_FUNC_DEF(initUtilityJni)(JNIEnv *env, jobject thiz)
+JNIEXPORT jlong OLM_UTILITY_FUNC_DEF(createUtilityJni)(JNIEnv *env, jobject thiz)
 {
     OlmUtility* utilityPtr = initializeUtilityMemory();
 
-    LOGD("## initUtilityJni(): IN");
+    LOGD("## createUtilityJni(): IN");
 
     // init account memory allocation
     if (!utilityPtr)
     {
-        LOGE(" ## initUtilityJni(): failure - init OOM");
+        LOGE(" ## createUtilityJni(): failure - init OOM");
+        env->ThrowNew(env->FindClass("java/lang/Exception"), "init OOM");
     }
     else
     {
-       LOGD(" ## initUtilityJni(): success");
+       LOGD(" ## createUtilityJni(): success");
     }
 
     return (jlong)(intptr_t)utilityPtr;

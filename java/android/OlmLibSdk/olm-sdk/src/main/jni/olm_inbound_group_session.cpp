@@ -58,6 +58,7 @@ JNIEXPORT void OLM_INBOUND_GROUP_SESSION_FUNC_DEF(releaseSessionJni)(JNIEnv *env
 **/
 JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *env, jobject thiz)
 {
+    const char* errorMessage = NULL;
     OlmInboundGroupSession* sessionPtr = NULL;
     size_t sessionSize = 0;
 
@@ -67,6 +68,7 @@ JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *
     if (!sessionSize)
     {
         LOGE(" ## createNewSessionJni(): failure - inbound group session size = 0");
+        errorMessage = "inbound group session size = 0";
     }
     else if ((sessionPtr = (OlmInboundGroupSession*)malloc(sessionSize)))
     {
@@ -76,6 +78,12 @@ JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *
     else
     {
         LOGE(" ## createNewSessionJni(): failure - inbound group session OOM");
+        errorMessage = "inbound group session OOM";
+    }
+
+    if (errorMessage)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
     }
 
     return (jlong)(intptr_t)sessionPtr;

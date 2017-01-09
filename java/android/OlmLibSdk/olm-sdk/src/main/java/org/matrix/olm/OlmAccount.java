@@ -17,6 +17,7 @@
 
 package org.matrix.olm;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -61,7 +62,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     private transient long mNativeId;
 
     public OlmAccount() throws OlmException {
-        initNewAccount();
+        createNewAccount();
     }
 
     /**
@@ -85,41 +86,21 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * Destroy the corresponding OLM account native object.<br>
      * This method must ALWAYS be called when this JAVA instance
      * is destroyed (ie. garbage collected) to prevent memory leak in native side.
-     * See {@link #initNewAccountJni()}.
+     * See {@link #createNewAccountJni()}.
      */
     private native void releaseAccountJni();
 
     /**
      * Create and initialize a native account instance.<br>
-     * Wrapper for {@link #initNewAccountJni()}.
      * To be called before any other API call.
      * @exception OlmException the failure reason
      */
-    private void initNewAccount() throws OlmException {
+    private void createNewAccount() throws OlmException {
         try {
-            mNativeId = initNewAccountJni();
+            mNativeId = createNewAccountJni();
         } catch (Exception e) {
             throw new OlmException(OlmException.EXCEPTION_CODE_INIT_ACCOUNT_CREATION, e.getMessage());
         }
-    }
-
-    /**
-     * Create and initialize an OLM account in native side.<br>
-     * Do not forget to call {@link #releaseAccount()} when JAVA side is done.
-     * @return native account instance identifier (see {@link #mNativeId})
-     */
-    private native long initNewAccountJni();
-
-    /**
-     * Create a native account instance without any initialization.<br>
-     * Since the account is left uninitialized, this
-     * method is intended to be used in the serialization mechanism (see {@link #readObject(ObjectInputStream)}).<br>
-     * Public wrapper for {@link #createNewAccountJni()}.
-     * @return true if init succeed, false otherwise.
-     */
-    private boolean createNewAccount() {
-        mNativeId = initNewAccountJni();
-        return (0 != mNativeId);
     }
 
     /**
@@ -408,10 +389,9 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     /**
      * Kick off the deserialization mechanism.
      * @param aInStream input stream
-     * @throws IOException exception
-     * @throws ClassNotFoundException exception
+     * @throws Exception exception
      */
-    private void readObject(ObjectInputStream aInStream) throws IOException, ClassNotFoundException {
+    private void readObject(ObjectInputStream aInStream) throws Exception {
         deserialize(aInStream);
     }
 
@@ -453,31 +433,28 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * See {@link #serialize(byte[], StringBuffer)}
      * @param aSerializedData bytes buffer
      * @param aKey key used to encrypted
+     * @exception Exception the exception
      */
     @Override
-    protected void deserialize(byte[] aSerializedData, byte[] aKey) throws IOException {
-        if (!createNewAccount()) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_ACCOUNT_CREATION,OlmException.EXCEPTION_MSG_INIT_ACCOUNT_CREATION);
-        }
-
-        StringBuffer errorMsg = new StringBuffer();
+    protected void deserialize(byte[] aSerializedData, byte[] aKey) throws Exception {
+        createNewAccount();
+        String errorMsg;
 
         try {
-            String jniError;
             if ((null == aSerializedData) || (null == aKey)) {
                 Log.e(LOG_TAG, "## deserialize(): invalid input parameters");
-                errorMsg.append("invalid input parameters");
-            } else if (null != (jniError = deserializeJni(aSerializedData, aKey))) {
-                errorMsg.append(jniError);
+                errorMsg = "invalid input parameters";
+            } else {
+                errorMsg = deserializeJni(aSerializedData, aKey);
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## deserialize() failed " + e.getMessage());
-            errorMsg.append(e.getMessage());
+            errorMsg = e.getMessage();
         }
 
-        if (errorMsg.length() > 0) {
+        if (!TextUtils.isEmpty(errorMsg)) {
             releaseAccount();
-            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, String.valueOf(errorMsg));
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, errorMsg);
         }
     }
 
