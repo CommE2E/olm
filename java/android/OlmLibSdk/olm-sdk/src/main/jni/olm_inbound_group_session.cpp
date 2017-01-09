@@ -307,6 +307,7 @@ JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEn
 
                 if (plainTextMsgPtr)
                 {
+                    memset(plainTextMsgPtr, 0, maxPlainTextLength*sizeof(uint8_t));
                     free(plainTextMsgPtr);
                 }
             }

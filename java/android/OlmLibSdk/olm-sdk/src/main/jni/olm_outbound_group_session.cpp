@@ -129,6 +129,8 @@ JNIEXPORT void OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(initOutboundGroupSessionJni)(
                 LOGD(" ## initOutboundGroupSessionJni(): success - result=%lu", static_cast<long unsigned int>(sessionResult));
             }
 
+            // clear the random buffer
+            memset(randomBuffPtr, 0, randomLength);
             free(randomBuffPtr);
         }
     }
