@@ -55,7 +55,7 @@ JNIEXPORT jlong OLM_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *env, jobject t
 JNIEXPORT void OLM_SESSION_FUNC_DEF(releaseSessionJni)(JNIEnv *env, jobject thiz)
 {
     LOGD("## releaseSessionJni(): IN");
-    OlmSession* sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz);
+    OlmSession* sessionPtr = getSessionInstanceId(env, thiz);
 
     if (!sessionPtr)
     {
@@ -108,11 +108,11 @@ JNIEXPORT jlong OLM_SESSION_FUNC_DEF(initNewSessionJni)(JNIEnv *env, jobject thi
 **/
 JNIEXPORT void OLM_SESSION_FUNC_DEF(initOutboundSessionJni)(JNIEnv *env, jobject thiz, jlong aOlmAccountId, jbyteArray aTheirIdentityKeyBuffer, jbyteArray aTheirOneTimeKeyBuffer)
 {
+    OlmSession* sessionPtr = getSessionInstanceId(env, thiz);
     const char* errorMessage = NULL;
-    OlmSession* sessionPtr = NULL;
     OlmAccount* accountPtr = NULL;
 
-    if (!(sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
+    if (!sessionPtr)
     {
         LOGE("## initOutboundSessionJni(): failure - invalid Session ptr=NULL");
         errorMessage = "invalid Session ptr=NULL";
@@ -215,11 +215,11 @@ JNIEXPORT void OLM_SESSION_FUNC_DEF(initOutboundSessionJni)(JNIEnv *env, jobject
 JNIEXPORT void OLM_SESSION_FUNC_DEF(initInboundSessionJni)(JNIEnv *env, jobject thiz, jlong aOlmAccountId, jbyteArray aOneTimeKeyMsgBuffer)
 {
     const char* errorMessage = NULL;
-    OlmSession *sessionPtr = NULL;
+    OlmSession *sessionPtr = getSessionInstanceId(env,thiz);
     OlmAccount *accountPtr = NULL;
     size_t sessionResult;
 
-    if (!(sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
+    if (!sessionPtr)
     {
         LOGE("## initInboundSessionJni(): failure - invalid Session ptr=NULL");
         errorMessage = "invalid Session ptr=NULL";
@@ -282,13 +282,13 @@ JNIEXPORT void OLM_SESSION_FUNC_DEF(initInboundSessionFromIdKeyJni)(JNIEnv *env,
 {
     const char* errorMessage = NULL;
 
-    OlmSession *sessionPtr = NULL;
+    OlmSession *sessionPtr = getSessionInstanceId(env, thiz);
     OlmAccount *accountPtr = NULL;
     jbyte *messagePtr = NULL;
     jbyte *theirIdentityKeyPtr = NULL;
     size_t sessionResult;
 
-    if (!(sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
+    if (!sessionPtr)
     {
         LOGE("## initInboundSessionFromIdKeyJni(): failure - invalid Session ptr=NULL");
         errorMessage = "invalid Session ptr=NULL";
@@ -363,10 +363,10 @@ JNIEXPORT void OLM_SESSION_FUNC_DEF(initInboundSessionFromIdKeyJni)(JNIEnv *env,
 JNIEXPORT jint OLM_SESSION_FUNC_DEF(matchesInboundSessionJni)(JNIEnv *env, jobject thiz, jbyteArray aOneTimeKeyMsgBuffer)
 {
     jint retCode = ERROR_CODE_KO;
-    OlmSession *sessionPtr = NULL;
+    OlmSession *sessionPtr = getSessionInstanceId(env, thiz);
     jbyte *messagePtr = NULL;
 
-    if (!(sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
+    if (!sessionPtr)
     {
         LOGE("## matchesInboundSessionJni(): failure - invalid Session ptr=NULL");
     }
@@ -415,11 +415,11 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(matchesInboundSessionJni)(JNIEnv *env, jobje
 JNIEXPORT jint JNICALL OLM_SESSION_FUNC_DEF(matchesInboundSessionFromIdKeyJni)(JNIEnv *env, jobject thiz, jbyteArray aTheirIdentityKeyBuffer, jbyteArray aOneTimeKeyMsgBuffer)
 {
     jint retCode = ERROR_CODE_KO;
-    OlmSession *sessionPtr = NULL;
+    OlmSession *sessionPtr = getSessionInstanceId(env, thiz);
     jbyte *messagePtr = NULL;
     jbyte *theirIdentityKeyPtr = NULL;
 
-    if (!(sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
+    if (!sessionPtr)
     {
         LOGE("## matchesInboundSessionFromIdKeyJni(): failure - invalid Session ptr=NULL");
     }
@@ -482,7 +482,7 @@ JNIEXPORT void OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
 {
     const char* errorMessage = NULL;
 
-    OlmSession *sessionPtr = NULL;
+    OlmSession *sessionPtr = getSessionInstanceId(env, thiz);
     jbyte *clearMsgPtr = NULL;
     jclass encryptedMsgJClass = 0;
     jfieldID encryptedMsgFieldId;
@@ -490,7 +490,7 @@ JNIEXPORT void OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz
 
     LOGD("## encryptMessageJni(): IN ");
 
-    if (!(sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
+    if (!sessionPtr)
     {
         LOGE("## encryptMessageJni(): failure - invalid Session ptr=NULL");
         errorMessage = "invalid Session ptr=NULL";
@@ -627,14 +627,14 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobjec
     jfieldID encryptedMsgFieldId;
     jfieldID typeMsgFieldId;
     // ptrs
-    OlmSession *sessionPtr = NULL;
+    OlmSession *sessionPtr = getSessionInstanceId(env, thiz);
     const char *encryptedMsgPtr = NULL; // <= obtained from encryptedMsgJstring
     uint8_t *plainTextMsgPtr = NULL;
     char *tempEncryptedPtr = NULL;
 
     LOGD("## decryptMessageJni(): IN - OlmSession");
 
-    if (!(sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
+    if (!sessionPtr)
     {
         LOGE("## decryptMessageJni(): failure - invalid Session ptr=NULL");
         errorMessage = "invalid Session ptr=NULL";
@@ -759,7 +759,7 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, 
 
      LOGD("## getSessionIdentifierJni(): IN ");
 
-     OlmSession *sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz);
+     OlmSession *sessionPtr = getSessionInstanceId(env, thiz);
 
      if (!sessionPtr)
      {
@@ -823,11 +823,11 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thi
     jbyteArray returnValue = 0;
 
     jbyte* keyPtr = NULL;
-    OlmSession* sessionPtr = NULL;
+    OlmSession* sessionPtr = getSessionInstanceId(env, thiz);
 
     LOGD("## serializeJni(): IN");
 
-    if (!(sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
+    if (!sessionPtr)
     {
         LOGE(" ## serializeJni(): failure - invalid session ptr");
         errorMessage = "invalid session ptr";
@@ -897,14 +897,14 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thi
 
 JNIEXPORT jstring OLM_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz, jbyteArray aSerializedDataBuffer, jbyteArray aKeyBuffer)
 {
-    OlmSession* sessionPtr = NULL;
+    OlmSession* sessionPtr = getSessionInstanceId(env, thiz);
     jstring errorMessageRetValue = 0;
     jbyte* keyPtr = NULL;
     jbyte* pickledPtr = NULL;
 
     LOGD("## deserializeJni(): IN");
 
-    if (!(sessionPtr = (OlmSession*)getSessionInstanceId(env,thiz)))
+    if (!sessionPtr)
     {
         LOGE(" ## deserializeJni(): failure - session failure OOM");
     }

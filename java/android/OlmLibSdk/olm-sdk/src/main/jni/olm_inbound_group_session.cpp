@@ -26,11 +26,11 @@ using namespace AndroidOlmSdk;
  */
 JNIEXPORT void OLM_INBOUND_GROUP_SESSION_FUNC_DEF(releaseSessionJni)(JNIEnv *env, jobject thiz)
 {
-    OlmInboundGroupSession* sessionPtr = NULL;
+    OlmInboundGroupSession* sessionPtr = getInboundGroupSessionInstanceId(env,thiz);
 
     LOGD("## releaseSessionJni(): InBound group session IN");
 
-    if (!(sessionPtr = (OlmInboundGroupSession*)getInboundGroupSessionInstanceId(env,thiz)))
+    if (!sessionPtr)
     {
         LOGE("## releaseSessionJni(): failure - invalid inbound group session instance");
     }
@@ -88,13 +88,13 @@ JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *
 JNIEXPORT void OLM_INBOUND_GROUP_SESSION_FUNC_DEF(initInboundGroupSessionJni)(JNIEnv *env, jobject thiz, jbyteArray aSessionKeyBuffer)
 {
     const char* errorMessage = NULL;
-    OlmInboundGroupSession *sessionPtr = NULL;
+    OlmInboundGroupSession *sessionPtr = getInboundGroupSessionInstanceId(env, thiz);
     jbyte* sessionKeyPtr = NULL;
     size_t sessionResult;
 
     LOGD("## initInboundGroupSessionJni(): inbound group session IN");
 
-    if (!(sessionPtr = (OlmInboundGroupSession*)getInboundGroupSessionInstanceId(env,thiz)))
+    if (!sessionPtr)
     {
         LOGE(" ## initInboundGroupSessionJni(): failure - invalid inbound group session instance");
         errorMessage = "invalid inbound group session instance";
@@ -143,12 +143,12 @@ JNIEXPORT void OLM_INBOUND_GROUP_SESSION_FUNC_DEF(initInboundGroupSessionJni)(JN
 JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEnv *env, jobject thiz)
 {
     const char* errorMessage = NULL;
-    OlmInboundGroupSession *sessionPtr = NULL;
+    OlmInboundGroupSession *sessionPtr = getInboundGroupSessionInstanceId(env, thiz);
     jbyteArray returnValue = 0;
 
     LOGD("## sessionIdentifierJni(): inbound group session IN");
 
-    if (!(sessionPtr = (OlmInboundGroupSession*)getInboundGroupSessionInstanceId(env,thiz)))
+    if (!sessionPtr)
     {
         LOGE(" ## sessionIdentifierJni(): failure - invalid inbound group session instance");
         errorMessage = "invalid inbound group session instance";
@@ -202,14 +202,14 @@ JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEn
     jbyteArray decryptedMsgBuffer = 0;
     const char* errorMessage = NULL;
 
-    OlmInboundGroupSession *sessionPtr = NULL;
+    OlmInboundGroupSession *sessionPtr = getInboundGroupSessionInstanceId(env, thiz);
     jbyte *encryptedMsgPtr = NULL;
     jclass indexObjJClass = 0;
     jfieldID indexMsgFieldId;
 
     LOGD("## decryptMessageJni(): inbound group session IN");
 
-    if (!(sessionPtr = (OlmInboundGroupSession*)getInboundGroupSessionInstanceId(env,thiz)))
+    if (!sessionPtr)
     {
         LOGE(" ## decryptMessageJni(): failure - invalid inbound group session ptr=NULL");
         errorMessage = "invalid inbound group session ptr=NULL";
@@ -337,11 +337,11 @@ JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *en
 
     jbyteArray pickledDataRet = 0;
     jbyte* keyPtr = NULL;
-    OlmInboundGroupSession* sessionPtr = NULL;
+    OlmInboundGroupSession* sessionPtr = getInboundGroupSessionInstanceId(env, thiz);
 
     LOGD("## inbound group session serializeJni(): IN");
 
-    if (!(sessionPtr = (OlmInboundGroupSession*)getInboundGroupSessionInstanceId(env,thiz)))
+    if (!sessionPtr)
     {
         LOGE(" ## serializeJni(): failure - invalid session ptr");
         errorMessage = "invalid session ptr";
@@ -411,14 +411,14 @@ JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *en
 
 JNIEXPORT jstring OLM_INBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz, jbyteArray aSerializedDataBuffer, jbyteArray aKeyBuffer)
 {
-    OlmInboundGroupSession* sessionPtr = NULL;
+    OlmInboundGroupSession* sessionPtr = getInboundGroupSessionInstanceId(env, thiz);
     jstring errorMessageRetValue = 0;
     jbyte* keyPtr = NULL;
     jbyte* pickledPtr = NULL;
 
     LOGD("## deserializeJni(): IN");
 
-    if (!(sessionPtr = (OlmInboundGroupSession*)getInboundGroupSessionInstanceId(env,thiz)))
+    if (!sessionPtr)
     {
         LOGE(" ## deserializeJni(): failure - session failure OOM");
     }

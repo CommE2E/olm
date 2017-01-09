@@ -68,11 +68,12 @@ extern "C" {
 
 // internal helper functions
 bool setRandomInBuffer(JNIEnv *env, uint8_t **aBuffer2Ptr, size_t aRandomSize);
-jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
-jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
-jlong getInboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
-jlong getOutboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
-jlong getUtilityInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
+
+struct OlmSession* getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
+struct OlmAccount* getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
+struct OlmInboundGroupSession* getInboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
+struct OlmOutboundGroupSession* getOutboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
+struct OlmUtility* getUtilityInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 
 #ifdef __cplusplus
 }

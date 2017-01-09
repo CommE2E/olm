@@ -60,7 +60,7 @@ JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(releaseAccountJni)(JNIEnv *env, jobject thiz
 {
     LOGD("## releaseAccountJni(): IN");
 
-    OlmAccount* accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz);
+    OlmAccount* accountPtr = getAccountInstanceId(env, thiz);
 
     if (!accountPtr)
     {
@@ -152,7 +152,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(identityKeysJni)(JNIEnv *env, jobject 
 {
     const char* errorMessage = NULL;
     jbyteArray byteArrayRetValue = NULL;
-    OlmAccount* accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz);
+    OlmAccount* accountPtr = getAccountInstanceId(env, thiz);
 
     if (!accountPtr)
     {
@@ -220,7 +220,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(identityKeysJni)(JNIEnv *env, jobject 
 **/
 JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(maxOneTimeKeysJni)(JNIEnv *env, jobject thiz)
 {
-    OlmAccount* accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz);
+    OlmAccount* accountPtr = getAccountInstanceId(env, thiz);
     size_t maxKeys = -1;
 
     if (!accountPtr)
@@ -244,7 +244,7 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(maxOneTimeKeysJni)(JNIEnv *env, jobject thi
 JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeysJni)(JNIEnv *env, jobject thiz, jint aNumberOfKeys)
 {
     const char* errorMessage = NULL;
-    OlmAccount *accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz);
+    OlmAccount *accountPtr = getAccountInstanceId(env, thiz);
 
     if (!accountPtr)
     {
@@ -304,7 +304,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(oneTimeKeysJni)(JNIEnv *env, jobject t
 {
     const char* errorMessage = NULL;
     jbyteArray byteArrayRetValue = NULL;
-    OlmAccount* accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz);
+    OlmAccount* accountPtr = getAccountInstanceId(env, thiz);
 
     LOGD("## oneTimeKeysJni(): IN");
 
@@ -380,7 +380,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysJni)(JNIEnv *env, jobject t
         LOGE("## removeOneTimeKeysJni(): failure - invalid session ptr");
         errorMessage = "invalid session ptr";
     }
-    else if(!(accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
+    else if(!(accountPtr = getAccountInstanceId(env, thiz)))
     {
         LOGE("## removeOneTimeKeysJni(): failure - invalid account ptr");
         errorMessage = "invalid account ptr";
@@ -415,7 +415,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysJni)(JNIEnv *env, jobject t
 JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublishedJni)(JNIEnv *env, jobject thiz)
 {
     const char* errorMessage = NULL;
-    OlmAccount* accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz);
+    OlmAccount* accountPtr = getAccountInstanceId(env, thiz);
 
     if (!accountPtr)
     {
@@ -460,7 +460,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject t
         LOGE("## signMessageJni(): failure - invalid aMessage param");
         errorMessage = "invalid aMessage param";
     }
-    else if(!(accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
+    else if (!(accountPtr = getAccountInstanceId(env, thiz)))
     {
         LOGE("## signMessageJni(): failure - invalid account ptr");
         errorMessage = "invalid account ptr";
@@ -543,7 +543,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thi
         LOGE(" ## serializeJni(): failure - invalid key");
         errorMessage = "invalid key";
     }
-    else if (!(accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
+    else if (!(accountPtr = getAccountInstanceId(env, thiz)))
     {
        LOGE(" ## serializeJni(): failure - invalid account ptr");
        errorMessage = "invalid account ptr";
@@ -625,7 +625,7 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz
     {
         LOGE(" ## deserializeJni(): failure - serialized data");
     }
-    else if (!(accountPtr = (OlmAccount*)getAccountInstanceId(env,thiz)))
+    else if (!(accountPtr = getAccountInstanceId(env, thiz)))
     {
         LOGE(" ## deserializeJni(): failure - account failure OOM");
     }

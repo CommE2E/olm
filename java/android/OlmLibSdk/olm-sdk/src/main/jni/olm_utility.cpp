@@ -59,7 +59,7 @@ JNIEXPORT jlong OLM_UTILITY_FUNC_DEF(initUtilityJni)(JNIEnv *env, jobject thiz)
 
 JNIEXPORT void OLM_UTILITY_FUNC_DEF(releaseUtilityJni)(JNIEnv *env, jobject thiz)
 {
-    OlmUtility* utilityPtr = (OlmUtility*)getUtilityInstanceId(env,thiz);
+    OlmUtility* utilityPtr = getUtilityInstanceId(env, thiz);
 
     LOGD("## releaseUtilityJni(): IN");
 
@@ -88,14 +88,14 @@ JNIEXPORT void OLM_UTILITY_FUNC_DEF(releaseUtilityJni)(JNIEnv *env, jobject thiz
 JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, jobject thiz, jbyteArray aSignatureBuffer, jbyteArray aKeyBuffer, jbyteArray aMessageBuffer)
 {
     jstring errorMessageRetValue = 0;
-    OlmUtility* utilityPtr = NULL;
+    OlmUtility* utilityPtr = getUtilityInstanceId(env, thiz);
     jbyte* signaturePtr = NULL;
     jbyte* keyPtr = NULL;
     jbyte* messagePtr = NULL;
 
     LOGD("## verifyEd25519SignatureJni(): IN");
 
-    if (!(utilityPtr = (OlmUtility*)getUtilityInstanceId(env,thiz)))
+    if (!utilityPtr)
     {
         LOGE(" ## verifyEd25519SignatureJni(): failure - invalid utility ptr=NULL");
     }
@@ -170,12 +170,12 @@ JNIEXPORT jbyteArray OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, 
 {
     jbyteArray sha256Ret = 0;
 
-    OlmUtility* utilityPtr = NULL;
+    OlmUtility* utilityPtr = getUtilityInstanceId(env, thiz);
     jbyte* messagePtr = NULL;
 
     LOGD("## sha256Jni(): IN");
 
-    if (!(utilityPtr = (OlmUtility*)getUtilityInstanceId(env,thiz)))
+    if (!utilityPtr)
     {
         LOGE(" ## sha256Jni(): failure - invalid utility ptr=NULL");
     }

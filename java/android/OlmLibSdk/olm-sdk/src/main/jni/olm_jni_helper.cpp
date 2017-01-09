@@ -111,8 +111,8 @@ bool setRandomInBuffer(JNIEnv *env, uint8_t **aBuffer2Ptr, size_t aRandomSize)
 * Read the instance ID of the calling object.
 * @param aJniEnv pointer pointing on the JNI function table
 * @param aJavaObject reference to the object on which the method is invoked
-* @param aCallingClass java calling clas name
-* @return the instance ID if operation succeed, -1 if instance ID was not found.
+* @param aCallingClass java calling class name
+* @return the related instance ID
 **/
 jlong getInstanceId(JNIEnv* aJniEnv, jobject aJavaObject, const char *aCallingClass)
 {
@@ -125,7 +125,7 @@ jlong getInstanceId(JNIEnv* aJniEnv, jobject aJavaObject, const char *aCallingCl
 
         if (requiredClass && (JNI_TRUE != aJniEnv->IsInstanceOf(aJavaObject, requiredClass)))
         {
-            LOGE("## getAccountInstanceId() failure - invalid instance of");
+            LOGE("## getInstanceId() failure - invalid instance of");
         }
         else if ((loaderClass = aJniEnv->GetObjectClass(aJavaObject)))
         {
@@ -162,58 +162,53 @@ jlong getInstanceId(JNIEnv* aJniEnv, jobject aJavaObject, const char *aCallingCl
 * Read the account instance ID of the calling object.
 * @param aJniEnv pointer pointing on the JNI function table
 * @param aJavaObject reference to the object on which the method is invoked
-* @return the instance ID if operation succeed, -1 if instance ID was not found.
+* @return the related OlmAccount.
 **/
-jlong getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
+struct OlmAccount* getAccountInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 {
-    jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_ACCOUNT);
-    return instanceId;
+    return (struct OlmAccount*)getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_ACCOUNT);
 }
 
 /**
 * Read the session instance ID of the calling object (aJavaObject).<br>
 * @param aJniEnv pointer pointing on the JNI function table
 * @param aJavaObject reference to the object on which the method is invoked
-* @return the instance ID if read succeed, -1 otherwise.
+* @return the related OlmSession.
 **/
-jlong getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
+struct OlmSession* getSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 {
-    jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_SESSION);
-    return instanceId;
+    return (struct OlmSession*)getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_SESSION);
 }
 
 /**
 * Read the inbound group session instance ID of the calling object (aJavaObject).<br>
 * @param aJniEnv pointer pointing on the JNI function table
 * @param aJavaObject reference to the object on which the method is invoked
-* @return the instance ID if read succeed, -1 otherwise.
+* @return the related OlmInboundGroupSession.
 **/
-jlong getInboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
+struct OlmInboundGroupSession* getInboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 {
-    jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_INBOUND_GROUP_SESSION);
-    return instanceId;
+    return (struct OlmInboundGroupSession*)getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_INBOUND_GROUP_SESSION);
 }
 
 /**
 * Read the outbound group session instance ID of the calling object (aJavaObject).<br>
 * @param aJniEnv pointer pointing on the JNI function table
 * @param aJavaObject reference to the object on which the method is invoked
-* @return the instance ID if read succeed, -1 otherwise.
+* @return the related OlmOutboundGroupSession
 **/
-jlong getOutboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
+struct OlmOutboundGroupSession* getOutboundGroupSessionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 {
-    jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_OUTBOUND_GROUP_SESSION);
-    return instanceId;
+    return (struct OlmOutboundGroupSession*)getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_OUTBOUND_GROUP_SESSION);
 }
 
 /**
 * Read the utility instance ID of the calling object (aJavaObject).<br>
 * @param aJniEnv pointer pointing on the JNI function table
 * @param aJavaObject reference to the object on which the method is invoked
-* @return the instance ID if read succeed, -1 otherwise.
+* @return the related OlmUtility
 **/
-jlong getUtilityInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
+struct OlmUtility* getUtilityInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
 {
-    jlong instanceId = getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_UTILITY);
-    return instanceId;
+    return (struct OlmUtility*)getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_UTILITY);
 }
