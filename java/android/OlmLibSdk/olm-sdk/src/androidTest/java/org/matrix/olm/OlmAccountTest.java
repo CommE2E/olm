@@ -96,6 +96,7 @@ public class OlmAccountTest {
             mOlmAccount = new OlmAccount();
         } catch (OlmException e) {
             e.printStackTrace();
+            assertTrue("OlmAccount failed " + e.getMessage(), false);
         }
         assertNotNull(mOlmAccount);
 
@@ -109,6 +110,7 @@ public class OlmAccountTest {
             mOlmAccount = new OlmAccount();
         } catch (OlmException e) {
             e.printStackTrace();
+            assertTrue("OlmAccount failed " + e.getMessage(), false);
         }
         assertNotNull(mOlmAccount);
         mIsAccountCreated = true;
@@ -261,7 +263,7 @@ public class OlmAccountTest {
         FileOutputStream fileOutput;
         ObjectOutputStream objectOutput;
         OlmAccount accountRef = null;
-        OlmAccount accountDeserial;
+        OlmAccount accountDeserial = null;
 
         try {
             accountRef = new OlmAccount();
@@ -330,18 +332,22 @@ public class OlmAccountTest {
         }
         catch (FileNotFoundException e) {
             Log.e(LOG_TAG, "## test13Serialization(): Exception FileNotFoundException Msg=="+e.getMessage());
+            assertTrue("test13Serialization failed " + e.getMessage(), false);
         }
         catch (ClassNotFoundException e) {
             Log.e(LOG_TAG, "## test13Serialization(): Exception ClassNotFoundException Msg==" + e.getMessage());
+            assertTrue("test13Serialization failed " + e.getMessage(), false);
         }
         catch (IOException e) {
             Log.e(LOG_TAG, "## test13Serialization(): Exception IOException Msg==" + e.getMessage());
+            assertTrue("test13Serialization failed " + e.getMessage(), false);
         }
         /*catch (OlmException e) {
             Log.e(LOG_TAG, "## test13Serialization(): Exception OlmException Msg==" + e.getMessage());
         }*/
         catch (Exception e) {
             Log.e(LOG_TAG, "## test13Serialization(): Exception Msg==" + e.getMessage());
+            assertTrue("test13Serialization failed " + e.getMessage(), false);
         }
     }
 

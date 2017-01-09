@@ -454,6 +454,7 @@ public class OlmSessionTest {
             bobSession = new OlmSession();
         } catch (OlmException e) {
             e.printStackTrace();
+            assertTrue(e.getMessage(), false);
         }
         assertTrue(0!=bobSession.getOlmSessionId());
 
@@ -803,18 +804,22 @@ public class OlmSessionTest {
         }
         catch (FileNotFoundException e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception FileNotFoundException Msg=="+e.getMessage());
+            assertTrue(e.getMessage(), false);
         }
         catch (ClassNotFoundException e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception ClassNotFoundException Msg==" + e.getMessage());
+            assertTrue(e.getMessage(), false);
         }
         catch (IOException e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception IOException Msg==" + e.getMessage());
+            assertTrue(e.getMessage(), false);
         }
         /*catch (OlmException e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception OlmException Msg==" + e.getMessage());
         }*/
         catch (Exception e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception Msg==" + e.getMessage());
+            assertTrue(e.getMessage(), false);
         }
     }
 

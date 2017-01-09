@@ -95,7 +95,13 @@ public class OlmUtilityTest {
         assertTrue("fingerprint key missing",!TextUtils.isEmpty(fingerPrintKey));
 
         // instantiate utility object
-        OlmUtility utility = new OlmUtility();
+        OlmUtility utility = null;
+
+        try {
+            utility = new OlmUtility();
+        } catch (Exception e) {
+            assertTrue("failed to create OlmUtility", false);
+        }
 
         // verify signature
         boolean isVerified;
@@ -145,7 +151,13 @@ public class OlmUtilityTest {
 
     @Test
     public void test02sha256() {
-        OlmUtility utility = new OlmUtility();
+        OlmUtility utility = null;
+
+        try {
+            utility = new OlmUtility();
+        } catch (Exception e) {
+            assertTrue("OlmUtility creation failed", false);
+        }
         String msgToHash = "The quick brown fox jumps over the lazy dog";
 
         String hashResult = utility.sha256(msgToHash);

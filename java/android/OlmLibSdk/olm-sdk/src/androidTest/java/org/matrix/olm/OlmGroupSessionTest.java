@@ -175,6 +175,7 @@ public class OlmGroupSessionTest {
         try {
             result = mBobInboundGroupSession.decryptMessage(mAliceToBobMessage);
         } catch (Exception e) {
+            assertTrue(e.getMessage(), false);
         }
 
         // test decrypted message
@@ -262,14 +263,19 @@ public class OlmGroupSessionTest {
             assertTrue(outboundGroupSessionSerial.isReleased());
         } catch (FileNotFoundException e) {
             Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception FileNotFoundException Msg=="+e.getMessage());
+            assertTrue(e.getMessage(), false);
         } catch (ClassNotFoundException e) {
             Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception ClassNotFoundException Msg==" + e.getMessage());
+            assertTrue(e.getMessage(), false);
         } catch (OlmException e) {
             Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception OlmException Msg==" + e.getMessage());
+            assertTrue(e.getMessage(), false);
         } catch (IOException e) {
             Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception IOException Msg==" + e.getMessage());
+            assertTrue(e.getMessage(), false);
         } catch (Exception e) {
             Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception Msg==" + e.getMessage());
+            assertTrue(e.getMessage(), false);
         }
     }
 
@@ -342,14 +348,19 @@ public class OlmGroupSessionTest {
             assertTrue(bobInboundGroupSessionSerial.isReleased());
         } catch (FileNotFoundException e) {
             Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception FileNotFoundException Msg=="+e.getMessage());
+            assertTrue(e.getMessage(), false);
         } catch (ClassNotFoundException e) {
             Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception ClassNotFoundException Msg==" + e.getMessage());
+            assertTrue(e.getMessage(), false);
         } catch (OlmException e) {
             Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception OlmException Msg==" + e.getMessage());
+            assertTrue(e.getMessage(), false);
         } catch (IOException e) {
             Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception IOException Msg==" + e.getMessage());
+            assertTrue(e.getMessage(), false);
         } catch (Exception e) {
             Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception Msg==" + e.getMessage());
+            assertTrue(e.getMessage(), false);
         }
     }
 
