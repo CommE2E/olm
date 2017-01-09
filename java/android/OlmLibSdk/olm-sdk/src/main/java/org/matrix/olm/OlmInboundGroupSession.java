@@ -70,7 +70,9 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      * Public API for {@link #releaseSessionJni()}.
      */
     public void releaseSession(){
-        releaseSessionJni();
+        if (0 != mNativeId) {
+            releaseSessionJni();
+        }
         mNativeId = 0;
     }
 

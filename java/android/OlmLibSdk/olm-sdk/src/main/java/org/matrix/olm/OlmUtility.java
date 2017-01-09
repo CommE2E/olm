@@ -35,18 +35,21 @@ public class OlmUtility {
      **/
     private long mNativeId;
 
-    public OlmUtility() {
+    public OlmUtility() throws OlmException  {
         initUtility();
     }
 
     /**
      * Create a native utility instance.
      * To be called before any other API call.
-     * @return true if init succeed, false otherwise.
+     * @exception OlmException the exception
      */
-    private boolean initUtility() {
-        mNativeId = createUtilityJni();
-        return (0 != mNativeId);
+    private void initUtility() throws OlmException {
+        try {
+            mNativeId = createUtilityJni();
+        } catch (Exception e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_UTILITY_CREATION, e.getMessage());
+        }
     }
 
     private native long createUtilityJni();
@@ -55,8 +58,10 @@ public class OlmUtility {
      * Release native instance.<br>
      * Public API for {@link #releaseUtilityJni()}.
      */
-    public void releaseUtility(){
-        releaseUtilityJni();
+    public void releaseUtility() {
+        if (0 != mNativeId) {
+            releaseUtilityJni();
+        }
         mNativeId = 0;
     }
     private native void releaseUtilityJni();
@@ -111,7 +116,7 @@ public class OlmUtility {
      * @return hash value if operation succeed, null otherwise
      */
      public String sha256(String aMessageToHash) {
-        String hashRetValue = null;
+         String hashRetValue = null;
 
          if (null != aMessageToHash) {
              try {

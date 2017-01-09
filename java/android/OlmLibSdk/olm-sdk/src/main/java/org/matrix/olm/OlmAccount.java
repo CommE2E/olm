@@ -77,8 +77,10 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * Release native account and invalid its JAVA reference counter part.<br>
      * Public API for {@link #releaseAccountJni()}.
      */
-    public void releaseAccount(){
-        releaseAccountJni();
+    public void releaseAccount() {
+        if (0 != mNativeId) {
+            releaseAccountJni();
+        }
         mNativeId = 0;
     }
 

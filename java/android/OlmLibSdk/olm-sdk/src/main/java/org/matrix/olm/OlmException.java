@@ -55,15 +55,11 @@ public class OlmException extends IOException {
     public static final int EXCEPTION_CODE_SESSION_DECRYPT_MESSAGE = 405;
     public static final int EXCEPTION_CODE_SESSION_SESSION_IDENTIFIER = 406;
 
-    public static final int EXCEPTION_CODE_UTILITY_CREATION = 501;
-    public static final int EXCEPTION_CODE_UTILITY_VERIFY_SIGNATURE = 500;
+    public static final int EXCEPTION_CODE_UTILITY_CREATION = 500;
+    public static final int EXCEPTION_CODE_UTILITY_VERIFY_SIGNATURE = 501;
 
     // exception human readable messages
-    public static final String EXCEPTION_MSG_NEW_OUTBOUND_GROUP_SESSION = "createNewSession() failed";
-    public static final String EXCEPTION_MSG_NEW_INBOUND_GROUP_SESSION = "createNewSession() failed";
     public static final String EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION = "invalid de-serialized parameters";
-    public static final String EXCEPTION_MSG_INIT_ACCOUNT_CREATION = "initNewAccount() failed";
-    public static final String EXCEPTION_MSG_INIT_SESSION_CREATION = "initNewSession() failed";
 
     /** exception code to be taken from: {@link #EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION}, {@link #EXCEPTION_CODE_CREATE_INBOUND_GROUP_SESSION},
      * {@link #EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION}, {@link #EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION}..**/

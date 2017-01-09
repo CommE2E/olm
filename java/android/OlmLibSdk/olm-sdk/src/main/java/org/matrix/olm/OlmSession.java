@@ -66,8 +66,10 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * Release native session and invalid its JAVA reference counter part.<br>
      * Public API for {@link #releaseSessionJni()}.
      */
-    public void releaseSession(){
-        releaseSessionJni();
+    public void releaseSession() {
+        if (0 != mNativeId) {
+            releaseSessionJni();
+        }
         mNativeId = 0;
     }
 
@@ -262,7 +264,11 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
         OlmMessage encryptedMsgRetValue = new OlmMessage();
 
         try {
-            encryptedMsgRetValue.mCipherText = new String(encryptMessageJni(aClearMsg.getBytes("UTF-8"), encryptedMsgRetValue), "UTF-8");
+            byte[] encryptedMessageBuffer = encryptMessageJni(aClearMsg.getBytes("UTF-8"), encryptedMsgRetValue);
+
+            if (null != encryptedMessageBuffer) {
+                encryptedMsgRetValue.mCipherText = new String(encryptedMessageBuffer, "UTF-8");
+            }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## encryptMessage(): failed " + e.getMessage());
             throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_ENCRYPT_MESSAGE, e.getMessage());
@@ -360,24 +366,23 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
     protected void deserialize(byte[] aSerializedData, byte[] aKey) throws Exception {
         createNewSession();
 
-        StringBuffer errorMsg = new StringBuffer();
+        String errorMsg;
 
         try {
-            String jniError;
             if ((null == aSerializedData) || (null == aKey)) {
                 Log.e(LOG_TAG, "## deserialize(): invalid input parameters");
-                errorMsg.append("invalid input parameters");
-            } else if (null != (jniError = deserializeJni(aSerializedData, aKey))) {
-                errorMsg.append(jniError);
+                errorMsg = "invalid input parameters";
+            } else {
+                errorMsg = deserializeJni(aSerializedData, aKey);
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## deserialize() failed " + e.getMessage());
-            errorMsg.append(e.getMessage());
+            errorMsg = e.getMessage();
         }
 
-        if (errorMsg.length() > 0) {
+        if (!TextUtils.isEmpty(errorMsg)) {
             releaseSession();
-            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, String.valueOf(errorMsg));
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, errorMsg);
         }
     }
 

@@ -59,7 +59,9 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * Public API for {@link #releaseSessionJni()}.
      */
     public void releaseSession() {
-        releaseSessionJni();
+        if (0 != mNativeId) {
+            releaseSessionJni();
+        }
         mNativeId = 0;
     }
 
@@ -252,7 +254,7 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
     protected void deserialize(byte[] aSerializedData, byte[] aKey) throws Exception {
         createNewSession();
 
-        String errorMsg = null;
+        String errorMsg;
 
         try {
             if ((null == aSerializedData) || (null == aKey)) {
