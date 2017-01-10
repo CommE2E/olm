@@ -85,7 +85,8 @@ size_t olm_unpickle_inbound_group_session(
 
 
 /**
- * Start a new inbound group session, based on the parameters supplied.
+ * Start a new inbound group session, from a key exported from
+ * olm_outbound_group_session_key
  *
  * Returns olm_error() on failure. On failure last_error will be set with an
  * error code. The last_error will be:
@@ -98,6 +99,23 @@ size_t olm_init_inbound_group_session(
     /* base64-encoded keys */
     uint8_t const * session_key, size_t session_key_length
 );
+
+/**
+ * Import an inbound group session, from a previous export.
+ *
+ * Returns olm_error() on failure. On failure last_error will be set with an
+ * error code. The last_error will be:
+ *
+ *  * OLM_INVALID_BASE64  if the session_key is not valid base64
+ *  * OLM_BAD_SESSION_KEY if the session_key is invalid
+ */
+size_t olm_import_inbound_group_session(
+    OlmInboundGroupSession *session,
+    /* base64-encoded keys; note that it will be overwritten with the base64-decoded
+       data. */
+    uint8_t const * session_key, size_t session_key_length
+);
+
 
 /**
  * Get an upper bound on the number of bytes of plain-text the decrypt method
@@ -163,6 +181,50 @@ size_t olm_inbound_group_session_id_length(
 size_t olm_inbound_group_session_id(
     OlmInboundGroupSession *session,
     uint8_t * id, size_t id_length
+);
+
+/**
+ * Get the first message index we know how to decrypt.
+ */
+uint32_t olm_inbound_group_session_first_known_index(
+    const OlmInboundGroupSession *session
+);
+
+
+/**
+ * Check if the session has been verified as a valid session.
+ *
+ * (A session is verified either because the original session share was signed,
+ * or because we have subsequently successfully decrypted a message.)
+ *
+ * This is mainly intended for the unit tests, currently.
+ */
+int olm_inbound_group_session_is_verified(
+    const OlmInboundGroupSession *session
+);
+
+/**
+ * Get the number of bytes returned by olm_export_inbound_group_session()
+ */
+size_t olm_export_inbound_group_session_length(
+    const OlmInboundGroupSession *session
+);
+
+/**
+ * Export the base64-encoded ratchet key for this session, at the given index,
+ * in a format which can be used by olm_import_inbound_group_session
+ *
+ * Returns the length of the ratchet key on success or olm_error() on
+ * failure. On failure last_error will be set with an error code. The
+ * last_error will be:
+ *   * OUTPUT_BUFFER_TOO_SMALL if the buffer was too small
+ *   * OLM_UNKNOWN_MESSAGE_INDEX  if we do not have a session key corresponding to the
+ *     given index (ie, it was sent before the session key was shared with
+ *     us)
+ */
+size_t olm_export_inbound_group_session(
+    OlmInboundGroupSession *session,
+    uint8_t * key, size_t key_length, uint32_t message_index
 );
 
 

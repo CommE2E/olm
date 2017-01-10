@@ -268,6 +268,19 @@ def build_arg_parser():
                                default=sys.stdin)
     inbound_group.set_defaults(func=do_inbound_group)
 
+    import_inbound_group = commands.add_parser(
+        "import_inbound_group",
+        help="Create an inbound group session based an exported inbound group"
+    )
+    import_inbound_group.add_argument("session_file", help="Local inbound group session file")
+    import_inbound_group.add_argument(
+        "export_file",
+        help="File to read credentials from (default stdin)",
+        type=argparse.FileType('r'), nargs='?',
+        default=sys.stdin,
+    )
+    import_inbound_group.set_defaults(func=do_import_inbound_group)
+
     group_decrypt = commands.add_parser("group_decrypt", help="Decrypt a group message")
     group_decrypt.add_argument("session_file", help="Local inbound group session file")
     group_decrypt.add_argument("message_file", help="Message file (default stdin)",
@@ -277,6 +290,27 @@ def build_arg_parser():
                                type=argparse.FileType('wb'), nargs='?',
                                default=sys.stdout)
     group_decrypt.set_defaults(func=do_group_decrypt)
+
+
+    export_inbound_group = commands.add_parser(
+        "export_inbound_group",
+        help="Export the keys for an inbound group session",
+    )
+    export_inbound_group.add_argument(
+        "session_file", help="Local inbound group session file",
+    )
+    export_inbound_group.add_argument(
+        "export_file", help="File to export to (default stdout)",
+        type=argparse.FileType('w'), nargs='?',
+        default=sys.stdout,
+    )
+    export_inbound_group.add_argument(
+        "--message_index",
+        help="Index to export session at. Defaults to the earliest known index",
+        type=int,
+    )
+    export_inbound_group.set_defaults(func=do_export_inbound_group)
+
     return parser
 
 def do_outbound_group(args):
@@ -324,6 +358,19 @@ def do_inbound_group(args):
     with open(args.session_file, "wb") as f:
         f.write(session.pickle(args.key))
 
+def do_import_inbound_group(args):
+    if os.path.exists(args.session_file):
+        sys.stderr.write("Session %r file already exists\n" % (
+            args.session_file,
+        ))
+        sys.exit(1)
+    data = args.export_file.read().translate(None, "\r\n")
+
+    session = InboundGroupSession()
+    session.import_session(data)
+    with open(args.session_file, "wb") as f:
+        f.write(session.pickle(args.key))
+
 def do_group_decrypt(args):
     session = InboundGroupSession()
     session.unpickle(args.key, read_base64_file(args.session_file))
@@ -332,6 +379,15 @@ def do_group_decrypt(args):
     with open(args.session_file, "wb") as f:
         f.write(session.pickle(args.key))
     args.plaintext_file.write(plaintext)
+
+def do_export_inbound_group(args):
+    session = InboundGroupSession()
+    session.unpickle(args.key, read_base64_file(args.session_file))
+    index = args.message_index
+    if index is None:
+        # default to first known index
+        index = session.first_known_index()
+    args.export_file.write(session.export_session(index))
 
 if __name__ == '__main__':
     parser = build_arg_parser()

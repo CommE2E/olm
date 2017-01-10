@@ -37,6 +37,10 @@ inbound_group_session_function(
 )
 
 inbound_group_session_function(
+    lib.olm_import_inbound_group_session, c_void_p, c_size_t
+)
+
+inbound_group_session_function(
     lib.olm_group_decrypt_max_plaintext_length, c_void_p, c_size_t
 )
 inbound_group_session_function(
@@ -48,6 +52,13 @@ inbound_group_session_function(
 
 inbound_group_session_function(lib.olm_inbound_group_session_id_length)
 inbound_group_session_function(lib.olm_inbound_group_session_id, c_void_p, c_size_t)
+
+lib.olm_inbound_group_session_first_known_index.argtypes = (c_void_p,)
+lib.olm_inbound_group_session_first_known_index.restypes = c_uint32
+
+inbound_group_session_function(lib.olm_export_inbound_group_session_length)
+inbound_group_session_function(lib.olm_export_inbound_group_session, c_void_p, c_size_t, c_uint32)
+
 
 class InboundGroupSession(object):
     def __init__(self):
@@ -76,6 +87,12 @@ class InboundGroupSession(object):
             self.ptr, key_buffer, len(session_key)
         )
 
+    def import_session(self, session_key):
+        key_buffer = create_string_buffer(session_key)
+        lib.olm_import_inbound_group_session(
+            self.ptr, key_buffer, len(session_key)
+        )
+
     def decrypt(self, message):
         message_buffer = create_string_buffer(message)
         max_plaintext_length = lib.olm_group_decrypt_max_plaintext_length(
@@ -95,5 +112,15 @@ class InboundGroupSession(object):
     def session_id(self):
         id_length = lib.olm_inbound_group_session_id_length(self.ptr)
         id_buffer = create_string_buffer(id_length)
-        lib.olm_inbound_group_session_id(self.ptr, id_buffer, id_length);
+        lib.olm_inbound_group_session_id(self.ptr, id_buffer, id_length)
         return id_buffer.raw
+
+    def first_known_index(self):
+        return lib.olm_inbound_group_session_first_known_index(self.ptr)
+
+    def export_session(self, message_index):
+        length = lib.olm_export_inbound_group_session_length(self.ptr)
+        buffer = create_string_buffer(length)
+        lib.olm_export_inbound_group_session(self.ptr, buffer, length,
+                                             message_index)
+        return buffer.raw

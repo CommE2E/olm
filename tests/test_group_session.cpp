@@ -127,17 +127,18 @@ int main() {
     assert_equals(msglen, res);
     assert_equals(1U, olm_outbound_group_session_message_index(session));
 
-
     /* build the inbound session */
     size = olm_inbound_group_session_size();
     uint8_t inbound_session_memory[size];
     OlmInboundGroupSession *inbound_session =
         olm_inbound_group_session(inbound_session_memory);
 
+    assert_equals(0, olm_inbound_group_session_is_verified(inbound_session));
+
     res = olm_init_inbound_group_session(
         inbound_session, session_key, session_key_len);
     assert_equals((size_t)0, res);
-
+    assert_equals(1, olm_inbound_group_session_is_verified(inbound_session));
 
     /* Check the session ids */
 
@@ -172,6 +173,85 @@ int main() {
     assert_equals(plaintext_length, res);
     assert_equals(plaintext, plaintext_buf, res);
     assert_equals(message_index, uint32_t(0));
+}
+
+{
+    TestCase test_case("Inbound group session export/import");
+
+    uint8_t session_key[] =
+        "AgAAAAAwMTIzNDU2Nzg5QUJERUYwMTIzNDU2Nzg5QUJDREVGMDEyMzQ1Njc4OUFCREVGM"
+        "DEyMzQ1Njc4OUFCQ0RFRjAxMjM0NTY3ODlBQkRFRjAxMjM0NTY3ODlBQkNERUYwMTIzND"
+        "U2Nzg5QUJERUYwMTIzNDU2Nzg5QUJDREVGMDEyMw0bdg1BDq4Px/slBow06q8n/B9WBfw"
+        "WYyNOB8DlUmXGGwrFmaSb9bR/eY8xgERrxmP07hFmD9uqA2p8PMHdnV5ysmgufE6oLZ5+"
+        "8/mWQOW3VVTnDIlnwd8oHUYRuk8TCQ";
+
+    const uint8_t message[] =
+        "AwgAEhAcbh6UpbByoyZxufQ+h2B+8XHMjhR69G8F4+qjMaFlnIXusJZX3r8LnRORG9T3D"
+        "XFdbVuvIWrLyRfm4i8QRbe8VPwGRFG57B1CtmxanuP8bHtnnYqlwPsD";
+    const std::size_t msglen = sizeof(message)-1;
+
+    /* init first inbound group session, and decrypt */
+    std::size_t size = olm_inbound_group_session_size();
+    uint8_t session_memory1[size];
+    OlmInboundGroupSession *session1 =
+        olm_inbound_group_session(session_memory1);
+    assert_equals(0, olm_inbound_group_session_is_verified(session1));
+
+    std::size_t res = olm_init_inbound_group_session(
+        session1, session_key, sizeof(session_key)-1
+    );
+    assert_equals((size_t)0, res);
+    assert_equals(1, olm_inbound_group_session_is_verified(session1));
+
+    /* olm_group_decrypt_max_plaintext_length destroys the input so we have to
+       copy it. */
+    uint8_t msgcopy[msglen];
+    memcpy(msgcopy, message, msglen);
+    size = olm_group_decrypt_max_plaintext_length(session1, msgcopy, msglen);
+    uint8_t plaintext_buf[size];
+    uint32_t message_index;
+    memcpy(msgcopy, message, msglen);
+    res = olm_group_decrypt(
+        session1, msgcopy, msglen, plaintext_buf, size, &message_index
+    );
+    assert_equals((std::size_t)7, res);
+    assert_equals((const uint8_t *)"Message", plaintext_buf, res);
+    assert_equals(uint32_t(0), message_index);
+
+    /* export the keys */
+    size = olm_export_inbound_group_session_length(session1);
+    uint8_t export_memory[size];
+    res = olm_export_inbound_group_session(
+        session1, export_memory, size, 0
+    );
+    assert_equals(size, res);
+
+    /* free the old session to check there is no shared data */
+    olm_clear_inbound_group_session(session1);
+
+    /* import the keys into another inbound group session */
+    size = olm_inbound_group_session_size();
+    uint8_t session_memory2[size];
+    OlmInboundGroupSession *session2 =
+        olm_inbound_group_session(session_memory2);
+    res = olm_import_inbound_group_session(
+        session2, export_memory, sizeof(export_memory)
+    );
+    assert_equals((size_t)0, res);
+    assert_equals(0, olm_inbound_group_session_is_verified(session2));
+
+    /* decrypt the message with the new session */
+    memcpy(msgcopy, message, msglen);
+    size = olm_group_decrypt_max_plaintext_length(session2, msgcopy, msglen);
+    uint8_t plaintext_buf2[size];
+    memcpy(msgcopy, message, msglen);
+    res = olm_group_decrypt(
+        session2, msgcopy, msglen, plaintext_buf2, size, &message_index
+    );
+    assert_equals((std::size_t)7, res);
+    assert_equals((const uint8_t *)"Message", plaintext_buf2, res);
+    assert_equals(uint32_t(0), message_index);
+    assert_equals(1, olm_inbound_group_session_is_verified(session2));
 }
 
 {
