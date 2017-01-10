@@ -506,7 +506,7 @@ JNIEXPORT jlong OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env,
         size_t pickledLength = (size_t)env->GetArrayLength(aSerializedDataBuffer);
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## deserializeJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
-        LOGD(" ## deserializeJni(): pickled=%s",(char const *)pickledPtr);
+        LOGD(" ## deserializeJni(): pickled=%.*s", static_cast<int>(pickledLength), (char const *)pickledPtr);
 
         size_t result = olm_unpickle_outbound_group_session(sessionPtr,
                                                             (void const *)keyPtr,

@@ -70,17 +70,11 @@ abstract class CommonSerializeUtils {
             key = keyAsString.getBytes("UTF-8");
             pickledData = pickledDataAsString.getBytes("UTF-8");
 
+            deserialize(pickledData, key);
         } catch (Exception e) {
             throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, e.getMessage());
         }
 
-        if (null == key) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, OlmException.EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION+" key");
-        } else if (null == pickledData) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, OlmException.EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION+" pickle");
-        }
-
-        deserialize(pickledData, key);
         Log.d(LOG_TAG,"## deserializeObject(): success");
     }
 

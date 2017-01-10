@@ -174,13 +174,11 @@ public class OlmSessionTest {
         assertTrue(clearMsg.equals(decryptedMsg));
 
         // clean objects..
-        boolean res = false;
         try {
-            res = bobAccount.removeOneTimeKeys(bobSession);
+            bobAccount.removeOneTimeKeys(bobSession);
         } catch (Exception e) {
             assertTrue(e.getMessage(), false);
         }
-        assertTrue(res);
 
         // release accounts
         bobAccount.releaseAccount();
@@ -402,13 +400,11 @@ public class OlmSessionTest {
         assertTrue(clearMsg1.equals(decryptedMsg1));
 
         // clean objects..
-        boolean res = false;
         try {
-            res = bobAccount.removeOneTimeKeys(bobSession);
+            bobAccount.removeOneTimeKeys(bobSession);
         } catch (Exception e) {
             assertTrue(e.getMessage(), false);
         }
-        assertTrue(res);
 
         bobAccount.releaseAccount();
         aliceAccount.releaseAccount();
@@ -585,13 +581,11 @@ public class OlmSessionTest {
         //assertTrue(false==bobSession.matchesInboundSessionFrom(bobIdentityKey, encryptedAliceToBobMsg1.mCipherText));
 
         // release objects
-        boolean res = false;
         try {
-            res = bobAccount.removeOneTimeKeys(bobSession);
+            bobAccount.removeOneTimeKeys(bobSession);
         } catch (Exception e) {
             assertTrue(e.getMessage(), false);
         }
-        assertTrue(res);
 
         aliceAccount.releaseAccount();
         bobAccount.releaseAccount();
@@ -782,13 +776,11 @@ public class OlmSessionTest {
             assertTrue(clearMsg3.equals(decryptedMsg3));
 
             // clean objects..
-            boolean res = false;
             try {
-                res = bobAccount.removeOneTimeKeys(bobSession);
+                bobAccount.removeOneTimeKeys(bobSession);
             } catch (Exception e) {
                 assertTrue(e.getMessage(), false);
             }
-            assertTrue(res);
 
             bobAccount.releaseAccount();
             aliceAccount.releaseAccount();
@@ -1002,13 +994,11 @@ public class OlmSessionTest {
         assertTrue(!aliceSession.matchesInboundSessionFrom(null,null));
 
         // release objects
-        boolean res = false;
         try {
-            res = bobAccount.removeOneTimeKeys(bobSession);
+            bobAccount.removeOneTimeKeys(bobSession);
         } catch (Exception e) {
             assertTrue(e.getMessage(), false);
         }
-        assertTrue(res);
 
         aliceAccount.releaseAccount();
         bobAccount.releaseAccount();

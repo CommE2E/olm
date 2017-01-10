@@ -73,17 +73,14 @@ public class OlmUtility {
 
     /**
      * Verify an ed25519 signature.<br>
-     * If the signature is verified, the method returns true. If false is returned, an error description is provided in aError.
-     * If the key was too small, aError is set to "OLM.INVALID_BASE64".
-     * If the signature was invalid, aError is set to "OLM.BAD_MESSAGE_MAC".<br>
+     * An exception is thrown if the operation fails.
      * @param aSignature the base64-encoded message signature to be checked.
      * @param aFingerprintKey the ed25519 key (fingerprint key)
      * @param aMessage the signed message
-     * @return true if the signature is verified, false otherwise
      * @exception OlmException the failure reason
      */
-    public boolean verifyEd25519Signature(String aSignature, String aFingerprintKey, String aMessage) throws OlmException {
-        String errorMessage = null;
+    public void verifyEd25519Signature(String aSignature, String aFingerprintKey, String aMessage) throws OlmException {
+        String errorMessage;
 
         try {
             if (TextUtils.isEmpty(aSignature) || TextUtils.isEmpty(aFingerprintKey) || TextUtils.isEmpty(aMessage)) {
@@ -94,13 +91,12 @@ public class OlmUtility {
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## verifyEd25519Signature(): failed " + e.getMessage());
+            errorMessage = e.getMessage();
         }
 
         if (!TextUtils.isEmpty(errorMessage)) {
             throw new OlmException(OlmException.EXCEPTION_CODE_UTILITY_VERIFY_SIGNATURE, errorMessage);
         }
-
-        return true;
     }
 
     /**

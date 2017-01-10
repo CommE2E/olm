@@ -242,23 +242,16 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     /**
      * Remove the "one time keys" that the session used from the account.
      * @param aSession session instance
-     * @return true if the operation succeeded.
      * @throws OlmException the failure reason
      */
-    public boolean removeOneTimeKeys(OlmSession aSession) throws OlmException {
-        boolean res = false;
-
+    public void removeOneTimeKeys(OlmSession aSession) throws OlmException {
         if (null != aSession) {
             try {
                 removeOneTimeKeysJni(aSession.getOlmSessionId());
-                res = true;
-                Log.d(LOG_TAG,"## removeOneTimeKeysForSession(): result=" + res);
             } catch (Exception e) {
                 throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_REMOVE_ONE_TIME_KEYS, e.getMessage());
             }
         }
-
-        return res;
     }
 
     /**

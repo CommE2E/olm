@@ -254,7 +254,7 @@ JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEn
         else
         {
             memcpy(tempEncryptedPtr, encryptedMsgPtr, encryptedMsgLength);
-            LOGD(" ## decryptMessageJni(): encryptedMsgLength=%lu encryptedMsg=%s",static_cast<long unsigned int>(encryptedMsgLength),encryptedMsgPtr);
+            LOGD(" ## decryptMessageJni(): encryptedMsgLength=%lu encryptedMsg=%.*s",static_cast<long unsigned int>(encryptedMsgLength), static_cast<int>(encryptedMsgLength), encryptedMsgPtr);
 
             // get max plaintext length
             size_t maxPlainTextLength = olm_group_decrypt_max_plaintext_length(sessionPtr,
@@ -464,7 +464,7 @@ JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env, 
         size_t pickledLength = (size_t)env->GetArrayLength(aSerializedDataBuffer);
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## deserializeJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
-        LOGD(" ## deserializeJni(): pickled=%s",(char const *)pickledPtr);
+        LOGD(" ## deserializeJni(): pickled=%.*s", static_cast<int>(pickledLength), (char const *)pickledPtr);
 
         size_t result = olm_unpickle_inbound_group_session(sessionPtr,
                                                            (void const *)keyPtr,

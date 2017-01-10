@@ -389,16 +389,11 @@ public class OlmAccountTest {
             assertTrue(e.getMessage(),false);
         }
 
-        boolean sessionRetCode = true;
-
         try {
-            sessionRetCode = olmAccount.removeOneTimeKeys(null);
+            olmAccount.removeOneTimeKeys(null);
         } catch (Exception e) {
             assertTrue(e.getMessage(), false);
         }
-
-        // test against no matching keys
-        assertFalse(sessionRetCode);
 
         olmAccount.releaseAccount();
     }

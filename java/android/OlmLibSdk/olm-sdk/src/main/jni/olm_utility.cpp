@@ -78,9 +78,6 @@ JNIEXPORT void OLM_UTILITY_FUNC_DEF(releaseUtilityJni)(JNIEnv *env, jobject thiz
 
 /**
  * Verify an ed25519 signature.
- * If the key was too small then the message will be "OLM.INVALID_BASE64".
- * If the signature was invalid then the message will be "OLM.BAD_MESSAGE_MAC".
- *
  * @param aSignature the base64-encoded message signature to be checked.
  * @param aKey the ed25519 key (fingerprint key)
  * @param aMessage the message which was signed
@@ -122,7 +119,7 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         size_t messageLength = (size_t)env->GetArrayLength(aMessageBuffer);
         LOGD(" ## verifyEd25519SignatureJni(): signatureLength=%lu keyLength=%lu messageLength=%lu",static_cast<long unsigned int>(signatureLength),static_cast<long unsigned int>(keyLength),static_cast<long unsigned int>(messageLength));
-        LOGD(" ## verifyEd25519SignatureJni(): key=%s",keyPtr);
+        LOGD(" ## verifyEd25519SignatureJni(): key=%.*s", static_cast<int>(keyLength), keyPtr);
 
         size_t result = olm_ed25519_verify(utilityPtr,
                                            (void const *)keyPtr,
@@ -194,7 +191,7 @@ JNIEXPORT jbyteArray OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, 
         // get lengths
         size_t messageLength = (size_t)env->GetArrayLength(aMessageToHashBuffer);
         size_t hashLength = olm_sha256_length(utilityPtr);
-        void* hashValuePtr = malloc((hashLength+1)*sizeof(uint8_t));
+        void* hashValuePtr = malloc((hashLength)*sizeof(uint8_t));
 
         if (!hashValuePtr)
         {
@@ -213,12 +210,9 @@ JNIEXPORT jbyteArray OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, 
             }
             else
             {
-                // update length
-                (static_cast<char*>(hashValuePtr))[result] = static_cast<char>('\0');
-                LOGD("## sha256Jni(): success - result=%lu hashValue=%s",static_cast<long unsigned int>(result), (char*)hashValuePtr);
-
-                 sha256Ret = env->NewByteArray(result);
-                 env->SetByteArrayRegion(sha256Ret, 0 , result, (jbyte*)hashValuePtr);
+                LOGD("## sha256Jni(): success - result=%lu hashValue=%.*s",static_cast<long unsigned int>(result), static_cast<int>(result), (char*)hashValuePtr);
+                sha256Ret = env->NewByteArray(result);
+                env->SetByteArrayRegion(sha256Ret, 0 , result, (jbyte*)hashValuePtr);
             }
 
             free(hashValuePtr);

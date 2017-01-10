@@ -104,42 +104,34 @@ public class OlmUtilityTest {
         }
 
         // verify signature
-        boolean isVerified;
-
-        isVerified = false;
         errorMsg = null;
         try {
-            isVerified = utility.verifyEd25519Signature(messageSignature, fingerPrintKey, message);
+            utility.verifyEd25519Signature(messageSignature, fingerPrintKey, message);
         } catch (Exception e) {
             errorMsg = e.getMessage();
         }
-        assertTrue(isVerified);
         assertTrue(TextUtils.isEmpty(errorMsg));
 
         // check a bad signature is detected => errorMsg = BAD_MESSAGE_MAC
         String badSignature = "Bad signature Bad signature Bad signature..";
 
-        isVerified = false;
         errorMsg = null;
         try {
-            isVerified = utility.verifyEd25519Signature(badSignature, fingerPrintKey, message);
+            utility.verifyEd25519Signature(badSignature, fingerPrintKey, message);
         } catch (Exception e) {
             errorMsg = e.getMessage();
         }
-        assertFalse(isVerified);
         assertTrue(!TextUtils.isEmpty(errorMsg));
 
         // check bad fingerprint size => errorMsg = INVALID_BASE64
         String badSizeFingerPrintKey = fingerPrintKey.substring(fingerPrintKey.length()/2);
 
-        isVerified = false;
         errorMsg = null;
         try {
-            isVerified = utility.verifyEd25519Signature(messageSignature, badSizeFingerPrintKey, message);
+            utility.verifyEd25519Signature(messageSignature, badSizeFingerPrintKey, message);
         } catch (Exception e) {
             errorMsg = e.getMessage();
         }
-        assertFalse(isVerified);
         assertTrue(!TextUtils.isEmpty(errorMsg));
 
         utility.releaseUtility();
