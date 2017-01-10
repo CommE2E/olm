@@ -43,8 +43,19 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
     private transient long mNativeId;
 
     public OlmSession() throws OlmException {
-        createNewSession();
+        try {
+            mNativeId = createNewSessionJni();
+        } catch (Exception e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_SESSION_CREATION, e.getMessage());
+        }
     }
+
+    /**
+     * Create an OLM session in native side.<br>
+     * Do not forget to call {@link #releaseSession()} when JAVA side is done.
+     * @return native account instance identifier or throw an exception.
+     */
+    private native long createNewSessionJni();
 
     /**
      * Getter on the session ID.
@@ -72,28 +83,6 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
         }
         mNativeId = 0;
     }
-
-    /**
-     * Create a native account instance without any initialization.<br>
-     * Since the account is left uninitialized, this
-     * method is intended to be used in the serialization mechanism (see {@link #readObject(ObjectInputStream)}).<br>
-     * Public wrapper for {@link #createNewSessionJni()}.
-     * @exception OlmException the exception
-     */
-    private void createNewSession() throws OlmException {
-        try {
-            mNativeId = createNewSessionJni();
-        } catch (Exception e) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_SESSION_CREATION, e.getMessage());
-        }
-    }
-
-    /**
-     * Create an OLM account in native side.<br>
-     * Do not forget to call {@link #releaseSession()} when JAVA side is done.
-     * @return native account instance identifier (see {@link #mNativeId})
-     */
-    private native long createNewSessionJni();
 
     /**
      * Return true the object resources have been released.<br>
@@ -125,6 +114,15 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
         }
     }
 
+    /**
+     * Create a new in-bound session for sending/receiving messages from an
+     * incoming PRE_KEY message.<br> The recipient is defined as the entity
+     * with whom the session is established.
+     * An exception is thrown if the operation fails.
+     * @param aOlmAccountId account instance
+     * @param aTheirIdentityKey the identity key of the recipient
+     * @param aTheirOneTimeKey the one time key of the recipient
+     **/
     private native void initOutboundSessionJni(long aOlmAccountId, byte[] aTheirIdentityKey, byte[] aTheirOneTimeKey);
 
     /**
@@ -149,6 +147,13 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
         }
     }
 
+    /**
+     * Create a new in-bound session for sending/receiving messages from an
+     * incoming PRE_KEY message.<br>
+     * An exception is thrown if the operation fails.
+     * @param aOlmAccountId account instance
+     * @param aOneTimeKeyMsg PRE_KEY message
+     */
     private native void initInboundSessionJni(long aOlmAccountId, byte[] aOneTimeKeyMsg);
 
     /**
@@ -176,6 +181,14 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
         }
     }
 
+    /**
+     * Create a new in-bound session for sending/receiving messages from an
+     * incoming PRE_KEY message based on the recipient identity key.<br>
+     * An exception is thrown if the operation fails.
+     * @param aOlmAccountId account instance
+     * @param aTheirIdentityKey the identity key of the recipient
+     * @param aOneTimeKeyMsg encrypted message
+     */
     private native void initInboundSessionFromIdKeyJni(long aOlmAccountId, byte[] aTheirIdentityKey, byte[] aOneTimeKeyMsg);
 
     /**
@@ -201,6 +214,11 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
         return null;
     }
 
+    /**
+     * Get the session identifier for this session.
+     * An exception is thrown if the operation fails.
+     * @return the session identifier
+     */
     private native byte[] getSessionIdentifierJni();
 
     /**
@@ -208,13 +226,13 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
      * Public API for {@link #matchesInboundSessionJni(byte[])}.
      * @param aOneTimeKeyMsg PRE KEY message
-     * @return this if operation succeed, null otherwise
+     * @return true if the one time key matches.
      */
     public boolean matchesInboundSession(String aOneTimeKeyMsg) {
         boolean retCode = false;
 
         try {
-            retCode = (0 == matchesInboundSessionJni(aOneTimeKeyMsg.getBytes("UTF-8")));
+            retCode = matchesInboundSessionJni(aOneTimeKeyMsg.getBytes("UTF-8"));
         } catch (Exception e) {
             Log.e(LOG_TAG, "## matchesInboundSession(): failed " + e.getMessage());
         }
@@ -222,8 +240,14 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
         return retCode;
     }
 
-    private native int matchesInboundSessionJni(byte[] aOneTimeKeyMsg);
-
+    /**
+     * Checks if the PRE_KEY message is for this in-bound session.<br>
+     * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
+     * An exception is thrown if the operation fails.
+     * @param aOneTimeKeyMsg PRE KEY message
+     * @return true if the PRE_KEY message matches
+     */
+    private native boolean matchesInboundSessionJni(byte[] aOneTimeKeyMsg);
 
     /**
      * Checks if the PRE_KEY({@link OlmMessage#MESSAGE_TYPE_PRE_KEY}) message is for this in-bound session based on the sender identity key.<br>
@@ -237,7 +261,7 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
         boolean retCode = false;
 
         try {
-            retCode = (0 == matchesInboundSessionFromIdKeyJni(aTheirIdentityKey.getBytes("UTF-8"), aOneTimeKeyMsg.getBytes("UTF-8")));
+            retCode = matchesInboundSessionFromIdKeyJni(aTheirIdentityKey.getBytes("UTF-8"), aOneTimeKeyMsg.getBytes("UTF-8"));
         } catch (Exception e) {
             Log.e(LOG_TAG, "## matchesInboundSessionFrom(): failed " + e.getMessage());
         }
@@ -245,8 +269,15 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
         return retCode;
     }
 
-    private native int matchesInboundSessionFromIdKeyJni(byte[] aTheirIdentityKey, byte[] aOneTimeKeyMsg);
-
+    /**
+     * Checks if the PRE_KEY message is for this in-bound session based on the sender identity key.<br>
+     * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
+     * An exception is thrown if the operation fails.
+     * @param aTheirIdentityKey the identity key of the sender
+     * @param aOneTimeKeyMsg PRE KEY message
+     * @return true if the PRE_KEY message matches.
+     */
+    private native boolean matchesInboundSessionFromIdKeyJni(byte[] aTheirIdentityKey, byte[] aOneTimeKeyMsg);
 
     /**
      * Encrypt a message using the session.<br>
@@ -277,6 +308,13 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
         return encryptedMsgRetValue;
     }
 
+    /**
+     * Encrypt a message using the session.<br>
+     * An exception is thrown if the operation fails.
+     * @param aClearMsg clear text message
+     * @param aEncryptedMsg ciphered message
+     * @return the encrypted message
+     */
     private native byte[] encryptMessageJni(byte[] aClearMsg, OlmMessage aEncryptedMsg);
 
     /**
@@ -298,7 +336,12 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
             throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_DECRYPT_MESSAGE, e.getMessage());
         }
     }
-
+    /**
+     * Decrypt a message using the session.<br>
+     * An exception is thrown if the operation fails.
+     * @param aEncryptedMsg message to decrypt
+     * @return the decrypted message
+     */
     private native byte[] decryptMessageJni(OlmMessage aEncryptedMsg);
 
     //==============================================================================================================
@@ -354,7 +397,14 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
 
         return pickleRetValue;
     }
-    private native byte[] serializeJni(byte[] aKey);
+
+    /**
+     * Serialize and encrypt session instance.<br>
+     * An exception is thrown if the operation fails.
+     * @param aKeyBuffer key used to encrypt the serialized account data
+     * @return the serialised account as bytes buffer.
+     **/
+    private native byte[] serializeJni(byte[] aKeyBuffer);
 
     /**
      * Loads an account from a pickled base64 string.<br>
@@ -364,16 +414,14 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      */
     @Override
     protected void deserialize(byte[] aSerializedData, byte[] aKey) throws Exception {
-        createNewSession();
-
-        String errorMsg;
+        String errorMsg = null;
 
         try {
             if ((null == aSerializedData) || (null == aKey)) {
                 Log.e(LOG_TAG, "## deserialize(): invalid input parameters");
                 errorMsg = "invalid input parameters";
             } else {
-                errorMsg = deserializeJni(aSerializedData, aKey);
+                mNativeId = deserializeJni(aSerializedData, aKey);
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## deserialize() failed " + e.getMessage());
@@ -385,7 +433,13 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
             throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_DESERIALIZATION, errorMsg);
         }
     }
-
-    private native String deserializeJni(byte[] aSerializedData, byte[] aKey);
+    /**
+     * Allocate a new session and initialize it with the serialisation data.<br>
+     * An exception is thrown if the operation fails.
+     * @param aSerializedData the session serialisation buffer
+     * @param aKey the key used to encrypt the serialized account data
+     * @return the deserialized session
+     **/
+    private native long deserializeJni(byte[] aSerializedData, byte[] aKey);
 }
 

@@ -1,6 +1,6 @@
 /*
- * Copyright 2016 OpenMarket Ltd
- * Copyright 2016 Vector Creations Ltd
+ * Copyright 2017 OpenMarket Ltd
+ * Copyright 2017 Vector Creations Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,12 @@ package org.matrix.olm;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.json.JSONObject;
+
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Olm SDK helper class.
@@ -108,7 +113,6 @@ public class OlmUtility {
      */
     private native String verifyEd25519SignatureJni(byte[] aSignature, byte[] aFingerprintKey, byte[] aMessage);
 
-
     /**
      * Compute the hash(SHA-256) value of the string given in parameter(aMessageToHash).<br>
      * The hash value is the returned by the method.
@@ -129,8 +133,14 @@ public class OlmUtility {
         return hashRetValue;
     }
 
+    /**
+     * Compute the digest (SHA 256) for the message passed in parameter.<br>
+     * The digest value is the function return value.
+     * An exception is thrown if the operation fails.
+     * @param aMessage the message
+     * @return digest of the message.
+     **/
     private native byte[] sha256Jni(byte[] aMessage);
-
 
     /**
      * Helper method to compute a string based on random integers.
@@ -155,6 +165,67 @@ public class OlmUtility {
      */
     public boolean isReleased() {
         return (0 == mNativeId);
+    }
+
+    /**
+     * Build a string-string dictionary from a jsonObject.<br>
+     * @param jsonObject the object to parse
+     * @return the map
+     */
+    public static Map<String, String> toStringMap(JSONObject jsonObject) {
+        if (null != jsonObject) {
+            HashMap<String, String> map = new HashMap<>();
+            Iterator<String> keysItr = jsonObject.keys();
+            while(keysItr.hasNext()) {
+                String key = keysItr.next();
+                try {
+                    Object value = jsonObject.get(key);
+
+                    if (value instanceof String) {
+                        map.put(key, (String) value);
+                    } else {
+                        Log.e(LOG_TAG, "## toStringMap(): unexpected type " + value.getClass());
+                    }
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "## toStringMap(): failed " + e.getMessage());
+                }
+            }
+
+            return map;
+        }
+
+        return null;
+    }
+
+    /**
+     * Build a string-string dictionary of string dictionary from a jsonObject.<br>
+     * @param jsonObject the object to parse
+     * @return the map
+     */
+    public static Map<String, Map<String, String>> toStringMapMap(JSONObject jsonObject) {
+        if (null != jsonObject) {
+            HashMap<String, Map<String, String>> map = new HashMap<>();
+
+            Iterator<String> keysItr = jsonObject.keys();
+            while(keysItr.hasNext()) {
+                String key = keysItr.next();
+                try {
+                    Object value = jsonObject.get(key);
+
+                    if (value instanceof JSONObject) {
+                        map.put(key, toStringMap((JSONObject) value));
+                    } else {
+                        Log.e(LOG_TAG, "## toStringMapMap(): unexpected type " + value.getClass());
+                    }
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "## toStringMapMap(): failed " + e.getMessage());
+                }
+            }
+
+            return map;
+        }
+
+        return null;
     }
 }
 

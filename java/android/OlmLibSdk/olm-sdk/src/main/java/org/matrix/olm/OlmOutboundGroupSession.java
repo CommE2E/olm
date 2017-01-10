@@ -1,6 +1,6 @@
 /*
- * Copyright 2016 OpenMarket Ltd
- * Copyright 2016 Vector Creations Ltd
+ * Copyright 2017 OpenMarket Ltd
+ * Copyright 2017 Vector Creations Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,13 +46,23 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      * Constructor.<br>
      * Create and save a new session native instance ID and
      * initialise a new outbound group session.<br>
-     * See {@link #createNewSession()} and {@link #initOutboundGroupSession()}
      * @throws OlmException constructor failure
      */
     public OlmOutboundGroupSession() throws OlmException {
-        createNewSession();
-        initOutboundGroupSession();
+        try {
+            mNativeId = createNewSessionJni();
+        } catch (Exception e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION, e.getMessage());
+        }
     }
+
+    /**
+     * Create the corresponding OLM outbound group session in native side.<br>
+     * An exception is thrown if the operation fails.
+     * Do not forget to call {@link #releaseSession()} when JAVA side is done.
+     * @return native session instance identifier (see {@link #mNativeId})
+     */
+    private native long createNewSessionJni();
 
     /**
      * Release native session and invalid its JAVA reference counter part.<br>
@@ -74,47 +84,12 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
     private native void releaseSessionJni();
 
     /**
-     * Create and save the session native instance ID.
-     * Wrapper for {@link #createNewSessionJni()}.<br>
-     * To be called before any other API call.
-     * @exception OlmException the exception.
-     */
-    private void createNewSession() throws OlmException {
-        try {
-            mNativeId = createNewSessionJni();
-        } catch (Exception e) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION, e.getMessage());
-        }
-    }
-
-    /**
-     * Create the corresponding OLM outbound group session in native side.<br>
-     * Do not forget to call {@link #releaseSession()} when JAVA side is done.
-     * @return native session instance identifier (see {@link #mNativeId})
-     */
-    private native long createNewSessionJni();
-
-    /**
      * Return true the object resources have been released.<br>
      * @return true the object resources have been released
      */
     public boolean isReleased() {
         return (0 == mNativeId);
     }
-
-    /**
-     * Start a new outbound group session.<br>
-     * @exception OlmException the failre reason
-     */
-    private void initOutboundGroupSession() throws OlmException {
-        try {
-            initOutboundGroupSessionJni();
-        } catch (Exception e) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION, e.getMessage());
-        }
-    }
-
-    private native void initOutboundGroupSessionJni();
 
     /**
      * Get a base64-encoded identifier for this session.
@@ -130,6 +105,11 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
         }
     }
 
+    /**
+     * Return the session identifier.
+     * An exception is thrown if the operation fails.
+     * @return the session identifier
+     */
     private native byte[] sessionIdentifierJni();
 
     /**
@@ -141,6 +121,14 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
     public int messageIndex() {
         return messageIndexJni();
     }
+
+    /**
+     * Get the current message index for this session.<br>
+     * Each message is sent with an increasing index, this
+     * method returns the index for the next message.
+     * An exception is thrown if the operation fails.
+     * @return current session index
+     */
     private native int messageIndexJni();
 
     /**
@@ -159,6 +147,11 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
         }
     }
 
+    /**
+     * Return the session key.
+     * An exception is thrown if the operation fails.
+     * @return the session key
+     */
     private native byte[] sessionKeyJni();
 
     /**
@@ -186,8 +179,14 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
 
         return retValue;
     }
-    private native byte[] encryptMessageJni(byte[] aClearMsgBuffer);
 
+    /**
+     * Encrypt a bytes buffer messages.
+     * An exception is thrown if the operation fails.
+     * @param aClearMsgBuffer  the message to encode
+     * @return the encoded message
+     */
+    private native byte[] encryptMessageJni(byte[] aClearMsgBuffer);
 
     //==============================================================================================================
     // Serialization management
@@ -240,8 +239,14 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
 
         return pickleRetValue;
     }
-    private native byte[] serializeJni(byte[] aKey);
 
+    /**
+     * JNI counter part of {@link #serialize(byte[], StringBuffer)}.
+     * An exception is thrown if the operation fails.
+     * @param aKey encryption key
+     * @return the serialized session
+     */
+    private native byte[] serializeJni(byte[] aKey);
 
     /**
      * Loads an account from a pickled base64 string.<br>
@@ -252,16 +257,14 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      */
     @Override
     protected void deserialize(byte[] aSerializedData, byte[] aKey) throws Exception {
-        createNewSession();
-
-        String errorMsg;
+        String errorMsg = null;
 
         try {
             if ((null == aSerializedData) || (null == aKey)) {
                 Log.e(LOG_TAG, "## deserialize(): invalid input parameters");
                 errorMsg = "invalid input parameters";
             } else {
-                errorMsg = deserializeJni(aSerializedData, aKey);
+                mNativeId = deserializeJni(aSerializedData, aKey);
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## deserialize() failed " + e.getMessage());
@@ -274,6 +277,13 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
         }
     }
 
-    private native String deserializeJni(byte[] aSerializedData, byte[] aKey);
+    /**
+     * Allocate a new session and initialize it with the serialisation data.<br>
+     * An exception is thrown if the operation fails.
+     * @param aSerializedData the session serialisation buffer
+     * @param aKey the key used to encrypt the serialized account data
+     * @return the deserialized session
+     **/
+    private native long deserializeJni(byte[] aSerializedData, byte[] aKey);
 
 }

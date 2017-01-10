@@ -53,12 +53,7 @@
 
 namespace AndroidOlmSdk
 {
-    // Error codes definition
-    static const int ERROR_CODE_OK = 0;
-    static const int ERROR_CODE_KO = -1;
 
-    // constants
-    static const int ACCOUNT_CREATION_RANDOM_MODULO = 256;
 }
 
 

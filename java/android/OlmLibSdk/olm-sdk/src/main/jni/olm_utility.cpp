@@ -162,11 +162,12 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
 }
 
 /**
-* Compute the digest (SHA 256) for the message passed in parameter.<br>
-* The digest value is the function return value.
-* @param aMessage
-* @return digest of the message if operation succeed, null otherwise
-**/
+ * Compute the digest (SHA 256) for the message passed in parameter.<br>
+ * The digest value is the function return value.
+ * An exception is thrown if the operation fails.
+ * @param aMessage the message
+ * @return digest of the message.
+ **/
 JNIEXPORT jbyteArray OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, jbyteArray aMessageToHashBuffer)
 {
     jbyteArray sha256Ret = 0;

@@ -20,9 +20,9 @@
 using namespace AndroidOlmSdk;
 
 /**
-* Init memory allocation for account creation.
-* @return valid memory allocation, NULL otherwise
-**/
+ * Init memory allocation for account creation.
+ * @return valid memory allocation, NULL otherwise
+ **/
 OlmAccount* initializeAccountMemory()
 {
     size_t accountSize = olm_account_size();
@@ -43,11 +43,11 @@ OlmAccount* initializeAccountMemory()
 }
 
 /**
-* Create a new account and return it to JAVA side.<br>
-* Since a C prt is returned as a jlong, special care will be taken
-* to make the cast (OlmAccount* => jlong) platform independent.
-* @return the initialized OlmAccount* instance
-**/
+ * Create a new account and return it to JAVA side.<br>
+ * Since a C prt is returned as a jlong, special care will be taken
+ * to make the cast (OlmAccount* => jlong) platform independent.
+ * @return the initialized OlmAccount* instance or throw an exception if fails
+ **/
 JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(createNewAccountJni)(JNIEnv *env, jobject thiz)
 {
     const char* errorMessage = NULL;
@@ -98,6 +98,12 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(createNewAccountJni)(JNIEnv *env, jobject t
 
     if (errorMessage)
     {
+        // release the allocated data
+        if (accountPtr)
+        {
+            olm_clear_account(accountPtr);
+            free(accountPtr);
+        }
         env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
     }
 
@@ -106,7 +112,6 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(createNewAccountJni)(JNIEnv *env, jobject t
 /**
  * Release the account allocation made by initializeAccountMemory().<br>
  * This method MUST be called when java counter part account instance is done.
- *
  */
 JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(releaseAccountJni)(JNIEnv *env, jobject thiz)
 {
@@ -133,11 +138,12 @@ JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(releaseAccountJni)(JNIEnv *env, jobject thiz
 // *********************************************************************
 // ************************* IDENTITY KEYS API *************************
 // *********************************************************************
+
 /**
-* Get identity keys: Ed25519 fingerprint key and Curve25519 identity key.<br>
-* The keys are returned in the byte array.
-* @return a valid byte array if operation succeed, null otherwise
-**/
+ * Get identity keys: Ed25519 fingerprint key and Curve25519 identity key.<br>
+ * The keys are returned in the byte array.
+ * @return the identity keys or throw an exception if it fails
+ **/
 JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(identityKeysJni)(JNIEnv *env, jobject thiz)
 {
     const char* errorMessage = NULL;
@@ -204,10 +210,14 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(identityKeysJni)(JNIEnv *env, jobject 
 // *********************************************************************
 // ************************* ONE TIME KEYS API *************************
 // *********************************************************************
+
 /**
- * Get the maximum number of "one time keys" the account can store.
- *
-**/
+ * Get the public parts of the unpublished "one time keys" for the account.<br>
+ * The returned data is a JSON-formatted object with the single property
+ * <tt>curve25519</tt>, which is itself an object mapping key id to
+ * base64-encoded Curve25519 key.<br>
+ * @return byte array containing the one time keys or throw an exception if it fails
+ */
 JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(maxOneTimeKeysJni)(JNIEnv *env, jobject thiz)
 {
     OlmAccount* accountPtr = getAccountInstanceId(env, thiz);
@@ -229,8 +239,9 @@ JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(maxOneTimeKeysJni)(JNIEnv *env, jobject thi
 
 /**
  * Generate "one time keys".
+ * An exception is thrown if the operation fails.
  * @param aNumberOfKeys number of keys to generate
-**/
+ **/
 JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeysJni)(JNIEnv *env, jobject thiz, jint aNumberOfKeys)
 {
     const char* errorMessage = NULL;
@@ -289,7 +300,7 @@ JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(generateOneTimeKeysJni)(JNIEnv *env, jobject
  * Get "one time keys".<br>
  * Return the public parts of the unpublished "one time keys" for the account
  * @return a valid byte array if operation succeed, null otherwise
-**/
+ **/
 JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(oneTimeKeysJni)(JNIEnv *env, jobject thiz)
 {
     const char* errorMessage = NULL;
@@ -354,14 +365,12 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(oneTimeKeysJni)(JNIEnv *env, jobject t
 
 /**
  * Remove the "one time keys"  that the session used from the account.
- * Return the public parts of the unpublished "one time keys" for the account
+ * An exception is thrown if the operation fails.
  * @param aNativeOlmSessionId session instance
- * @return ERROR_CODE_OK if operation succeed, ERROR_CODE_KO otherwise
-**/
-JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysJni)(JNIEnv *env, jobject thiz, jlong aNativeOlmSessionId)
+ **/
+JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysJni)(JNIEnv *env, jobject thiz, jlong aNativeOlmSessionId)
 {
     const char* errorMessage = NULL;
-    jint retCode = ERROR_CODE_KO;
     OlmAccount* accountPtr = NULL;
     OlmSession* sessionPtr = (OlmSession*)aNativeOlmSessionId;
 
@@ -370,7 +379,7 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysJni)(JNIEnv *env, jobject t
         LOGE("## removeOneTimeKeysJni(): failure - invalid session ptr");
         errorMessage = "invalid session ptr";
     }
-    else if(!(accountPtr = getAccountInstanceId(env, thiz)))
+    else if (!(accountPtr = getAccountInstanceId(env, thiz)))
     {
         LOGE("## removeOneTimeKeysJni(): failure - invalid account ptr");
         errorMessage = "invalid account ptr";
@@ -381,12 +390,11 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysJni)(JNIEnv *env, jobject t
 
         if (result == olm_error())
         {   // the account doesn't have any matching "one time keys"..
-            LOGW("## removeOneTimeKeysJni(): failure - removing one time keys Msg=%s",(const char *)olm_account_last_error(accountPtr));
+            LOGW("## removeOneTimeKeysJni(): failure - removing one time keys Msg=%s", olm_account_last_error(accountPtr));
             errorMessage = (const char *)olm_account_last_error(accountPtr);
         }
         else
         {
-            retCode = ERROR_CODE_OK;
             LOGD("## removeOneTimeKeysJni(): success");
         }
     }
@@ -395,13 +403,12 @@ JNIEXPORT jint OLM_ACCOUNT_FUNC_DEF(removeOneTimeKeysJni)(JNIEnv *env, jobject t
     {
         env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
     }
-
-    return retCode;
 }
 
 /**
  * Mark the current set of "one time keys" as being published.
-**/
+ * An exception is thrown if the operation fails.
+ **/
 JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublishedJni)(JNIEnv *env, jobject thiz)
 {
     const char* errorMessage = NULL;
@@ -438,7 +445,7 @@ JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublishedJni)(JNIEnv *env, 
  * The signed message is returned by the function.
  * @param aMessage message to sign
  * @return the signed message, null otherwise
-**/
+ **/
 JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aMessage)
 {
     const char* errorMessage = NULL;
@@ -510,10 +517,10 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject t
 }
 
 /**
-* Serialize and encrypt account instance into a base64 string.<br>
-* @param aKeyBuffer key used to encrypt the serialized account data
-* @return a base64 string if operation succeed, null otherwise
-**/
+ * Serialize and encrypt account instance.<br>
+ * @param aKeyBuffer key used to encrypt the serialized account data
+ * @return the serialised account as bytes buffer.
+ **/
 JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thiz, jbyteArray aKeyBuffer)
 {
     const char* errorMessage = NULL;
@@ -544,7 +551,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thi
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## serializeJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
 
-        void *pickledPtr = malloc(pickledLength*sizeof(uint8_t));
+        void* pickledPtr = malloc(pickledLength * sizeof(uint8_t));
 
         if (!pickledPtr)
         {
@@ -565,7 +572,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thi
             }
             else
             {
-                LOGD(" ## serializeJni(): success - result=%lu pickled starts with = %10s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
+                LOGD(" ## serializeJni(): success - result=%lu pickled=%.*s", static_cast<long unsigned int>(result), static_cast<int>(pickledLength), static_cast<char*>(pickledPtr));
                 pickledDataRetValue = env->NewByteArray(pickledLength);
                 env->SetByteArrayRegion(pickledDataRetValue, 0 , pickledLength, (jbyte*)pickledPtr);
             }
@@ -588,11 +595,18 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thi
     return pickledDataRetValue;
 }
 
-
-JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz, jbyteArray aSerializedDataBuffer, jbyteArray aKeyBuffer)
+/**
+ * Allocate a new account and initialise it with the serialisation data.<br>
+ * @param aSerializedDataBuffer the account serialisation buffer
+ * @param aKeyBuffer the key used to encrypt the serialized account data
+ * @return the deserialised account
+ **/
+JNIEXPORT jlong OLM_ACCOUNT_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz, jbyteArray aSerializedDataBuffer, jbyteArray aKeyBuffer)
 {
+    const char* errorMessage = NULL;
+
     OlmAccount* accountPtr = NULL;
-    jstring errorMessageRetValue = 0;
+
     jbyte* keyPtr = NULL;
     jbyte* pickledPtr = NULL;
 
@@ -601,22 +615,27 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz
     if (!aKeyBuffer)
     {
         LOGE(" ## deserializeJni(): failure - invalid key");
+        errorMessage = "invalid key";
     }
     else if (!aSerializedDataBuffer)
     {
-        LOGE(" ## deserializeJni(): failure - serialized data");
+        LOGE(" ## deserializeJni(): failure - invalid serialized data");
+        errorMessage = "invalid serialized data";
     }
-    else if (!(accountPtr = getAccountInstanceId(env, thiz)))
+    else if (!(accountPtr = initializeAccountMemory()))
     {
         LOGE(" ## deserializeJni(): failure - account failure OOM");
+        errorMessage = "account failure OOM";
     }
     else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, 0)))
     {
         LOGE(" ## deserializeJni(): failure - keyPtr JNI allocation OOM");
+        errorMessage = "keyPtr JNI allocation OOM";
     }
     else if (!(pickledPtr = env->GetByteArrayElements(aSerializedDataBuffer, 0)))
     {
         LOGE(" ## deserializeJni(): failure - pickledPtr JNI allocation OOM");
+        errorMessage = "pickledPtr JNI allocation OOM";
     }
     else
     {
@@ -632,9 +651,8 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz
                                              pickledLength);
         if (result == olm_error())
         {
-            const char *errorMsgPtr = olm_account_last_error(accountPtr);
-            LOGE(" ## deserializeJni(): failure - olm_unpickle_account() Msg=%s",errorMsgPtr);
-            errorMessageRetValue = env->NewStringUTF(errorMsgPtr);
+            errorMessage = olm_account_last_error(accountPtr);
+            LOGE(" ## deserializeJni(): failure - olm_unpickle_account() Msg=%s", errorMessage);
         }
         else
         {
@@ -653,5 +671,15 @@ JNIEXPORT jstring OLM_ACCOUNT_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz
         env->ReleaseByteArrayElements(aSerializedDataBuffer, pickledPtr, JNI_ABORT);
     }
 
-    return errorMessageRetValue;
+    if (errorMessage)
+    {
+        if (accountPtr)
+        {
+            olm_clear_account(accountPtr);
+            free(accountPtr);
+        }
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
+    return (jlong)(intptr_t)accountPtr;
 }

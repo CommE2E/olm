@@ -83,13 +83,13 @@ JNIEXPORT void OLM_SESSION_FUNC_DEF(releaseSessionJni)(JNIEnv *env, jobject thiz
 // ********************** OUTBOUND SESSION *****************************
 // *********************************************************************
 /**
-* Create a new in-bound session for sending/receiving messages from an
-* incoming PRE_KEY message.<br> The recipient is defined as the entity
-* with whom the session is established.
-* @param aOlmAccountId account instance
-* @param aTheirIdentityKey the identity key of the recipient
-* @param aTheirOneTimeKey the one time key of the recipient
-**/
+ * Create a new in-bound session for sending/receiving messages from an
+ * incoming PRE_KEY message.<br> The recipient is defined as the entity
+ * with whom the session is established.
+ * @param aOlmAccountId account instance
+ * @param aTheirIdentityKey the identity key of the recipient
+ * @param aTheirOneTimeKey the one time key of the recipient or an exception is thrown
+ **/
 JNIEXPORT void OLM_SESSION_FUNC_DEF(initOutboundSessionJni)(JNIEnv *env, jobject thiz, jlong aOlmAccountId, jbyteArray aTheirIdentityKeyBuffer, jbyteArray aTheirOneTimeKeyBuffer)
 {
     OlmSession* sessionPtr = getSessionInstanceId(env, thiz);
@@ -193,6 +193,7 @@ JNIEXPORT void OLM_SESSION_FUNC_DEF(initOutboundSessionJni)(JNIEnv *env, jobject
 /**
  * Create a new in-bound session for sending/receiving messages from an
  * incoming PRE_KEY message.<br>
+ * An exception is thrown if the operation fails.
  * @param aOlmAccountId account instance
  * @param aOneTimeKeyMsg PRE_KEY message
  */
@@ -258,6 +259,7 @@ JNIEXPORT void OLM_SESSION_FUNC_DEF(initInboundSessionJni)(JNIEnv *env, jobject 
 /**
  * Create a new in-bound session for sending/receiving messages from an
  * incoming PRE_KEY message based on the recipient identity key.<br>
+ * An exception is thrown if the operation fails.
  * @param aOlmAccountId account instance
  * @param aTheirIdentityKey the identity key of the recipient
  * @param aOneTimeKeyMsg encrypted message
@@ -342,11 +344,11 @@ JNIEXPORT void OLM_SESSION_FUNC_DEF(initInboundSessionFromIdKeyJni)(JNIEnv *env,
  * Checks if the PRE_KEY message is for this in-bound session.<br>
  * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
  * @param aOneTimeKeyMsg PRE KEY message
- * @return ERROR_CODE_OK if match, ERROR_CODE_KO otherwise
+ * @return true if the PRE_KEY message matches
  */
-JNIEXPORT jint OLM_SESSION_FUNC_DEF(matchesInboundSessionJni)(JNIEnv *env, jobject thiz, jbyteArray aOneTimeKeyMsgBuffer)
+JNIEXPORT jboolean OLM_SESSION_FUNC_DEF(matchesInboundSessionJni)(JNIEnv *env, jobject thiz, jbyteArray aOneTimeKeyMsgBuffer)
 {
-    jint retCode = ERROR_CODE_KO;
+    jboolean retCode = JNI_FALSE;
     OlmSession *sessionPtr = getSessionInstanceId(env, thiz);
     jbyte *messagePtr = NULL;
 
@@ -374,7 +376,7 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(matchesInboundSessionJni)(JNIEnv *env, jobje
         }
         else
         {
-            retCode = ERROR_CODE_OK;
+            retCode = JNI_TRUE;
             LOGD("## matchesInboundSessionJni(): success - result=%lu", static_cast<long unsigned int>(matchResult));
         }
     }
@@ -388,17 +390,16 @@ JNIEXPORT jint OLM_SESSION_FUNC_DEF(matchesInboundSessionJni)(JNIEnv *env, jobje
     return retCode;
 }
 
-
 /**
  * Checks if the PRE_KEY message is for this in-bound session based on the sender identity key.<br>
  * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).
  * @param aTheirIdentityKey the identity key of the sender
  * @param aOneTimeKeyMsg PRE KEY message
- * @return ERROR_CODE_OK if match, ERROR_CODE_KO otherwise
+ * @return true if the PRE_KEY message matches.
  */
-JNIEXPORT jint JNICALL OLM_SESSION_FUNC_DEF(matchesInboundSessionFromIdKeyJni)(JNIEnv *env, jobject thiz, jbyteArray aTheirIdentityKeyBuffer, jbyteArray aOneTimeKeyMsgBuffer)
+JNIEXPORT jboolean JNICALL OLM_SESSION_FUNC_DEF(matchesInboundSessionFromIdKeyJni)(JNIEnv *env, jobject thiz, jbyteArray aTheirIdentityKeyBuffer, jbyteArray aOneTimeKeyMsgBuffer)
 {
-    jint retCode = ERROR_CODE_KO;
+    jboolean retCode = JNI_FALSE;
     OlmSession *sessionPtr = getSessionInstanceId(env, thiz);
     jbyte *messagePtr = NULL;
     jbyte *theirIdentityKeyPtr = NULL;
@@ -437,7 +438,7 @@ JNIEXPORT jint JNICALL OLM_SESSION_FUNC_DEF(matchesInboundSessionFromIdKeyJni)(J
         }
         else
         {
-            retCode = ERROR_CODE_OK;
+            retCode = JNI_TRUE;
             LOGD("## matchesInboundSessionFromIdKeyJni(): success - result=%lu", static_cast<long unsigned int>(matchResult));
         }
     }
@@ -456,9 +457,9 @@ JNIEXPORT jint JNICALL OLM_SESSION_FUNC_DEF(matchesInboundSessionFromIdKeyJni)(J
     return retCode;
 }
 
-
 /**
  * Encrypt a message using the session.<br>
+ * An exception is thrown if the operation fails.
  * @param aClearMsg clear text message
  * @param [out] aEncryptedMsg ciphered message
  * @return the encrypted message
@@ -564,7 +565,7 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobjec
                     encryptedMsgRet = env->NewByteArray(encryptedMsgLength);
                     env->SetByteArrayRegion(encryptedMsgRet, 0 , encryptedMsgLength, (jbyte*)encryptedMsgPtr);
 
-                    LOGD("## encryptMessageJni(): success - result=%lu Type=%lu utfLength=%lu encryptedMsg starts with %10s", static_cast<long unsigned int>(result), static_cast<long unsigned int>(messageType), static_cast<long unsigned int>((size_t)env->GetStringUTFLength(encryptedJstring)), (const char*)encryptedMsgPtr);
+                    LOGD("## encryptMessageJni(): success - result=%lu Type=%lu encryptedMsg=%.*s", static_cast<long unsigned int>(result), static_cast<unsigned long int>(messageType), static_cast<int>(result), (const char*)encryptedMsgPtr);
                 }
 
                 free(encryptedMsgPtr);
@@ -590,6 +591,7 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobjec
 
 /**
  * Decrypt a message using the session.<br>
+ * An exception is thrown if the operation fails.
  * @param aEncryptedMsg message to decrypt
  * @return decrypted message if operation succeed
  */
@@ -725,11 +727,11 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobjec
     return decryptedMsgRet;
 }
 
-
 /**
-* Get the session identifier for this session.
-* @return the session identifier if operation succeed, null otherwise
-*/
+ * Get the session identifier for this session.
+ * An exception is thrown if the operation fails.
+ * @return the session identifier
+ */
 JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, jobject thiz)
 {
      const char* errorMessage = NULL;
@@ -768,7 +770,7 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, 
              }
              else
              {
-                 LOGD("## getSessionIdentifierJni(): success - result=%lu sessionId= starts with %10s",static_cast<long unsigned int>(result), (char*)sessionIdPtr);
+                 LOGD("## getSessionIdentifierJni(): success - result=%lu sessionId=%.*s",static_cast<long unsigned int>(result), static_cast<int>(result), (char*)sessionIdPtr);
 
                  returnValue = env->NewByteArray(result);
                  env->SetByteArrayRegion(returnValue, 0 , result, (jbyte*)sessionIdPtr);
@@ -786,12 +788,12 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, 
      return returnValue;
 }
 
-
 /**
-* Serialize and encrypt session instance into a base64 string.<br>
-* @param aKey key used to encrypt the serialized session data
-* @return a base64 string if operation succeed, null otherwise
-**/
+ * Serialize and encrypt session instance.<br>
+ * An exception is thrown if the operation fails.
+ * @param aKeyBuffer key used to encrypt the serialized account data
+ * @return the serialised account as bytes buffer.
+ **/
 JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thiz, jbyteArray aKeyBuffer)
 {
     const char* errorMessage = NULL;
@@ -868,10 +870,17 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thi
     return returnValue;
 }
 
-JNIEXPORT jstring OLM_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz, jbyteArray aSerializedDataBuffer, jbyteArray aKeyBuffer)
+/**
+ * Allocate a new session and initialize it with the serialisation data.<br>
+ * An exception is thrown if the operation fails.
+ * @param aSerializedData the session serialisation buffer
+ * @param aKey the key used to encrypt the serialized account data
+ * @return the deserialized session
+ **/
+JNIEXPORT jlong OLM_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz, jbyteArray aSerializedDataBuffer, jbyteArray aKeyBuffer)
 {
-    OlmSession* sessionPtr = getSessionInstanceId(env, thiz);
-    jstring errorMessageRetValue = 0;
+    const char* errorMessage = NULL;
+    OlmSession* sessionPtr = initializeSessionMemory();
     jbyte* keyPtr = NULL;
     jbyte* pickledPtr = NULL;
 
@@ -880,22 +889,27 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz
     if (!sessionPtr)
     {
         LOGE(" ## deserializeJni(): failure - session failure OOM");
+        errorMessage = "session failure OOM";
     }
     else if (!aKeyBuffer)
     {
         LOGE(" ## deserializeJni(): failure - invalid key");
+        errorMessage = "invalid key";
     }
     else if (!aSerializedDataBuffer)
     {
         LOGE(" ## deserializeJni(): failure - serialized data");
+        errorMessage = "serialized data";
     }
     else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, 0)))
     {
         LOGE(" ## deserializeJni(): failure - keyPtr JNI allocation OOM");
+        errorMessage = "keyPtr JNI allocation OOM";
     }
     else if (!(pickledPtr = env->GetByteArrayElements(aSerializedDataBuffer, 0)))
     {
         LOGE(" ## deserializeJni(): failure - pickledPtr JNI allocation OOM");
+        errorMessage = "pickledPtr JNI allocation OOM";
     }
     else
     {
@@ -911,9 +925,8 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz
                                              pickledLength);
         if (result == olm_error())
         {
-            const char *errorMsgPtr = olm_session_last_error(sessionPtr);
-            LOGE(" ## deserializeJni(): failure - olm_unpickle_account() Msg=%s",errorMsgPtr);
-            errorMessageRetValue = env->NewStringUTF(errorMsgPtr);
+            errorMessage = olm_session_last_error(sessionPtr);
+            LOGE(" ## deserializeJni(): failure - olm_unpickle_account() Msg=%s", errorMessage);
         }
         else
         {
@@ -932,5 +945,15 @@ JNIEXPORT jstring OLM_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz
         env->ReleaseByteArrayElements(aSerializedDataBuffer, pickledPtr, JNI_ABORT);
     }
 
-    return errorMessageRetValue;
+    if (errorMessage)
+    {
+        if (sessionPtr)
+        {
+            olm_clear_session(sessionPtr);
+            free(sessionPtr);
+        }
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
+    return (jlong)(intptr_t)sessionPtr;
 }

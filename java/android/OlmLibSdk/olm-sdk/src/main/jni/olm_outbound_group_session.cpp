@@ -52,13 +52,15 @@ JNIEXPORT void OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(releaseSessionJni)(JNIEnv *en
 }
 
 /**
-* Initialize a new outbound group session and return it to JAVA side.<br>
-* Since a C prt is returned as a jlong, special care will be taken
-* to make the cast (OlmOutboundGroupSession* => jlong) platform independent.
-* @return the initialized OlmOutboundGroupSession* instance if init succeed, NULL otherwise
-**/
+ * Initialize a new outbound group session and return it to JAVA side.<br>
+ * Since a C prt is returned as a jlong, special care will be taken
+ * to make the cast (OlmOutboundGroupSession* => jlong) platform independent.
+ * @return the initialized OlmOutboundGroupSession* instance or throw an exception
+ **/
 JNIEXPORT jlong OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *env, jobject thiz)
 {
+    const char* errorMessage = NULL;
+
     OlmOutboundGroupSession* sessionPtr = NULL;
     size_t sessionSize = 0;
 
@@ -68,65 +70,45 @@ JNIEXPORT jlong OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv 
     if (0 == sessionSize)
     {
         LOGE(" ## createNewSessionJni(): failure - outbound group session size = 0");
+        errorMessage = "outbound group session size = 0";
     }
-    else if ((sessionPtr = (OlmOutboundGroupSession*)malloc(sessionSize)))
+    else if (!(sessionPtr = (OlmOutboundGroupSession*)malloc(sessionSize)))
+    {
+        LOGE(" ## createNewSessionJni(): failure - outbound group session OOM");
+        errorMessage = "outbound group session OOM";
+    }
+    else
     {
         sessionPtr = olm_outbound_group_session(sessionPtr);
         LOGD(" ## createNewSessionJni(): success - outbound group session size=%lu",static_cast<long unsigned int>(sessionSize));
-    }
-    else
-    {
-        LOGE(" ## createNewSessionJni(): failure - outbound group session OOM");
-    }
 
-    return (jlong)(intptr_t)sessionPtr;
-}
-
-/**
- * Start a new outbound session.<br>
- */
-JNIEXPORT void OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(initOutboundGroupSessionJni)(JNIEnv *env, jobject thiz)
-{
-    const char* errorMessage = NULL;
-
-    LOGD("## initOutboundGroupSessionJni(): IN");
-
-    OlmOutboundGroupSession *sessionPtr = (OlmOutboundGroupSession*)getOutboundGroupSessionInstanceId(env,thiz);
-
-    if (!sessionPtr)
-    {
-        LOGE(" ## initOutboundGroupSessionJni(): failure - invalid outbound group session instance");
-        errorMessage = "invalid outbound group session instance";
-    }
-    else
-    {
         // compute random buffer
         size_t randomLength = olm_init_outbound_group_session_random_length(sessionPtr);
         uint8_t *randomBuffPtr = NULL;
 
-        LOGW(" ## initOutboundGroupSessionJni(): randomLength=%lu",static_cast<long unsigned int>(randomLength));
+        LOGW(" ## createNewSessionJni(): randomLength=%lu",static_cast<long unsigned int>(randomLength));
 
         if ((0 != randomLength) && !setRandomInBuffer(env, &randomBuffPtr, randomLength))
         {
-            LOGE(" ## initOutboundGroupSessionJni(): failure - random buffer init");
+            LOGE(" ## createNewSessionJni(): failure - random buffer init");
             errorMessage = "random buffer init";
         }
         else
         {
             if (0 == randomLength)
             {
-                LOGW(" ## initOutboundGroupSessionJni(): random buffer is not required");
+                LOGW(" ## createNewSessionJni(): random buffer is not required");
             }
 
             size_t sessionResult = olm_init_outbound_group_session(sessionPtr, randomBuffPtr, randomLength);
 
             if (sessionResult == olm_error()) {
                 errorMessage = (const char *)olm_outbound_group_session_last_error(sessionPtr);
-                LOGE(" ## initOutboundGroupSessionJni(): failure - init outbound session creation  Msg=%s", errorMessage);
+                LOGE(" ## createNewSessionJni(): failure - init outbound session creation  Msg=%s", errorMessage);
             }
             else
             {
-                LOGD(" ## initOutboundGroupSessionJni(): success - result=%lu", static_cast<long unsigned int>(sessionResult));
+                LOGD(" ## createNewSessionJni(): success - result=%lu", static_cast<long unsigned int>(sessionResult));
             }
 
             // clear the random buffer
@@ -137,13 +119,23 @@ JNIEXPORT void OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(initOutboundGroupSessionJni)(
 
     if (errorMessage)
     {
+        if (sessionPtr)
+        {
+            olm_clear_outbound_group_session(sessionPtr);
+            free(sessionPtr);
+        }
+
         env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
     }
+
+    return (jlong)(intptr_t)sessionPtr;
 }
 
 /**
-* Get a base64-encoded identifier for this outbound group session.
-*/
+ * Return the session identifier.
+ * An exception is thrown if the operation fails.
+ * @return the session identifier
+ */
 JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEnv *env, jobject thiz)
 {
     LOGD("## sessionIdentifierJni(): outbound group session IN");
@@ -184,7 +176,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(J
                 returnValue = env->NewByteArray(result);
                 env->SetByteArrayRegion(returnValue, 0 , result, (jbyte*)sessionIdPtr);
 
-                LOGD(" ## sessionIdentifierJni(): success - outbound group session identifier result=%lu sessionId starts with %10s",static_cast<long unsigned int>(result), reinterpret_cast<char*>(sessionIdPtr));
+                LOGD(" ## sessionIdentifierJni(): success - outbound group session identifier result=%lu sessionId= %.*s",static_cast<long unsigned int>(result), static_cast<int>(result), reinterpret_cast<char*>(sessionIdPtr));
             }
 
             // free alloc
@@ -202,11 +194,12 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(J
 
 
 /**
-* Get the current message index for this session.<br>
-* Each message is sent with an increasing index, this
-* method returns the index for the next message.
-* @return current session index
-*/
+ * Get the current message index for this session.<br>
+ * Each message is sent with an increasing index, this
+ * method returns the index for the next message.
+ * An exception is thrown if the operation fails.
+ * @return current session index
+ */
 JNIEXPORT jint OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(messageIndexJni)(JNIEnv *env, jobject thiz)
 {
     OlmOutboundGroupSession *sessionPtr = NULL;
@@ -229,8 +222,10 @@ JNIEXPORT jint OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(messageIndexJni)(JNIEnv *env,
 }
 
 /**
-* Get the base64-encoded current ratchet key for this session.<br>
-*/
+ * Return the session key.
+ * An exception is thrown if the operation fails.
+ * @return the session key
+ */
 JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionKeyJni)(JNIEnv *env, jobject thiz)
 {
     LOGD("## sessionKeyJni(): outbound group session IN");
@@ -268,7 +263,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionKeyJni)(JNIEnv *
             }
             else
             {
-                LOGD(" ## sessionKeyJni(): success - outbound group session key result=%lu sessionKey starts with %10s",static_cast<long unsigned int>(result), reinterpret_cast<char*>(sessionKeyPtr));
+                LOGD(" ## sessionKeyJni(): success - outbound group session key result=%lu sessionKey=%.*s",static_cast<long unsigned int>(result), static_cast<int>(result), reinterpret_cast<char*>(sessionKeyPtr));
 
                 returnValue = env->NewByteArray(result);
                 env->SetByteArrayRegion(returnValue, 0 , result, (jbyte*)sessionKeyPtr);
@@ -287,6 +282,12 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(sessionKeyJni)(JNIEnv *
     return returnValue;
 }
 
+/**
+ * Encrypt a bytes buffer messages.
+ * An exception is thrown if the operation fails.
+ * @param aClearMsgBuffer  the message to encode
+ * @return the encoded message
+ */
 JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aClearMsgBuffer)
 {
     LOGD("## encryptMessageJni(): IN");
@@ -345,7 +346,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIE
             }
             else
             {
-                LOGD(" ## encryptMessageJni(): encrypted returnedLg=%lu plainTextMsgPtr=%10s",static_cast<long unsigned int>(encryptedLength), reinterpret_cast<char*>(encryptedMsgPtr));
+                LOGD(" ## encryptMessageJni(): encrypted returnedLg=%lu plainTextMsgPtr=%.*s",static_cast<long unsigned int>(encryptedLength), static_cast<int>(encryptedLength), reinterpret_cast<char*>(encryptedMsgPtr));
 
                 encryptedMsgRet = env->NewByteArray(encryptedLength);
                 env->SetByteArrayRegion(encryptedMsgRet, 0 , encryptedLength, (jbyte*)encryptedMsgPtr);
@@ -369,12 +370,12 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIE
     return encryptedMsgRet;
 }
 
-
 /**
-* Serialize and encrypt session instance into a base64 string.<br>
-* @param aKey key used to encrypt the serialized session data
-* @return a base64 string if operation succeed, null otherwise
-**/
+ * Serialize and encrypt session instance into a base64 string.<br>
+ * An exception is thrown if the operation fails.
+ * @param aKey key used to encrypt the serialized session data
+ * @return a base64 string if operation succeed, null otherwise
+ **/
 JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thiz, jbyteArray aKeyBuffer)
 {
     const char* errorMessage = NULL;
@@ -427,7 +428,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *e
             }
             else
             {
-                LOGD(" ## serializeJni(): success - result=%lu pickled starts with %10s", static_cast<long unsigned int>(result), static_cast<char*>(pickledPtr));
+                LOGD(" ## serializeJni(): success - result=%lu pickled=%.*s", static_cast<long unsigned int>(result), static_cast<int>(result), static_cast<char*>(pickledPtr));
 
                 returnValue = env->NewByteArray(pickledLength);
                 env->SetByteArrayRegion(returnValue, 0 , pickledLength, (jbyte*)pickledPtr);
@@ -451,38 +452,57 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *e
     return returnValue;
 }
 
-
-JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz, jbyteArray aSerializedDataBuffer, jbyteArray aKeyBuffer)
+/**
+ * Allocate a new session and initialize it with the serialisation data.<br>
+ * An exception is thrown if the operation fails.
+ * @param aSerializedData the session serialisation buffer
+ * @param aKey the key used to encrypt the serialized account data
+ * @return the deserialized session
+ **/
+JNIEXPORT jlong OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env, jobject thiz, jbyteArray aSerializedDataBuffer, jbyteArray aKeyBuffer)
 {
+    const char* errorMessage = NULL;
+    size_t sessionSize = olm_outbound_group_session_size();
     OlmOutboundGroupSession* sessionPtr = NULL;
-    jstring errorMessageRetValue = 0;
+
     jbyte* keyPtr = NULL;
     jbyte* pickledPtr = NULL;
 
     LOGD("## deserializeJni(): IN");
 
-    if (!(sessionPtr = (OlmOutboundGroupSession*)getOutboundGroupSessionInstanceId(env,thiz)))
+    if (!sessionSize)
+    {
+        LOGE(" ## deserializeJni(): failure - outbound group session size = 0");
+        errorMessage = "outbound group session size = 0";
+    }
+    else if (!(sessionPtr = (OlmOutboundGroupSession*)malloc(sessionSize)))
     {
         LOGE(" ## deserializeJni(): failure - session failure OOM");
+        errorMessage = "session failure OOM";
     }
     else if (!aKeyBuffer)
     {
         LOGE(" ## deserializeJni(): failure - invalid key");
+        errorMessage = "invalid key";
     }
     else if (!aSerializedDataBuffer)
     {
         LOGE(" ## deserializeJni(): failure - serialized data");
+        errorMessage = "invalid serialized data";
     }
     else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, 0)))
     {
         LOGE(" ## deserializeJni(): failure - keyPtr JNI allocation OOM");
+        errorMessage = "keyPtr JNI allocation OOM";
     }
     else if (!(pickledPtr = env->GetByteArrayElements(aSerializedDataBuffer, 0)))
     {
         LOGE(" ## deserializeJni(): failure - pickledPtr JNI allocation OOM");
+        errorMessage = "pickledPtr JNI allocation OOM";
     }
     else
     {
+        sessionPtr = olm_outbound_group_session(sessionPtr);
         size_t pickledLength = (size_t)env->GetArrayLength(aSerializedDataBuffer);
         size_t keyLength = (size_t)env->GetArrayLength(aKeyBuffer);
         LOGD(" ## deserializeJni(): pickledLength=%lu keyLength=%lu",static_cast<long unsigned int>(pickledLength), static_cast<long unsigned int>(keyLength));
@@ -495,9 +515,8 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *en
                                                             pickledLength);
         if (result == olm_error())
         {
-            const char *errorMsgPtr = olm_outbound_group_session_last_error(sessionPtr);
-            LOGE(" ## deserializeJni(): failure - olm_unpickle_outbound_group_session() Msg=%s",errorMsgPtr);
-            errorMessageRetValue = env->NewStringUTF(errorMsgPtr);
+            errorMessage = olm_outbound_group_session_last_error(sessionPtr);
+            LOGE(" ## deserializeJni(): failure - olm_unpickle_outbound_group_session() Msg=%s", errorMessage);
         }
         else
         {
@@ -516,6 +535,16 @@ JNIEXPORT jstring OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *en
         env->ReleaseByteArrayElements(aSerializedDataBuffer, pickledPtr, JNI_ABORT);
     }
 
-    return errorMessageRetValue;
+    if (errorMessage)
+    {
+        if (sessionPtr)
+        {
+            olm_clear_outbound_group_session(sessionPtr);
+            free(sessionPtr);
+        }
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
+    return (jlong)(intptr_t)sessionPtr;
 }
 

@@ -1,6 +1,6 @@
 /*
- * Copyright 2016 OpenMarket Ltd
- * Copyright 2016 Vector Creations Ltd
+ * Copyright 2017 OpenMarket Ltd
+ * Copyright 2017 Vector Creations Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  */
 
 package org.matrix.olm;
-
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -55,15 +54,31 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     /**
      * Constructor.<br>
      * Create and save a new native session instance ID and start a new inbound group session.
-     * The session key parameter is retrieved from an outbound group session
-     * See {@link #createNewSession()} and {@link #initInboundGroupSession(String)}
+     * The session key parameter is retrieved from an outbound group session.
      * @param aSessionKey session key
      * @throws OlmException constructor failure
      */
     public OlmInboundGroupSession(String aSessionKey) throws OlmException {
-        createNewSession();
-        initInboundGroupSession(aSessionKey);
+        if (TextUtils.isEmpty(aSessionKey)) {
+            Log.e(LOG_TAG, "## initInboundGroupSession(): invalid session key");
+            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION, "invalid session key");
+        } else {
+            try {
+                mNativeId = createNewSessionJni(aSessionKey.getBytes("UTF-8"));
+            } catch (Exception e) {
+                throw new OlmException(OlmException.EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION, e.getMessage());
+            }
+        }
     }
+
+    /**
+     * Initialize a new inbound group session and return it to JAVA side.<br>
+     * Since a C prt is returned as a jlong, special care will be taken
+     * to make the cast (OlmInboundGroupSession* to jlong) platform independent.
+     * @param aSessionKeyBuffer session key from an outbound session
+     * @return the initialized OlmInboundGroupSession* instance or throw an exception it fails.
+     **/
+    private native long createNewSessionJni(byte[] aSessionKeyBuffer);
 
     /**
      * Release native session and invalid its JAVA reference counter part.<br>
@@ -80,29 +95,9 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      * Destroy the corresponding OLM inbound group session native object.<br>
      * This method must ALWAYS be called when this JAVA instance
      * is destroyed (ie. garbage collected) to prevent memory leak in native side.
-     * See {@link #createNewSessionJni()}.
+     * See {@link #createNewSessionJni(byte[])}.
      */
     private native void releaseSessionJni();
-
-    /**
-     * Create and save the session native instance ID.<br>
-     * To be called before any other API call.
-     * @exception OlmException the failure reason
-     */
-    private void createNewSession() throws OlmException {
-        try {
-            mNativeId = createNewSessionJni();
-        } catch (Exception e) {
-            throw new OlmException(OlmException.EXCEPTION_CODE_CREATE_INBOUND_GROUP_SESSION, e.getMessage());
-        }
-    }
-
-    /**
-     * Create the corresponding OLM inbound group session in native side.<br>
-     * Do not forget to call {@link #releaseSession()} when JAVA side is done.
-     * @return native session instance identifier (see {@link #mNativeId})
-     */
-    private native long createNewSessionJni();
 
     /**
      * Return true the object resources have been released.<br>
@@ -111,28 +106,6 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     public boolean isReleased() {
         return (0 == mNativeId);
     }
-
-    /**
-     * Start a new inbound group session.<br>
-     * The session key parameter is retrieved from an outbound group session
-     * see {@link OlmOutboundGroupSession#sessionKey()}
-     * @param aSessionKey session key
-     * @exception OlmException the failure reason
-     */
-    private void initInboundGroupSession(String aSessionKey) throws OlmException {
-        if (TextUtils.isEmpty(aSessionKey)) {
-            Log.e(LOG_TAG, "## initInboundGroupSession(): invalid session key");
-            throw new OlmException(OlmException.EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION, "invalid session key");
-        } else {
-            try {
-                initInboundGroupSessionJni(aSessionKey.getBytes("UTF-8"));
-            } catch (Exception e) {
-                throw new OlmException(OlmException.EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION, e.getMessage());
-            }
-        }
-    }
-
-    private native void initInboundGroupSessionJni(byte[] aSessionKeyBuffer);
 
     /**
      * Retrieve the base64-encoded identifier for this inbound group session.
@@ -148,6 +121,11 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
         }
     }
 
+    /**
+     * Get a base64-encoded identifier for this inbound group session.
+     * An exception is thrown if the operation fails.
+     * @return the base64-encoded identifier
+     */
     private native byte[] sessionIdentifierJni();
 
     /**
@@ -174,6 +152,13 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
         return result;
     }
 
+    /**
+     * Decrypt a message.
+     * An exception is thrown if the operation fails.
+     * @param aEncryptedMsg the encrypted message
+     * @param aDecryptMessageResult the decryptMessage informaton
+     * @return the decrypted message
+     */
     private native byte[] decryptMessageJni(byte[] aEncryptedMsg, DecryptMessageResult aDecryptMessageResult);
 
     //==============================================================================================================
@@ -232,7 +217,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     /**
      * JNI counter part of {@link #serialize(byte[], StringBuffer)}.
      * @param aKey encryption key
-     * @return pickled base64 string if operation succeed, null otherwise
+     * @return the serialized session
      */
     private native byte[] serializeJni(byte[] aKey);
 
@@ -244,16 +229,14 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      */
     @Override
     protected void deserialize(byte[] aSerializedData, byte[] aKey) throws Exception {
-        createNewSession();
-
-        String errorMsg;
+        String errorMsg = null;
 
         try {
             if ((null == aSerializedData) || (null == aKey)) {
                 Log.e(LOG_TAG, "## deserialize(): invalid input parameters");
                 errorMsg = "invalid input parameters";
             } else {
-                errorMsg = deserializeJni(aSerializedData, aKey);
+                mNativeId = deserializeJni(aSerializedData, aKey);
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## deserialize() failed " + e.getMessage());
@@ -267,10 +250,11 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     }
 
     /**
-     * JNI counter part of {@link #deserialize(byte[], byte[])}.
-     * @param aSerializedData pickled session in a base64 sbytes buffer
-     * @param aKey key used to encrypted in {@link #serialize(byte[], StringBuffer)}
-     * @return null if operation succeed, an error message if operation failed
-     */
-    private native String deserializeJni(byte[] aSerializedData, byte[] aKey);
+     * Allocate a new session and initialize it with the serialisation data.<br>
+     * An exception is thrown if the operation fails.
+     * @param aSerializedData the session serialisation buffer
+     * @param aKey the key used to encrypt the serialized account data
+     * @return the deserialized session
+     **/
+    private native long deserializeJni(byte[] aSerializedData, byte[] aKey);
 }
