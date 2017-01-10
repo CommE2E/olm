@@ -30,7 +30,7 @@
 
 #define OLM_PROTOCOL_VERSION     3
 #define GROUP_SESSION_ID_LENGTH  ED25519_PUBLIC_KEY_LENGTH
-#define PICKLE_VERSION           1
+#define PICKLE_VERSION           2
 #define SESSION_KEY_VERSION      2
 #define SESSION_EXPORT_VERSION   1
 
@@ -43,6 +43,17 @@ struct OlmInboundGroupSession {
 
     /** The ed25519 signing key */
     struct _olm_ed25519_public_key signing_key;
+
+    /**
+     * Have we ever seen any evidence that this is a valid session?
+     * (either because the original session share was signed, or because we
+     * have subsequently successfully decrypted a message?)
+     *
+     * (We don't do anything with this currently, but we may want to bear it in
+     * mind when we consider handling key-shares for sessions we already know
+     * about.)
+     */
+    int signing_key_verified;
 
     enum OlmErrorCode last_error;
 };
@@ -109,11 +120,15 @@ static size_t _init_group_session_keys(
     );
     ptr += ED25519_PUBLIC_KEY_LENGTH;
 
-    if (!export_format && !_olm_crypto_ed25519_verify(
-        &session->signing_key, key_buf, ptr - key_buf, ptr
-    )) {
-        session->last_error = OLM_BAD_SIGNATURE;
-        return (size_t)-1;
+    if (!export_format) {
+        if (!_olm_crypto_ed25519_verify(&session->signing_key, key_buf,
+                                        ptr - key_buf, ptr)) {
+            session->last_error = OLM_BAD_SIGNATURE;
+            return (size_t)-1;
+        }
+
+        /* signed keyshare */
+        session->signing_key_verified = 1;
     }
     return 0;
 }
@@ -174,6 +189,7 @@ static size_t raw_pickle_length(
     length += megolm_pickle_length(&session->initial_ratchet);
     length += megolm_pickle_length(&session->latest_ratchet);
     length += _olm_pickle_ed25519_public_key_length(&session->signing_key);
+    length += _olm_pickle_bool_length(session->signing_key_verified);
     return length;
 }
 
@@ -201,6 +217,7 @@ size_t olm_pickle_inbound_group_session(
     pos = megolm_pickle(&session->initial_ratchet, pos);
     pos = megolm_pickle(&session->latest_ratchet, pos);
     pos = _olm_pickle_ed25519_public_key(pos, &session->signing_key);
+    pos = _olm_pickle_bool(pos, session->signing_key_verified);
 
     return _olm_enc_output(key, key_length, pickled, raw_length);
 }
@@ -224,13 +241,21 @@ size_t olm_unpickle_inbound_group_session(
     pos = pickled;
     end = pos + raw_length;
     pos = _olm_unpickle_uint32(pos, end, &pickle_version);
-    if (pickle_version != PICKLE_VERSION) {
+    if (pickle_version < 1 || pickle_version > PICKLE_VERSION) {
         session->last_error = OLM_UNKNOWN_PICKLE_VERSION;
         return (size_t)-1;
     }
     pos = megolm_unpickle(&session->initial_ratchet, pos, end);
     pos = megolm_unpickle(&session->latest_ratchet, pos, end);
     pos = _olm_unpickle_ed25519_public_key(pos, end, &session->signing_key);
+
+    if (pickle_version == 1) {
+        /* pickle v1 had no signing_key_verified field (all keyshares were
+         * verified at import time) */
+        session->signing_key_verified = 1;
+    } else {
+        pos = _olm_unpickle_bool(pos, end, &(session->signing_key_verified));
+    }
 
     if (end != pos) {
         /* We had the wrong number of bytes in the input. */
@@ -390,6 +415,10 @@ static size_t _decrypt(
         session->last_error = OLM_BAD_MESSAGE_MAC;
         return r;
     }
+
+    /* once we have successfully decrypted a message, set a flag to say the
+     * session appears valid. */
+    session->signing_key_verified = 1;
 
     return r;
 }
