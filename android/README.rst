@@ -22,7 +22,7 @@ Add in the dependencies category::
 
 Development
 -----------
-import the project from the ``/java/android/OlmLibSdk`` path.
+import the project from the ``android/`` path.
 
 The project contains some JNI files and some Java wraper files.
 

@@ -6,7 +6,7 @@ MAJOR := 2
 MINOR := 0
 PATCH := 0
 OLM_VERSION := $(MAJOR).$(MINOR).$(PATCH)
-SRC_ROOT_DIR := ../../../../../../..
+SRC_ROOT_DIR := ../../../../..
 
 $(info LOCAL_PATH=$(LOCAL_PATH))
 $(info SRC_ROOT_DIR=$(SRC_ROOT_DIR))
