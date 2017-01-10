@@ -190,6 +190,19 @@ uint32_t olm_inbound_group_session_first_known_index(
     const OlmInboundGroupSession *session
 );
 
+
+/**
+ * Check if the session has been verified as a valid session.
+ *
+ * (A session is verified either because the original session share was signed,
+ * or because we have subsequently successfully decrypted a message.)
+ *
+ * This is mainly intended for the unit tests, currently.
+ */
+int olm_inbound_group_session_is_verified(
+    const OlmInboundGroupSession *session
+);
+
 /**
  * Get the number of bytes returned by olm_export_inbound_group_session()
  */

@@ -47,7 +47,7 @@ struct OlmInboundGroupSession {
     /**
      * Have we ever seen any evidence that this is a valid session?
      * (either because the original session share was signed, or because we
-     * have subsequently successfully decrypted a message?)
+     * have subsequently successfully decrypted a message)
      *
      * (We don't do anything with this currently, but we may want to bear it in
      * mind when we consider handling key-shares for sessions we already know
@@ -468,6 +468,12 @@ uint32_t olm_inbound_group_session_first_known_index(
     const OlmInboundGroupSession *session
 ) {
     return session->initial_ratchet.counter;
+}
+
+int olm_inbound_group_session_is_verified(
+    const OlmInboundGroupSession *session
+) {
+    return session->signing_key_verified;
 }
 
 size_t olm_export_inbound_group_session_length(
