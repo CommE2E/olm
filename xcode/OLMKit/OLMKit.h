@@ -16,11 +16,7 @@
  limitations under the License.
  */
 
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#elif TARGET_OS_MAC
-#import <Cocoa/Cocoa.h>
-#endif
+#import <Foundation/Foundation.h>
 
 
 //! Project version string for OLMKit, the same as libolm.
