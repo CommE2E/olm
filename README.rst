@@ -32,12 +32,13 @@ To build the javascript bindings, install emscripten from http://kripken.github.
 .. code:: bash
 
     make js
-	
+
 To build the android project for Android bindings, run:
 
-	.. code:: bash
-	cd android
-	./gradlew clean assembleRelease
+.. code:: bash
+
+    cd android
+    ./gradlew clean assembleRelease
 
 To build the Xcode workspace for Objective-C bindings, run:
 
