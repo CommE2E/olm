@@ -8,8 +8,7 @@ exposed as a C API.
 The specification of the Olm ratchet can be found in `<docs/olm.rst>`_.
 
 This library also includes an implementation of the Megolm cryptographic
-ratchet, as specified in ``docs/megolm.rst`` or
-https://matrix.org/docs/spec/megolm.html.
+ratchet, as specified in `<docs/megolm.rst>`_.
 
 Building
 --------
@@ -60,6 +59,7 @@ It's probably sensible to do the above on a release branch (``release-vx.y.z``
 by convention), and merge back to master once the release is complete.
 
 .. code:: bash
+
     make clean
 
     # build and test C library
