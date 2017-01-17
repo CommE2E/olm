@@ -76,6 +76,33 @@
     return self;
 }
 
+- (instancetype)initInboundGroupSessionWithImportedSession:(NSString *)sessionKey error:(NSError *__autoreleasing *)error
+{
+    self = [self init];
+    if (self) {
+        NSData *sessionKeyData = [sessionKey dataUsingEncoding:NSUTF8StringEncoding];
+        size_t result = olm_import_inbound_group_session(session, sessionKeyData.bytes, sessionKeyData.length);
+        if (result == olm_error())   {
+            const char *olm_error = olm_inbound_group_session_last_error(session);
+
+            NSString *errorString = [NSString stringWithUTF8String:olm_error];
+            NSLog(@"olm_import_inbound_group_session error: %@", errorString);
+
+            if (error && olm_error && errorString) {
+                *error = [NSError errorWithDomain:OLMErrorDomain
+                                             code:0
+                                         userInfo:@{
+                                                    NSLocalizedDescriptionKey: errorString,
+                                                    NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"olm_import_inbound_group_session error: %@", errorString]
+                                                    }];
+            }
+
+            return nil;
+        }
+    }
+    return self;
+}
+
 - (NSString *)sessionIdentifier {
     size_t length = olm_inbound_group_session_id_length(session);
     NSMutableData *idData = [NSMutableData dataWithLength:length];
@@ -151,6 +178,34 @@
     }
 
     return plaintext;
+}
+
+- (NSUInteger)firstKnownIndex
+{
+    return olm_inbound_group_session_first_known_index(session);
+}
+
+- (BOOL)isVerified
+{
+    return (0 != olm_inbound_group_session_is_verified(session));
+}
+
+- (NSString*)exportSessionAtMessageIndex:(NSUInteger*)messageIndex error:(NSError**)error;
+{
+    size_t length = olm_export_inbound_group_session_length(session);
+    NSMutableData *key = [NSMutableData dataWithLength:length];
+    size_t result = olm_export_inbound_group_session(session, key.mutableBytes, key.length, messageIndex);
+    if (result == olm_error()) {
+        const char *olm_error = olm_inbound_group_session_last_error(session);
+        NSString *errorString = [NSString stringWithUTF8String:olm_error];
+        if (error && errorString) {
+            *error = [NSError errorWithDomain:OLMErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey: errorString}];
+        }
+        return nil;
+    }
+    NSString *keyString = [[NSString alloc] initWithData:key encoding:NSUTF8StringEncoding];
+    [key resetBytesInRange:NSMakeRange(0, key.length)];
+    return keyString;
 }
 
 
