@@ -204,6 +204,7 @@
         return nil;
     }
     NSString *keyString = [[NSString alloc] initWithData:key encoding:NSUTF8StringEncoding];
+    [key resetBytesInRange:NSMakeRange(0, key.length)];
     return keyString;
 }
 
