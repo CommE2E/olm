@@ -129,6 +129,10 @@ Olm uses pure C implementations of the cryptographic primitives used by
 the ratchet. While this decreases the performance it makes it much easier
 to compile the library for different architectures.
 
+Contributing
+------------
+Please see `<CONTRIBUTING.rst>`_ when making contributions to the library.
+
 What's an olm?
 --------------
 
