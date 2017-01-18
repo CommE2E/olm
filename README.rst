@@ -49,8 +49,9 @@ To build the Xcode workspace for Objective-C bindings, run:
 Release process
 ---------------
 
-First: bump version numbers in ``Makefile``, ``javascript/package.json``, and
-``OLMKit.podspec``.
+First: bump version numbers in ``Makefile``, ``javascript/package.json``,
+``OLMKit.podspec``, and ``android/olm-sdk/build.gradle`` (``versionCode``,
+``versionName`` and ``version``).
 
 Also, ensure the changelog is up to date, and that everyting is committed to
 git.
