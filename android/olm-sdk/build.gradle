@@ -9,9 +9,9 @@ android {
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 21
-        versionCode 220
-        versionName "2.2.0"
-        version "2.2.0"
+        versionCode 221
+        versionName "2.2.1"
+        version "2.2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

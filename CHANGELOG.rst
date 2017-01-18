@@ -1,3 +1,9 @@
+Changes in `2.2.1 <http://matrix.org/git/olm/commit/?h=2.2.1>`_
+===============================================================
+
+The only change in this release is a fix to the build scripts for the
+Objective-C wrapper which made it impossible to release the 2.2.0 CocoaPod.
+
 Changes in `2.2.0 <http://matrix.org/git/olm/commit/?h=2.2.0>`_
 ===============================================================
 
