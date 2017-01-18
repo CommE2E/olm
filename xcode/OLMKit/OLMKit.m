@@ -19,11 +19,15 @@
 
 #include "olm/olm.h"
 
-NSString *OLMKitVersionString()
+@implementation OLMKit
+
++ (NSString*)versionString
 {
     uint8_t major, minor, patch;
-
+    
     olm_get_library_version(&major, &minor, &patch);
-
+    
     return [NSString stringWithFormat:@"%tu.%tu.%tu", major, minor, patch];
 }
+
+@end

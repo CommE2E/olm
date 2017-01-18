@@ -32,6 +32,7 @@ Pod::Spec.new do |s|
   }
 
   s.source_files = "xcode/OLMKit/*.{h,m}", "include/**/*.{h,hh}", "src/*.{c,cpp}", "lib/crypto-algorithms/sha256.c",  "lib/crypto-algorithms/aes.c", "lib/curve25519-donna/curve25519-donna.c"
+  s.private_header_files = "xcode/OLMKit/*_Private.h"
 
   # Those files (including .c) are included by ed25519.c. We do not want to compile them twice
   s.preserve_paths = "lib/ed25519/**/*.{h,c}"
