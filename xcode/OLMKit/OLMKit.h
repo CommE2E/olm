@@ -18,10 +18,6 @@
 
 #import <Foundation/Foundation.h>
 
-
-//! Project version string for OLMKit, the same as libolm.
-NSString *OLMKitVersionString();
-
 // In this header, you should import all the public headers of your framework using statements like #import <OLMKit/PublicHeader.h>
 
 #import <OLMKit/OLMAccount.h>
@@ -30,3 +26,10 @@ NSString *OLMKitVersionString();
 #import <OLMKit/OLMUtility.h>
 #import <OLMKit/OLMInboundGroupSession.h>
 #import <OLMKit/OLMOutboundGroupSession.h>
+
+@interface OLMKit : NSObject
+
+//! Project version string for OLMKit, the same as libolm.
++ (NSString*)versionString;
+
+@end
