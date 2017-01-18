@@ -1,3 +1,24 @@
+Changes in `2.2.0 <http://matrix.org/git/olm/commit/?h=2.2.0>`_
+===============================================================
+
+This release includes the following changes since 2.1.0:
+
+* Add Java wrappers to allow use under Android.
+
+New functionality:
+
+* Add a number of methods allowing InboundGroupSessions to be exported and
+  imported. These are: ``olm_inbound_group_session_first_known_index``,
+  ``olm_export_inbound_group_session_length``,
+  ``olm_export_inbound_group_session``, ``olm_import_inbound_group_session``
+  and ``olm_inbound_group_session_is_verified``. Corresponding wrappers are
+  available in the Javascript, Python, Objective-C and Android wrappers.
+
+Objective-C wrapper:
+
+* Fix a number of issues with the build scripts which prevented it being used
+  for macOS/Swift projects. Thanks to Avery Pierce.
+
 Changes in `2.1.0 <http://matrix.org/git/olm/commit/?h=2.1.0>`_
 ===============================================================
 
