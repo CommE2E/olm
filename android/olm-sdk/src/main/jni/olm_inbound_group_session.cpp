@@ -54,9 +54,10 @@ JNIEXPORT void OLM_INBOUND_GROUP_SESSION_FUNC_DEF(releaseSessionJni)(JNIEnv *env
  * Since a C prt is returned as a jlong, special care will be taken
  * to make the cast (OlmInboundGroupSession* => jlong) platform independent.
  * @param aSessionKeyBuffer session key from an outbound session
+ * @param isImported true when the session key has been retrieved from a backup
  * @return the initialized OlmInboundGroupSession* instance or throw an exception it fails.
  **/
-JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *env, jobject thiz, jbyteArray aSessionKeyBuffer)
+JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *env, jobject thiz, jbyteArray aSessionKeyBuffer, jboolean isImported)
 {
     const char* errorMessage = NULL;
     OlmInboundGroupSession* sessionPtr = NULL;
@@ -92,7 +93,18 @@ JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *
         size_t sessionKeyLength = (size_t)env->GetArrayLength(aSessionKeyBuffer);
         LOGD(" ## createNewSessionJni(): sessionKeyLength=%lu", static_cast<long unsigned int>(sessionKeyLength));
 
-        size_t sessionResult = olm_init_inbound_group_session(sessionPtr, (const uint8_t*)sessionKeyPtr, sessionKeyLength);
+        size_t sessionResult;
+
+        if (JNI_FALSE == isImported)
+        {
+            LOGD(" ## createNewSessionJni(): init");
+            sessionResult = olm_init_inbound_group_session(sessionPtr, (const uint8_t*)sessionKeyPtr, sessionKeyLength);
+        }
+        else
+        {
+            LOGD(" ## createNewSessionJni(): import");
+            sessionResult = olm_import_inbound_group_session(sessionPtr, (const uint8_t*)sessionKeyPtr, sessionKeyLength);
+        }
 
         if (sessionResult == olm_error())
         {
@@ -112,18 +124,12 @@ JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *
 
     if (errorMessage)
     {
-        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
-    }
-
-    if (errorMessage)
-    {
         // release the allocated session
         if (sessionPtr)
         {
             olm_clear_inbound_group_session(sessionPtr);
             free(sessionPtr);
         }
-
         env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
     }
 
@@ -326,6 +332,135 @@ JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEn
     return decryptedMsgBuffer;
 }
 
+/**
+ * Provides the first known index.
+ * An exception is thrown if the operation fails.
+ * @return the first known index
+ */
+JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(firstKnownIndexJni)(JNIEnv *env, jobject thiz)
+{
+    const char* errorMessage = NULL;
+    OlmInboundGroupSession *sessionPtr = getInboundGroupSessionInstanceId(env, thiz);
+    long returnValue = 0;
+
+    LOGD("## firstKnownIndexJni(): inbound group session IN");
+
+    if (!sessionPtr)
+    {
+        LOGE(" ## firstKnownIndexJni(): failure - invalid inbound group session instance");
+        errorMessage = "invalid inbound group session instance";
+    }
+    else
+    {
+        returnValue = olm_inbound_group_session_first_known_index(sessionPtr);
+    }
+
+    if (errorMessage)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
+    return returnValue;
+}
+
+/**
+ * Tells if the session is verified.
+ * An exception is thrown if the operation fails.
+ * @return true if the session is verified
+ */
+JNIEXPORT jboolean OLM_INBOUND_GROUP_SESSION_FUNC_DEF(isVerifiedJni)(JNIEnv *env, jobject thiz)
+{
+    const char* errorMessage = NULL;
+    OlmInboundGroupSession *sessionPtr = getInboundGroupSessionInstanceId(env, thiz);
+    jboolean returnValue = JNI_FALSE;
+
+    LOGD("## isVerifiedJni(): inbound group session IN");
+
+    if (!sessionPtr)
+    {
+        LOGE(" ## isVerifiedJni(): failure - invalid inbound group session instance");
+        errorMessage = "invalid inbound group session instance";
+    }
+    else
+    {
+        LOGE(" ## isVerifiedJni(): faaa %d", olm_inbound_group_session_is_verified(sessionPtr));
+
+        returnValue = (0 != olm_inbound_group_session_is_verified(sessionPtr)) ? JNI_TRUE : JNI_FALSE;
+    }
+
+    if (errorMessage)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
+    return returnValue;
+}
+
+/**
+ * Exports the session as byte array from a message index
+ * An exception is thrown if the operation fails.
+ * @param messageIndex key used to encrypt the serialized session data
+ * @return the session saved as bytes array
+ **/
+JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(exportJni)(JNIEnv *env, jobject thiz, jlong messageIndex) {
+    jbyteArray exportedByteArray = 0;
+    const char* errorMessage = NULL;
+    OlmInboundGroupSession *sessionPtr = getInboundGroupSessionInstanceId(env, thiz);
+
+    LOGD("## exportJni(): inbound group session IN");
+
+    if (!sessionPtr)
+    {
+        LOGE(" ## exportJni (): failure - invalid inbound group session instance");
+        errorMessage = "invalid inbound group session instance";
+    }
+    else
+    {
+        size_t length = olm_export_inbound_group_session_length(sessionPtr);
+
+        LOGD(" ## exportJni(): length =%lu", static_cast<long unsigned int>(length));
+
+        void *bufferPtr = malloc(length * sizeof(uint8_t));
+
+        if (!bufferPtr)
+        {
+            LOGE(" ## exportJni(): failure - pickledPtr buffer OOM");
+            errorMessage = "pickledPtr buffer OOM";
+        }
+        else
+        {
+           size_t result = olm_export_inbound_group_session(sessionPtr,
+                                                            (uint8_t*)bufferPtr,
+                                                            length,
+                                                            (long) messageIndex);
+
+           if (result == olm_error())
+           {
+               errorMessage = olm_inbound_group_session_last_error(sessionPtr);
+               LOGE(" ## exportJni(): failure - olm_export_inbound_group_session() Msg=%s", errorMessage);
+           }
+           else
+           {
+               LOGD(" ## exportJni(): success - result=%lu buffer=%.*s", static_cast<long unsigned int>(result), static_cast<int>(length), static_cast<char*>(bufferPtr));
+
+               exportedByteArray = env->NewByteArray(length);
+               env->SetByteArrayRegion(exportedByteArray, 0 , length, (jbyte*)bufferPtr);
+
+               // clean before leaving
+               memset(bufferPtr, 0, length);
+           }
+
+           free(bufferPtr);
+        }
+    }
+
+    if (errorMessage)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
+    return exportedByteArray;
+}
 
 /**
  * Serialize and encrypt session instance into a base64 string.<br>

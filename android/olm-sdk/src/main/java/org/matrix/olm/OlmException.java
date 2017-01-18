@@ -40,6 +40,9 @@ public class OlmException extends IOException {
     public static final int EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION = 201;
     public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_IDENTIFIER = 202;
     public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_DECRYPT_SESSION = 203;
+    public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_FIRST_KNOWN_INDEX = 204;
+    public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_IS_VERIFIED = 205;
+    public static final int EXCEPTION_CODE_INBOUND_GROUP_SESSION_EXPORT = 206;
 
     public static final int EXCEPTION_CODE_CREATE_OUTBOUND_GROUP_SESSION = 300;
     public static final int EXCEPTION_CODE_INIT_OUTBOUND_GROUP_SESSION = 301;

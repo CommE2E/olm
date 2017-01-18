@@ -521,5 +521,107 @@ public class OlmGroupSessionTest {
         assertTrue(0!=EXPECTED_ERROR_MESSAGE.length());
         assertTrue(EXPECTED_ERROR_MESSAGE.equals(exceptionMessage));
     }
+
+
+    /**
+     * Test the import/export functions.<br>
+     **/
+    @Test
+    public void test20TestInboundGroupSessionImportExport() {
+
+        String sessionKey = "AgAAAAAwMTIzNDU2Nzg5QUJERUYwMTIzNDU2Nzg5QUJDREVGMDEyMzQ1Njc4OUFCREVGM" +
+                                    "DEyMzQ1Njc4OUFCQ0RFRjAxMjM0NTY3ODlBQkRFRjAxMjM0NTY3ODlBQkNERUYwMTIzND" +
+                                    "U2Nzg5QUJERUYwMTIzNDU2Nzg5QUJDREVGMDEyMw0bdg1BDq4Px/slBow06q8n/B9WBfw" +
+                                    "WYyNOB8DlUmXGGwrFmaSb9bR/eY8xgERrxmP07hFmD9uqA2p8PMHdnV5ysmgufE6oLZ5+" +
+                                    "8/mWQOW3VVTnDIlnwd8oHUYRuk8TCQ";
+
+        String message = "AwgAEhAcbh6UpbByoyZxufQ+h2B+8XHMjhR69G8F4+qjMaFlnIXusJZX3r8LnRORG9T3D" +
+                            "XFdbVuvIWrLyRfm4i8QRbe8VPwGRFG57B1CtmxanuP8bHtnnYqlwPsD";
+
+
+        OlmInboundGroupSession inboundGroupSession = null;
+
+        try {
+            inboundGroupSession = new OlmInboundGroupSession(sessionKey);
+        } catch (Exception e) {
+            assertTrue("OlmInboundGroupSession failed " + e.getMessage(), false);
+        }
+
+        boolean isVerified = false;
+
+        try {
+            isVerified = inboundGroupSession.isVerified();
+        } catch (Exception e) {
+            assertTrue("isVerified failed " + e.getMessage(), false);
+        }
+
+        assertTrue(isVerified);
+
+        OlmInboundGroupSession.DecryptMessageResult result = null;
+
+        try {
+            result = inboundGroupSession.decryptMessage(message);
+        } catch (Exception e) {
+            assertTrue("decryptMessage failed " + e.getMessage(), false);
+        }
+
+        assertTrue(TextUtils.equals(result.mDecryptedMessage, "Message"));
+        assertTrue(0 == result.mIndex);
+
+        String export = null;
+
+        try {
+            export = inboundGroupSession.export(0);
+        } catch (Exception e) {
+            assertTrue("export failed " + e.getMessage(), false);
+        }
+        assertTrue(!TextUtils.isEmpty(export));
+
+        long index = -1;
+        try {
+            index = inboundGroupSession.getFirstKnownIndex();
+        } catch (Exception e) {
+            assertTrue("getFirstKnownIndex failed " + e.getMessage(), false);
+        }
+        assertTrue(index >=0);
+
+        inboundGroupSession.releaseSession();
+        inboundGroupSession = null;
+
+        OlmInboundGroupSession inboundGroupSession2 = null;
+
+        try {
+            inboundGroupSession2 = inboundGroupSession.importSession(export);
+        } catch (Exception e) {
+            assertTrue("OlmInboundGroupSession failed " + e.getMessage(), false);
+        }
+
+        try {
+            isVerified = inboundGroupSession2.isVerified();
+        } catch (Exception e) {
+            assertTrue("isVerified failed " + e.getMessage(), false);
+        }
+
+        assertFalse(isVerified);
+
+        result = null;
+        try {
+            result = inboundGroupSession2.decryptMessage(message);
+        } catch (Exception e) {
+            assertTrue("decryptMessage failed " + e.getMessage(), false);
+        }
+
+        assertTrue(TextUtils.equals(result.mDecryptedMessage, "Message"));
+        assertTrue(0 == result.mIndex);
+
+        try {
+            isVerified = inboundGroupSession2.isVerified();
+        } catch (Exception e) {
+            assertTrue("isVerified failed " + e.getMessage(), false);
+        }
+
+        assertTrue(isVerified);
+        inboundGroupSession2.releaseSession();
+    }
 }
 

@@ -30,10 +30,15 @@ extern "C" {
 
 // session creation/destruction
 JNIEXPORT void OLM_INBOUND_GROUP_SESSION_FUNC_DEF(releaseSessionJni)(JNIEnv *env, jobject thiz);
-JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *env, jobject thiz, jbyteArray aSessionKeyBuffer);
+JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *env, jobject thiz, jbyteArray aSessionKeyBuffer, jboolean isImported);
 
 JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(sessionIdentifierJni)(JNIEnv *env, jobject thiz);
 JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aEncryptedMsg, jobject aDecryptIndex);
+
+JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(firstKnownIndexJni)(JNIEnv *env, jobject thiz);
+JNIEXPORT jboolean OLM_INBOUND_GROUP_SESSION_FUNC_DEF(isVerifiedJni)(JNIEnv *env, jobject thiz);
+
+JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(exportJni)(JNIEnv *env, jobject thiz, jlong messageIndex);
 
 // serialization
 JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thiz, jbyteArray aKey);

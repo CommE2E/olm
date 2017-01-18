@@ -59,12 +59,24 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      * @throws OlmException constructor failure
      */
     public OlmInboundGroupSession(String aSessionKey) throws OlmException {
+        this(aSessionKey, false);
+    }
+
+    /**
+     * Constructor.<br>
+     * Create and save a new native session instance ID and start a new inbound group session.
+     * The session key parameter is retrieved from an outbound group session.
+     * @param aSessionKey session key
+     * @param isImported true when the session key has been retrieved from a backup
+     * @throws OlmException constructor failure
+     */
+    private OlmInboundGroupSession(String aSessionKey, boolean isImported) throws OlmException {
         if (TextUtils.isEmpty(aSessionKey)) {
             Log.e(LOG_TAG, "## initInboundGroupSession(): invalid session key");
             throw new OlmException(OlmException.EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION, "invalid session key");
         } else {
             try {
-                mNativeId = createNewSessionJni(aSessionKey.getBytes("UTF-8"));
+                mNativeId = createNewSessionJni(aSessionKey.getBytes("UTF-8"), isImported);
             } catch (Exception e) {
                 throw new OlmException(OlmException.EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION, e.getMessage());
             }
@@ -76,9 +88,20 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      * Since a C prt is returned as a jlong, special care will be taken
      * to make the cast (OlmInboundGroupSession* to jlong) platform independent.
      * @param aSessionKeyBuffer session key from an outbound session
+     * @param isImported true when the session key has been retrieved from a backup
      * @return the initialized OlmInboundGroupSession* instance or throw an exception it fails.
      **/
-    private native long createNewSessionJni(byte[] aSessionKeyBuffer);
+    private native long createNewSessionJni(byte[] aSessionKeyBuffer, boolean isImported);
+
+    /**
+     * Create an OlmInboundGroupSession from its exported session data.
+     * @param exported the exported data
+     * @return the created OlmException
+     * @throws OlmException the failure reason
+     */
+    public static OlmInboundGroupSession importSession(String exported) throws OlmException {
+        return new OlmInboundGroupSession(exported, true);
+    }
 
     /**
      * Release native session and invalid its JAVA reference counter part.<br>
@@ -95,7 +118,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      * Destroy the corresponding OLM inbound group session native object.<br>
      * This method must ALWAYS be called when this JAVA instance
      * is destroyed (ie. garbage collected) to prevent memory leak in native side.
-     * See {@link #createNewSessionJni(byte[])}.
+     * See {@link #createNewSessionJni(byte[], boolean)}.
      */
     private native void releaseSessionJni();
 
@@ -129,6 +152,86 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
     private native byte[] sessionIdentifierJni();
 
     /**
+     * Provides the first known index.
+     * @return the first known index.
+     * @throws OlmException the failure reason
+     */
+    public long getFirstKnownIndex() throws OlmException {
+        long index = 0;
+
+        try {
+            index = firstKnownIndexJni();
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## getFirstKnownIndex() failed " + e.getMessage());
+            throw new OlmException(OlmException.EXCEPTION_CODE_INBOUND_GROUP_SESSION_FIRST_KNOWN_INDEX, e.getMessage());
+        }
+
+        return index;
+    }
+
+    /**
+     * Provides the first known index.
+     * An exception is thrown if the operation fails.
+     * @return the first known index.
+     */
+    private native long firstKnownIndexJni();
+
+    /**
+     * Tells if the session is verified.
+     * @return true if the session is verified
+     * @throws OlmException the failure reason
+     */
+    public boolean isVerified() throws OlmException {
+        boolean isVerified;
+
+        try {
+            isVerified = isVerifiedJni();
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## isVerified() failed " + e.getMessage());
+            throw new OlmException(OlmException.EXCEPTION_CODE_INBOUND_GROUP_SESSION_IS_VERIFIED, e.getMessage());
+        }
+
+        return isVerified;
+    }
+
+    /**
+     * Tells if the session is verified.
+     * @return true if the session is verified
+     */
+    private native boolean isVerifiedJni();
+
+    /**
+     * Export the session from a message index as String.
+     * @param messageIndex the message index
+     * @return the session as String
+     * @throws OlmException the failure reason
+     */
+    public String export(long messageIndex) throws OlmException {
+        String result = null;
+
+        try {
+            byte[] bytesBuffer = exportJni(messageIndex);
+
+            if (null != bytesBuffer) {
+                result = new String(bytesBuffer, "UTF-8");
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## export() failed " + e.getMessage());
+            throw new OlmException(OlmException.EXCEPTION_CODE_INBOUND_GROUP_SESSION_EXPORT, e.getMessage());
+        }
+
+        return result;
+    }
+
+    /**
+     * Exports the session as byte array from a message index
+     * An exception is thrown if the operation fails.
+     * @param messageIndex key used to encrypt the serialized session data
+     * @return the session saved as bytes array
+     */
+    private native byte[] exportJni(long messageIndex);
+
+    /**
      * Decrypt the message passed in parameter.<br>
      * In case of error, null is returned and an error message description is provided in aErrorMsg.
      * @param aEncryptedMsg the message to be decrypted
@@ -156,7 +259,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      * Decrypt a message.
      * An exception is thrown if the operation fails.
      * @param aEncryptedMsg the encrypted message
-     * @param aDecryptMessageResult the decryptMessage informaton
+     * @param aDecryptMessageResult the decryptMessage information
      * @return the decrypted message
      */
     private native byte[] decryptMessageJni(byte[] aEncryptedMsg, DecryptMessageResult aDecryptMessageResult);
