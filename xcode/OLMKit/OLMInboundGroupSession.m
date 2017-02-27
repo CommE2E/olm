@@ -190,7 +190,7 @@
     return (0 != olm_inbound_group_session_is_verified(session));
 }
 
-- (NSString*)exportSessionAtMessageIndex:(NSUInteger*)messageIndex error:(NSError**)error;
+- (NSString*)exportSessionAtMessageIndex:(NSUInteger)messageIndex error:(NSError**)error;
 {
     size_t length = olm_export_inbound_group_session_length(session);
     NSMutableData *key = [NSMutableData dataWithLength:length];

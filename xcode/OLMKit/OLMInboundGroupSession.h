@@ -33,6 +33,6 @@
 
 - (BOOL)isVerified;
 
-- (NSString*)exportSessionAtMessageIndex:(NSUInteger*)messageIndex error:(NSError**)error;
+- (NSString*)exportSessionAtMessageIndex:(NSUInteger)messageIndex error:(NSError**)error;
 
 @end
