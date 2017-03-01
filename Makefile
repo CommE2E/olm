@@ -2,7 +2,7 @@
 
 MAJOR := 2
 MINOR := 2
-PATCH := 1
+PATCH := 2
 VERSION := $(MAJOR).$(MINOR).$(PATCH)
 PREFIX ?= /usr/local
 BUILD_DIR := build

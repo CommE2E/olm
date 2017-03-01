@@ -1,3 +1,11 @@
+Changes in `2.2.2 <http://matrix.org/git/olm/commit/?h=2.2.2>`_
+===============================================================
+
+Objective-C wrapper:
+
+* Fixed type of ``messageIndex`` argument in
+  ``exportSessionAtMessageIndex``. Thanks to Greg Hughes.
+
 Changes in `2.2.1 <http://matrix.org/git/olm/commit/?h=2.2.1>`_
 ===============================================================
 

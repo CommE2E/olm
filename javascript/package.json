@@ -1,6 +1,6 @@
 {
   "name": "olm",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "An implementation of the Double Ratchet cryptographic ratchet",
   "main": "olm.js",
   "files": [
