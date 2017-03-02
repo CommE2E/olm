@@ -49,7 +49,7 @@ To build the Xcode workspace for Objective-C bindings, run:
 Release process
 ---------------
 
-First: bump version numbers in ``Makefile``, ``javascript/package.json``,
+First: bump version numbers in ``common.mk``, ``javascript/package.json``,
 ``OLMKit.podspec``, and ``android/olm-sdk/build.gradle`` (``versionCode``,
 ``versionName`` and ``version``).
 

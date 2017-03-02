@@ -1,8 +1,6 @@
 #!/usr/bin/make -f
 
-MAJOR := 2
-MINOR := 2
-PATCH := 2
+include common.mk
 VERSION := $(MAJOR).$(MINOR).$(PATCH)
 PREFIX ?= /usr/local
 BUILD_DIR := build

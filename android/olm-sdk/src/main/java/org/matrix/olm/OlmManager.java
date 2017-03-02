@@ -43,17 +43,26 @@ public class OlmManager {
 
     /**
      * Provide the android library version
-     * @param context the context
      * @return the library version
      */
-    public String getSdkOlmVersion(Context context) {
-        String gitVersion = context.getResources().getString(R.string.git_olm_revision);
-        String date = context.getResources().getString(R.string.git_olm_revision_date);
-        return gitVersion + "-" + date;
+    public String getVersion() {
+        return BuildConfig.VERSION_NAME;
     }
 
     /**
-     * Get the OLM lib version.
+     * Provide a detailed version.
+     * It contains the android and the native libraries versions.
+     * @param context the context
+     * @return the detailed version
+     */
+    public String getDetailedVersion(Context context) {
+        String gitVersion = context.getResources().getString(R.string.git_olm_revision);
+        String date = context.getResources().getString(R.string.git_olm_revision_date);
+        return getVersion() + " - olm version (" + getOlmLibVersion() + ") - " + gitVersion + "-" + date;
+    }
+
+    /**
+     * Provide the native OLM lib version.
      * @return the lib version as a string
      */
     public String getOlmLibVersion(){
