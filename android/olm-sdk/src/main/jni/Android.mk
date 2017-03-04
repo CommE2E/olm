@@ -1,12 +1,13 @@
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
-include ../../../../common.mk
-OLM_VERSION := $(MAJOR).$(MINOR).$(PATCH)
 
 LOCAL_MODULE := olm
 
 SRC_ROOT_DIR := ../../../../..
+
+include $(LOCAL_PATH)/$(SRC_ROOT_DIR)/common.mk
+OLM_VERSION := $(MAJOR).$(MINOR).$(PATCH)
 
 $(info LOCAL_PATH=$(LOCAL_PATH))
 $(info SRC_ROOT_DIR=$(SRC_ROOT_DIR))
