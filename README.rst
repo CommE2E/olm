@@ -134,6 +134,10 @@ Contributing
 ------------
 Please see `<CONTRIBUTING.rst>`_ when making contributions to the library.
 
+Bug reports
+-----------
+Please file bug reports at https://github.com/matrix-org/olm/issues
+
 What's an olm?
 --------------
 
