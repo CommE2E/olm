@@ -46,6 +46,12 @@ To build the Xcode workspace for Objective-C bindings, run:
     pod install
     open OLMKit.xcworkspace
 
+To build olm as a static library (which still needs libstdc++ dynamically) run:
+
+.. code:: bash
+
+    make static
+
 Release process
 ---------------
 

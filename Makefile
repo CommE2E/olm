@@ -12,8 +12,10 @@ CC = gcc
 EMCC = emcc
 AFL_CC = afl-gcc
 AFL_CXX = afl-g++
+AR = ar
 
 RELEASE_TARGET := $(BUILD_DIR)/libolm.so.$(VERSION)
+STATIC_RELEASE_TARGET := $(BUILD_DIR)/libolm.a
 DEBUG_TARGET := $(BUILD_DIR)/libolm_debug.so.$(VERSION)
 JS_TARGET := javascript/olm.js
 
@@ -119,6 +121,12 @@ $(DEBUG_TARGET): $(DEBUG_OBJECTS)
             -Wl,--version-script,version_script.ver \
             $(OUTPUT_OPTION) $(DEBUG_OBJECTS)
 	ln -sf libolm_debug.so.$(VERSION) $(BUILD_DIR)/libolm_debug.so.$(MAJOR)
+
+static: $(STATIC_RELEASE_TARGET)
+.PHONY: static
+
+$(STATIC_RELEASE_TARGET): $(RELEASE_OBJECTS)
+ $(AR) rcs $@ $^
 
 js: $(JS_TARGET)
 .PHONY: js
