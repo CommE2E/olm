@@ -126,7 +126,7 @@ static: $(STATIC_RELEASE_TARGET)
 .PHONY: static
 
 $(STATIC_RELEASE_TARGET): $(RELEASE_OBJECTS)
- $(AR) rcs $@ $^
+	$(AR) rcs $@ $^
 
 js: $(JS_TARGET)
 .PHONY: js
