@@ -1,4 +1,5 @@
 import json
+from os import urandom
 
 from ._base import *
 
@@ -56,7 +57,7 @@ class OutboundGroupSession(object):
         self.ptr = lib.olm_outbound_group_session(self.buf)
 
         random_length = lib.olm_init_outbound_group_session_random_length(self.ptr)
-        random = read_random(random_length)
+        random = urandom(random_length)
         random_buffer = create_string_buffer(random)
         lib.olm_init_outbound_group_session(self.ptr, random_buffer, random_length)
 

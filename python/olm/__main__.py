@@ -10,10 +10,12 @@ import yaml
 
 from . import *
 
+
 def read_base64_file(filename):
     """Read a base64 file, dropping any CR/LF characters"""
     with open(filename, "rb") as f:
         return f.read().translate(None, "\r\n")
+
 
 def build_arg_parser():
     parser = argparse.ArgumentParser()
@@ -290,7 +292,6 @@ def build_arg_parser():
                                type=argparse.FileType('wb'), nargs='?',
                                default=sys.stdout)
     group_decrypt.set_defaults(func=do_group_decrypt)
-
 
     export_inbound_group = commands.add_parser(
         "export_inbound_group",

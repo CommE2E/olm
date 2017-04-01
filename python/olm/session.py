@@ -1,3 +1,5 @@
+from os import urandom
+
 from ._base import *
 
 
@@ -103,7 +105,7 @@ class Session(object):
 
     def create_outbound(self, account, identity_key, one_time_key):
         r_length = lib.olm_create_outbound_session_random_length(self.ptr)
-        random = read_random(r_length)
+        random = urandom(r_length)
         random_buffer = create_string_buffer(random)
         identity_key_buffer = create_string_buffer(identity_key)
         one_time_key_buffer = create_string_buffer(one_time_key)
@@ -157,7 +159,7 @@ class Session(object):
 
     def encrypt(self, plaintext):
         r_length = lib.olm_encrypt_random_length(self.ptr)
-        random = read_random(r_length)
+        random = urandom(r_length)
         random_buffer = create_string_buffer(random)
 
         message_type = lib.olm_encrypt_message_type(self.ptr)

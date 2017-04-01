@@ -1,4 +1,5 @@
 import json
+from os import urandom
 
 from ._base import *
 
@@ -58,7 +59,7 @@ class Account(object):
 
     def create(self):
         random_length = lib.olm_create_account_random_length(self.ptr)
-        random = read_random(random_length)
+        random = urandom(random_length)
         random_buffer = create_string_buffer(random)
         lib.olm_create_account(self.ptr, random_buffer, random_length)
 
@@ -112,7 +113,7 @@ class Account(object):
         random_length = lib.olm_account_generate_one_time_keys_random_length(
             self.ptr, count
         )
-        random = read_random(random_length)
+        random = urandom(random_length)
         random_buffer = create_string_buffer(random)
         lib.olm_account_generate_one_time_keys(
             self.ptr, count, random_buffer, random_length
