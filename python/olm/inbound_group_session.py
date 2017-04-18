@@ -119,7 +119,7 @@ class InboundGroupSession(object):
             plaintext_buffer, max_plaintext_length,
             byref(message_index)
         )
-        return plaintext_buffer.raw[:plaintext_length], message_index
+        return plaintext_buffer.raw[:plaintext_length], message_index.value
 
     def session_id(self):
         id_length = lib.olm_inbound_group_session_id_length(self.ptr)
