@@ -12,6 +12,7 @@ lib.olm_account.restype = c_void_p
 lib.olm_account_last_error.argtypes = [c_void_p]
 lib.olm_account_last_error.restype = c_char_p
 
+
 def account_errcheck(res, func, args):
     if res == ERR:
         raise OlmError("%s: %s" % (
@@ -52,6 +53,8 @@ account_function(
     c_size_t,
     c_void_p, c_size_t
 )
+
+
 class Account(object):
     def __init__(self):
         self.buf = create_string_buffer(lib.olm_account_size())

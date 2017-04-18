@@ -12,6 +12,7 @@ lib.olm_outbound_group_session.restype = c_void_p
 lib.olm_outbound_group_session_last_error.argtypes = [c_void_p]
 lib.olm_outbound_group_session_last_error.restype = c_char_p
 
+
 def outbound_group_session_errcheck(res, func, args):
     if res == ERR:
         raise OlmError("%s: %s" % (
@@ -27,28 +28,49 @@ def outbound_group_session_function(func, *types):
 
 
 outbound_group_session_function(
-    lib.olm_pickle_outbound_group_session, c_void_p, c_size_t, c_void_p, c_size_t
+    lib.olm_pickle_outbound_group_session,
+    c_void_p, c_size_t, c_void_p, c_size_t,
 )
 outbound_group_session_function(
-    lib.olm_unpickle_outbound_group_session, c_void_p, c_size_t, c_void_p, c_size_t
+    lib.olm_unpickle_outbound_group_session,
+    c_void_p, c_size_t, c_void_p, c_size_t,
 )
 
-outbound_group_session_function(lib.olm_init_outbound_group_session_random_length)
-outbound_group_session_function(lib.olm_init_outbound_group_session, c_void_p, c_size_t)
+outbound_group_session_function(
+    lib.olm_init_outbound_group_session_random_length,
+)
+outbound_group_session_function(
+    lib.olm_init_outbound_group_session,
+    c_void_p, c_size_t,
+)
 
 lib.olm_outbound_group_session_message_index.argtypes = [c_void_p]
 lib.olm_outbound_group_session_message_index.restype = c_uint32
 
-outbound_group_session_function(lib.olm_group_encrypt_message_length, c_size_t)
-outbound_group_session_function(lib.olm_group_encrypt,
+outbound_group_session_function(
+    lib.olm_group_encrypt_message_length,
+    c_size_t,
+)
+outbound_group_session_function(
+    lib.olm_group_encrypt,
     c_void_p, c_size_t,  # Plaintext
     c_void_p, c_size_t,  # Message
 )
 
-outbound_group_session_function(lib.olm_outbound_group_session_id_length)
-outbound_group_session_function(lib.olm_outbound_group_session_id, c_void_p, c_size_t)
-outbound_group_session_function(lib.olm_outbound_group_session_key_length)
-outbound_group_session_function(lib.olm_outbound_group_session_key, c_void_p, c_size_t)
+outbound_group_session_function(
+    lib.olm_outbound_group_session_id_length,
+)
+outbound_group_session_function(
+    lib.olm_outbound_group_session_id,
+    c_void_p, c_size_t,
+)
+outbound_group_session_function(
+    lib.olm_outbound_group_session_key_length,
+)
+outbound_group_session_function(
+    lib.olm_outbound_group_session_key,
+    c_void_p, c_size_t,
+)
 
 
 class OutboundGroupSession(object):
@@ -56,10 +78,14 @@ class OutboundGroupSession(object):
         self.buf = create_string_buffer(lib.olm_outbound_group_session_size())
         self.ptr = lib.olm_outbound_group_session(self.buf)
 
-        random_length = lib.olm_init_outbound_group_session_random_length(self.ptr)
+        random_length = lib.olm_init_outbound_group_session_random_length(
+            self.ptr
+        )
         random = urandom(random_length)
         random_buffer = create_string_buffer(random)
-        lib.olm_init_outbound_group_session(self.ptr, random_buffer, random_length)
+        lib.olm_init_outbound_group_session(
+            self.ptr, random_buffer, random_length
+        )
 
     def pickle(self, key):
         key_buffer = create_string_buffer(key)
@@ -95,7 +121,7 @@ class OutboundGroupSession(object):
     def session_id(self):
         id_length = lib.olm_outbound_group_session_id_length(self.ptr)
         id_buffer = create_string_buffer(id_length)
-        lib.olm_outbound_group_session_id(self.ptr, id_buffer, id_length);
+        lib.olm_outbound_group_session_id(self.ptr, id_buffer, id_length)
         return id_buffer.raw
 
     def message_index(self):
@@ -104,5 +130,5 @@ class OutboundGroupSession(object):
     def session_key(self):
         key_length = lib.olm_outbound_group_session_key_length(self.ptr)
         key_buffer = create_string_buffer(key_length)
-        lib.olm_outbound_group_session_key(self.ptr, key_buffer, key_length);
+        lib.olm_outbound_group_session_key(self.ptr, key_buffer, key_length)
         return key_buffer.raw
