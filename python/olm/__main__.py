@@ -312,6 +312,8 @@ def build_arg_parser():
     )
     export_inbound_group.set_defaults(func=do_export_inbound_group)
 
+    ed25519_verify = commands.add_parser("ed25519_verify", help="Verify an ed25519 signature")
+    ed25519_verify.set_defaults(func=do_verify_ed25519_signature)
     return parser
 
 def do_outbound_group(args):
@@ -389,6 +391,14 @@ def do_export_inbound_group(args):
         # default to first known index
         index = session.first_known_index()
     args.export_file.write(session.export_session(index))
+
+def do_verify_ed25519_signature(args):
+    account = Account()
+    account.create()
+    message = "A Message".encode("ASCII")
+    ed25519_key = account.identity_keys()["ed25519"].encode("utf-8")
+    signature = account.sign(message)
+    ed25519_verify(ed25519_key, message, signature)
 
 if __name__ == '__main__':
     parser = build_arg_parser()

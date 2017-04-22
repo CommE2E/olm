@@ -37,3 +37,7 @@ $OLM group_decrypt $BOB_GROUP_SESSION group_message
 
 $OLM export_inbound_group $BOB_GROUP_SESSION | $OLM import_inbound_group $CHARLIE_GROUP_SESSION
 $OLM group_decrypt $CHARLIE_GROUP_SESSION group_message
+
+### Utility
+
+$OLM ed25519_verify
