@@ -312,7 +312,8 @@ def build_arg_parser():
     )
     export_inbound_group.set_defaults(func=do_export_inbound_group)
 
-    ed25519_verify = commands.add_parser("ed25519_verify", help="Verify an ed25519 signature")
+    ed25519_verify = commands.add_parser("ed25519_verify",
+                                         help="Verify an ed25519 signature")
     ed25519_verify.set_defaults(func=do_verify_ed25519_signature)
     return parser
 
