@@ -7,7 +7,9 @@ rm -f olm-*.tgz
 
 make lib
 make test
+
 ./python/test_olm.sh
+pep8 -v python
 
 . ~/.emsdk_set_env.sh
 make js
