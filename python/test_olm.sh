@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -e
+
 cd `dirname $0`
 
 OLM="python -m olm"
@@ -38,6 +40,7 @@ $OLM group_decrypt $BOB_GROUP_SESSION group_message
 $OLM export_inbound_group $BOB_GROUP_SESSION | $OLM import_inbound_group $CHARLIE_GROUP_SESSION
 $OLM group_decrypt $CHARLIE_GROUP_SESSION group_message
 
-### Utility
-
-$OLM ed25519_verify
+### Sign/verify
+ALICE_SIGNING_KEY="$($OLM signing_key $ALICE_ACCOUNT)"
+sig="$(echo "Test message" | $OLM sign $ALICE_ACCOUNT - -)"
+echo "Test message" | $OLM ed25519_verify $ALICE_SIGNING_KEY $sig -

@@ -65,10 +65,24 @@ def build_arg_parser():
         account.unpickle(args.key, read_base64_file(args.account_file))
         print(account.identity_keys()['curve25519'])
 
-    id_key = commands.add_parser("identity_key",
-                                 help="Get the identity key for an account")
+    id_key = commands.add_parser(
+        "identity_key",
+        help="Get the public part of the identity key for an account",
+    )
     id_key.add_argument("account_file", help="Local account file")
     id_key.set_defaults(func=do_id_key)
+
+    def do_signing_key(args):
+        account = Account()
+        account.unpickle(args.key, read_base64_file(args.account_file))
+        print(account.identity_keys()['ed25519'])
+
+    signing_key = commands.add_parser(
+        "signing_key",
+        help="Get the public part of the signing key for an account",
+    )
+    signing_key.add_argument("account_file", help="Local account file")
+    signing_key.set_defaults(func=do_signing_key)
 
     def do_one_time_key(args):
         account = Account()
@@ -346,6 +360,16 @@ def build_arg_parser():
 
     ed25519_verify = commands.add_parser("ed25519_verify",
                                          help="Verify an ed25519 signature")
+    ed25519_verify.add_argument(
+        "signing_key",
+        help="Public signing key used to create the signature"
+    )
+    ed25519_verify.add_argument("signature",
+                                help="Signature to be verified")
+    ed25519_verify.add_argument("message_file",
+                                help="Message file (default stdin)",
+                                type=argparse.FileType('r'), nargs='?',
+                                default=sys.stdin)
     ed25519_verify.set_defaults(func=do_verify_ed25519_signature)
     return parser
 
@@ -434,12 +458,8 @@ def do_export_inbound_group(args):
 
 
 def do_verify_ed25519_signature(args):
-    account = Account()
-    account.create()
-    message = "A Message".encode("ASCII")
-    ed25519_key = account.identity_keys()["ed25519"].encode("utf-8")
-    signature = account.sign(message)
-    ed25519_verify(ed25519_key, message, signature)
+    message = args.message_file.read()
+    ed25519_verify(args.signing_key, message, args.signature)
 
 
 if __name__ == '__main__':
