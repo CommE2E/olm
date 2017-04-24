@@ -12,5 +12,6 @@ lib.olm_error.restypes = c_size_t
 
 ERR = lib.olm_error()
 
+
 class OlmError(Exception):
     pass

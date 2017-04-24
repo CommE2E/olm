@@ -11,6 +11,7 @@ lib.olm_inbound_group_session.restype = c_void_p
 lib.olm_inbound_group_session_last_error.argtypes = [c_void_p]
 lib.olm_inbound_group_session_last_error.restype = c_char_p
 
+
 def inbound_group_session_errcheck(res, func, args):
     if res == ERR:
         raise OlmError("%s: %s" % (
@@ -26,10 +27,12 @@ def inbound_group_session_function(func, *types):
 
 
 inbound_group_session_function(
-    lib.olm_pickle_inbound_group_session, c_void_p, c_size_t, c_void_p, c_size_t
+    lib.olm_pickle_inbound_group_session,
+    c_void_p, c_size_t, c_void_p, c_size_t,
 )
 inbound_group_session_function(
-    lib.olm_unpickle_inbound_group_session, c_void_p, c_size_t, c_void_p, c_size_t
+    lib.olm_unpickle_inbound_group_session,
+    c_void_p, c_size_t, c_void_p, c_size_t,
 )
 
 inbound_group_session_function(
@@ -45,19 +48,28 @@ inbound_group_session_function(
 )
 inbound_group_session_function(
     lib.olm_group_decrypt,
-    c_void_p, c_size_t, # message
-    c_void_p, c_size_t, # plaintext
-    POINTER(c_uint32), # message_index
+    c_void_p, c_size_t,  # message
+    c_void_p, c_size_t,  # plaintext
+    POINTER(c_uint32),  # message_index
 )
 
-inbound_group_session_function(lib.olm_inbound_group_session_id_length)
-inbound_group_session_function(lib.olm_inbound_group_session_id, c_void_p, c_size_t)
+inbound_group_session_function(
+    lib.olm_inbound_group_session_id_length,
+)
+inbound_group_session_function(
+    lib.olm_inbound_group_session_id,
+    c_void_p, c_size_t,
+)
 
 lib.olm_inbound_group_session_first_known_index.argtypes = (c_void_p,)
 lib.olm_inbound_group_session_first_known_index.restypes = c_uint32
 
-inbound_group_session_function(lib.olm_export_inbound_group_session_length)
-inbound_group_session_function(lib.olm_export_inbound_group_session, c_void_p, c_size_t, c_uint32)
+inbound_group_session_function(
+    lib.olm_export_inbound_group_session_length,
+)
+inbound_group_session_function(
+    lib.olm_export_inbound_group_session, c_void_p, c_size_t, c_uint32,
+)
 
 
 class InboundGroupSession(object):
@@ -107,7 +119,7 @@ class InboundGroupSession(object):
             plaintext_buffer, max_plaintext_length,
             byref(message_index)
         )
-        return plaintext_buffer.raw[:plaintext_length], message_index
+        return plaintext_buffer.raw[:plaintext_length], message_index.value
 
     def session_id(self):
         id_length = lib.olm_inbound_group_session_id_length(self.ptr)

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 
 from __future__ import print_function
 
@@ -22,7 +22,8 @@ def build_arg_parser():
     parser.add_argument("--key", help="Account encryption key", default="")
     commands = parser.add_subparsers()
 
-    create_account = commands.add_parser("create_account", help="Create a new account")
+    create_account = commands.add_parser("create_account",
+                                         help="Create a new account")
     create_account.add_argument("account_file", help="Local account file")
 
     def do_create_account(args):
@@ -64,7 +65,8 @@ def build_arg_parser():
         account.unpickle(args.key, read_base64_file(args.account_file))
         print(account.identity_keys()['curve25519'])
 
-    id_key = commands.add_parser("identity_key", help="Get the identity key for an account")
+    id_key = commands.add_parser("identity_key",
+                                 help="Get the identity key for an account")
     id_key.add_argument("account_file", help="Local account file")
     id_key.set_defaults(func=do_id_key)
 
@@ -75,20 +77,21 @@ def build_arg_parser():
         key_num = args.key_num
         if key_num < 1 or key_num > len(keys):
             print(
-                "Invalid key number %i: %i keys available" %
-                   (key_num, len(keys)),
-                file=sys.stderr
+                "Invalid key number %i: %i keys available" % (
+                    key_num, len(keys),
+                ), file=sys.stderr,
             )
             sys.exit(1)
-        print (keys[key_num-1])
+        print(keys[key_num-1])
 
-    one_time_key = commands.add_parser("one_time_key",
-                                       help="Get a one-time key for the account")
+    one_time_key = commands.add_parser(
+        "one_time_key",
+        help="Get a one-time key for the account",
+    )
     one_time_key.add_argument("account_file", help="Local account file")
     one_time_key.add_argument("--key-num", "-n", type=int, default=1,
                               help="Index of key to retrieve (default: 1)")
     one_time_key.set_defaults(func=do_one_time_key)
-
 
     sign = commands.add_parser("sign", help="Sign a message")
     sign.add_argument("account_file", help="Local account file")
@@ -99,17 +102,18 @@ def build_arg_parser():
         account = Account()
         account.unpickle(args.key, read_base64_file(args.account_file))
         with open_in(args.message_file) as f:
-             message = f.read()
+            message = f.read()
         signature = account.sign(message)
         with open_out(args.signature_file) as f:
-             f.write(signature)
+            f.write(signature)
 
     sign.set_defaults(func=do_sign)
 
-
-    generate_keys = commands.add_parser("generate_keys", help="Generate one time keys")
+    generate_keys = commands.add_parser("generate_keys",
+                                        help="Generate one time keys")
     generate_keys.add_argument("account_file", help="Local account file")
-    generate_keys.add_argument("count", type=int, help="Number of keys to generate")
+    generate_keys.add_argument("count", type=int,
+                               help="Number of keys to generate")
 
     def do_generate_keys(args):
         account = Account()
@@ -120,8 +124,8 @@ def build_arg_parser():
 
     generate_keys.set_defaults(func=do_generate_keys)
 
-
-    outbound = commands.add_parser("outbound", help="Create an outbound session")
+    outbound = commands.add_parser("outbound",
+                                   help="Create an outbound session")
     outbound.add_argument("account_file", help="Local account file")
     outbound.add_argument("session_file", help="Local session file")
     outbound.add_argument("identity_key", help="Remote identity key")
@@ -238,43 +242,66 @@ def build_arg_parser():
 
     decrypt.set_defaults(func=do_decrypt)
 
-    outbound_group = commands.add_parser("outbound_group", help="Create an outbound group session")
-    outbound_group.add_argument("session_file", help="Local group session file")
+    outbound_group = commands.add_parser(
+        "outbound_group",
+        help="Create an outbound group session",
+    )
+    outbound_group.add_argument("session_file",
+                                help="Local group session file")
     outbound_group.set_defaults(func=do_outbound_group)
 
-    group_credentials = commands.add_parser("group_credentials", help="Export the current outbound group session credentials")
-    group_credentials.add_argument("session_file", help="Local outbound group session file")
-    group_credentials.add_argument("credentials_file", help="File to write credentials to (default stdout)",
-                                   type=argparse.FileType('w'), nargs='?',
-                                   default=sys.stdout)
+    group_credentials = commands.add_parser(
+        "group_credentials",
+        help="Export the current outbound group session credentials",
+    )
+    group_credentials.add_argument(
+        "session_file",
+        help="Local outbound group session file",
+    )
+    group_credentials.add_argument(
+        "credentials_file",
+        help="File to write credentials to (default stdout)",
+        type=argparse.FileType('w'), nargs='?',
+        default=sys.stdout,
+    )
     group_credentials.set_defaults(func=do_group_credentials)
 
-    group_encrypt = commands.add_parser("group_encrypt", help="Encrypt a group message")
-    group_encrypt.add_argument("session_file", help="Local outbound group session file")
-    group_encrypt.add_argument("plaintext_file", help="Plaintext file (default stdin)",
+    group_encrypt = commands.add_parser(
+        "group_encrypt",
+        help="Encrypt a group message",
+    )
+    group_encrypt.add_argument("session_file",
+                               help="Local outbound group session file")
+    group_encrypt.add_argument("plaintext_file",
+                               help="Plaintext file (default stdin)",
                                type=argparse.FileType('rb'), nargs='?',
                                default=sys.stdin)
-    group_encrypt.add_argument("message_file", help="Message file (default stdout)",
+    group_encrypt.add_argument("message_file",
+                               help="Message file (default stdout)",
                                type=argparse.FileType('w'), nargs='?',
                                default=sys.stdout)
     group_encrypt.set_defaults(func=do_group_encrypt)
 
     inbound_group = commands.add_parser(
         "inbound_group",
-        help=("Create an inbound group session based on credentials from an "+
+        help=("Create an inbound group session based on credentials from an " +
               "outbound group session"))
-    inbound_group.add_argument("session_file", help="Local inbound group session file")
-    inbound_group.add_argument("credentials_file",
-                               help="File to read credentials from (default stdin)",
-                               type=argparse.FileType('r'), nargs='?',
-                               default=sys.stdin)
+    inbound_group.add_argument("session_file",
+                               help="Local inbound group session file")
+    inbound_group.add_argument(
+        "credentials_file",
+        help="File to read credentials from (default stdin)",
+        type=argparse.FileType('r'), nargs='?',
+        default=sys.stdin,
+    )
     inbound_group.set_defaults(func=do_inbound_group)
 
     import_inbound_group = commands.add_parser(
         "import_inbound_group",
         help="Create an inbound group session based an exported inbound group"
     )
-    import_inbound_group.add_argument("session_file", help="Local inbound group session file")
+    import_inbound_group.add_argument("session_file",
+                                      help="Local inbound group session file")
     import_inbound_group.add_argument(
         "export_file",
         help="File to read credentials from (default stdin)",
@@ -283,12 +310,16 @@ def build_arg_parser():
     )
     import_inbound_group.set_defaults(func=do_import_inbound_group)
 
-    group_decrypt = commands.add_parser("group_decrypt", help="Decrypt a group message")
-    group_decrypt.add_argument("session_file", help="Local inbound group session file")
-    group_decrypt.add_argument("message_file", help="Message file (default stdin)",
+    group_decrypt = commands.add_parser("group_decrypt",
+                                        help="Decrypt a group message")
+    group_decrypt.add_argument("session_file",
+                               help="Local inbound group session file")
+    group_decrypt.add_argument("message_file",
+                               help="Message file (default stdin)",
                                type=argparse.FileType('r'), nargs='?',
                                default=sys.stdin)
-    group_decrypt.add_argument("plaintext_file", help="Plaintext file (default stdout)",
+    group_decrypt.add_argument("plaintext_file",
+                               help="Plaintext file (default stdout)",
                                type=argparse.FileType('wb'), nargs='?',
                                default=sys.stdout)
     group_decrypt.set_defaults(func=do_group_decrypt)
@@ -307,7 +338,8 @@ def build_arg_parser():
     )
     export_inbound_group.add_argument(
         "--message_index",
-        help="Index to export session at. Defaults to the earliest known index",
+        help=("Index to export session at. Defaults to the earliest known " +
+              "index"),
         type=int,
     )
     export_inbound_group.set_defaults(func=do_export_inbound_group)
@@ -316,6 +348,7 @@ def build_arg_parser():
                                          help="Verify an ed25519 signature")
     ed25519_verify.set_defaults(func=do_verify_ed25519_signature)
     return parser
+
 
 def do_outbound_group(args):
     if os.path.exists(args.session_file):
@@ -327,6 +360,7 @@ def do_outbound_group(args):
     with open(args.session_file, "wb") as f:
             f.write(session.pickle(args.key))
 
+
 def do_group_encrypt(args):
     session = OutboundGroupSession()
     session.unpickle(args.key, read_base64_file(args.session_file))
@@ -335,6 +369,7 @@ def do_group_encrypt(args):
     with open(args.session_file, "wb") as f:
         f.write(session.pickle(args.key))
     args.message_file.write(message)
+
 
 def do_group_credentials(args):
     session = OutboundGroupSession()
@@ -345,6 +380,7 @@ def do_group_credentials(args):
     }
     json.dump(result, args.credentials_file, indent=4)
 
+
 def do_inbound_group(args):
     if os.path.exists(args.session_file):
         sys.stderr.write("Session %r file already exists\n" % (
@@ -353,14 +389,15 @@ def do_inbound_group(args):
         sys.exit(1)
     credentials = json.load(args.credentials_file)
     for k in ('session_key', ):
-        if not k in credentials:
+        if k not in credentials:
             sys.stderr.write("Credentials file is missing %s\n" % k)
-            sys.exit(1);
+            sys.exit(1)
 
     session = InboundGroupSession()
     session.init(credentials['session_key'])
     with open(args.session_file, "wb") as f:
         f.write(session.pickle(args.key))
+
 
 def do_import_inbound_group(args):
     if os.path.exists(args.session_file):
@@ -375,6 +412,7 @@ def do_import_inbound_group(args):
     with open(args.session_file, "wb") as f:
         f.write(session.pickle(args.key))
 
+
 def do_group_decrypt(args):
     session = InboundGroupSession()
     session.unpickle(args.key, read_base64_file(args.session_file))
@@ -383,6 +421,7 @@ def do_group_decrypt(args):
     with open(args.session_file, "wb") as f:
         f.write(session.pickle(args.key))
     args.plaintext_file.write(plaintext)
+
 
 def do_export_inbound_group(args):
     session = InboundGroupSession()
@@ -393,6 +432,7 @@ def do_export_inbound_group(args):
         index = session.first_known_index()
     args.export_file.write(session.export_session(index))
 
+
 def do_verify_ed25519_signature(args):
     account = Account()
     account.create()
@@ -400,6 +440,7 @@ def do_verify_ed25519_signature(args):
     ed25519_key = account.identity_keys()["ed25519"].encode("utf-8")
     signature = account.sign(message)
     ed25519_verify(ed25519_key, message, signature)
+
 
 if __name__ == '__main__':
     parser = build_arg_parser()

@@ -69,7 +69,7 @@ session_function(
     c_void_p, c_size_t,  # Plaintext
     c_void_p, c_size_t,  # Random
     c_void_p, c_size_t,  # Message
-);
+)
 session_function(
     lib.olm_decrypt_max_plaintext_length,
     c_size_t,  # Message Type
@@ -81,6 +81,7 @@ session_function(
     c_void_p, c_size_t,  # Message
     c_void_p, c_size_t,  # Plaintext
 )
+
 
 class Session(object):
     def __init__(self):
@@ -118,7 +119,9 @@ class Session(object):
         )
 
     def create_inbound(self, account, one_time_key_message):
-        one_time_key_message_buffer = create_string_buffer(one_time_key_message)
+        one_time_key_message_buffer = create_string_buffer(
+            one_time_key_message
+        )
         lib.olm_create_inbound_session(
             self.ptr,
             account.ptr,
@@ -127,7 +130,9 @@ class Session(object):
 
     def create_inbound_from(self, account, identity_key, one_time_key_message):
         identity_key_buffer = create_string_buffer(identity_key)
-        one_time_key_message_buffer = create_string_buffer(one_time_key_message)
+        one_time_key_message_buffer = create_string_buffer(
+            one_time_key_message
+        )
         lib.olm_create_inbound_session_from(
             self.ptr,
             account.ptr,
@@ -138,11 +143,13 @@ class Session(object):
     def session_id(self):
         id_length = lib.olm_session_id_length(self.ptr)
         id_buffer = create_string_buffer(id_length)
-        lib.olm_session_id(self.ptr, id_buffer, id_length);
+        lib.olm_session_id(self.ptr, id_buffer, id_length)
         return id_buffer.raw
 
     def matches_inbound(self, one_time_key_message):
-        one_time_key_message_buffer = create_string_buffer(one_time_key_message)
+        one_time_key_message_buffer = create_string_buffer(
+            one_time_key_message,
+        )
         return bool(lib.olm_matches_inbound_session(
             self.ptr,
             one_time_key_message_buffer, len(one_time_key_message)
@@ -150,7 +157,9 @@ class Session(object):
 
     def matches_inbound_from(self, identity_key, one_time_key_message):
         identity_key_buffer = create_string_buffer(identity_key)
-        one_time_key_message_buffer = create_string_buffer(one_time_key_message)
+        one_time_key_message_buffer = create_string_buffer(
+            one_time_key_message,
+        )
         return bool(lib.olm_matches_inbound_session(
             self.ptr,
             identity_key_buffer, len(identity_key),
