@@ -140,6 +140,15 @@ Contributing
 ------------
 Please see `<CONTRIBUTING.rst>`_ when making contributions to the library.
 
+Security assessment
+-------------------
+
+Olm 1.3.0 was independently assessed by NCC Group's Cryptography Services
+Practive in September 2016 to check for security issues: you can read all
+about it at
+https://www.nccgroup.trust/us/our-research/matrix-olm-cryptographic-review/
+and https://matrix.org/blog/2016/11/21/matrixs-olm-end-to-end-encryption-security-assessment-released-and-implemented-cross-platform-on-riot-at-last/
+
 Bug reports
 -----------
 Please file bug reports at https://github.com/matrix-org/olm/issues
