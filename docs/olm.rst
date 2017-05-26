@@ -2,7 +2,8 @@ Olm: A Cryptographic Ratchet
 ============================
 
 An implementation of the double cryptographic ratchet described by
-https://github.com/trevp/double_ratchet/wiki.
+https://whispersystems.org/docs/specifications/doubleratchet/.
+
 
 Notation
 --------
@@ -343,7 +344,7 @@ Acknowledgements
 ----------------
 
 The ratchet that Olm implements was designed by Trevor Perrin and Moxie
-Marlinspike - details at https://github.com/trevp/double_ratchet/wiki.  Olm is
+Marlinspike - details at https://whispersystems.org/docs/specifications/doubleratchet/.  Olm is
 an entirely new implementation written by the Matrix.org team.
 
 .. _`Curve25519`: http://cr.yp.to/ecdh.html
