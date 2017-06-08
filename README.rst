@@ -2,8 +2,8 @@ Olm
 ===
 
 An implementation of the Double Ratchet cryptographic ratchet described by
-https://github.com/trevp/double_ratchet/wiki, written in C and C++11 and
-exposed as a C API.
+https://whispersystems.org/docs/specifications/doubleratchet/, written in C and
+C++11 and exposed as a C API.
 
 The specification of the Olm ratchet can be found in `<docs/olm.rst>`_.
 
