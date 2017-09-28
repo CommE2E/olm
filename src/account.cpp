@@ -167,7 +167,7 @@ std::size_t olm::Account::get_one_time_keys_json_length(
         }
         is_empty = false;
         length += 2; /* {" */
-        length += olm::encode_base64_length(olm::pickle_length(key.id));
+        length += olm::encode_base64_length(_olm_pickle_uint32_length(key.id));
         length += 3; /* ":" */
         length += olm::encode_base64_length(sizeof(key.key.public_key));
         length += 1; /* " */
@@ -198,8 +198,8 @@ std::size_t olm::Account::get_one_time_keys_json(
         }
         *(pos++) = sep;
         *(pos++) = '\"';
-        std::uint8_t key_id[olm::pickle_length(key.id)];
-        olm::pickle(key_id, key.id);
+        std::uint8_t key_id[_olm_pickle_uint32_length(key.id)];
+        _olm_pickle_uint32(key_id, key.id);
         pos = olm::encode_base64(key_id, sizeof(key_id), pos);
         *(pos++) = '\"'; *(pos++) = ':'; *(pos++) = '\"';
         pos = olm::encode_base64(

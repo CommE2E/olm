@@ -123,9 +123,9 @@ extern const struct _olm_cipher_ops _olm_cipher_aes_sha_256_ops;
  *   struct _olm_cipher *cipher = OLM_CIPHER_BASE(&MY_CIPHER);
  */
 #define OLM_CIPHER_INIT_AES_SHA_256(KDF_INFO) {     \
-    .base_cipher = { &_olm_cipher_aes_sha_256_ops },\
-    .kdf_info = (uint8_t *)(KDF_INFO),              \
-    .kdf_info_length = sizeof(KDF_INFO) - 1         \
+    /*.base_cipher = */{ &_olm_cipher_aes_sha_256_ops },\
+    /*.kdf_info = */(uint8_t *)(KDF_INFO),              \
+    /*.kdf_info_length = */sizeof(KDF_INFO) - 1         \
 }
 #define OLM_CIPHER_BASE(CIPHER) \
     (&((CIPHER)->base_cipher))
