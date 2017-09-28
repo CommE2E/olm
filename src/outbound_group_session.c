@@ -16,7 +16,6 @@
 #include "olm/outbound_group_session.h"
 
 #include <string.h>
-#include <sys/time.h>
 
 #include "olm/base64.h"
 #include "olm/cipher.h"
