@@ -433,9 +433,9 @@ Utility.prototype['sha256'] = restore_stack(function(input) {
     var input_array = array_from_string(input);
     var input_buffer = stack(input_array);
     var output_buffer = stack(output_length + NULL_BYTE_PADDING_LENGTH);
-    utility_method(Module['_olm_sha2516'])(
+    utility_method(Module['_olm_sha256'])(
         this.ptr,
-        input_buffer, input_array.length(),
+        input_buffer, input_array.length,
         output_buffer, output_length
     );
     return Pointer_stringify(output_buffer);
