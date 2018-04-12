@@ -100,6 +100,19 @@ $(JS_OBJECTS): CFLAGS += $(JS_OPTIMIZE_FLAGS)
 $(JS_OBJECTS): CXXFLAGS += $(JS_OPTIMIZE_FLAGS)
 $(JS_TARGET): LDFLAGS += $(JS_OPTIMIZE_FLAGS)
 
+### Fix to make mkdir work on windows and linux
+ifeq ($(shell echo "check_quotes"),"check_quotes")
+   WINDOWS := yes
+else
+   WINDOWS := no
+endif
+
+ifeq ($(WINDOWS),yes)
+   mkdir = mkdir $(subst /,\,$(1)) > nul 2>&1 || (exit 0)
+else
+   mkdir = mkdir -p $(1)
+endif
+
 ### top-level targets
 
 lib: $(RELEASE_TARGET)
@@ -157,19 +170,19 @@ all: test js lib debug doc
 .PHONY: all
 
 install-headers: $(PUBLIC_HEADERS)
-	test -d $(DESTDIR)$(PREFIX)/include/olm || mkdir -p $(DESTDIR)$(PREFIX)/include/olm
+	test -d $(DESTDIR)$(PREFIX)/include/olm || $(call mkdir,$(DESTDIR)$(PREFIX)/include/olm)
 	install -Dm644 $(PUBLIC_HEADERS) $(DESTDIR)$(PREFIX)/include/olm/
 .PHONY: install-headers
 
 install-debug: debug install-headers
-	test -d $(DESTDIR)$(PREFIX)/lib || mkdir -p $(DESTDIR)$(PREFIX)/lib
+	test -d $(DESTDIR)$(PREFIX)/lib || $(call mkdir,$(DESTDIR)$(PREFIX)/lib)
 	install -Dm755 $(DEBUG_TARGET) $(DESTDIR)$(PREFIX)/lib/libolm_debug.so.$(VERSION)
 	ln -s libolm_debug.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm_debug.so.$(MAJOR)
 	ln -s libolm_debug.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm_debug.so
 .PHONY: install-debug
 
 install: lib install-headers
-	test -d $(DESTDIR)$(PREFIX)/lib || mkdir -p $(DESTDIR)$(PREFIX)/lib
+	test -d $(DESTDIR)$(PREFIX)/lib || $(call mkdir,$(DESTDIR)$(PREFIX)/lib)
 	install -Dm755 $(RELEASE_TARGET) $(DESTDIR)$(PREFIX)/lib/libolm.so.$(VERSION)
 	ln -s libolm.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm.so.$(MAJOR)
 	ln -s libolm.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm.so
@@ -184,43 +197,43 @@ doc: $(DOCS)
 
 ### rules for building objects
 $(BUILD_DIR)/release/%.o: %.c
-	mkdir -p $(dir $@)
+	$(call mkdir,$(dir $@))
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
 $(BUILD_DIR)/release/%.o: %.cpp
-	mkdir -p $(dir $@)
+	$(call mkdir,$(dir $@))
 	$(COMPILE.cc) $(OUTPUT_OPTION) $<
 
 $(BUILD_DIR)/debug/%.o: %.c
-	mkdir -p $(dir $@)
+	$(call mkdir,$(dir $@))
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
 $(BUILD_DIR)/debug/%.o: %.cpp
-	mkdir -p $(dir $@)
+	$(call mkdir,$(dir $@))
 	$(COMPILE.cc) $(OUTPUT_OPTION) $<
 
 $(BUILD_DIR)/javascript/%.o: %.c
-	mkdir -p $(dir $@)
+	$(call mkdir,$(dir $@))
 	$(EMCC.c) $(OUTPUT_OPTION) $<
 
 $(BUILD_DIR)/javascript/%.o: %.cpp
-	mkdir -p $(dir $@)
+	$(call mkdir,$(dir $@))
 	$(EMCC.cc) $(OUTPUT_OPTION) $<
 
 $(BUILD_DIR)/tests/%: tests/%.c $(DEBUG_OBJECTS)
-	mkdir -p $(dir $@)
+	$(call mkdir,$(dir $@))
 	$(LINK.c) $< $(DEBUG_OBJECTS) $(LOADLIBES) $(LDLIBS) -o $@
 
 $(BUILD_DIR)/tests/%: tests/%.cpp $(DEBUG_OBJECTS)
-	mkdir -p $(dir $@)
+	$(call mkdir,$(dir $@))
 	$(LINK.cc) $< $(DEBUG_OBJECTS) $(LOADLIBES) $(LDLIBS) -o $@
 
 $(BUILD_DIR)/fuzzers/objects/%.o: %.c
-	mkdir -p $(dir $@)
+	$(call mkdir,$(dir $@))
 	$(AFL.c) $(OUTPUT_OPTION) $<
 
 $(BUILD_DIR)/fuzzers/objects/%.o: %.cpp
-	mkdir -p $(dir $@)
+	$(call mkdir,$(dir $@))
 	$(AFL.cc) $(OUTPUT_OPTION) $<
 
 $(BUILD_DIR)/fuzzers/fuzz_%: fuzzers/fuzz_%.c $(FUZZER_OBJECTS)
