@@ -53,6 +53,10 @@ account_function(
     c_size_t,
     c_void_p, c_size_t
 )
+account_function(
+    lib.olm_remove_one_time_keys,
+    c_void_p  # Session
+)
 
 
 class Account(object):
@@ -120,6 +124,12 @@ class Account(object):
         random_buffer = create_string_buffer(random)
         lib.olm_account_generate_one_time_keys(
             self.ptr, count, random_buffer, random_length
+        )
+
+    def remove_one_time_keys(self, session):
+        lib.olm_remove_one_time_keys(
+            self.ptr,
+            session.ptr
         )
 
     def clear(self):
