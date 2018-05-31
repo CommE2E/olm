@@ -70,8 +70,9 @@ size_t aes_sha_256_cipher_encrypt(
 ) {
     auto *c = reinterpret_cast<const _olm_cipher_aes_sha_256 *>(cipher);
 
-    if (aes_sha_256_cipher_encrypt_ciphertext_length(cipher, plaintext_length)
-            < ciphertext_length) {
+    if (ciphertext_length
+            < aes_sha_256_cipher_encrypt_ciphertext_length(cipher, plaintext_length)
+            || output_length < MAC_LENGTH) {
         return std::size_t(-1);
     }
 
@@ -109,6 +110,12 @@ size_t aes_sha_256_cipher_decrypt(
     uint8_t const * ciphertext, size_t ciphertext_length,
     uint8_t * plaintext, size_t max_plaintext_length
 ) {
+    if (max_plaintext_length
+            < aes_sha_256_cipher_decrypt_max_plaintext_length(cipher, ciphertext_length)
+            || input_length < MAC_LENGTH) {
+        return std::size_t(-1);
+    }
+
     auto *c = reinterpret_cast<const _olm_cipher_aes_sha_256 *>(cipher);
 
     DerivedKeys keys;
