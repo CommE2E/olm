@@ -1,0 +1,19 @@
+add_executable(fuzz_decode_message fuzz_decode_message.cpp)
+target_include_directories(fuzz_decode_message PRIVATE include)
+target_link_libraries(fuzz_decode_message Olm::Olm)
+
+add_executable(fuzz_decrypt fuzz_decrypt.cpp)
+target_include_directories(fuzz_decrypt PRIVATE include)
+target_link_libraries(fuzz_decrypt Olm::Olm)
+
+add_executable(fuzz_group_decrypt fuzz_group_decrypt.cpp)
+target_include_directories(fuzz_group_decrypt PRIVATE include)
+target_link_libraries(fuzz_group_decrypt Olm::Olm)
+
+add_executable(fuzz_unpickle_account fuzz_unpickle_account.cpp)
+target_link_libraries(fuzz_unpickle_account Olm::Olm)
+target_include_directories(fuzz_unpickle_account PRIVATE include)
+
+add_executable(fuzz_unpickle_session fuzz_unpickle_session.cpp)
+target_link_libraries(fuzz_unpickle_session Olm::Olm)
+target_include_directories(fuzz_unpickle_session PRIVATE include)
