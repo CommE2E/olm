@@ -21,7 +21,7 @@ JS_TARGET := javascript/olm.js
 
 JS_EXPORTED_FUNCTIONS := javascript/exported_functions.json
 
-PUBLIC_HEADERS := include/olm/olm.h include/olm/outbound_group_session.h include/olm/inbound_group_session.h
+PUBLIC_HEADERS := include/olm/olm.h include/olm/outbound_group_session.h include/olm/inbound_group_session.h include/olm/pk.h
 
 SOURCES := $(wildcard src/*.cpp) $(wildcard src/*.c) \
     lib/crypto-algorithms/sha256.c \
@@ -42,6 +42,7 @@ JS_OBJECTS := $(addprefix $(BUILD_DIR)/javascript/,$(OBJECTS))
 JS_PRE := $(wildcard javascript/*pre.js)
 JS_POST := javascript/olm_outbound_group_session.js \
     javascript/olm_inbound_group_session.js \
+    javascript/olm_pk.js \
     javascript/olm_post.js
 DOCS := tracing/README.html \
     docs/megolm.html \

@@ -461,6 +461,8 @@ Utility.prototype['ed25519_verify'] = restore_stack(function(
 olm_exports["Account"] = Account;
 olm_exports["Session"] = Session;
 olm_exports["Utility"] = Utility;
+olm_exports["PkEncryption"] = PkEncryption;
+olm_exports["PkDecryption"] = PkDecryption;
 
 olm_exports["get_library_version"] = restore_stack(function() {
     var buf = stack(3);
