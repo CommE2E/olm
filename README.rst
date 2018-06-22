@@ -78,7 +78,7 @@ by convention), and merge back to master once the release is complete.
     npm pack javascript
 
     VERSION=x.y.z
-    scp olm-$VERSION.tgz packages@ldc-prd-matrix-001:/sites/matrix/packages/npm/olm/
+    scp olm-$VERSION.tgz packages@ares.matrix.org:packages/npm/olm/
     git tag $VERSION -s
     git push --tags
 
