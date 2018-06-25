@@ -104,7 +104,7 @@ void olm_get_library_version(uint8_t *major, uint8_t *minor, uint8_t *patch) {
     if (patch != NULL) *patch = OLMLIB_VERSION_PATCH;
 }
 
-size_t olm_error() {
+size_t olm_error(void) {
     return std::size_t(-1);
 }
 
@@ -131,16 +131,16 @@ const char * olm_utility_last_error(
     return _olm_error_to_string(error);
 }
 
-size_t olm_account_size() {
+size_t olm_account_size(void) {
     return sizeof(olm::Account);
 }
 
 
-size_t olm_session_size() {
+size_t olm_session_size(void) {
     return sizeof(olm::Session);
 }
 
-size_t olm_utility_size() {
+size_t olm_utility_size(void) {
     return sizeof(olm::Utility);
 }
 

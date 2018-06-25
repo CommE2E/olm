@@ -25,7 +25,7 @@ extern "C" {
 typedef struct OlmInboundGroupSession OlmInboundGroupSession;
 
 /** get the size of an inbound group session, in bytes. */
-size_t olm_inbound_group_session_size();
+size_t olm_inbound_group_session_size(void);
 
 /**
  * Initialise an inbound group session object using the supplied memory

@@ -58,7 +58,7 @@ struct OlmInboundGroupSession {
     enum OlmErrorCode last_error;
 };
 
-size_t olm_inbound_group_session_size() {
+size_t olm_inbound_group_session_size(void) {
     return sizeof(OlmInboundGroupSession);
 }
 

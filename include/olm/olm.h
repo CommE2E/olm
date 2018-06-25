@@ -39,13 +39,13 @@ typedef struct OlmUtility OlmUtility;
 void olm_get_library_version(uint8_t *major, uint8_t *minor, uint8_t *patch);
 
 /** The size of an account object in bytes */
-size_t olm_account_size();
+size_t olm_account_size(void);
 
 /** The size of a session object in bytes */
-size_t olm_session_size();
+size_t olm_session_size(void);
 
 /** The size of a utility object in bytes */
-size_t olm_utility_size();
+size_t olm_utility_size(void);
 
 /** Initialise an account object using the supplied memory
  *  The supplied memory must be at least olm_account_size() bytes */
@@ -66,7 +66,7 @@ OlmUtility * olm_utility(
 );
 
 /** The value that olm will return from a function if there was an error */
-size_t olm_error();
+size_t olm_error(void);
 
 /** A null terminated string describing the most recent error to happen to an
  * account */
