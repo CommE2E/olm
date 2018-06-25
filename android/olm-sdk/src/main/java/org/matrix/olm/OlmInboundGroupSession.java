@@ -302,7 +302,6 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
         // sanity check
         if(null == aErrorMsg) {
             Log.e(LOG_TAG,"## serialize(): invalid parameter - aErrorMsg=null");
-            aErrorMsg.append("aErrorMsg=null");
         } else if (null == aKey) {
             aErrorMsg.append("Invalid input parameters in serialize()");
         } else {
