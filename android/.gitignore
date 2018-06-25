@@ -11,3 +11,8 @@
 
 .gradle
 /local.properties
+
+# Native build
+/olm-sdk/src/main/obj
+/olm-sdk/doc
+/olm-sdk/src/main/libs/**/*.so
