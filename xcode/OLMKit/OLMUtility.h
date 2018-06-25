@@ -36,7 +36,7 @@ FOUNDATION_EXPORT NSString *const OLMErrorDomain;
  @param signature the base64-encoded signature to be checked.
  @param key the ed25519 key.
  @param message the message which was signed.
- @param the result error if there is a problem with the verification.
+ @param error if there is a problem with the verification.
  If the key was too small then the message will be "OLM.INVALID_BASE64".
  If the signature was invalid then the message will be "OLM.BAD_MESSAGE_MAC".
 

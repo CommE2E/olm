@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
   s.authors            = { "Chris Ballinger" => "chrisballinger@gmail.com",
                            "matrix.org" => "support@matrix.org" }
 
-  s.ios.deployment_target = "5.0"
+  s.ios.deployment_target = "6.0"
   s.osx.deployment_target = "10.9"
 
   # Expose the Objective-C wrapper API of libolm

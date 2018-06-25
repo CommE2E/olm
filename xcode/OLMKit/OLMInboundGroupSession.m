@@ -194,7 +194,7 @@
 {
     size_t length = olm_export_inbound_group_session_length(session);
     NSMutableData *key = [NSMutableData dataWithLength:length];
-    size_t result = olm_export_inbound_group_session(session, key.mutableBytes, key.length, messageIndex);
+    size_t result = olm_export_inbound_group_session(session, key.mutableBytes, key.length, (uint32_t)messageIndex);
     if (result == olm_error()) {
         const char *olm_error = olm_inbound_group_session_last_error(session);
         NSString *errorString = [NSString stringWithUTF8String:olm_error];
