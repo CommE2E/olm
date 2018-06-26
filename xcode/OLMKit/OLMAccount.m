@@ -133,6 +133,7 @@
         const char *error = olm_account_last_error(_account);
         NSLog(@"error getting id keys: %s", error);
         free(otkBytes);
+        return nil;
     }
     NSData *otk = [NSData dataWithBytesNoCopy:otkBytes length:otkLength freeWhenDone:YES];
     NSError *error = nil;
