@@ -16,3 +16,7 @@
 /olm-sdk/src/main/obj
 /olm-sdk/doc
 /olm-sdk/src/main/libs/**/*.so
+
+# Test
+/olm-sdk/src/main/libs/**/gdbserver
+/olm-sdk/src/main/libs/**/gdb.setup
