@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <string>
+#include <string.h>
 #include <sstream>
 #include <jni.h>
 #include <android/log.h>

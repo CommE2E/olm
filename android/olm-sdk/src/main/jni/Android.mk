@@ -21,6 +21,9 @@ LOCAL_CFLAGS+= -DOLMLIB_VERSION_MAJOR=$(MAJOR) \
 
 #LOCAL_CFLAGS+= -DNDK_DEBUG
 
+LOCAL_CFLAGS+=-fstack-protector-all -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Wall
+LOCAL_LDFLAGS=-z relro -z now
+
 LOCAL_C_INCLUDES+= $(LOCAL_PATH)/$(SRC_ROOT_DIR)/include/ \
 $(LOCAL_PATH)/$(SRC_ROOT_DIR)/lib
 
