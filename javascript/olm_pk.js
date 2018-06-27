@@ -120,7 +120,7 @@ PkDecryption.prototype['free'] = function() {
 
 PkDecryption.prototype['generate_key'] = restore_stack(function () {
     var random_length = pk_decryption_method(
-        Module['_olm_pk_key_length'] // FIXME: wrong method
+        Module['_olm_pk_generate_key_random_length']
     )();
     var random_buffer = random_stack(random_length);
     var pubkey_length = pk_encryption_method(
