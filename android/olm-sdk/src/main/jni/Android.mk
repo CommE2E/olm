@@ -40,6 +40,7 @@ $(SRC_ROOT_DIR)/src/pickle.cpp \
 $(SRC_ROOT_DIR)/src/ratchet.cpp \
 $(SRC_ROOT_DIR)/src/session.cpp \
 $(SRC_ROOT_DIR)/src/utility.cpp \
+$(SRC_ROOT_DIR)/src/pk.cpp \
 $(SRC_ROOT_DIR)/src/ed25519.c \
 $(SRC_ROOT_DIR)/src/error.c \
 $(SRC_ROOT_DIR)/src/inbound_group_session.c \
@@ -55,7 +56,8 @@ olm_jni_helper.cpp \
 olm_inbound_group_session.cpp \
 olm_outbound_group_session.cpp \
 olm_utility.cpp \
-olm_manager.cpp
+olm_manager.cpp \
+olm_pk.cpp
 
 LOCAL_LDLIBS := -llog
 

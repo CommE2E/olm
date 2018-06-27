@@ -25,4 +25,6 @@ namespace AndroidOlmSdk
     static const char *CLASS_OLM_SESSION = "org/matrix/olm/OlmSession";
     static const char *CLASS_OLM_ACCOUNT = "org/matrix/olm/OlmAccount";
     static const char *CLASS_OLM_UTILITY = "org/matrix/olm/OlmUtility";
+    static const char *CLASS_OLM_PK_ENCRYPTION = "org/matrix/olm/OlmPkEncryption";
+    static const char *CLASS_OLM_PK_DECRYPTION = "org/matrix/olm/OlmPkDecryption";
 }
