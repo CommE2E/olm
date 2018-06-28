@@ -61,4 +61,22 @@ describe("pk", function() {
         console.log(TEST_TEXT, "->", decrypted);
         expect(decrypted).toEqual(TEST_TEXT);
     });
+
+    it('should pickle and unpickle', function () {
+        var TEST_TEXT = 'têst1';
+        var pubkey = decryption.generate_key();
+        encryption.set_recipient_key(pubkey);
+        var encrypted = encryption.encrypt(TEST_TEXT);
+
+        var PICKLE_KEY = 'secret_key';
+        var pickle = decryption.pickle(PICKLE_KEY);
+
+        var new_decryption = new Olm.PkDecryption();
+        var new_pubkey = new_decryption.unpickle(PICKLE_KEY, pickle);
+        expect(new_pubkey).toEqual(pubkey);
+        var decrypted = new_decryption.decrypt(encrypted.ephemeral, encrypted.mac, encrypted.ciphertext);
+        console.log(TEST_TEXT, "->", decrypted);
+        expect(decrypted).toEqual(TEST_TEXT);
+        new_decryption.free();
+    });
 });

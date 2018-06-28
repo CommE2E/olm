@@ -135,6 +135,35 @@ PkDecryption.prototype['generate_key'] = restore_stack(function () {
     return Pointer_stringify(pubkey_buffer);
 });
 
+PkDecryption.prototype['pickle'] = restore_stack(function (key) {
+    var key_array = array_from_string(key);
+    var pickle_length = pk_decryption_method(
+        Module['_olm_pickle_pk_decryption_length']
+    )(this.ptr);
+    var key_buffer = stack(key_array);
+    var pickle_buffer = stack(pickle_length + NULL_BYTE_PADDING_LENGTH);
+    pk_decryption_method(Module['_olm_pickle_pk_decryption'])(
+        this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
+    );
+    return Pointer_stringify(pickle_buffer);
+});
+
+PkDecryption.prototype['unpickle'] = restore_stack(function (key, pickle) {
+    var key_array = array_from_string(key);
+    var key_buffer = stack(key_array);
+    var pickle_array = array_from_string(pickle);
+    var pickle_buffer = stack(pickle_array);
+    var ephemeral_length = pk_decryption_method(
+        Module["_olm_pk_key_length"]
+    )();
+    var ephemeral_buffer = stack(ephemeral_length + NULL_BYTE_PADDING_LENGTH);
+    pk_decryption_method(Module['_olm_unpickle_pk_decryption'])(
+        this.ptr, key_buffer, key_array.length, pickle_buffer,
+        pickle_array.length, ephemeral_buffer, ephemeral_length
+    );
+    return Pointer_stringify(ephemeral_buffer);
+});
+
 PkDecryption.prototype['decrypt'] = restore_stack(function (
     ephemeral_key, mac, ciphertext
 ) {

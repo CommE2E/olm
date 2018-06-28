@@ -122,6 +122,36 @@ size_t olm_pk_generate_key(
     void * random, size_t random_length
 );
 
+/** Returns the number of bytes needed to store a decryption object. */
+size_t olm_pickle_pk_decryption_length(
+    OlmPkDecryption * decryption
+);
+
+/** Stores decryption object as a base64 string. Encrypts the object using the
+ * supplied key. Returns the length of the pickled object on success.
+ * Returns olm_error() on failure. If the pickle output buffer
+ * is smaller than olm_pickle_account_length() then
+ * olm_pk_decryption_last_error() will be "OUTPUT_BUFFER_TOO_SMALL" */
+size_t olm_pickle_pk_decryption(
+    OlmPkDecryption * decryption,
+    void const * key, size_t key_length,
+    void *pickled, size_t pickled_length
+);
+
+/** Loads a decryption object from a pickled base64 string. The associated
+ * public key will be written to the pubkey buffer. Decrypts the object using
+ * the supplied key. Returns olm_error() on failure. If the key doesn't
+ * match the one used to encrypt the account then olm_pk_decryption_last_error()
+ * will be "BAD_ACCOUNT_KEY". If the base64 couldn't be decoded then
+ * olm_pk_decryption_last_error() will be "INVALID_BASE64". The input pickled
+ * buffer is destroyed */
+size_t olm_unpickle_pk_decryption(
+    OlmPkDecryption * decryption,
+    void const * key, size_t key_length,
+    void *pickled, size_t pickled_length,
+    void *pubkey, size_t pubkey_length
+);
+
 /** Get the length of the plaintext that will correspond to a ciphertext of the
  * given length. */
 size_t olm_pk_max_plaintext_length(
