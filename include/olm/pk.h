@@ -26,7 +26,7 @@ extern "C" {
 typedef struct OlmPkEncryption OlmPkEncryption;
 
 /* The size of an encryption object in bytes */
-size_t olm_pk_encryption_size();
+size_t olm_pk_encryption_size(void);
 
 /** Initialise an encryption object using the supplied memory
  *  The supplied memory must be at least olm_pk_encryption_size() bytes */
@@ -64,7 +64,7 @@ size_t olm_pk_mac_length(
 );
 
 /** Get the length of a public or ephemeral key */
-size_t olm_pk_key_length();
+size_t olm_pk_key_length(void);
 
 /** The number of random bytes needed to encrypt a message. */
 size_t olm_pk_encrypt_random_length(
@@ -89,7 +89,7 @@ size_t olm_pk_encrypt(
 typedef struct OlmPkDecryption OlmPkDecryption;
 
 /* The size of a decryption object in bytes */
-size_t olm_pk_decryption_size();
+size_t olm_pk_decryption_size(void);
 
 /** Initialise a decryption object using the supplied memory
  *  The supplied memory must be at least olm_pk_decryption_size() bytes */
@@ -109,7 +109,7 @@ size_t olm_clear_pk_decryption(
 );
 
 /** The number of random bytes needed to generate a new key. */
-size_t olm_pk_generate_key_random_length();
+size_t olm_pk_generate_key_random_length(void);
 
 /** Generate a new key to use for decrypting messages. The associated public
  * key will be written to the pubkey buffer. Returns olm_error() on failure. If

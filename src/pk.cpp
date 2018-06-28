@@ -43,7 +43,7 @@ const char * olm_pk_encryption_last_error(
     return _olm_error_to_string(error);
 }
 
-size_t olm_pk_encryption_size() {
+size_t olm_pk_encryption_size(void) {
     return sizeof(OlmPkEncryption);
 }
 
@@ -155,7 +155,7 @@ const char * olm_pk_decryption_last_error(
     return _olm_error_to_string(error);
 }
 
-size_t olm_pk_decryption_size() {
+size_t olm_pk_decryption_size(void) {
     return sizeof(OlmPkDecryption);
 }
 
@@ -176,11 +176,11 @@ size_t olm_clear_pk_decryption(
     return sizeof(OlmPkDecryption);
 }
 
-size_t olm_pk_generate_key_random_length() {
+size_t olm_pk_generate_key_random_length(void) {
     return CURVE25519_KEY_LENGTH;
 }
 
-size_t olm_pk_key_length() {
+size_t olm_pk_key_length(void) {
     return olm::encode_base64_length(CURVE25519_KEY_LENGTH);
 }
 
