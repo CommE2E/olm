@@ -1,3 +1,37 @@
+Changes in `2.3.0 <http://matrix.org/git/olm/commit/?h=2.3.0>`_
+
+This release includes the following changes since 2.2.2:
+
+* Support building on Windows. Thanks to Marcel Radzio.
+* Avoid C99 inside C++ code. Thanks to Alexey Rusakov.
+* Support building as a static library. Thanks to Andreas Zwinkau.
+
+New functionality:
+
+* Add a number of methods for public key encryption and decryption. This
+  functionality is meant for use with allowing virus scanning of encrypted
+  attachments, server-side encrypted key backups, and possibly other uses. The
+  methods are listed in the ``olm/pk.h`` header file. Corresponding wrappers
+  are available in the JavaScript and Android wrappers. Objective-C and Python
+  wrappers will be available in a future release.
+
+Android wrapper:
+
+* Update build tool dependencies
+* Apply some hardening flags and fix some compilation and run-time issues.
+  Thanks in part to Arnaud Fontaine.
+
+Objective-C wrapper:
+
+* Update project file
+* Fix compiler warnings
+
+Python wrapper:
+
+* Add binding for ``olm_remove_one_time_keys``. Thanks to Wilfried Klaebe.
+* Add utility module for ``ed25519_verify``. Thanks to Alexander Maznev.
+* Improve portability. Thanks to Jan Jancar.
+
 Changes in `2.2.2 <http://matrix.org/git/olm/commit/?h=2.2.2>`_
 ===============================================================
 
