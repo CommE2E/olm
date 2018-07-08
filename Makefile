@@ -125,6 +125,7 @@ $(RELEASE_TARGET): $(RELEASE_OBJECTS)
             -Wl,--version-script,version_script.ver \
             $(OUTPUT_OPTION) $(RELEASE_OBJECTS)
 	ln -sf libolm.so.$(VERSION) $(BUILD_DIR)/libolm.so.$(MAJOR)
+	ln -sf libolm.so.$(VERSION) $(BUILD_DIR)/libolm.so
 
 debug: $(DEBUG_TARGET)
 .PHONY: debug

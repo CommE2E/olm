@@ -3,7 +3,7 @@ PYTHON   ?= python
 all: olm
 
 olm:
-	$(PYTHON) setup.py build
+	DEVELOP=$(DEVELOP) $(PYTHON) setup.py build
 
 install: olm
 	$(PYTHON) setup.py install --skip-build -O1 --root=$(DESTDIR)
@@ -24,12 +24,14 @@ clean:
 develop: _libolm.o
 py2develop: _libolm.so
 
+_libolm.so: DEVELOP ?= 1
 _libolm.so: include/olm/olm.h olm_build.py
-	python2 olm_build.py
+	DEVELOP=$(DEVELOP) python2 olm_build.py
 	-rm _libolm.c
 
+_libolm.o: DEVELOP ?= 1
 _libolm.o: include/olm/olm.h olm_build.py
-	python3 olm_build.py
+	DEVELOP=$(DEVELOP) python3 olm_build.py
 	-rm _libolm.c
 
 .PHONY: all olm install clean test develop

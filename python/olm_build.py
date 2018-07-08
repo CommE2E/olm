@@ -24,6 +24,15 @@ from cffi import FFI
 ffibuilder = FFI()
 PATH = os.path.dirname(__file__)
 
+DEVELOP = os.environ.get("DEVELOP")
+
+compile_args = []
+link_args = []
+
+if DEVELOP and DEVELOP.lower() in ["yes", "true", "1"]:
+    compile_args = ["-I../include"]
+    link_args = ['-Wl,-L=../build,-rpath=../build']
+
 
 ffibuilder.set_source(
     "_libolm",
@@ -31,7 +40,10 @@ ffibuilder.set_source(
         #include <olm/olm.h>
         #include <olm/inbound_group_session.h>
         #include <olm/outbound_group_session.h>
-    """, libraries=["olm"])
+    """,
+    libraries=["olm"],
+    extra_compile_args=compile_args,
+    extra_link_args=link_args)
 
 with open(os.path.join(PATH, "include/olm/olm.h")) as f:
     ffibuilder.cdef(f.read(), override=True)
