@@ -4,7 +4,7 @@ Contributing code to libolm
 To contribute code to this library, the preferred way is to clone the git
 repository, create a git patch series (for example via ``git
 format-patch --stdout origin/master``), and send this by email to
-``richard@matrix.org``.
+``olm@matrix.org``.
 
 Naturally, you must be willing to license your contributions under the same
 license as the project itself - in this case, Apache Software License v2 (see
