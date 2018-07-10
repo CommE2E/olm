@@ -111,9 +111,10 @@ size_t olm_clear_pk_decryption(
 /** The number of random bytes needed to generate a new key. */
 size_t olm_pk_generate_key_random_length(void);
 
-/** Generate a new key to use for decrypting messages. The associated public
- * key will be written to the pubkey buffer. Returns olm_error() on failure. If
- * the pubkey buffer is too small then olm_pk_decryption_last_error() will be
+/** Generate a new key pair to use for decrypting messages. The private key is
+ * stored in the decryption object, and the associated public key will be
+ * written to the pubkey buffer. Returns olm_error() on failure. If the pubkey
+ * buffer is too small then olm_pk_decryption_last_error() will be
  * "OUTPUT_BUFFER_TOO_SMALL". If there weren't enough random bytes then
  * olm_pk_decryption_last_error() will be "NOT_ENOUGH_RANDOM". */
 size_t olm_pk_generate_key(
@@ -164,7 +165,7 @@ size_t olm_pk_max_plaintext_length(
  * the plaintext buffer is too small then olm_pk_encryption_last_error() will
  * be "OUTPUT_BUFFER_TOO_SMALL". */
 size_t olm_pk_decrypt(
-    OlmPkDecryption * decrytion,
+    OlmPkDecryption * decryption,
     void const * ephemeral_key, size_t ephemeral_key_length,
     void const * mac, size_t mac_length,
     void * ciphertext, size_t ciphertext_length,
