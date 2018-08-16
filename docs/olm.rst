@@ -338,7 +338,7 @@ The Olm specification (this document) is hereby placed in the public domain.
 Feedback
 --------
 
-Can be sent to mark at matrix.org.
+Can be sent to olm at matrix.org.
 
 Acknowledgements
 ----------------
