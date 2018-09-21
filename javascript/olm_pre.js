@@ -21,10 +21,8 @@ if (typeof(window) !== 'undefined') {
 }
 
 /* applications should define OLM_OPTIONS in the environment to override
- * emscripten module settings (we still need to (re) declare the variable
- * otherwise the closure compiler becomes sad).
+ * emscripten module settings
  */
-var OLM_OPTIONS;
 if (typeof(OLM_OPTIONS) !== 'undefined') {
     for (var olm_option_key in OLM_OPTIONS) {
         if (OLM_OPTIONS.hasOwnProperty(olm_option_key)) {
