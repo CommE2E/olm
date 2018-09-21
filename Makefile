@@ -20,6 +20,7 @@ DEBUG_TARGET := $(BUILD_DIR)/libolm_debug.so.$(VERSION)
 JS_TARGET := javascript/olm.js
 
 JS_EXPORTED_FUNCTIONS := javascript/exported_functions.json
+JS_EXTRA_EXPORTED_RUNTIME_METHODS := ALLOC_STACK
 
 PUBLIC_HEADERS := include/olm/olm.h include/olm/outbound_group_session.h include/olm/inbound_group_session.h include/olm/pk.h
 
@@ -60,7 +61,7 @@ CFLAGS += -Wall -Werror -std=c99 -fPIC
 CXXFLAGS += -Wall -Werror -std=c++11 -fPIC
 LDFLAGS += -Wall -Werror
 
-EMCCFLAGS = --closure 1 --memory-init-file 0 -s NO_FILESYSTEM=1 -s INVOKE_RUN=0
+EMCCFLAGS = --closure 1 --memory-init-file 0 -s NO_FILESYSTEM=1 -s INVOKE_RUN=0 -s MODULARIZE=1
 # NO_BROWSER is kept for compatibility with emscripten 1.35.24, but is no
 # longer needed.
 EMCCFLAGS += -s NO_BROWSER=1
@@ -150,6 +151,7 @@ $(JS_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS)
                $(foreach f,$(JS_PRE),--pre-js $(f)) \
                $(foreach f,$(JS_POST),--post-js $(f)) \
                -s "EXPORTED_FUNCTIONS=@$(JS_EXPORTED_FUNCTIONS)" \
+               -s "EXTRA_EXPORTED_RUNTIME_METHODS=$(JS_EXTRA_EXPORTED_RUNTIME_METHODS)" \
                $(JS_OBJECTS) -o $@
 
 build_tests: $(TEST_BINARIES)

@@ -16,7 +16,7 @@ limitations under the License.
 
 "use strict";
 
-var Olm = require('../olm');
+var Olm = require('../olm')();
 
 if (!Object.keys) {
     Object.keys = function(o) {
@@ -30,7 +30,13 @@ describe("olm", function() {
     var aliceAccount, bobAccount;
     var aliceSession, bobSession;
 
-    beforeEach(function() {
+    beforeEach(function(done) {
+        // This should really be in a beforeAll, but jasmine-node
+        // doesn't support that
+        Olm.then(function() {
+            done();
+        });
+
         aliceAccount = new Olm.Account();
         bobAccount = new Olm.Account();
         aliceSession = new Olm.Session();

@@ -16,12 +16,15 @@ limitations under the License.
 
 "use strict";
 
-var Olm = require('../olm');
+var Olm = require('../olm')();
 
 describe("megolm", function() {
     var aliceSession, bobSession;
 
-    beforeEach(function() {
+    beforeEach(function(done) {
+        Olm.then(function() {
+            done();
+        });
         aliceSession = new Olm.OutboundGroupSession();
         bobSession = new Olm.InboundGroupSession();
     });
