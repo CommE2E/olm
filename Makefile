@@ -41,11 +41,22 @@ FUZZER_BINARIES := $(addprefix $(BUILD_DIR)/,$(basename $(FUZZER_SOURCES)))
 FUZZER_DEBUG_BINARIES := $(patsubst $(BUILD_DIR)/fuzzers/fuzz_%,$(BUILD_DIR)/fuzzers/debug_%,$(FUZZER_BINARIES))
 TEST_BINARIES := $(patsubst tests/%,$(BUILD_DIR)/tests/%,$(basename $(TEST_SOURCES)))
 JS_OBJECTS := $(addprefix $(BUILD_DIR)/javascript/,$(OBJECTS))
+
+# pre & post are the js-pre/js-post options to emcc.
+# They are injected inside the modularised code and
+# processed by the optimiser.
 JS_PRE := $(wildcard javascript/*pre.js)
 JS_POST := javascript/olm_outbound_group_session.js \
     javascript/olm_inbound_group_session.js \
     javascript/olm_pk.js \
     javascript/olm_post.js
+
+# The prefix & suffix are just added onto the start & end
+# of what comes out emcc, so are outside of the modularised
+# code and not seen by the opimiser.
+JS_PREFIX := javascript/olm_prefix.js
+JS_SUFFIX := javascript/olm_suffix.js
+
 DOCS := tracing/README.html \
     docs/megolm.html \
     docs/olm.html \
@@ -66,6 +77,15 @@ EMCCFLAGS = --closure 1 --memory-init-file 0 -s NO_FILESYSTEM=1 -s INVOKE_RUN=0 
 # NO_BROWSER is kept for compatibility with emscripten 1.35.24, but is no
 # longer needed.
 EMCCFLAGS += -s NO_BROWSER=1
+
+# Olm generally doesn't need a lot of memory to encrypt / decrypt its usual
+# payloads (ie. Matrix messages), but we do need about 128K of heap to encrypt
+# a 64K event (enough to store the ciphertext and the plaintext, bearing in
+# mind that the plaintext can only be 48K because base64). We also have about
+# 36K of statics. So let's have 256K of memory.
+# (This can't be changed by the app with wasm since it's baked into the wasm).
+EMCCFLAGS += -s TOTAL_STACK=65536 -s TOTAL_MEMORY=262144
+
 
 EMCC.c = $(EMCC) $(CFLAGS) $(CPPFLAGS) -c
 EMCC.cc = $(EMCC) $(CXXFLAGS) $(CPPFLAGS) -c
@@ -147,13 +167,19 @@ $(STATIC_RELEASE_TARGET): $(RELEASE_OBJECTS)
 js: $(JS_TARGET)
 .PHONY: js
 
-$(JS_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS)
+# Note that the output file we give to emcc determines the name of the
+# wasm file baked into the js, hence messing around outputting to olm.js
+# and then renaming it.
+$(JS_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS) $(JS_PREFIX) $(JS_SUFFIX)
 	EMCC_CLOSURE_ARGS="--externs $(JS_EXTERNS)" $(EMCC_LINK) \
                $(foreach f,$(JS_PRE),--pre-js $(f)) \
                $(foreach f,$(JS_POST),--post-js $(f)) \
                -s "EXPORTED_FUNCTIONS=@$(JS_EXPORTED_FUNCTIONS)" \
                -s "EXTRA_EXPORTED_RUNTIME_METHODS=$(JS_EXTRA_EXPORTED_RUNTIME_METHODS)" \
                $(JS_OBJECTS) -o $@
+	       mv $@ javascript/olmtmp.js
+	       cat $(JS_PREFIX) javascript/olmtmp.js $(JS_SUFFIX) > $@
+	       rm javascript/olmtmp.js
 
 build_tests: $(TEST_BINARIES)
 

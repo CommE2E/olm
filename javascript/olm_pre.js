@@ -1,4 +1,3 @@
-var olm_exports = {};
 var get_random_values;
 
 if (typeof(window) !== 'undefined') {

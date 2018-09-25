@@ -1,5 +1,6 @@
 /*
 Copyright 2016 OpenMarket Ltd
+Copyright 2018 New Vector Ltd
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,17 +17,18 @@ limitations under the License.
 
 "use strict";
 
-var Olm = require('../olm')();
+var Olm = require('../olm');
 
 describe("megolm", function() {
     var aliceSession, bobSession;
 
     beforeEach(function(done) {
-        Olm.then(function() {
+        Olm.init().then(function() {
+            aliceSession = new Olm.OutboundGroupSession();
+            bobSession = new Olm.InboundGroupSession();
+
             done();
         });
-        aliceSession = new Olm.OutboundGroupSession();
-        bobSession = new Olm.InboundGroupSession();
     });
 
     afterEach(function() {

@@ -1,5 +1,6 @@
 /*
 Copyright 2016 OpenMarket Ltd
+Copyright 2018 New Vector Ltd
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,7 +17,7 @@ limitations under the License.
 
 "use strict";
 
-var Olm = require('../olm')();
+var Olm = require('../olm');
 
 if (!Object.keys) {
     Object.keys = function(o) {
@@ -33,14 +34,15 @@ describe("olm", function() {
     beforeEach(function(done) {
         // This should really be in a beforeAll, but jasmine-node
         // doesn't support that
-        Olm.then(function() {
+        debugger;
+        Olm.init().then(function() {
+            aliceAccount = new Olm.Account();
+            bobAccount = new Olm.Account();
+            aliceSession = new Olm.Session();
+            bobSession = new Olm.Session();
+
             done();
         });
-
-        aliceAccount = new Olm.Account();
-        bobAccount = new Olm.Account();
-        aliceSession = new Olm.Session();
-        bobSession = new Olm.Session();
     });
 
     afterEach(function() {

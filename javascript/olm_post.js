@@ -464,27 +464,11 @@ olm_exports["get_library_version"] = restore_stack(function() {
     ];
 });
 
-// export the olm functions into the environment.
-//
-// make sure that we do this *after* populating olm_exports, so that we don't
-// get a half-built window.Olm if there is an exception.
-
-if (typeof module !== 'undefined' && module.exports) {
-    // node / browserify
-    for (var olm_export in olm_exports) {
-        if (olm_exports.hasOwnProperty(olm_export)) {
-            Module[olm_export] = olm_exports[olm_export];
-        }
-    }
-}
-
-if (typeof(window) !== 'undefined') {
-    // We've been imported directly into a browser. Define the global 'Olm' object.
-    // (we do this even if module.exports was defined, because it's useful to have
-    // Olm in the global scope for browserified and webpacked apps.)
-    window["Olm"] = olm_exports;
-}
-
-Module.then(function() {
+Module['onRuntimeInitialized'] = function() {
     OLM_ERROR = Module['_olm_error']();
-});
+    if (onInitSuccess) onInitSuccess();
+};
+
+Module['onAbort'] = function(err) {
+    if (onInitFail) onInitFail(err);
+};

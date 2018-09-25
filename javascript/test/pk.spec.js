@@ -16,7 +16,7 @@ limitations under the License.
 
 "use strict";
 
-var Olm = require('../olm')();
+var Olm = require('../olm');
 
 if (!Object.keys) {
     Object.keys = function(o) {
@@ -30,12 +30,12 @@ describe("pk", function() {
     var encryption, decryption;
 
     beforeEach(function(done) {
-        Olm.then(function() {
+        Olm.init().then(function() {
+            encryption = new Olm.PkEncryption();
+            decryption = new Olm.PkDecryption();
+
             done();
         });
-
-        encryption = new Olm.PkEncryption();
-        decryption = new Olm.PkDecryption();
     });
 
     afterEach(function () {
