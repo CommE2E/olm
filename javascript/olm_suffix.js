@@ -1,5 +1,8 @@
+var olmInitPromise;
+
 olm_exports['init'] = function() {
-    return new Promise(function(resolve, reject) {
+    if (olmInitPromise) return olmInitPromise;
+    olmInitPromise = new Promise(function(resolve, reject) {
         onInitSuccess = function() {
             resolve();
         };
@@ -8,6 +11,7 @@ olm_exports['init'] = function() {
         };
         Module();
     });
+    return olmInitPromise;
 };
 
 if (typeof(window) !== 'undefined') {
