@@ -1,7 +1,10 @@
 var olmInitPromise;
 
-olm_exports['init'] = function() {
+olm_exports['init'] = function(opts) {
     if (olmInitPromise) return olmInitPromise;
+
+    if (opts) OLM_OPTIONS = opts;
+
     olmInitPromise = new Promise(function(resolve, reject) {
         onInitSuccess = function() {
             resolve();
