@@ -72,7 +72,7 @@ info.
 Advancing the chain key
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Advancing a chain key takes the previous chain key, :math:`C_{i,j-i}`. The next
+Advancing a chain key takes the previous chain key, :math:`C_{i,j-1}`. The next
 chain key, :math:`C_{i,j}`, is the HMAC-SHA-256_ of ``"\x02"`` using the
 previous chain key as the key.
 
