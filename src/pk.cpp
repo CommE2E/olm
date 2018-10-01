@@ -189,7 +189,7 @@ size_t olm_pk_generate_key(
     void * pubkey, size_t pubkey_length,
     void * random, size_t random_length
 ) {
-    if (pubkey_length < CURVE25519_KEY_LENGTH) {
+    if (pubkey_length < olm_pk_key_length()) {
         decryption->last_error =
             OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
