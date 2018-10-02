@@ -123,7 +123,7 @@ PkDecryption.prototype['generate_key'] = restore_stack(function () {
         Module['_olm_pk_generate_key_random_length']
     )();
     var random_buffer = random_stack(random_length);
-    var pubkey_length = pk_encryption_method(
+    var pubkey_length = pk_decryption_method(
         Module['_olm_pk_key_length']
     )();
     var pubkey_buffer = stack(pubkey_length + NULL_BYTE_PADDING_LENGTH);
