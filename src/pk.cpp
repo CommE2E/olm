@@ -176,7 +176,7 @@ size_t olm_clear_pk_decryption(
     return sizeof(OlmPkDecryption);
 }
 
-size_t olm_pk_generate_key_random_length(void) {
+size_t olm_pk_private_key_length(void) {
     return CURVE25519_KEY_LENGTH;
 }
 
@@ -184,23 +184,23 @@ size_t olm_pk_key_length(void) {
     return olm::encode_base64_length(CURVE25519_KEY_LENGTH);
 }
 
-size_t olm_pk_generate_key(
+size_t olm_pk_key_from_private(
     OlmPkDecryption * decryption,
     void * pubkey, size_t pubkey_length,
-    void * random, size_t random_length
+    void * privkey, size_t privkey_length
 ) {
     if (pubkey_length < olm_pk_key_length()) {
         decryption->last_error =
             OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
-    if (random_length < olm_pk_generate_key_random_length()) {
+    if (privkey_length < olm_pk_private_key_length()) {
         decryption->last_error =
-            OlmErrorCode::OLM_NOT_ENOUGH_RANDOM;
+            OlmErrorCode::OLM_INPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
 
-    _olm_crypto_curve25519_generate_key((uint8_t *) random, &decryption->key_pair);
+    _olm_crypto_curve25519_generate_key((uint8_t *) privkey, &decryption->key_pair);
     olm::encode_base64((const uint8_t *)decryption->key_pair.public_key.public_key, CURVE25519_KEY_LENGTH, (uint8_t *)pubkey);
     return 0;
 }
@@ -350,6 +350,23 @@ size_t olm_pk_decrypt(
     } else {
         return result;
     }
+}
+
+size_t olm_pk_get_private_key(
+    OlmPkDecryption * decryption,
+    void *private_key, size_t private_key_length
+) {
+    if (private_key_length < olm_pk_private_key_length()) {
+        decryption->last_error =
+            OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
+        return std::size_t(-1);
+    }
+    std::memcpy(
+        private_key,
+        decryption->key_pair.private_key.private_key,
+        olm_pk_private_key_length()
+    );
+    return olm_pk_private_key_length();
 }
 
 }

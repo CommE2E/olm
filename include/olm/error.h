@@ -51,6 +51,13 @@ enum OlmErrorCode {
      */
     OLM_BAD_SIGNATURE = 14,
 
+    OLM_INPUT_BUFFER_TOO_SMALL = 15,
+
+    // Not an error code, just here to pad out the enum past 16 because
+    // otherwise the compiler warns about a redunant check. If you're
+    // adding an error code, replace this one!
+    OLM_ERROR_NOT_INVENTED_YET = 16,
+
     /* remember to update the list of string constants in error.c when updating
      * this list. */
 };

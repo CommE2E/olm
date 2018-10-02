@@ -118,21 +118,49 @@ PkDecryption.prototype['free'] = function() {
     free(this.ptr);
 }
 
+PkDecryption.prototype['init_with_private_key'] = restore_stack(function (private_key) {
+    var private_key_buffer = stack(private_key.length);
+    Module['HEAPU8'].set(private_key, private_key_buffer);
+
+    var pubkey_length = pk_decryption_method(
+        Module['_olm_pk_key_length']
+    )();
+    var pubkey_buffer = stack(pubkey_length + NULL_BYTE_PADDING_LENGTH);
+    pk_decryption_method(Module['_olm_pk_key_from_private'])(
+        this.ptr,
+        pubkey_buffer, pubkey_length,
+        private_key_buffer, private_key.length
+    );
+    return Pointer_stringify(pubkey_buffer);
+});
+
 PkDecryption.prototype['generate_key'] = restore_stack(function () {
     var random_length = pk_decryption_method(
-        Module['_olm_pk_generate_key_random_length']
+        Module['_olm_pk_private_key_length']
     )();
     var random_buffer = random_stack(random_length);
     var pubkey_length = pk_encryption_method(
         Module['_olm_pk_key_length']
     )();
     var pubkey_buffer = stack(pubkey_length + NULL_BYTE_PADDING_LENGTH);
-    pk_decryption_method(Module['_olm_pk_generate_key'])(
+    pk_decryption_method(Module['_olm_pk_key_from_private'])(
         this.ptr,
         pubkey_buffer, pubkey_length,
         random_buffer, random_length
     );
     return Pointer_stringify(pubkey_buffer);
+});
+
+PkDecryption.prototype['get_private_key'] = restore_stack(function () {
+    var privkey_length = pk_encryption_method(
+        Module['_olm_pk_private_key_length']
+    )();
+    var privkey_buffer  = stack(privkey_length);
+    pk_decryption_method(Module['_olm_pk_get_private_key'])(
+        this.ptr,
+        privkey_buffer, privkey_length
+    );
+    return new Uint8Array(Module['HEAPU8'].buffer, privkey_buffer, privkey_length);
 });
 
 PkDecryption.prototype['pickle'] = restore_stack(function (key) {

@@ -31,6 +31,7 @@ static const char * ERRORS[] = {
     "UNKNOWN_MESSAGE_INDEX",
     "BAD_LEGACY_ACCOUNT_PICKLE",
     "BAD_SIGNATURE",
+    "OLM_INPUT_BUFFER_TOO_SMALL",
 };
 
 const char * _olm_error_to_string(enum OlmErrorCode error)

@@ -49,6 +49,20 @@ describe("pk", function() {
         }
     });
 
+    it('should import & export keys from private parts', function () {
+        var alice_private = new Uint8Array([
+            0x77, 0x07, 0x6D, 0x0A, 0x73, 0x18, 0xA5, 0x7D,
+            0x3C, 0x16, 0xC1, 0x72, 0x51, 0xB2, 0x66, 0x45,
+            0xDF, 0x4C, 0x2F, 0x87, 0xEB, 0xC0, 0x99, 0x2A,
+            0xB1, 0x77, 0xFB, 0xA5, 0x1D, 0xB9, 0x2C, 0x2A
+        ]);
+        var alice_public = decryption.init_with_private_key(alice_private);
+        expect(alice_public).toEqual("hSDwCYkwp1R0i33ctD73Wg2/Og0mOBr066SpjqqbTmo");
+
+        var alice_private_out = decryption.get_private_key();
+        expect(alice_private_out).toEqual(alice_private);
+    });
+
     it('should encrypt and decrypt', function () {
         var TEST_TEXT='têst1';
         var pubkey = decryption.generate_key();
