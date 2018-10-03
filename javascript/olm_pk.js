@@ -35,9 +35,9 @@ PkEncryption.prototype['encrypt'] = restore_stack(function(
 ) {
     var plaintext_buffer, ciphertext_buffer, plaintext_length;
     try {
-        plaintext_length = Module['lengthBytesUTF8'](plaintext)
+        plaintext_length = lengthBytesUTF8(plaintext)
         plaintext_buffer = malloc(plaintext_length + 1);
-        Module['stringToUTF8'](plaintext, plaintext_buffer, plaintext_length + 1);
+        stringToUTF8(plaintext, plaintext_buffer, plaintext_length + 1);
         var random_length = pk_encryption_method(
             Module['_olm_pk_encrypt_random_length']
         )();
@@ -50,7 +50,7 @@ PkEncryption.prototype['encrypt'] = restore_stack(function(
             Module['_olm_pk_mac_length']
         )(this.ptr);
         var mac_buffer = stack(mac_length + NULL_BYTE_PADDING_LENGTH);
-        Module['setValue'](
+        setValue(
             mac_buffer+mac_length,
             0, "i8"
         );
@@ -58,7 +58,7 @@ PkEncryption.prototype['encrypt'] = restore_stack(function(
             Module['_olm_pk_key_length']
         )();
         var ephemeral_buffer = stack(ephemeral_length + NULL_BYTE_PADDING_LENGTH);
-        Module['setValue'](
+        setValue(
             ephemeral_buffer+ephemeral_length,
             0, "i8"
         );
@@ -72,12 +72,12 @@ PkEncryption.prototype['encrypt'] = restore_stack(function(
         );
         // UTF8ToString requires a null-terminated argument, so add the
         // null terminator.
-        Module['setValue'](
+        setValue(
             ciphertext_buffer+ciphertext_length,
             0, "i8"
         );
         return {
-            "ciphertext": Module['UTF8ToString'](ciphertext_buffer),
+            "ciphertext": UTF8ToString(ciphertext_buffer),
             "mac": Pointer_stringify(mac_buffer),
             "ephemeral": Pointer_stringify(ephemeral_buffer)
         };
@@ -169,9 +169,9 @@ PkDecryption.prototype['decrypt'] = restore_stack(function (
 ) {
     var plaintext_buffer, ciphertext_buffer, plaintext_max_length;
     try {
-        ciphertext_length = Module['lengthBytesUTF8'](ciphertext)
+        var ciphertext_length = lengthBytesUTF8(ciphertext)
         ciphertext_buffer = malloc(ciphertext_length + 1);
-        Module['stringToUTF8'](ciphertext, ciphertext_buffer, ciphertext_length + 1);
+        stringToUTF8(ciphertext, ciphertext_buffer, ciphertext_length + 1);
         var ephemeralkey_array = array_from_string(ephemeral_key);
         var ephemeralkey_buffer = stack(ephemeralkey_array);
         var mac_array = array_from_string(mac);
@@ -190,11 +190,11 @@ PkDecryption.prototype['decrypt'] = restore_stack(function (
         );
         // UTF8ToString requires a null-terminated argument, so add the
         // null terminator.
-        Module['setValue'](
+        setValue(
             plaintext_buffer+plaintext_length,
             0, "i8"
         );
-        return Module['UTF8ToString'](plaintext_buffer);
+        return UTF8ToString(plaintext_buffer);
     } finally {
         if (plaintext_buffer !== undefined) {
             // don't leave a copy of the plaintext in the heap.

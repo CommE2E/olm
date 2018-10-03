@@ -29,9 +29,13 @@ if (!Object.keys) {
 describe("pk", function() {
     var encryption, decryption;
 
-    beforeEach(function() {
-        encryption = new Olm.PkEncryption();
-        decryption = new Olm.PkDecryption();
+    beforeEach(function(done) {
+        Olm.init().then(function() {
+            encryption = new Olm.PkEncryption();
+            decryption = new Olm.PkDecryption();
+
+            done();
+        });
     });
 
     afterEach(function () {
