@@ -18,6 +18,9 @@ jobs:
           name: JS Compile
           command: make js
       - run:
+          name: Install JS Deps
+          command: npm install
+      - run:
           name: JS Tests
           working_directory: ~/repo/javascript
           command: npm run test
