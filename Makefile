@@ -17,7 +17,8 @@ AR = ar
 RELEASE_TARGET := $(BUILD_DIR)/libolm.so.$(VERSION)
 STATIC_RELEASE_TARGET := $(BUILD_DIR)/libolm.a
 DEBUG_TARGET := $(BUILD_DIR)/libolm_debug.so.$(VERSION)
-JS_TARGET := javascript/olm.js
+JS_WASM_TARGET := javascript/olm.js
+JS_ASMJS_TARGET := javascript/olm_legacy.js
 
 JS_EXPORTED_FUNCTIONS := javascript/exported_functions.json
 JS_EXTRA_EXPORTED_RUNTIME_METHODS := ALLOC_STACK
@@ -84,8 +85,11 @@ EMCCFLAGS += -s NO_BROWSER=1
 # mind that the plaintext can only be 48K because base64). We also have about
 # 36K of statics. So let's have 256K of memory.
 # (This can't be changed by the app with wasm since it's baked into the wasm).
-EMCCFLAGS += -s TOTAL_STACK=65536 -s TOTAL_MEMORY=262144
+# (emscripten also mandates at least 16MB of memory for asm.js now, so
+# we don't use this for the legacy build.)
+EMCCFLAGS_WASM += -s TOTAL_STACK=65536 -s TOTAL_MEMORY=262144
 
+EMCCFLAGS_ASMJS += -s WASM=0
 
 EMCC.c = $(EMCC) $(CFLAGS) $(CPPFLAGS) -c
 EMCC.cc = $(EMCC) $(CXXFLAGS) $(CPPFLAGS) -c
@@ -121,7 +125,8 @@ $(FUZZER_DEBUG_BINARIES): LDFLAGS += $(DEBUG_OPTIMIZE_FLAGS)
 
 $(JS_OBJECTS): CFLAGS += $(JS_OPTIMIZE_FLAGS)
 $(JS_OBJECTS): CXXFLAGS += $(JS_OPTIMIZE_FLAGS)
-$(JS_TARGET): LDFLAGS += $(JS_OPTIMIZE_FLAGS)
+$(JS_WASM_TARGET): LDFLAGS += $(JS_OPTIMIZE_FLAGS)
+$(JS_ASMJS_TARGET): LDFLAGS += $(JS_OPTIMIZE_FLAGS)
 
 ### Fix to make mkdir work on windows and linux
 ifeq ($(shell echo "check_quotes"),"check_quotes")
@@ -164,14 +169,27 @@ static: $(STATIC_RELEASE_TARGET)
 $(STATIC_RELEASE_TARGET): $(RELEASE_OBJECTS)
 	$(AR) rcs $@ $^
 
-js: $(JS_TARGET)
+js: $(JS_WASM_TARGET) $(JS_ASMJS_TARGET)
 .PHONY: js
 
 # Note that the output file we give to emcc determines the name of the
 # wasm file baked into the js, hence messing around outputting to olm.js
 # and then renaming it.
-$(JS_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS) $(JS_PREFIX) $(JS_SUFFIX)
+$(JS_WASM_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS) $(JS_PREFIX) $(JS_SUFFIX)
 	EMCC_CLOSURE_ARGS="--externs $(JS_EXTERNS)" $(EMCC_LINK) \
+	       $(EMCCFLAGS_WASM) \
+               $(foreach f,$(JS_PRE),--pre-js $(f)) \
+               $(foreach f,$(JS_POST),--post-js $(f)) \
+               -s "EXPORTED_FUNCTIONS=@$(JS_EXPORTED_FUNCTIONS)" \
+               -s "EXTRA_EXPORTED_RUNTIME_METHODS=$(JS_EXTRA_EXPORTED_RUNTIME_METHODS)" \
+               $(JS_OBJECTS) -o $@
+	       mv $@ javascript/olmtmp.js
+	       cat $(JS_PREFIX) javascript/olmtmp.js $(JS_SUFFIX) > $@
+	       rm javascript/olmtmp.js
+
+$(JS_ASMJS_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS) $(JS_PREFIX) $(JS_SUFFIX)
+	EMCC_CLOSURE_ARGS="--externs $(JS_EXTERNS)" $(EMCC_LINK) \
+	       $(EMCCFLAGS_ASMJS) \
                $(foreach f,$(JS_PRE),--pre-js $(f)) \
                $(foreach f,$(JS_POST),--post-js $(f)) \
                -s "EXPORTED_FUNCTIONS=@$(JS_EXPORTED_FUNCTIONS)" \

@@ -37,3 +37,12 @@ if (typeof(OLM_OPTIONS) !== 'undefined') {
  * use UTF8ToString.
  */
 var NULL_BYTE_PADDING_LENGTH = 1;
+
+Module['onRuntimeInitialized'] = function() {
+    OLM_ERROR = Module['_olm_error']();
+    if (onInitSuccess) onInitSuccess();
+};
+
+Module['onAbort'] = function(err) {
+    if (onInitFail) onInitFail(err);
+};
