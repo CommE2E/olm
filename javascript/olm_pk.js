@@ -51,7 +51,7 @@ PkEncryption.prototype['encrypt'] = restore_stack(function(
         )(this.ptr);
         var mac_buffer = stack(mac_length + NULL_BYTE_PADDING_LENGTH);
         setValue(
-            mac_buffer+mac_length,
+            mac_buffer + mac_length,
             0, "i8"
         );
         var ephemeral_length = pk_encryption_method(
@@ -59,7 +59,7 @@ PkEncryption.prototype['encrypt'] = restore_stack(function(
         )();
         var ephemeral_buffer = stack(ephemeral_length + NULL_BYTE_PADDING_LENGTH);
         setValue(
-            ephemeral_buffer+ephemeral_length,
+            ephemeral_buffer + ephemeral_length,
             0, "i8"
         );
         pk_encryption_method(Module['_olm_pk_encrypt'])(
@@ -73,7 +73,7 @@ PkEncryption.prototype['encrypt'] = restore_stack(function(
         // UTF8ToString requires a null-terminated argument, so add the
         // null terminator.
         setValue(
-            ciphertext_buffer+ciphertext_length,
+            ciphertext_buffer + ciphertext_length,
             0, "i8"
         );
         return {
@@ -123,7 +123,7 @@ PkDecryption.prototype['generate_key'] = restore_stack(function () {
         Module['_olm_pk_generate_key_random_length']
     )();
     var random_buffer = random_stack(random_length);
-    var pubkey_length = pk_encryption_method(
+    var pubkey_length = pk_decryption_method(
         Module['_olm_pk_key_length']
     )();
     var pubkey_buffer = stack(pubkey_length + NULL_BYTE_PADDING_LENGTH);
@@ -191,7 +191,7 @@ PkDecryption.prototype['decrypt'] = restore_stack(function (
         // UTF8ToString requires a null-terminated argument, so add the
         // null terminator.
         setValue(
-            plaintext_buffer+plaintext_length,
+            plaintext_buffer + plaintext_length,
             0, "i8"
         );
         return UTF8ToString(plaintext_buffer);

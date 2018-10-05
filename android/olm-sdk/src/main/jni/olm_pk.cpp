@@ -29,7 +29,10 @@ OlmPkEncryption * initializePkEncryptionMemory()
     {
         // init encryption object
         encryptionPtr = olm_pk_encryption(encryptionPtr);
-        LOGD("## initializePkEncryptionMemory(): success - OLM encryption size=%lu",static_cast<long unsigned int>(encryptionSize));
+        LOGD(
+            "## initializePkEncryptionMemory(): success - OLM encryption size=%lu",
+            static_cast<long unsigned int>(encryptionSize)
+        );
     }
     else
     {
@@ -53,7 +56,10 @@ JNIEXPORT jlong OLM_PK_ENCRYPTION_FUNC_DEF(createNewPkEncryptionJni)(JNIEnv *env
     else
     {
         LOGD("## createNewPkEncryptionJni(): success - OLM encryption created");
-        LOGD("## createNewPkEncryptionJni(): encryptionPtr=%p (jlong)(intptr_t)encryptionPtr=%lld", encryptionPtr, (jlong)(intptr_t)encryptionPtr);
+        LOGD(
+            "## createNewPkEncryptionJni(): encryptionPtr=%p (jlong)(intptr_t)encryptionPtr=%lld",
+            encryptionPtr, (jlong)(intptr_t)encryptionPtr
+        );
     }
 
     if (errorMessage)
@@ -93,8 +99,9 @@ JNIEXPORT void OLM_PK_ENCRYPTION_FUNC_DEF(releasePkEncryptionJni)(JNIEnv *env, j
     }
 }
 
-JNIEXPORT void OLM_PK_ENCRYPTION_FUNC_DEF(setRecipientKeyJni)(JNIEnv *env, jobject thiz, jbyteArray aKeyBuffer)
-{
+JNIEXPORT void OLM_PK_ENCRYPTION_FUNC_DEF(setRecipientKeyJni)(
+    JNIEnv *env, jobject thiz, jbyteArray aKeyBuffer
+) {
     const char *errorMessage = NULL;
     jbyte *keyPtr = NULL;
 
@@ -116,10 +123,13 @@ JNIEXPORT void OLM_PK_ENCRYPTION_FUNC_DEF(setRecipientKeyJni)(JNIEnv *env, jobje
     }
     else
     {
-        if(olm_pk_encryption_set_recipient_key(encryptionPtr, keyPtr, (size_t)env->GetArrayLength(aKeyBuffer)) == olm_error())
+        if (olm_pk_encryption_set_recipient_key(encryptionPtr, keyPtr, (size_t)env->GetArrayLength(aKeyBuffer)) == olm_error())
         {
             errorMessage = olm_pk_encryption_last_error(encryptionPtr);
-            LOGE(" ## pkSetRecipientKeyJni(): failure - olm_pk_encryption_set_recipient_key Msg=%s", errorMessage);
+            LOGE(
+                " ## pkSetRecipientKeyJni(): failure - olm_pk_encryption_set_recipient_key Msg=%s",
+                errorMessage
+            );
         }
     }
 
@@ -134,8 +144,9 @@ JNIEXPORT void OLM_PK_ENCRYPTION_FUNC_DEF(setRecipientKeyJni)(JNIEnv *env, jobje
     }
 }
 
-JNIEXPORT jbyteArray OLM_PK_ENCRYPTION_FUNC_DEF(encryptJni)(JNIEnv *env, jobject thiz, jbyteArray aPlaintextBuffer, jobject aEncryptedMsg)
-{
+JNIEXPORT jbyteArray OLM_PK_ENCRYPTION_FUNC_DEF(encryptJni)(
+    JNIEnv *env, jobject thiz, jbyteArray aPlaintextBuffer, jobject aEncryptedMsg
+) {
     jbyteArray encryptedMsgRet = 0;
     const char* errorMessage = NULL;
     jbyte *plaintextPtr = NULL;
@@ -161,8 +172,8 @@ JNIEXPORT jbyteArray OLM_PK_ENCRYPTION_FUNC_DEF(encryptJni)(JNIEnv *env, jobject
     }
     else if (!(encryptedMsgJClass = env->GetObjectClass(aEncryptedMsg)))
     {
-        LOGE(" ## pkEncryptJni(): failure - unable to get crypted message class");
-        errorMessage = "unable to get crypted message class";
+        LOGE(" ## pkEncryptJni(): failure - unable to get encrypted message class");
+        errorMessage = "unable to get encrypted message class";
     }
     else if (!(macFieldId = env->GetFieldID(encryptedMsgJClass, "mMac", "Ljava/lang/String;")))
     {
@@ -226,7 +237,9 @@ JNIEXPORT jbyteArray OLM_PK_ENCRYPTION_FUNC_DEF(encryptJni)(JNIEnv *env, jobject
             else
             {
                 encryptedMsgRet = env->NewByteArray(ciphertextLength);
-                env->SetByteArrayRegion(encryptedMsgRet, 0, ciphertextLength, (jbyte*)ciphertextPtr);
+                env->SetByteArrayRegion(
+                    encryptedMsgRet, 0, ciphertextLength, (jbyte*)ciphertextPtr
+                );
 
                 jstring macStr = env->NewStringUTF((char*)macPtr);
                 env->SetObjectField(aEncryptedMsg, macFieldId, macStr);
@@ -276,7 +289,10 @@ OlmPkDecryption * initializePkDecryptionMemory()
     {
         // init decryption object
         decryptionPtr = olm_pk_decryption(decryptionPtr);
-        LOGD("## initializePkDecryptionMemory(): success - OLM decryption size=%lu",static_cast<long unsigned int>(decryptionSize));
+        LOGD(
+            "## initializePkDecryptionMemory(): success - OLM decryption size=%lu",
+            static_cast<long unsigned int>(decryptionSize)
+        );
     }
     else
     {
@@ -300,7 +316,10 @@ JNIEXPORT jlong OLM_PK_DECRYPTION_FUNC_DEF(createNewPkDecryptionJni)(JNIEnv *env
     else
     {
         LOGD("## createNewPkDecryptionJni(): success - OLM decryption created");
-        LOGD("## createNewPkDecryptionJni(): decryptionPtr=%p (jlong)(intptr_t)decryptionPtr=%lld", decryptionPtr, (jlong)(intptr_t)decryptionPtr);
+        LOGD(
+            "## createNewPkDecryptionJni(): decryptionPtr=%p (jlong)(intptr_t)decryptionPtr=%lld",
+            decryptionPtr, (jlong)(intptr_t)decryptionPtr
+        );
     }
 
     if (errorMessage)
@@ -402,8 +421,9 @@ JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(generateKeyJni)(JNIEnv *env, job
     return publicKeyRet;
 }
 
-JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(decryptJni)(JNIEnv *env, jobject thiz, jobject aEncryptedMsg)
-{
+JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(decryptJni)(
+    JNIEnv *env, jobject thiz, jobject aEncryptedMsg
+) {
     const char* errorMessage = NULL;
     OlmPkDecryption *decryptionPtr = getPkDecryptionInstanceId(env, thiz);
 
@@ -528,7 +548,10 @@ JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(decryptJni)(JNIEnv *env, jobject
             {
                 decryptedMsgRet = env->NewByteArray(plaintextLength);
                 env->SetByteArrayRegion(decryptedMsgRet, 0, plaintextLength, (jbyte*)plaintextPtr);
-                LOGD("## pkDecryptJni(): success returnedLg=%lu OK", static_cast<long unsigned int>(plaintextLength));
+                LOGD(
+                    "## pkDecryptJni(): success returnedLg=%lu OK",
+                    static_cast<long unsigned int>(plaintextLength)
+                );
             }
         }
 
