@@ -18,14 +18,6 @@ limitations under the License.
 
 var Olm = require('../olm');
 
-if (!Object.keys) {
-    Object.keys = function(o) {
-        var k=[], p;
-        for (p in o) if (Object.prototype.hasOwnProperty.call(o,p)) k.push(p);
-        return k;
-    }
-}
-
 describe("pk", function() {
     var encryption, decryption;
 
