@@ -14,9 +14,19 @@ AFL_CC = afl-gcc
 AFL_CXX = afl-g++
 AR = ar
 
-RELEASE_TARGET := $(BUILD_DIR)/libolm.so.$(VERSION)
+UNAME := $(shell uname)
+ifeq ($(UNAME),Darwin)
+	SO := dylib
+	OLM_LDFLAGS :=
+else
+	SO := so
+	OLM_LDFLAGS := -Wl,-soname,libolm.so.$(MAJOR) \
+                       -Wl,--version-script,version_script.ver
+endif
+
+RELEASE_TARGET := $(BUILD_DIR)/libolm.$(SO).$(VERSION)
 STATIC_RELEASE_TARGET := $(BUILD_DIR)/libolm.a
-DEBUG_TARGET := $(BUILD_DIR)/libolm_debug.so.$(VERSION)
+DEBUG_TARGET := $(BUILD_DIR)/libolm_debug.$(SO).$(VERSION)
 JS_WASM_TARGET := javascript/olm.js
 JS_ASMJS_TARGET := javascript/olm_legacy.js
 
@@ -148,20 +158,18 @@ lib: $(RELEASE_TARGET)
 
 $(RELEASE_TARGET): $(RELEASE_OBJECTS)
 	$(CXX) $(LDFLAGS) --shared -fPIC \
-            -Wl,-soname,libolm.so.$(MAJOR) \
-            -Wl,--version-script,version_script.ver \
+            $(OLM_LDFLAGS) \
             $(OUTPUT_OPTION) $(RELEASE_OBJECTS)
-	ln -sf libolm.so.$(VERSION) $(BUILD_DIR)/libolm.so.$(MAJOR)
+	ln -sf libolm.$(SO).$(VERSION) $(BUILD_DIR)/libolm.$(SO).$(MAJOR)
 
 debug: $(DEBUG_TARGET)
 .PHONY: debug
 
 $(DEBUG_TARGET): $(DEBUG_OBJECTS)
 	$(CXX) $(LDFLAGS) --shared -fPIC \
-            -Wl,-soname,libolm_debug.so.$(MAJOR) \
-            -Wl,--version-script,version_script.ver \
+            $(OLM_LDFLAGS) \
             $(OUTPUT_OPTION) $(DEBUG_OBJECTS)
-	ln -sf libolm_debug.so.$(VERSION) $(BUILD_DIR)/libolm_debug.so.$(MAJOR)
+	ln -sf libolm_debug.$(SO).$(VERSION) $(BUILD_DIR)/libolm_debug.$(SO).$(MAJOR)
 
 static: $(STATIC_RELEASE_TARGET)
 .PHONY: static
@@ -224,16 +232,16 @@ install-headers: $(PUBLIC_HEADERS)
 
 install-debug: debug install-headers
 	test -d $(DESTDIR)$(PREFIX)/lib || $(call mkdir,$(DESTDIR)$(PREFIX)/lib)
-	install -Dm755 $(DEBUG_TARGET) $(DESTDIR)$(PREFIX)/lib/libolm_debug.so.$(VERSION)
-	ln -s libolm_debug.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm_debug.so.$(MAJOR)
-	ln -s libolm_debug.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm_debug.so
+	install -Dm755 $(DEBUG_TARGET) $(DESTDIR)$(PREFIX)/lib/libolm_debug.$(SO).$(VERSION)
+	ln -s libolm_debug.$(SO).$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm_debug.$(SO).$(MAJOR)
+	ln -s libolm_debug.$(SO).$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm_debug.$(SO)
 .PHONY: install-debug
 
 install: lib install-headers
 	test -d $(DESTDIR)$(PREFIX)/lib || $(call mkdir,$(DESTDIR)$(PREFIX)/lib)
-	install -Dm755 $(RELEASE_TARGET) $(DESTDIR)$(PREFIX)/lib/libolm.so.$(VERSION)
-	ln -s libolm.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm.so.$(MAJOR)
-	ln -s libolm.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm.so
+	install -Dm755 $(RELEASE_TARGET) $(DESTDIR)$(PREFIX)/lib/libolm.$(SO).$(VERSION)
+	ln -s libolm.$(SO).$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm.$(SO).$(MAJOR)
+	ln -s libolm.$(SO).$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm.$(SO)
 .PHONY: install
 
 clean:;
