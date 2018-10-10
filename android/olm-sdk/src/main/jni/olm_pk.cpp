@@ -150,6 +150,7 @@ JNIEXPORT jbyteArray OLM_PK_ENCRYPTION_FUNC_DEF(encryptJni)(
     jbyteArray encryptedMsgRet = 0;
     const char* errorMessage = NULL;
     jbyte *plaintextPtr = NULL;
+    jboolean plaintextIsCopied = JNI_FALSE;
 
     OlmPkEncryption *encryptionPtr = getPkEncryptionInstanceId(env, thiz);
     jclass encryptedMsgJClass = 0;
@@ -165,7 +166,7 @@ JNIEXPORT jbyteArray OLM_PK_ENCRYPTION_FUNC_DEF(encryptJni)(
         LOGE(" ## pkEncryptJni(): failure - invalid clear message");
         errorMessage = "invalid clear message";
     }
-    else if (!(plaintextPtr = env->GetByteArrayElements(aPlaintextBuffer, 0)))
+    else if (!(plaintextPtr = env->GetByteArrayElements(aPlaintextBuffer, &plaintextIsCopied)))
     {
         LOGE(" ## pkEncryptJni(): failure - plaintext JNI allocation OOM");
         errorMessage = "plaintext JNI allocation OOM";
@@ -269,6 +270,10 @@ JNIEXPORT jbyteArray OLM_PK_ENCRYPTION_FUNC_DEF(encryptJni)(
 
     if (plaintextPtr)
     {
+        if (plaintextIsCopied)
+        {
+            memset(plaintextPtr, 0, (size_t)env->GetArrayLength(aPlaintextBuffer));
+        }
         env->ReleaseByteArrayElements(aPlaintextBuffer, plaintextPtr, JNI_ABORT);
     }
 
@@ -561,6 +566,7 @@ JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(decryptJni)(
         }
         if (plaintextPtr)
         {
+          memset(plaintextPtr, 0, maxPlaintextLength);
           free(plaintextPtr);
         }
     }

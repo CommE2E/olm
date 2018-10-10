@@ -297,6 +297,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIE
 
     OlmOutboundGroupSession *sessionPtr = NULL;
     jbyte* clearMsgPtr = NULL;
+    jboolean clearMsgIsCopied = JNI_FALSE;
 
     if (!(sessionPtr = (OlmOutboundGroupSession*)getOutboundGroupSessionInstanceId(env,thiz)))
     {
@@ -308,7 +309,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIE
         LOGE(" ## encryptMessageJni(): failure - invalid clear message");
         errorMessage = "invalid clear message";
     }
-    else if (!(clearMsgPtr = env->GetByteArrayElements(aClearMsgBuffer, NULL)))
+    else if (!(clearMsgPtr = env->GetByteArrayElements(aClearMsgBuffer, &clearMsgIsCopied)))
     {
         LOGE(" ## encryptMessageJni(): failure - clear message JNI allocation OOM");
         errorMessage = "clear message JNI allocation OOM";
@@ -359,6 +360,10 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(encryptMessageJni)(JNIE
     // free alloc
     if (clearMsgPtr)
     {
+        if (clearMsgIsCopied)
+        {
+            memset(clearMsgPtr, 0, (size_t)env->GetArrayLength(aClearMsgBuffer));
+        }
         env->ReleaseByteArrayElements(aClearMsgBuffer, clearMsgPtr, JNI_ABORT);
     }
 

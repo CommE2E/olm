@@ -472,6 +472,7 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobjec
 
     OlmSession *sessionPtr = getSessionInstanceId(env, thiz);
     jbyte *clearMsgPtr = NULL;
+    jboolean clearMsgIsCopied = JNI_FALSE;
     jclass encryptedMsgJClass = 0;
     jfieldID typeMsgFieldId;
 
@@ -490,8 +491,9 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobjec
     else if (!aEncryptedMsg)
     {
         LOGE("## encryptMessageJni(): failure - invalid encrypted message");
+        errorMessage = "invalid encrypted message";
     }
-    else if (!(clearMsgPtr = env->GetByteArrayElements(aClearMsgBuffer, 0)))
+    else if (!(clearMsgPtr = env->GetByteArrayElements(aClearMsgBuffer, &clearMsgIsCopied)))
     {
         LOGE("## encryptMessageJni(): failure - clear message JNI allocation OOM");
         errorMessage = "clear message JNI allocation OOM";
@@ -580,6 +582,10 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobjec
     // free alloc
     if (clearMsgPtr)
     {
+        if (clearMsgIsCopied)
+        {
+            memset(clearMsgPtr, 0, (size_t)env->GetArrayLength(aClearMsgBuffer));
+        }
         env->ReleaseByteArrayElements(aClearMsgBuffer, clearMsgPtr, JNI_ABORT);
     }
 
@@ -702,6 +708,8 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobjec
 
                 LOGD(" ## decryptMessageJni(): UTF-8 Conversion - decrypted returnedLg=%lu OK",static_cast<long unsigned int>(plaintextLength));
             }
+
+            memset(plainTextMsgPtr, 0, maxPlainTextLength);
         }
     }
 
