@@ -463,12 +463,3 @@ olm_exports["get_library_version"] = restore_stack(function() {
         getValue(buf+2, 'i8'),
     ];
 });
-
-Module['onRuntimeInitialized'] = function() {
-    OLM_ERROR = Module['_olm_error']();
-    if (onInitSuccess) onInitSuccess();
-};
-
-Module['onAbort'] = function(err) {
-    if (onInitFail) onInitFail(err);
-};
