@@ -5,6 +5,7 @@
   "main": "olm.js",
   "files": [
     "olm.js",
+    "olm.wasm",
     "README.md"
   ],
   "scripts": {

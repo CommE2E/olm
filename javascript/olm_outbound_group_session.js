@@ -1,10 +1,3 @@
-/* The 'length' argument to Pointer_stringify doesn't work if the input includes
- * characters >= 128; we therefore need to add a NULL character to all of our
- * strings. This acts as a symbolic constant to help show what we're doing.
- */
-var NULL_BYTE_PADDING_LENGTH = 1;
-
-
 function OutboundGroupSession() {
     var size = Module['_olm_outbound_group_session_size']();
     this.buf = malloc(size);
@@ -66,7 +59,7 @@ OutboundGroupSession.prototype['create'] = restore_stack(function() {
 OutboundGroupSession.prototype['encrypt'] = function(plaintext) {
     var plaintext_buffer, message_buffer, plaintext_length;
     try {
-        plaintext_length = Module['lengthBytesUTF8'](plaintext);
+        plaintext_length = lengthBytesUTF8(plaintext);
 
         var message_length = outbound_group_session_method(
             Module['_olm_group_encrypt_message_length']
@@ -75,7 +68,7 @@ OutboundGroupSession.prototype['encrypt'] = function(plaintext) {
         // need to allow space for the terminator (which stringToUTF8 always
         // writes), hence + 1.
         plaintext_buffer = malloc(plaintext_length + 1);
-        Module['stringToUTF8'](plaintext, plaintext_buffer, plaintext_length + 1);
+        stringToUTF8(plaintext, plaintext_buffer, plaintext_length + 1);
 
         message_buffer = malloc(message_length + NULL_BYTE_PADDING_LENGTH);
         outbound_group_session_method(Module['_olm_group_encrypt'])(
@@ -86,12 +79,12 @@ OutboundGroupSession.prototype['encrypt'] = function(plaintext) {
 
         // UTF8ToString requires a null-terminated argument, so add the
         // null terminator.
-        Module['setValue'](
+        setValue(
             message_buffer+message_length,
             0, "i8"
         );
 
-        return Module['UTF8ToString'](message_buffer);
+        return UTF8ToString(message_buffer);
     } finally {
         if (plaintext_buffer !== undefined) {
             // don't leave a copy of the plaintext in the heap.

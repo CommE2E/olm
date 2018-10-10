@@ -1,3 +1,11 @@
+Changes in latest release
+
+BREAKING CHANGE: Olm now uses WebAssembly which means it needs
+to load the wasm file asynchronously, and therefore needs to be
+started up asynchronously. The imported module now has an init()
+method which returns a promise. The library cannot be used until
+this promise resolves. It will reject if the library fails to start.
+
 Changes in `2.3.0 <http://matrix.org/git/olm/commit/?h=2.3.0>`_
 
 This release includes the following changes since 2.2.2:
