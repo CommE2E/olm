@@ -24,7 +24,9 @@ if (typeof(window) !== 'undefined') {
     window["Olm"] = olm_exports;
 }
 
-// Emscripten sets the module exports to be its module
-// with wrapped c functions. Clobber it with our higher
-// level wrapper class.
-module.exports = olm_exports;
+if (typeof module === 'object') {
+    // Emscripten sets the module exports to be its module
+    // with wrapped c functions. Clobber it with our higher
+    // level wrapper class.
+    module.exports = olm_exports;
+}
