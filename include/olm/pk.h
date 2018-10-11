@@ -116,6 +116,10 @@ size_t olm_clear_pk_decryption(
  */
 size_t olm_pk_private_key_length();
 
+/** DEPRECATED: Use olm_pk_private_key_length()
+ */
+size_t olm_pk_generate_key_random_length(void);
+
 /** Initialise the key from the private part of a key as returned by
  * olm_pk_get_private_key(). The associated public key will be written to the
  * pubkey buffer. Returns olm_error() on failure. If the pubkey buffer is too
@@ -127,6 +131,14 @@ size_t olm_pk_private_key_length();
  * an unencoded byte array
  */
 size_t olm_pk_key_from_private(
+    OlmPkDecryption * decryption,
+    void * pubkey, size_t pubkey_length,
+    void * privkey, size_t privkey_length
+);
+
+/** DEPRECATED: Use olm_pk_key_from_private
+ */
+size_t olm_pk_generate_key(
     OlmPkDecryption * decryption,
     void * pubkey, size_t pubkey_length,
     void * privkey, size_t privkey_length

@@ -191,6 +191,10 @@ size_t olm_pk_private_key_length(void) {
     return CURVE25519_KEY_LENGTH;
 }
 
+size_t olm_pk_generate_key_random_length(void) {
+    return olm_pk_private_key_length();
+}
+
 size_t olm_pk_key_length(void) {
     return olm::encode_base64_length(CURVE25519_KEY_LENGTH);
 }
@@ -218,6 +222,14 @@ size_t olm_pk_key_from_private(
         (uint8_t *)pubkey
     );
     return 0;
+}
+
+size_t olm_pk_generate_key(
+    OlmPkDecryption * decryption,
+    void * pubkey, size_t pubkey_length,
+    void * privkey, size_t privkey_length
+) {
+    return olm_pk_key_from_private(decryption, pubkey, pubkey_length, privkey, privkey_length);
 }
 
 namespace {
