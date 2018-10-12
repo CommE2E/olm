@@ -2,7 +2,11 @@ PYTHON   ?= python
 
 all: olm
 
-olm:
+include/olm/olm.h: ../include/olm/olm.h ../include/olm/inbound_group_session.h ../include/olm/outbound_group_session.h
+	mkdir -p include/olm
+	$(CPP) -I dummy -I ../include ../include/olm/olm.h -o include/olm/olm.h
+
+olm: include/olm/olm.h
 	DEVELOP=$(DEVELOP) $(PYTHON) setup.py build
 
 install: olm
