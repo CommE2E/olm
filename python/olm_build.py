@@ -26,12 +26,11 @@ PATH = os.path.dirname(__file__)
 
 DEVELOP = os.environ.get("DEVELOP")
 
-compile_args = []
-link_args = []
+compile_args = ["-I../include"]
+link_args = ["-L../build"]
 
 if DEVELOP and DEVELOP.lower() in ["yes", "true", "1"]:
-    compile_args = ["-I../include"]
-    link_args = ['-Wl,-L=../build,-rpath=../build']
+    link_args.append('-Wl,-rpath=../build')
 
 
 ffibuilder.set_source(
