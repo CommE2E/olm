@@ -31,6 +31,9 @@ To build the javascript bindings, install emscripten from http://kripken.github.
 
     make js
 
+Note that if you run emscripten in a docker container, you need to pass through
+the EMCC_CLOSURE_ARGS environment variable.
+
 To build the android project for Android bindings, run:
 
 .. code:: bash

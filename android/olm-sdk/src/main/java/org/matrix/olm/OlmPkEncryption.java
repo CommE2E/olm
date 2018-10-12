@@ -18,6 +18,8 @@ package org.matrix.olm;
 
 import android.util.Log;
 
+import java.util.Arrays;
+
 public class OlmPkEncryption {
     private static final String LOG_TAG = "OlmPkEncryption";
 
@@ -72,7 +74,9 @@ public class OlmPkEncryption {
         OlmPkMessage encryptedMsgRetValue = new OlmPkMessage();
 
         try {
-            byte[] ciphertextBuffer = encryptJni(aPlaintext.getBytes("UTF-8"), encryptedMsgRetValue);
+            byte[] plaintextBuffer = aPlaintext.getBytes("UTF-8");
+            byte[] ciphertextBuffer = encryptJni(plaintextBuffer, encryptedMsgRetValue);
+            Arrays.fill(plaintextBuffer, (byte) 0);
 
             if (null != ciphertextBuffer) {
                 encryptedMsgRetValue.mCipherText = new String(ciphertextBuffer, "UTF-8");

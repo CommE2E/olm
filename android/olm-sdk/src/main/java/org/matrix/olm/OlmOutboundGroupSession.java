@@ -26,6 +26,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import java.util.Arrays;
+
 /**
  * Class used to create an outbound a <a href="http://matrix.org/docs/guides/e2e_implementation.html#starting-a-megolm-session">Megolm session</a>.<br>
  * To send a first message in an encrypted room, the client should start a new outbound Megolm session.
@@ -166,7 +168,9 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
 
         if (!TextUtils.isEmpty(aClearMsg)) {
             try {
-                byte[] encryptedBuffer = encryptMessageJni(aClearMsg.getBytes("UTF-8"));
+                byte[] clearMsgBuffer = aClearMsg.getBytes("UTF-8");
+                byte[] encryptedBuffer = encryptMessageJni(clearMsgBuffer);
+                Arrays.fill(clearMsgBuffer, (byte) 0);
 
                 if (null != encryptedBuffer) {
                     retValue = new String(encryptedBuffer , "UTF-8");

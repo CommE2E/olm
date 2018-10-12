@@ -25,6 +25,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import java.util.Arrays;
+
 /**
  * Class used to create an inbound <a href="http://matrix.org/docs/guides/e2e_implementation.html#handling-an-m-room-key-event">Megolm session</a>.<br>
  * Counter part of the outbound group session {@link OlmOutboundGroupSession}, this class decrypts the messages sent by the outbound side.
@@ -236,7 +238,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
      * In case of error, null is returned and an error message description is provided in aErrorMsg.
      * @param aEncryptedMsg the message to be decrypted
      * @return the decrypted message information
-     * @exception OlmException teh failure reason
+     * @exception OlmException the failure reason
      */
     public DecryptMessageResult decryptMessage(String aEncryptedMsg) throws OlmException {
         DecryptMessageResult result = new DecryptMessageResult();
@@ -246,6 +248,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
 
             if (null != decryptedMessageBuffer) {
                 result.mDecryptedMessage = new String(decryptedMessageBuffer, "UTF-8");
+                Arrays.fill(decryptedMessageBuffer, (byte) 0);
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## decryptMessage() failed " + e.getMessage());

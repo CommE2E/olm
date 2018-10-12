@@ -72,11 +72,15 @@ size_t olm_pk_encrypt_random_length(
 );
 
 /** Encrypt a plaintext for the recipient set using
- * olm_pk_encryption_set_recipient_key. Returns olm_error() on failure. If the
- * ciphertext, mac, or ephemeral_key buffers were too small then
- * olm_pk_encryption_last_error() will be "OUTPUT_BUFFER_TOO_SMALL". If there
- * weren't enough random bytes then olm_pk_encryption_last_error() will be
- * "NOT_ENOUGH_RANDOM". */
+ * olm_pk_encryption_set_recipient_key. Writes to the ciphertext, mac, and
+ * ephemeral_key buffers, whose values should be sent to the recipient. mac is
+ * a Message Authentication Code to ensure that the data is received and
+ * decrypted properly. ephemeral_key is the public part of the ephemeral key
+ * used (together with the recipient's key) to generate a symmetric encryption
+ * key. Returns olm_error() on failure. If the ciphertext, mac, or
+ * ephemeral_key buffers were too small then olm_pk_encryption_last_error()
+ * will be "OUTPUT_BUFFER_TOO_SMALL". If there weren't enough random bytes then
+ * olm_pk_encryption_last_error() will be "OLM_INPUT_BUFFER_TOO_SMALL". */
 size_t olm_pk_encrypt(
     OlmPkEncryption *encryption,
     void const * plaintext, size_t plaintext_length,
@@ -108,18 +112,36 @@ size_t olm_clear_pk_decryption(
     OlmPkDecryption *decryption
 );
 
-/** The number of random bytes needed to generate a new key. */
+/** Get the number of bytes required to store an olm private key
+ */
+size_t olm_pk_private_key_length();
+
+/** DEPRECATED: Use olm_pk_private_key_length()
+ */
 size_t olm_pk_generate_key_random_length(void);
 
-/** Generate a new key to use for decrypting messages. The associated public
- * key will be written to the pubkey buffer. Returns olm_error() on failure. If
- * the pubkey buffer is too small then olm_pk_decryption_last_error() will be
- * "OUTPUT_BUFFER_TOO_SMALL". If there weren't enough random bytes then
- * olm_pk_decryption_last_error() will be "NOT_ENOUGH_RANDOM". */
+/** Initialise the key from the private part of a key as returned by
+ * olm_pk_get_private_key(). The associated public key will be written to the
+ * pubkey buffer. Returns olm_error() on failure. If the pubkey buffer is too
+ * small then olm_pk_decryption_last_error() will be "OUTPUT_BUFFER_TOO_SMALL".
+ * If the private key was not long enough then olm_pk_decryption_last_error()
+ * will be "OLM_INPUT_BUFFER_TOO_SMALL".
+ *
+ * Note that the pubkey is a base64 encoded string, but the private key is
+ * an unencoded byte array
+ */
+size_t olm_pk_key_from_private(
+    OlmPkDecryption * decryption,
+    void * pubkey, size_t pubkey_length,
+    void * privkey, size_t privkey_length
+);
+
+/** DEPRECATED: Use olm_pk_key_from_private
+ */
 size_t olm_pk_generate_key(
     OlmPkDecryption * decryption,
     void * pubkey, size_t pubkey_length,
-    void * random, size_t random_length
+    void * privkey, size_t privkey_length
 );
 
 /** Returns the number of bytes needed to store a decryption object. */
@@ -159,16 +181,30 @@ size_t olm_pk_max_plaintext_length(
     size_t ciphertext_length
 );
 
-/** Decrypt a ciphertext.  The input ciphertext buffer is destroyed.  Returns
- * the length of the plaintext on success. Returns olm_error() on failure. If
- * the plaintext buffer is too small then olm_pk_encryption_last_error() will
- * be "OUTPUT_BUFFER_TOO_SMALL". */
+/** Decrypt a ciphertext. The input ciphertext buffer is destroyed. See the
+ * olm_pk_encrypt function for descriptions of the ephemeral_key and mac
+ * arguments. Returns the length of the plaintext on success. Returns
+ * olm_error() on failure. If the plaintext buffer is too small then
+ * olm_pk_encryption_last_error() will be "OUTPUT_BUFFER_TOO_SMALL". */
 size_t olm_pk_decrypt(
-    OlmPkDecryption * decrytion,
+    OlmPkDecryption * decryption,
     void const * ephemeral_key, size_t ephemeral_key_length,
     void const * mac, size_t mac_length,
     void * ciphertext, size_t ciphertext_length,
     void * plaintext, size_t max_plaintext_length
+);
+
+/**
+ * Get the private key for an OlmDecryption object as an unencoded byte array
+ * private_key must be a pointer to a buffer of at least
+ * olm_pk_private_key_length() bytes and this length must be passed in
+ * private_key_length. If the given buffer is too small, returns olm_error()
+ * and olm_pk_encryption_last_error() will be "OUTPUT_BUFFER_TOO_SMALL".
+ * Returns the number of bytes written.
+ */
+size_t olm_pk_get_private_key(
+    OlmPkDecryption * decryption,
+    void *private_key, size_t private_key_length
 );
 
 #ifdef __cplusplus

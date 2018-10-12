@@ -18,6 +18,8 @@ package org.matrix.olm;
 
 import android.util.Log;
 
+import java.util.Arrays;
+
 public class OlmPkDecryption {
     private static final String LOG_TAG = "OlmPkDecryption";
 
@@ -67,7 +69,10 @@ public class OlmPkDecryption {
         }
 
         try {
-            return new String(decryptJni(aMessage), "UTF-8");
+            byte[] plaintextBuffer = decryptJni(aMessage);
+            String plaintext = new String(plaintextBuffer, "UTF-8");
+            Arrays.fill(plaintextBuffer, (byte) 0);
+            return plaintext;
         } catch (Exception e) {
             Log.e(LOG_TAG, "## pkDecrypt(): failed " + e.getMessage());
             throw new OlmException(OlmException.EXCEPTION_CODE_PK_DECRYPTION_DECRYPT, e.getMessage());

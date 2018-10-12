@@ -113,6 +113,6 @@ This document is licensed under the `Apache License, Version 2.0
 Feedback
 --------
 
-Questions and feedback can be sent to richard at matrix.org.
+Questions and feedback can be sent to olm at matrix.org.
 
 .. _`Ed25519`: http://ed25519.cr.yp.to/

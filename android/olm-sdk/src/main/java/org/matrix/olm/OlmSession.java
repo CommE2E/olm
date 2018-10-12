@@ -25,6 +25,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import java.util.Arrays;
+
 /**
  * Session class used to create Olm sessions in conjunction with {@link OlmAccount} class.<br>
  * Olm session is used to encrypt data between devices, especially to create Olm group sessions (see {@link OlmOutboundGroupSession} and {@link OlmInboundGroupSession}).<br>
@@ -295,7 +297,9 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
         OlmMessage encryptedMsgRetValue = new OlmMessage();
 
         try {
-            byte[] encryptedMessageBuffer = encryptMessageJni(aClearMsg.getBytes("UTF-8"), encryptedMsgRetValue);
+            byte[] clearMsgBuffer = aClearMsg.getBytes("UTF-8");
+            byte[] encryptedMessageBuffer = encryptMessageJni(clearMsgBuffer, encryptedMsgRetValue);
+            Arrays.fill(clearMsgBuffer, (byte) 0);
 
             if (null != encryptedMessageBuffer) {
                 encryptedMsgRetValue.mCipherText = new String(encryptedMessageBuffer, "UTF-8");
@@ -330,7 +334,10 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
         }
 
         try {
-            return new String(decryptMessageJni(aEncryptedMsg), "UTF-8");
+            byte[] plaintextBuffer = decryptMessageJni(aEncryptedMsg);
+            String plaintext = new String(plaintextBuffer, "UTF-8");
+            Arrays.fill(plaintextBuffer, (byte) 0);
+            return plaintext;
         } catch (Exception e) {
             Log.e(LOG_TAG, "## decryptMessage(): failed " + e.getMessage());
             throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_DECRYPT_MESSAGE, e.getMessage());

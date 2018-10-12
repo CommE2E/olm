@@ -22,14 +22,14 @@
 #include "olm/pickle_encoding.h"
 #include "olm/pickle.hh"
 
-extern "C" {
-
 static const std::size_t MAC_LENGTH = 8;
 
-    const struct _olm_cipher_aes_sha_256 olm_pk_cipher_aes_sha256 =
+const struct _olm_cipher_aes_sha_256 olm_pk_cipher_aes_sha256 =
     OLM_CIPHER_INIT_AES_SHA_256("");
 const struct _olm_cipher *olm_pk_cipher =
     OLM_CIPHER_BASE(&olm_pk_cipher_aes_sha256);
+
+extern "C" {
 
 struct OlmPkEncryption {
     OlmErrorCode last_error;
@@ -73,7 +73,11 @@ size_t olm_pk_encryption_set_recipient_key (
             OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL; // FIXME:
         return std::size_t(-1);
     }
-    olm::decode_base64((const uint8_t*)key, olm_pk_key_length(), (uint8_t *)encryption->recipient_key.public_key);
+    olm::decode_base64(
+        (const uint8_t*)key,
+        olm_pk_key_length(),
+        (uint8_t *)encryption->recipient_key.public_key
+    );
     return 0;
 }
 
@@ -81,7 +85,9 @@ size_t olm_pk_ciphertext_length(
     OlmPkEncryption *encryption,
     size_t plaintext_length
 ) {
-    return olm::encode_base64_length(_olm_cipher_aes_sha_256_ops.encrypt_ciphertext_length(olm_pk_cipher, plaintext_length));
+    return olm::encode_base64_length(
+        _olm_cipher_aes_sha_256_ops.encrypt_ciphertext_length(olm_pk_cipher, plaintext_length)
+    );
 }
 
 size_t olm_pk_mac_length(
@@ -106,9 +112,9 @@ size_t olm_pk_encrypt(
 ) {
     if (ciphertext_length
             < olm_pk_ciphertext_length(encryption, plaintext_length)
-            || mac_length
+        || mac_length
             < _olm_cipher_aes_sha_256_ops.mac_length(olm_pk_cipher)
-            || ephemeral_key_size
+        || ephemeral_key_size
             < olm_pk_key_length()) {
         encryption->last_error =
             OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
@@ -122,11 +128,16 @@ size_t olm_pk_encrypt(
 
     _olm_curve25519_key_pair ephemeral_keypair;
     _olm_crypto_curve25519_generate_key((uint8_t *) random, &ephemeral_keypair);
-    olm::encode_base64((const uint8_t *)ephemeral_keypair.public_key.public_key, CURVE25519_KEY_LENGTH, (uint8_t *)ephemeral_key);
+    olm::encode_base64(
+        (const uint8_t *)ephemeral_keypair.public_key.public_key,
+        CURVE25519_KEY_LENGTH,
+        (uint8_t *)ephemeral_key
+    );
 
     olm::SharedKey secret;
     _olm_crypto_curve25519_shared_secret(&ephemeral_keypair, &encryption->recipient_key, secret);
-    size_t raw_ciphertext_length = _olm_cipher_aes_sha_256_ops.encrypt_ciphertext_length(olm_pk_cipher, plaintext_length);
+    size_t raw_ciphertext_length =
+        _olm_cipher_aes_sha_256_ops.encrypt_ciphertext_length(olm_pk_cipher, plaintext_length);
     uint8_t *ciphertext_pos = (uint8_t *) ciphertext + ciphertext_length - raw_ciphertext_length;
     uint8_t raw_mac[MAC_LENGTH];
     size_t result = _olm_cipher_aes_sha_256_ops.encrypt(
@@ -176,33 +187,49 @@ size_t olm_clear_pk_decryption(
     return sizeof(OlmPkDecryption);
 }
 
-size_t olm_pk_generate_key_random_length(void) {
+size_t olm_pk_private_key_length(void) {
     return CURVE25519_KEY_LENGTH;
+}
+
+size_t olm_pk_generate_key_random_length(void) {
+    return olm_pk_private_key_length();
 }
 
 size_t olm_pk_key_length(void) {
     return olm::encode_base64_length(CURVE25519_KEY_LENGTH);
 }
 
-size_t olm_pk_generate_key(
+size_t olm_pk_key_from_private(
     OlmPkDecryption * decryption,
     void * pubkey, size_t pubkey_length,
-    void * random, size_t random_length
+    void * privkey, size_t privkey_length
 ) {
-    if (pubkey_length < CURVE25519_KEY_LENGTH) {
+    if (pubkey_length < olm_pk_key_length()) {
         decryption->last_error =
             OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
-    if (random_length < olm_pk_generate_key_random_length()) {
+    if (privkey_length < olm_pk_private_key_length()) {
         decryption->last_error =
-            OlmErrorCode::OLM_NOT_ENOUGH_RANDOM;
+            OlmErrorCode::OLM_INPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
 
-    _olm_crypto_curve25519_generate_key((uint8_t *) random, &decryption->key_pair);
-    olm::encode_base64((const uint8_t *)decryption->key_pair.public_key.public_key, CURVE25519_KEY_LENGTH, (uint8_t *)pubkey);
+    _olm_crypto_curve25519_generate_key((uint8_t *) privkey, &decryption->key_pair);
+    olm::encode_base64(
+        (const uint8_t *)decryption->key_pair.public_key.public_key,
+        CURVE25519_KEY_LENGTH,
+        (uint8_t *)pubkey
+    );
     return 0;
+}
+
+size_t olm_pk_generate_key(
+    OlmPkDecryption * decryption,
+    void * pubkey, size_t pubkey_length,
+    void * privkey, size_t privkey_length
+) {
+    return olm_pk_key_from_private(decryption, pubkey, pubkey_length, privkey, privkey_length);
 }
 
 namespace {
@@ -267,7 +294,10 @@ size_t olm_pickle_pk_decryption(
         return std::size_t(-1);
     }
     pickle(_olm_enc_output_pos(reinterpret_cast<std::uint8_t *>(pickled), raw_length), object);
-    return _olm_enc_output(reinterpret_cast<std::uint8_t const *>(key), key_length, reinterpret_cast<std::uint8_t *>(pickled), raw_length);
+    return _olm_enc_output(
+        reinterpret_cast<std::uint8_t const *>(key), key_length,
+        reinterpret_cast<std::uint8_t *>(pickled), raw_length
+    );
 }
 
 size_t olm_unpickle_pk_decryption(
@@ -283,7 +313,8 @@ size_t olm_unpickle_pk_decryption(
     }
     std::uint8_t * const pos = reinterpret_cast<std::uint8_t *>(pickled);
     std::size_t raw_length = _olm_enc_input(
-        reinterpret_cast<std::uint8_t const *>(key), key_length, pos, pickled_length, &object.last_error
+        reinterpret_cast<std::uint8_t const *>(key), key_length,
+        pos, pickled_length, &object.last_error
     );
     if (raw_length == std::size_t(-1)) {
         return std::size_t(-1);
@@ -300,7 +331,11 @@ size_t olm_unpickle_pk_decryption(
         return std::size_t(-1);
     }
     if (pubkey != NULL) {
-        olm::encode_base64((const uint8_t *)object.key_pair.public_key.public_key, CURVE25519_KEY_LENGTH, (uint8_t *)pubkey);
+        olm::encode_base64(
+            (const uint8_t *)object.key_pair.public_key.public_key,
+            CURVE25519_KEY_LENGTH,
+            (uint8_t *)pubkey
+        );
     }
     return pickled_length;
 }
@@ -309,7 +344,9 @@ size_t olm_pk_max_plaintext_length(
     OlmPkDecryption * decryption,
     size_t ciphertext_length
 ) {
-    return _olm_cipher_aes_sha_256_ops.decrypt_max_plaintext_length(olm_pk_cipher, olm::decode_base64_length(ciphertext_length));
+    return _olm_cipher_aes_sha_256_ops.decrypt_max_plaintext_length(
+        olm_pk_cipher, olm::decode_base64_length(ciphertext_length)
+    );
 }
 
 size_t olm_pk_decrypt(
@@ -327,7 +364,10 @@ size_t olm_pk_decrypt(
     }
 
     struct _olm_curve25519_public_key ephemeral;
-    olm::decode_base64((const uint8_t*)ephemeral_key, ephemeral_key_length, (uint8_t *)ephemeral.public_key);
+    olm::decode_base64(
+        (const uint8_t*)ephemeral_key, ephemeral_key_length,
+        (uint8_t *)ephemeral.public_key
+    );
     olm::SharedKey secret;
     _olm_crypto_curve25519_shared_secret(&decryption->key_pair, &ephemeral, secret);
     uint8_t raw_mac[MAC_LENGTH];
@@ -350,6 +390,23 @@ size_t olm_pk_decrypt(
     } else {
         return result;
     }
+}
+
+size_t olm_pk_get_private_key(
+    OlmPkDecryption * decryption,
+    void *private_key, size_t private_key_length
+) {
+    if (private_key_length < olm_pk_private_key_length()) {
+        decryption->last_error =
+            OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
+        return std::size_t(-1);
+    }
+    std::memcpy(
+        private_key,
+        decryption->key_pair.private_key.private_key,
+        olm_pk_private_key_length()
+    );
+    return olm_pk_private_key_length();
 }
 
 }

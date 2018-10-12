@@ -72,7 +72,7 @@ info.
 Advancing the chain key
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Advancing a chain key takes the previous chain key, :math:`C_{i,j-i}`. The next
+Advancing a chain key takes the previous chain key, :math:`C_{i,j-1}`. The next
 chain key, :math:`C_{i,j}`, is the HMAC-SHA-256_ of ``"\x02"`` using the
 previous chain key as the key.
 
@@ -338,7 +338,7 @@ The Olm specification (this document) is hereby placed in the public domain.
 Feedback
 --------
 
-Can be sent to mark at matrix.org.
+Can be sent to olm at matrix.org.
 
 Acknowledgements
 ----------------

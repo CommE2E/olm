@@ -1,5 +1,6 @@
 /*
 Copyright 2016 OpenMarket Ltd
+Copyright 2018 New Vector Ltd
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,11 +31,18 @@ describe("olm", function() {
     var aliceAccount, bobAccount;
     var aliceSession, bobSession;
 
-    beforeEach(function() {
-        aliceAccount = new Olm.Account();
-        bobAccount = new Olm.Account();
-        aliceSession = new Olm.Session();
-        bobSession = new Olm.Session();
+    beforeEach(function(done) {
+        // This should really be in a beforeAll, but jasmine-node
+        // doesn't support that
+        debugger;
+        Olm.init().then(function() {
+            aliceAccount = new Olm.Account();
+            bobAccount = new Olm.Account();
+            aliceSession = new Olm.Session();
+            bobSession = new Olm.Session();
+
+            done();
+        });
     });
 
     afterEach(function() {

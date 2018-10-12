@@ -1,27 +1,17 @@
-var runtime = Module['Runtime'];
 var malloc = Module['_malloc'];
 var free = Module['_free'];
-var Pointer_stringify = Module['Pointer_stringify'];
-var OLM_ERROR = Module['_olm_error']();
-
-/* The 'length' argument to Pointer_stringify doesn't work if the input
- * includes characters >= 128, which makes Pointer_stringify unreliable. We
- * could use it on strings which are known to be ascii, but that seems
- * dangerous. Instead we add a NULL character to all of our strings and just
- * use UTF8ToString.
- */
-var NULL_BYTE_PADDING_LENGTH = 1;
+var OLM_ERROR;
 
 /* allocate a number of bytes of storage on the stack.
  *
  * If size_or_array is a Number, allocates that number of zero-initialised bytes.
  */
 function stack(size_or_array) {
-    return Module['allocate'](size_or_array, 'i8', Module['ALLOC_STACK']);
+    return allocate(size_or_array, 'i8', Module['ALLOC_STACK']);
 }
 
 function array_from_string(string) {
-    return Module['intArrayFromString'](string, true);
+    return intArrayFromString(string, true);
 }
 
 function random_stack(size) {
@@ -33,11 +23,11 @@ function random_stack(size) {
 
 function restore_stack(wrapped) {
     return function() {
-        var sp = runtime.stackSave();
+        var sp = stackSave();
         try {
             return wrapped.apply(this, arguments);
         } finally {
-            runtime.stackRestore(sp);
+            stackRestore(sp);
         }
     }
 }
@@ -315,7 +305,7 @@ Session.prototype['encrypt'] = restore_stack(function(
             Module['_olm_encrypt_message_type']
         )(this.ptr);
 
-        plaintext_length = Module['lengthBytesUTF8'](plaintext);
+        plaintext_length = lengthBytesUTF8(plaintext);
         var message_length = session_method(
             Module['_olm_encrypt_message_length']
         )(this.ptr, plaintext_length);
@@ -325,7 +315,7 @@ Session.prototype['encrypt'] = restore_stack(function(
         // need to allow space for the terminator (which stringToUTF8 always
         // writes), hence + 1.
         plaintext_buffer = malloc(plaintext_length + 1);
-        Module['stringToUTF8'](plaintext, plaintext_buffer, plaintext_length + 1);
+        stringToUTF8(plaintext, plaintext_buffer, plaintext_length + 1);
 
         message_buffer = malloc(message_length + NULL_BYTE_PADDING_LENGTH);
 
@@ -338,14 +328,14 @@ Session.prototype['encrypt'] = restore_stack(function(
 
         // UTF8ToString requires a null-terminated argument, so add the
         // null terminator.
-        Module['setValue'](
+        setValue(
             message_buffer+message_length,
             0, "i8"
         );
 
         return {
             "type": message_type,
-            "body": Module['UTF8ToString'](message_buffer),
+            "body": UTF8ToString(message_buffer),
         };
     } finally {
         if (plaintext_buffer !== undefined) {
@@ -366,14 +356,14 @@ Session.prototype['decrypt'] = restore_stack(function(
 
     try {
         message_buffer = malloc(message.length);
-        Module['writeAsciiToMemory'](message, message_buffer, true);
+        writeAsciiToMemory(message, message_buffer, true);
 
         max_plaintext_length = session_method(
             Module['_olm_decrypt_max_plaintext_length']
         )(this.ptr, message_type, message_buffer, message.length);
 
         // caculating the length destroys the input buffer, so we need to re-copy it.
-        Module['writeAsciiToMemory'](message, message_buffer, true);
+        writeAsciiToMemory(message, message_buffer, true);
 
         plaintext_buffer = malloc(max_plaintext_length + NULL_BYTE_PADDING_LENGTH);
 
@@ -385,7 +375,7 @@ Session.prototype['decrypt'] = restore_stack(function(
 
         // UTF8ToString requires a null-terminated argument, so add the
         // null terminator.
-        Module['setValue'](
+        setValue(
             plaintext_buffer+plaintext_length,
             0, "i8"
         );
@@ -473,22 +463,3 @@ olm_exports["get_library_version"] = restore_stack(function() {
         getValue(buf+2, 'i8'),
     ];
 });
-
-})();
-
-// export the olm functions into the environment.
-//
-// make sure that we do this *after* populating olm_exports, so that we don't
-// get a half-built window.Olm if there is an exception.
-
-if (typeof module !== 'undefined' && module.exports) {
-    // node / browserify
-    module.exports = olm_exports;
-}
-
-if (typeof(window) !== 'undefined') {
-    // We've been imported directly into a browser. Define the global 'Olm' object.
-    // (we do this even if module.exports was defined, because it's useful to have
-    // Olm in the global scope for browserified and webpacked apps.)
-    window["Olm"] = olm_exports;
-}
