@@ -219,7 +219,7 @@ fuzzers: $(FUZZER_BINARIES) $(FUZZER_DEBUG_BINARIES)
 .PHONY: fuzzers
 
 $(JS_EXPORTED_FUNCTIONS): $(PUBLIC_HEADERS)
-	perl -MJSON -ne '$$f{"_$$1"}=1 if /(olm_[^( ]*)\(/; END { @f=sort keys %f; print encode_json \@f }' $^ > $@.tmp
+	./exports.py $^ > $@.tmp
 	mv $@.tmp $@
 
 all: test js lib debug doc
