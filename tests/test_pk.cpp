@@ -36,13 +36,18 @@ const std::uint8_t *bob_public = (std::uint8_t *) "3p7bfXt9wbTTW2HC7OQ1Nz+DQ8hbe
 
 std::uint8_t pubkey[::olm_pk_key_length()];
 
-olm_pk_generate_key(
+olm_pk_key_from_private(
     decryption,
     pubkey, sizeof(pubkey),
     alice_private, sizeof(alice_private)
 );
 
 assert_equals(alice_public, pubkey, olm_pk_key_length());
+
+uint8_t *alice_private_back_out = (uint8_t *)malloc(olm_pk_private_key_length());
+olm_pk_get_private_key(decryption, alice_private_back_out, olm_pk_private_key_length());
+assert_equals(alice_private, alice_private_back_out, olm_pk_private_key_length());
+free(alice_private_back_out);
 
 std::uint8_t encryption_buffer[olm_pk_encryption_size()];
 OlmPkEncryption *encryption = olm_pk_encryption(encryption_buffer);
@@ -105,7 +110,7 @@ const std::uint8_t *alice_public = (std::uint8_t *) "hSDwCYkwp1R0i33ctD73Wg2/Og0
 
 std::uint8_t pubkey[olm_pk_key_length()];
 
-olm_pk_generate_key(
+olm_pk_key_from_private(
     decryption,
     pubkey, sizeof(pubkey),
     alice_private, sizeof(alice_private)

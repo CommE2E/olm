@@ -6,6 +6,10 @@ started up asynchronously. The imported module now has an init()
 method which returns a promise. The library cannot be used until
 this promise resolves. It will reject if the library fails to start.
 
+olm_pk_generate_key() and olm_pk_generate_key_random_length() have
+been removed: to generate a random key, use olm_pk_key_from_private()
+with random bytes as the private key.
+
 Changes in `2.3.0 <http://matrix.org/git/olm/commit/?h=2.3.0>`_
 
 This release includes the following changes since 2.2.2:

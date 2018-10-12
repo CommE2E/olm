@@ -40,6 +40,7 @@ var NULL_BYTE_PADDING_LENGTH = 1;
 
 Module['onRuntimeInitialized'] = function() {
     OLM_ERROR = Module['_olm_error']();
+    olm_exports["PRIVATE_KEY_LENGTH"] = Module['_olm_pk_private_key_length']();
     if (onInitSuccess) onInitSuccess();
 };
 
