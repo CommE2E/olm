@@ -58,9 +58,10 @@ To build olm as a static library (which still needs libstdc++ dynamically) run:
 Release process
 ---------------
 
-First: bump version numbers in ``common.mk``, ``javascript/package.json``,
-``OLMKit.podspec``, and ``android/olm-sdk/build.gradle`` (``versionCode``,
-``versionName`` and ``version``).
+First: bump version numbers in ``common.mk``, ``CMakeLists.txt``,
+``javascript/package.json``, ``OLMKit.podspec``, and
+``android/olm-sdk/build.gradle`` (``versionCode``, ``versionName`` and
+``version``).
 
 Also, ensure the changelog is up to date, and that everyting is committed to
 git.

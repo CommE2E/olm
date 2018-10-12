@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 
-project(olm VERSION 2.2.2 LANGUAGES CXX C)
+project(olm VERSION 2.3.0 LANGUAGES CXX C)
 
 option(OLM_TESTS "Build tests" ON)
 option(OLM_FUZZERS "Build fuzzers" ON)
@@ -31,6 +31,7 @@ add_library(olm
     src/ratchet.cpp
     src/session.cpp
     src/utility.cpp
+    src/pk.cpp
 
     src/ed25519.c
     src/error.c
@@ -77,6 +78,7 @@ install(FILES
     ${CMAKE_SOURCE_DIR}/include/olm/olm.h
     ${CMAKE_SOURCE_DIR}/include/olm/outbound_group_session.h
     ${CMAKE_SOURCE_DIR}/include/olm/inbound_group_session.h
+    ${CMAKE_SOURCE_DIR}/include/olm/pk.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/olm)
 
 # Export the targets to a script.
