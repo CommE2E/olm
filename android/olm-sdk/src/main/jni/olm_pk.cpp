@@ -366,7 +366,7 @@ JNIEXPORT void OLM_PK_DECRYPTION_FUNC_DEF(releasePkDecryptionJni)(JNIEnv *env, j
 
 JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(generateKeyJni)(JNIEnv *env, jobject thiz)
 {
-    size_t randomLength = olm_pk_generate_key_random_length();
+    size_t randomLength = olm_pk_private_key_length();
     uint8_t *randomBuffPtr = NULL;
 
     jbyteArray publicKeyRet = 0;
@@ -393,7 +393,7 @@ JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(generateKeyJni)(JNIEnv *env, job
     }
     else
     {
-        if (olm_pk_generate_key(decryptionPtr, publicKeyPtr, publicKeyLength, randomBuffPtr, randomLength) == olm_error())
+        if (olm_pk_key_from_private(decryptionPtr, publicKeyPtr, publicKeyLength, randomBuffPtr, randomLength) == olm_error())
         {
             errorMessage = olm_pk_decryption_last_error(decryptionPtr);
             LOGE("## pkGenerateKeyJni(): failure - olm_pk_generate_key Msg=%s", errorMessage);
