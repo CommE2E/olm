@@ -70,7 +70,7 @@ size_t olm_pk_encryption_set_recipient_key (
 ) {
     if (key_length < olm_pk_key_length()) {
         encryption->last_error =
-            OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL; // FIXME:
+            OlmErrorCode::OLM_INPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
     olm::decode_base64(
