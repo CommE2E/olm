@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.1)
 project(olm VERSION 2.3.0 LANGUAGES CXX C)
 
 option(OLM_TESTS "Build tests" ON)
-option(OLM_FUZZERS "Build fuzzers" ON)
 
 add_definitions(-DOLMLIB_VERSION_MAJOR=${PROJECT_VERSION_MAJOR})
 add_definitions(-DOLMLIB_VERSION_MINOR=${PROJECT_VERSION_MINOR})
@@ -113,8 +112,4 @@ export(PACKAGE Olm)
 
 if (OLM_TESTS)
    add_subdirectory(tests)
-endif()
-
-if (OLM_FUZZERS)
-    add_subdirectory(fuzzers)
 endif()
