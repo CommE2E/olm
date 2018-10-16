@@ -206,9 +206,7 @@ class Account(object):
 
         If the total number of keys stored by this account exceeds
         max_one_time_keys() then the old keys are discarded.
-        Raises OlmAccountError on error. If the number of random bytes is
-        too small then the error message of the exception will be
-        NOT_ENOUGH_RANDOM.
+        Raises OlmAccountError on error.
 
         Args:
             count(int): The number of keys to generate.

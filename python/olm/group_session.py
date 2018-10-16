@@ -314,8 +314,7 @@ class OutboundGroupSession(object):
         """Create a new outbound group session.
 
         Start a new outbound group session. Raises OlmGroupSessionError on
-        failure. If there weren't enough random bytes for the session creation
-        the error message for the exception will be NOT_ENOUGH_RANDOM.
+        failure.
         """
         if False:  # pragma: no cover
             self._session = self._session  # type: ffi.cdata

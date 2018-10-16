@@ -212,9 +212,7 @@ class Session(object):
     def encrypt(self, plaintext):
         # type: (AnyStr) -> _OlmMessage
         """Encrypts a message using the session. Returns the ciphertext as a
-        base64 encoded string on success. Raises OlmSessionError on failure. If
-        there weren't enough random bytes to encrypt the message the error
-        message for the exception will be NOT_ENOUGH_RANDOM.
+        base64 encoded string on success. Raises OlmSessionError on failure.
 
         Args:
             plaintext(str): The plaintext message that will be encrypted.
@@ -424,9 +422,7 @@ class OutboundSession(Session):
         identity key and one-time key.
 
         Raises OlmSessionError on failure. If the keys couldn't be decoded as
-        base64 then the error message will be "INVALID_BASE64". If there
-        weren't enough random bytes for the session creation the error message
-        for the exception will be NOT_ENOUGH_RANDOM.
+        base64 then the error message will be "INVALID_BASE64".
 
         Args:
             account(Account): The Olm Account that will be used to create this
