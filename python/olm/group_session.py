@@ -283,7 +283,12 @@ class InboundGroupSession(object):
             message_index
         )
         self._check_error(ret)
-        return bytes_to_native_str(ffi.unpack(export_buffer, export_length))
+        export_str = bytes_to_native_str(ffi.unpack(export_buffer, export_length))
+
+        # clear out copies of the key
+        lib.memset(export_buffer, 0, export_length)
+
+        return export_str
 
     @classmethod
     def import_session(cls, session_key):
@@ -313,6 +318,7 @@ class InboundGroupSession(object):
             )
             obj._check_error(ret)
         finally:
+            # clear out copies of the key
             if byte_session_key is not session_key:
                 for i in range(0, len(byte_session_key)):
                     byte_session_key[i] = 0
