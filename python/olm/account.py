@@ -37,7 +37,7 @@ from future.utils import bytes_to_native_str
 # pylint: disable=no-name-in-module
 from _libolm import ffi, lib  # type: ignore
 
-from ._compat import URANDOM, to_bytes
+from ._compat import URANDOM, to_bytearray
 from ._finalize import track_for_finalization
 
 # This is imported only for type checking purposes
@@ -82,11 +82,11 @@ class Account(object):
 
         random_length = lib.olm_create_account_random_length(self._account)
         random = URANDOM(random_length)
-        random_buffer = ffi.new("char[]", random)
 
         self._check_error(
-            lib.olm_create_account(self._account, random_buffer,
+            lib.olm_create_account(self._account, ffi.from_buffer(random),
                                    random_length))
+
 
     def _check_error(self, ret):
         # type: (int) -> None
@@ -111,15 +111,23 @@ class Account(object):
             passphrase(str, optional): The passphrase to be used to encrypt
                 the account.
         """
-        byte_key = bytes(passphrase, "utf-8") if passphrase else b""
-        key_buffer = ffi.new("char[]", byte_key)
+        byte_key = bytearray(passphrase, "utf-8") if passphrase else b""
 
         pickle_length = lib.olm_pickle_account_length(self._account)
         pickle_buffer = ffi.new("char[]", pickle_length)
 
-        self._check_error(
-            lib.olm_pickle_account(self._account, key_buffer, len(byte_key),
-                                   pickle_buffer, pickle_length))
+        try:
+            self._check_error(
+                lib.olm_pickle_account(self._account,
+                                       ffi.from_buffer(byte_key),
+                                       len(byte_key),
+                                       pickle_buffer,
+                                       pickle_length))
+        finally:
+            # zero out copies of the passphrase
+            for i in range(0, len(byte_key)):
+                byte_key[i] = 0
+
         return ffi.unpack(pickle_buffer, pickle_length)
 
     @classmethod
@@ -143,15 +151,22 @@ class Account(object):
         if not pickle:
             raise ValueError("Pickle can't be empty")
 
-        byte_key = bytes(passphrase, "utf-8") if passphrase else b""
-        key_buffer = ffi.new("char[]", byte_key)
+        byte_key = bytearray(passphrase, "utf-8") if passphrase else b""
+        # copy because unpickle will destroy the buffer
         pickle_buffer = ffi.new("char[]", pickle)
 
         obj = cls.__new__(cls)
 
-        ret = lib.olm_unpickle_account(obj._account, key_buffer, len(byte_key),
-                                       pickle_buffer, len(pickle))
-        obj._check_error(ret)
+        try:
+            ret = lib.olm_unpickle_account(obj._account,
+                                           ffi.from_buffer(byte_key),
+                                           len(byte_key),
+                                           pickle_buffer,
+                                           len(pickle))
+            obj._check_error(ret)
+        finally:
+            for i in range(0, len(byte_key)):
+                byte_key[i] = 0
 
         return obj
 
@@ -178,14 +193,21 @@ class Account(object):
         Args:
             message(str): The message to sign.
         """
-        bytes_message = to_bytes(message)
+        bytes_message = to_bytearray(message)
         out_length = lib.olm_account_signature_length(self._account)
-        message_buffer = ffi.new("char[]", bytes_message)
         out_buffer = ffi.new("char[]", out_length)
 
-        self._check_error(
-            lib.olm_account_sign(self._account, message_buffer,
-                                 len(bytes_message), out_buffer, out_length))
+        try:
+            self._check_error(
+                lib.olm_account_sign(self._account,
+                                     ffi.from_buffer(bytes_message),
+                                     len(bytes_message), out_buffer,
+                                     out_length))
+        finally:
+            # clear out copies of the message, which may be plaintext
+            if bytes_message is not message:
+                for i in range(0, len(bytes_message)):
+                    bytes_message[i] = 0
 
         return bytes_to_native_str(ffi.unpack(out_buffer, out_length))
 
@@ -214,10 +236,10 @@ class Account(object):
         random_length = lib.olm_account_generate_one_time_keys_random_length(
             self._account, count)
         random = URANDOM(random_length)
-        random_buffer = ffi.new("char[]", random)
+
         self._check_error(
             lib.olm_account_generate_one_time_keys(
-                self._account, count, random_buffer, random_length))
+                self._account, count, ffi.from_buffer(random), random_length))
 
     @property
     def one_time_keys(self):

@@ -3,6 +3,8 @@ all: olm-python2 olm-python3
 include/olm/olm.h: ../include/olm/olm.h ../include/olm/inbound_group_session.h ../include/olm/outbound_group_session.h
 	mkdir -p include/olm
 	$(CPP) -I dummy -I ../include ../include/olm/olm.h -o include/olm/olm.h
+# add memset to the header so that we can use it to clear buffers
+	echo 'void *memset(void *s, int c, size_t n);' >> include/olm/olm.h
 
 olm-python2: include/olm/olm.h
 	DEVELOP=$(DEVELOP) python2 setup.py build

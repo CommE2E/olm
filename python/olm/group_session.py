@@ -33,7 +33,7 @@ from future.utils import bytes_to_native_str
 # pylint: disable=no-name-in-module
 from _libolm import ffi, lib  # type: ignore
 
-from ._compat import URANDOM, to_bytes
+from ._compat import URANDOM, to_bytearray, to_bytes
 from ._finalize import track_for_finalization
 
 
@@ -78,12 +78,17 @@ class InboundGroupSession(object):
         if False:  # pragma: no cover
             self._session = self._session  # type: ffi.cdata
 
-        byte_session_key = to_bytes(session_key)
+        byte_session_key = to_bytearray(session_key)
 
-        key_buffer = ffi.new("char[]", byte_session_key)
-        ret = lib.olm_init_inbound_group_session(
-            self._session, key_buffer, len(byte_session_key)
-        )
+        try:
+            ret = lib.olm_init_inbound_group_session(
+                self._session,
+                ffi.from_buffer(byte_session_key), len(byte_session_key)
+            )
+        finally:
+            if byte_session_key is not session_key:
+                for i in range(0, len(byte_session_key)):
+                    byte_session_key[i] = 0
         self._check_error(ret)
 
     def pickle(self, passphrase=""):
@@ -98,19 +103,23 @@ class InboundGroupSession(object):
             passphrase(str, optional): The passphrase to be used to encrypt
                 the session.
         """
-        byte_passphrase = bytes(passphrase, "utf-8") if passphrase else b""
+        byte_passphrase = bytearray(passphrase, "utf-8") if passphrase else b""
 
-        passphrase_buffer = ffi.new("char[]", byte_passphrase)
         pickle_length = lib.olm_pickle_inbound_group_session_length(
             self._session)
         pickle_buffer = ffi.new("char[]", pickle_length)
 
-        ret = lib.olm_pickle_inbound_group_session(
-            self._session, passphrase_buffer, len(byte_passphrase),
-            pickle_buffer, pickle_length
-        )
-
-        self._check_error(ret)
+        try:
+            ret = lib.olm_pickle_inbound_group_session(
+                self._session,
+                ffi.from_buffer(byte_passphrase), len(byte_passphrase),
+                pickle_buffer, pickle_length
+            )
+            self._check_error(ret)
+        finally:
+            # clear out copies of the passphrase
+            for i in range(0, len(byte_passphrase)):
+                    byte_passphrase[i] = 0
 
         return ffi.unpack(pickle_buffer, pickle_length)
 
@@ -135,20 +144,25 @@ class InboundGroupSession(object):
         if not pickle:
             raise ValueError("Pickle can't be empty")
 
-        byte_passphrase = bytes(passphrase, "utf-8") if passphrase else b""
-        passphrase_buffer = ffi.new("char[]", byte_passphrase)
+        byte_passphrase = bytearray(passphrase, "utf-8") if passphrase else b""
+        # copy because unpickle will destroy the buffer
         pickle_buffer = ffi.new("char[]", pickle)
 
         obj = cls.__new__(cls)
 
-        ret = lib.olm_unpickle_inbound_group_session(
-            obj._session,
-            passphrase_buffer,
-            len(byte_passphrase),
-            pickle_buffer,
-            len(pickle)
-        )
-        obj._check_error(ret)
+        try:
+            ret = lib.olm_unpickle_inbound_group_session(
+                obj._session,
+                ffi.from_buffer(byte_passphrase),
+                len(byte_passphrase),
+                pickle_buffer,
+                len(pickle)
+            )
+            obj._check_error(ret)
+        finally:
+            # clear out copies of the passphrase
+            for i in range(0, len(byte_passphrase)):
+                    byte_passphrase[i] = 0
 
         return obj
 
@@ -189,12 +203,15 @@ class InboundGroupSession(object):
 
         byte_ciphertext = to_bytes(ciphertext)
 
+        # copy because max_plaintext_length will destroy the buffer
         ciphertext_buffer = ffi.new("char[]", byte_ciphertext)
 
         max_plaintext_length = lib.olm_group_decrypt_max_plaintext_length(
             self._session, ciphertext_buffer, len(byte_ciphertext)
         )
+        self._check_error(max_plaintext_length)
         plaintext_buffer = ffi.new("char[]", max_plaintext_length)
+        # copy because max_plaintext_length will destroy the buffer
         ciphertext_buffer = ffi.new("char[]", byte_ciphertext)
 
         message_index = ffi.new("uint32_t*")
@@ -206,10 +223,15 @@ class InboundGroupSession(object):
 
         self._check_error(plaintext_length)
 
-        return bytes_to_native_str(ffi.unpack(
+        plaintext = bytes_to_native_str(ffi.unpack(
             plaintext_buffer,
             plaintext_length
-        )), message_index[0]
+        ))
+
+        # clear out copies of the plaintext
+        lib.memset(plaintext_buffer, 0, max_plaintext_length)
+
+        return plaintext, message_index[0]
 
     @property
     def id(self):
@@ -281,15 +303,19 @@ class InboundGroupSession(object):
         """
         obj = cls.__new__(cls)
 
-        byte_session_key = to_bytes(session_key)
+        byte_session_key = to_bytearray(session_key)
 
-        key_buffer = ffi.new("char[]", byte_session_key)
-        ret = lib.olm_import_inbound_group_session(
-            obj._session,
-            key_buffer,
-            len(byte_session_key)
-        )
-        obj._check_error(ret)
+        try:
+            ret = lib.olm_import_inbound_group_session(
+                obj._session,
+                ffi.from_buffer(byte_session_key),
+                len(byte_session_key)
+            )
+            obj._check_error(ret)
+        finally:
+            if byte_session_key is not session_key:
+                for i in range(0, len(byte_session_key)):
+                    byte_session_key[i] = 0
 
         return obj
 
@@ -323,10 +349,9 @@ class OutboundGroupSession(object):
             self._session
         )
         random = URANDOM(random_length)
-        random_buffer = ffi.new("char[]", random)
 
         ret = lib.olm_init_outbound_group_session(
-            self._session, random_buffer, random_length
+            self._session, ffi.from_buffer(random), random_length
         )
         self._check_error(ret)
 
@@ -353,17 +378,23 @@ class OutboundGroupSession(object):
             passphrase(str, optional): The passphrase to be used to encrypt
                 the session.
         """
-        byte_passphrase = bytes(passphrase, "utf-8") if passphrase else b""
-        passphrase_buffer = ffi.new("char[]", byte_passphrase)
+        byte_passphrase = bytearray(passphrase, "utf-8") if passphrase else b""
         pickle_length = lib.olm_pickle_outbound_group_session_length(
             self._session)
         pickle_buffer = ffi.new("char[]", pickle_length)
 
-        ret = lib.olm_pickle_outbound_group_session(
-            self._session, passphrase_buffer, len(byte_passphrase),
-            pickle_buffer, pickle_length
-        )
-        self._check_error(ret)
+        try:
+            ret = lib.olm_pickle_outbound_group_session(
+                self._session,
+                ffi.from_buffer(byte_passphrase), len(byte_passphrase),
+                pickle_buffer, pickle_length
+            )
+            self._check_error(ret)
+        finally:
+            # clear out copies of the passphrase
+            for i in range(0, len(byte_passphrase)):
+                    byte_passphrase[i] = 0
+
         return ffi.unpack(pickle_buffer, pickle_length)
 
     @classmethod
@@ -387,20 +418,25 @@ class OutboundGroupSession(object):
         if not pickle:
             raise ValueError("Pickle can't be empty")
 
-        byte_passphrase = bytes(passphrase, "utf-8") if passphrase else b""
-        passphrase_buffer = ffi.new("char[]", byte_passphrase)
+        byte_passphrase = bytearray(passphrase, "utf-8") if passphrase else b""
+        # copy because unpickle will destroy the buffer
         pickle_buffer = ffi.new("char[]", pickle)
 
         obj = cls.__new__(cls)
 
-        ret = lib.olm_unpickle_outbound_group_session(
-            obj._session,
-            passphrase_buffer,
-            len(byte_passphrase),
-            pickle_buffer,
-            len(pickle)
-        )
-        obj._check_error(ret)
+        try:
+            ret = lib.olm_unpickle_outbound_group_session(
+                obj._session,
+                ffi.from_buffer(byte_passphrase),
+                len(byte_passphrase),
+                pickle_buffer,
+                len(pickle)
+            )
+            obj._check_error(ret)
+        finally:
+            # clear out copies of the passphrase
+            for i in range(0, len(byte_passphrase)):
+                    byte_passphrase[i] = 0
 
         return obj
 
@@ -414,21 +450,26 @@ class OutboundGroupSession(object):
             plaintext(str): A string that will be encrypted using the group
                 session.
         """
-        byte_plaintext = to_bytes(plaintext)
+        byte_plaintext = to_bytearray(plaintext)
         message_length = lib.olm_group_encrypt_message_length(
             self._session, len(byte_plaintext)
         )
 
         message_buffer = ffi.new("char[]", message_length)
 
-        plaintext_buffer = ffi.new("char[]", byte_plaintext)
+        try:
+            ret = lib.olm_group_encrypt(
+                self._session,
+                ffi.from_buffer(byte_plaintext), len(byte_plaintext),
+                message_buffer, message_length,
+            )
+            self._check_error(ret)
+        finally:
+            # clear out copies of plaintext
+            if byte_plaintext is not plaintext:
+                for i in range(0, len(byte_plaintext)):
+                    byte_plaintext[i] = 0
 
-        ret = lib.olm_group_encrypt(
-            self._session,
-            plaintext_buffer, len(byte_plaintext),
-            message_buffer, message_length,
-        )
-        self._check_error(ret)
         return bytes_to_native_str(ffi.unpack(message_buffer, message_length))
 
     @property

@@ -36,7 +36,7 @@ from typing import AnyStr, Type
 # pylint: disable=no-name-in-module
 from _libolm import ffi, lib  # type: ignore
 
-from ._compat import to_bytes
+from ._compat import to_bytearray, to_bytes
 from ._finalize import track_for_finalization
 
 
@@ -80,13 +80,20 @@ class _Utility(object):
             cls._allocate()
 
         byte_key = to_bytes(key)
-        byte_message = to_bytes(message)
+        byte_message = to_bytearray(message)
         byte_signature = to_bytes(signature)
 
-        cls._check_error(
-            lib.olm_ed25519_verify(cls._utility, byte_key, len(byte_key),
-                                   byte_message, len(byte_message),
-                                   byte_signature, len(byte_signature)))
+        try:
+            cls._check_error(
+                lib.olm_ed25519_verify(cls._utility, byte_key, len(byte_key),
+                                       ffi.from_buffer(byte_message),
+                                       len(byte_message),
+                                       byte_signature, len(byte_signature)))
+        finally:
+            # clear out copies of the message, which may be a plaintext
+            if byte_message is not message:
+                for i in range(0, len(byte_message)):
+                    byte_message[i] = 0
 
 
 def ed25519_verify(key, message, signature):

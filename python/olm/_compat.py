@@ -26,6 +26,16 @@ except ImportError:  # pragma: no cover
     URANDOM = urandom  # type: ignore
 
 
+def to_bytearray(string):
+    # type: (AnyStr) -> bytes
+    if isinstance(string, bytes):
+        return bytearray(string)
+    elif isinstance(string, str):
+        return bytearray(string, "utf-8")
+
+    raise TypeError("Invalid type {}".format(type(string)))
+
+
 def to_bytes(string):
     # type: (AnyStr) -> bytes
     if isinstance(string, bytes):
