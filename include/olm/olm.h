@@ -320,13 +320,13 @@ int olm_session_has_received_message(
 
 /** Checks if the PRE_KEY message is for this in-bound session. This can happen
  * if multiple messages are sent to this account before this account sends a
- * message in reply. Returns 1 if the session matches. Returns 0 if the session
- * does not match. Returns olm_error() on failure. If the base64
- * couldn't be decoded then olm_session_last_error will be "INVALID_BASE64".
- * If the message was for an unsupported protocol version then
- * olm_session_last_error() will be "BAD_MESSAGE_VERSION". If the message
- * couldn't be decoded then then olm_session_last_error() will be
- * "BAD_MESSAGE_FORMAT". */
+ * message in reply. The one_time_key_message buffer is destroyed. Returns 1 if
+ * the session matches. Returns 0 if the session does not match. Returns
+ * olm_error() on failure. If the base64 couldn't be decoded then
+ * olm_session_last_error will be "INVALID_BASE64".  If the message was for an
+ * unsupported protocol version then olm_session_last_error() will be
+ * "BAD_MESSAGE_VERSION". If the message couldn't be decoded then then
+ * olm_session_last_error() will be "BAD_MESSAGE_FORMAT". */
 size_t olm_matches_inbound_session(
     OlmSession * session,
     void * one_time_key_message, size_t message_length
@@ -334,13 +334,13 @@ size_t olm_matches_inbound_session(
 
 /** Checks if the PRE_KEY message is for this in-bound session. This can happen
  * if multiple messages are sent to this account before this account sends a
- * message in reply. Returns 1 if the session matches. Returns 0 if the session
- * does not match. Returns olm_error() on failure. If the base64
- * couldn't be decoded then olm_session_last_error will be "INVALID_BASE64".
- * If the message was for an unsupported protocol version then
- * olm_session_last_error() will be "BAD_MESSAGE_VERSION". If the message
- * couldn't be decoded then then olm_session_last_error() will be
- * "BAD_MESSAGE_FORMAT". */
+ * message in reply. The one_time_key_message buffer is destroyed. Returns 1 if
+ * the session matches. Returns 0 if the session does not match. Returns
+ * olm_error() on failure. If the base64 couldn't be decoded then
+ * olm_session_last_error will be "INVALID_BASE64".  If the message was for an
+ * unsupported protocol version then olm_session_last_error() will be
+ * "BAD_MESSAGE_VERSION". If the message couldn't be decoded then then
+ * olm_session_last_error() will be "BAD_MESSAGE_FORMAT". */
 size_t olm_matches_inbound_session_from(
     OlmSession * session,
     void const * their_identity_key, size_t their_identity_key_length,
