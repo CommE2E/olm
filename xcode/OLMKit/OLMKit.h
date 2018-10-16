@@ -26,6 +26,8 @@
 #import <OLMKit/OLMUtility.h>
 #import <OLMKit/OLMInboundGroupSession.h>
 #import <OLMKit/OLMOutboundGroupSession.h>
+#import <OLMKit/OLMPkEncryption.h>
+#import <OLMKit/OLMPkDecryption.h>
 
 @interface OLMKit : NSObject
 
