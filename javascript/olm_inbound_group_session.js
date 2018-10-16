@@ -29,9 +29,17 @@ InboundGroupSession.prototype['pickle'] = restore_stack(function(key) {
     )(this.ptr);
     var key_buffer = stack(key_array);
     var pickle_buffer = stack(pickle_length + NULL_BYTE_PADDING_LENGTH);
-    inbound_group_session_method(Module['_olm_pickle_inbound_group_session'])(
-        this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
-    );
+    try {
+        inbound_group_session_method(Module['_olm_pickle_inbound_group_session'])(
+            this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
+        );
+    } finally {
+        // clear out copies of the pickle key
+        bzero(key_buffer, key_array.length)
+        for (var i = 0; i < key_array.length; i++) {
+            key_array[i] = 0;
+        }
+    }
     return Pointer_stringify(pickle_buffer);
 });
 
@@ -40,28 +48,52 @@ InboundGroupSession.prototype['unpickle'] = restore_stack(function(key, pickle) 
     var key_buffer = stack(key_array);
     var pickle_array = array_from_string(pickle);
     var pickle_buffer = stack(pickle_array);
-    inbound_group_session_method(Module['_olm_unpickle_inbound_group_session'])(
-        this.ptr, key_buffer, key_array.length, pickle_buffer,
-        pickle_array.length
-    );
+    try {
+        inbound_group_session_method(Module['_olm_unpickle_inbound_group_session'])(
+            this.ptr, key_buffer, key_array.length, pickle_buffer,
+            pickle_array.length
+        );
+    } finally {
+        // clear out copies of the pickle key
+        bzero(key_buffer, key_array.length)
+        for (var i = 0; i < key_array.length; i++) {
+            key_array[i] = 0;
+        }
+    }
 });
 
 InboundGroupSession.prototype['create'] = restore_stack(function(session_key) {
     var key_array = array_from_string(session_key);
     var key_buffer = stack(key_array);
 
-    inbound_group_session_method(Module['_olm_init_inbound_group_session'])(
-        this.ptr, key_buffer, key_array.length
-    );
+    try {
+        inbound_group_session_method(Module['_olm_init_inbound_group_session'])(
+            this.ptr, key_buffer, key_array.length
+        );
+    } finally {
+        // clear out copies of the key
+        bzero(key_buffer, key_array.length)
+        for (var i = 0; i < key_array.length; i++) {
+            key_array[i] = 0;
+        }
+    }
 });
 
 InboundGroupSession.prototype['import_session'] = restore_stack(function(session_key) {
     var key_array = array_from_string(session_key);
     var key_buffer = stack(key_array);
 
-    inbound_group_session_method(Module['_olm_import_inbound_group_session'])(
-        this.ptr, key_buffer, key_array.length
-    );
+    try {
+        inbound_group_session_method(Module['_olm_import_inbound_group_session'])(
+            this.ptr, key_buffer, key_array.length
+        );
+    } finally {
+        // clear out copies of the key
+        bzero(key_buffer, key_array.length)
+        for (var i = 0; i < key_array.length; i++) {
+            key_array[i] = 0;
+        }
+    }
 });
 
 InboundGroupSession.prototype['decrypt'] = restore_stack(function(
@@ -140,7 +172,9 @@ InboundGroupSession.prototype['export_session'] = restore_stack(function(message
     outbound_group_session_method(Module['_olm_export_inbound_group_session'])(
         this.ptr, key, key_length, message_index
     );
-    return Pointer_stringify(key);
+    var key_str = Pointer_stringify(key);
+    bzero(key, key_length); // clear out a copy of the key
+    return key_str;
 });
 
 olm_exports['InboundGroupSession'] = InboundGroupSession;

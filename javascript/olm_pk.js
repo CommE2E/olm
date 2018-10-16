@@ -33,15 +33,15 @@ PkEncryption.prototype['set_recipient_key'] = restore_stack(function(key) {
 PkEncryption.prototype['encrypt'] = restore_stack(function(
     plaintext
 ) {
-    var plaintext_buffer, ciphertext_buffer, plaintext_length;
+    var plaintext_buffer, ciphertext_buffer, plaintext_length, random, random_length;
     try {
         plaintext_length = lengthBytesUTF8(plaintext)
         plaintext_buffer = malloc(plaintext_length + 1);
         stringToUTF8(plaintext, plaintext_buffer, plaintext_length + 1);
-        var random_length = pk_encryption_method(
+        random_length = pk_encryption_method(
             Module['_olm_pk_encrypt_random_length']
         )();
-        var random = random_stack(random_length);
+        random = random_stack(random_length);
         var ciphertext_length = pk_encryption_method(
             Module['_olm_pk_ciphertext_length']
         )(this.ptr, plaintext_length);
@@ -82,6 +82,10 @@ PkEncryption.prototype['encrypt'] = restore_stack(function(
             "ephemeral": Pointer_stringify(ephemeral_buffer)
         };
     } finally {
+        if (random !== undefined) {
+            // clear out the random buffer, since it is key data
+            bzero(random, random_length);
+        }
         if (plaintext_buffer !== undefined) {
             // don't leave a copy of the plaintext in the heap.
             bzero(plaintext_buffer, plaintext_length + 1);
@@ -126,11 +130,16 @@ PkDecryption.prototype['init_with_private_key'] = restore_stack(function (privat
         Module['_olm_pk_key_length']
     )();
     var pubkey_buffer = stack(pubkey_length + NULL_BYTE_PADDING_LENGTH);
-    pk_decryption_method(Module['_olm_pk_key_from_private'])(
-        this.ptr,
-        pubkey_buffer, pubkey_length,
-        private_key_buffer, private_key.length
-    );
+    try {
+        pk_decryption_method(Module['_olm_pk_key_from_private'])(
+            this.ptr,
+            pubkey_buffer, pubkey_length,
+            private_key_buffer, private_key.length
+        );
+    } finally {
+        // clear out our copy of the private key
+        bzero(private_key_buffer, private_key.length);
+    }
     return Pointer_stringify(pubkey_buffer);
 });
 
@@ -143,11 +152,16 @@ PkDecryption.prototype['generate_key'] = restore_stack(function () {
         Module['_olm_pk_key_length']
     )();
     var pubkey_buffer = stack(pubkey_length + NULL_BYTE_PADDING_LENGTH);
-    pk_decryption_method(Module['_olm_pk_key_from_private'])(
-        this.ptr,
-        pubkey_buffer, pubkey_length,
-        random_buffer, random_length
-    );
+    try {
+        pk_decryption_method(Module['_olm_pk_key_from_private'])(
+            this.ptr,
+            pubkey_buffer, pubkey_length,
+            random_buffer, random_length
+        );
+    } finally {
+        // clear out the random buffer (= private key)
+        bzero(random_buffer, random_length);
+    }
     return Pointer_stringify(pubkey_buffer);
 });
 
@@ -160,7 +174,14 @@ PkDecryption.prototype['get_private_key'] = restore_stack(function () {
         this.ptr,
         privkey_buffer, privkey_length
     );
-    return new Uint8Array(Module['HEAPU8'].buffer, privkey_buffer, privkey_length);
+    // The inner Uint8Array creates a view of the buffer.  The outer Uint8Array
+    // copies it to a new array to return, since the original buffer will get
+    // deallocated from the stack and could get overwritten.
+    var key_arr = new Uint8Array(
+        new Uint8Array(Module['HEAPU8'].buffer, privkey_buffer, privkey_length)
+    );
+    bzero(privkey_buffer, privkey_length); // clear out our copy of the key
+    return key_arr;
 });
 
 PkDecryption.prototype['pickle'] = restore_stack(function (key) {
@@ -170,9 +191,17 @@ PkDecryption.prototype['pickle'] = restore_stack(function (key) {
     )(this.ptr);
     var key_buffer = stack(key_array);
     var pickle_buffer = stack(pickle_length + NULL_BYTE_PADDING_LENGTH);
-    pk_decryption_method(Module['_olm_pickle_pk_decryption'])(
-        this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
-    );
+    try {
+        pk_decryption_method(Module['_olm_pickle_pk_decryption'])(
+            this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
+        );
+    } finally {
+        // clear out copies of the pickle key
+        bzero(key_buffer, key_array.length)
+        for (var i = 0; i < key_array.length; i++) {
+            key_array[i] = 0;
+        }
+    }
     return Pointer_stringify(pickle_buffer);
 });
 
@@ -185,10 +214,18 @@ PkDecryption.prototype['unpickle'] = restore_stack(function (key, pickle) {
         Module["_olm_pk_key_length"]
     )();
     var ephemeral_buffer = stack(ephemeral_length + NULL_BYTE_PADDING_LENGTH);
-    pk_decryption_method(Module['_olm_unpickle_pk_decryption'])(
-        this.ptr, key_buffer, key_array.length, pickle_buffer,
-        pickle_array.length, ephemeral_buffer, ephemeral_length
-    );
+    try {
+        pk_decryption_method(Module['_olm_unpickle_pk_decryption'])(
+            this.ptr, key_buffer, key_array.length, pickle_buffer,
+            pickle_array.length, ephemeral_buffer, ephemeral_length
+        );
+    } finally {
+        // clear out copies of the pickle key
+        bzero(key_buffer, key_array.length)
+        for (var i = 0; i < key_array.length; i++) {
+            key_array[i] = 0;
+        }
+    }
     return Pointer_stringify(ephemeral_buffer);
 });
 
