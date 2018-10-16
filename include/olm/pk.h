@@ -114,7 +114,7 @@ size_t olm_clear_pk_decryption(
 
 /** Get the number of bytes required to store an olm private key
  */
-size_t olm_pk_private_key_length();
+size_t olm_pk_private_key_length(void);
 
 /** DEPRECATED: Use olm_pk_private_key_length()
  */
