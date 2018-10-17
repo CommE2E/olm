@@ -69,8 +69,6 @@
     }
 
     NSString *publicKey = [[NSString alloc] initWithData:publicKeyData encoding:NSUTF8StringEncoding];
-    [publicKeyData resetBytesInRange:NSMakeRange(0, publicKeyData.length)];
-
     return publicKey;
 }
 
@@ -90,6 +88,7 @@
     size_t result = olm_pk_key_from_private(session,
                                             publicKeyData.mutableBytes, publicKeyData.length,
                                             random.mutableBytes, randomLength);
+    [random resetBytesInRange:NSMakeRange(0, randomLength)];
     if (result == olm_error()) {
         const char *olm_error = olm_pk_decryption_last_error(session);
         NSLog(@"[OLMPkDecryption] generateKey: olm_pk_key_from_private error: %s", olm_error);
@@ -107,8 +106,6 @@
     }
 
     NSString *publicKey = [[NSString alloc] initWithData:publicKeyData encoding:NSUTF8StringEncoding];
-    [publicKeyData resetBytesInRange:NSMakeRange(0, publicKeyData.length)];
-
     return publicKey;
 }
 
@@ -218,6 +215,7 @@
                                                key.bytes, key.length,
                                                pickle.mutableBytes, pickle.length,
                                                ephemeralBuffer.mutableBytes, ephemeralLength);
+    [pickle resetBytesInRange:NSMakeRange(0, pickle.length)];
     if (result == olm_error()) {
         const char *olm_error = olm_pk_decryption_last_error(session);
         NSString *errorString = [NSString stringWithUTF8String:olm_error];
@@ -248,6 +246,8 @@
     }
 
     NSString *pickleString = [[NSString alloc] initWithData:pickled encoding:NSUTF8StringEncoding];
+    [pickled resetBytesInRange:NSMakeRange(0, pickled.length)];
+
     return pickleString;
 }
 
