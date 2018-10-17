@@ -193,6 +193,7 @@
     }
     NSMutableData *pickle = [serializedData dataUsingEncoding:NSUTF8StringEncoding].mutableCopy;
     size_t result = olm_unpickle_account(_account, key.bytes, key.length, pickle.mutableBytes, pickle.length);
+    [pickle resetBytesInRange:NSMakeRange(0, pickle.length)];
     if (result == olm_error()) {
         const char *olm_error = olm_account_last_error(_account);
         NSString *errorString = [NSString stringWithUTF8String:olm_error];
@@ -219,6 +220,7 @@
         return nil;
     }
     NSString *pickleString = [[NSString alloc] initWithData:pickled encoding:NSUTF8StringEncoding];
+    [pickled resetBytesInRange:NSMakeRange(0, pickled.length)];
     return pickleString;
 }
 
