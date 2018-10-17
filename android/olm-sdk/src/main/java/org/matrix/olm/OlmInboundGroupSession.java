@@ -77,10 +77,16 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
             Log.e(LOG_TAG, "## initInboundGroupSession(): invalid session key");
             throw new OlmException(OlmException.EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION, "invalid session key");
         } else {
+            byte[] sessionBuffer = null;
             try {
+                sessionBuffer = aSessionKey.getBytes("UTF-8");
                 mNativeId = createNewSessionJni(aSessionKey.getBytes("UTF-8"), isImported);
             } catch (Exception e) {
                 throw new OlmException(OlmException.EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION, e.getMessage());
+            } finally {
+                if (null != sessionBuffer) {
+                    Arrays.fill(sessionBuffer, (byte) 0);
+                }
             }
         }
     }
@@ -216,6 +222,7 @@ public class OlmInboundGroupSession extends CommonSerializeUtils implements Seri
 
             if (null != bytesBuffer) {
                 result = new String(bytesBuffer, "UTF-8");
+                Arrays.fill(bytesBuffer, (byte) 0);
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## export() failed " + e.getMessage());

@@ -23,6 +23,7 @@ import android.util.Log;
 import org.json.JSONObject;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -81,17 +82,23 @@ public class OlmUtility {
      */
     public void verifyEd25519Signature(String aSignature, String aFingerprintKey, String aMessage) throws OlmException {
         String errorMessage;
+        byte[] messageBuffer = null;
 
         try {
             if (TextUtils.isEmpty(aSignature) || TextUtils.isEmpty(aFingerprintKey) || TextUtils.isEmpty(aMessage)) {
                 Log.e(LOG_TAG, "## verifyEd25519Signature(): invalid input parameters");
                 errorMessage = "JAVA sanity check failure - invalid input parameters";
             } else {
-                errorMessage =  verifyEd25519SignatureJni(aSignature.getBytes("UTF-8"), aFingerprintKey.getBytes("UTF-8"), aMessage.getBytes("UTF-8"));
+                messageBuffer = aMessage.getBytes("UTF-8");
+                errorMessage =  verifyEd25519SignatureJni(aSignature.getBytes("UTF-8"), aFingerprintKey.getBytes("UTF-8"), messageBuffer);
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "## verifyEd25519Signature(): failed " + e.getMessage());
             errorMessage = e.getMessage();
+        } finally {
+            if (messageBuffer != null) {
+                Arrays.fill(messageBuffer, (byte) 0);
+            }
         }
 
         if (!TextUtils.isEmpty(errorMessage)) {
@@ -119,10 +126,16 @@ public class OlmUtility {
          String hashRetValue = null;
 
          if (null != aMessageToHash) {
+             byte[] messageBuffer = null;
              try {
-                 hashRetValue = new String(sha256Jni(aMessageToHash.getBytes("UTF-8")), "UTF-8");
+                 messageBuffer = aMessageToHash.getBytes("UTF-8");
+                 hashRetValue = new String(sha256Jni(messageBuffer), "UTF-8");
              } catch (Exception e) {
                  Log.e(LOG_TAG, "## sha256(): failed " + e.getMessage());
+             } finally {
+                 if (null != messageBuffer) {
+                     Arrays.fill(messageBuffer, (byte) 0);
+                 }
              }
          }
 

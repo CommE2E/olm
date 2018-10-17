@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -290,9 +291,9 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
         String result = null;
 
         if (null != aMessage) {
+            byte[] utf8String = null;
             try {
-                byte[] utf8String = aMessage.getBytes("UTF-8");
-
+                utf8String = aMessage.getBytes("UTF-8");
                 if (null != utf8String) {
                     byte[] signedMessage = signMessageJni(utf8String);
 
@@ -302,6 +303,10 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
                 }
             } catch (Exception e) {
                 throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_SIGN_MESSAGE, e.getMessage());
+            } finally {
+                if (null != utf8String) {
+                    Arrays.fill(utf8String, (byte) 0);
+                }
             }
         }
 

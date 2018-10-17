@@ -62,6 +62,7 @@ JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *
     const char* errorMessage = NULL;
     OlmInboundGroupSession* sessionPtr = NULL;
     jbyte* sessionKeyPtr = NULL;
+    jboolean sessionWasCopied = JNI_FALSE;
     size_t sessionSize = olm_inbound_group_session_size();
 
     LOGD("## createNewSessionJni(): inbound group session IN");
@@ -81,7 +82,7 @@ JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *
         LOGE(" ## createNewSessionJni(): failure - invalid aSessionKey");
         errorMessage = "invalid aSessionKey";
     }
-    else if (!(sessionKeyPtr = env->GetByteArrayElements(aSessionKeyBuffer, 0)))
+    else if (!(sessionKeyPtr = env->GetByteArrayElements(aSessionKeyBuffer, &sessionWasCopied)))
     {
         LOGE(" ## createNewSessionJni(): failure - session key JNI allocation OOM");
         errorMessage = "Session key JNI allocation OOM";
@@ -119,6 +120,9 @@ JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(createNewSessionJni)(JNIEnv *
 
     if (sessionKeyPtr)
     {
+        if (sessionWasCopied) {
+            memset(sessionKeyPtr, 0, (size_t)env->GetArrayLength(aSessionKeyBuffer));
+        }
         env->ReleaseByteArrayElements(aSessionKeyBuffer, sessionKeyPtr, JNI_ABORT);
     }
 
@@ -474,6 +478,7 @@ JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *en
 
     jbyteArray pickledDataRet = 0;
     jbyte* keyPtr = NULL;
+    jboolean keyWasCopied = JNI_FALSE;
     OlmInboundGroupSession* sessionPtr = getInboundGroupSessionInstanceId(env, thiz);
 
     LOGD("## inbound group session serializeJni(): IN");
@@ -488,7 +493,7 @@ JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *en
         LOGE(" ## serializeJni(): failure - invalid key");
         errorMessage = "invalid key";
     }
-    else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, 0)))
+    else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, &keyWasCopied)))
     {
         LOGE(" ## serializeJni(): failure - keyPtr JNI allocation OOM");
         errorMessage = "keyPtr JNI allocation OOM";
@@ -533,6 +538,9 @@ JNIEXPORT jbyteArray OLM_INBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *en
     // free alloc
     if (keyPtr)
     {
+        if (keyWasCopied) {
+            memset(keyPtr, 0, (size_t)env->GetArrayLength(aKeyBuffer));
+        }
         env->ReleaseByteArrayElements(aKeyBuffer, keyPtr, JNI_ABORT);
     }
 
@@ -558,6 +566,7 @@ JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env, 
     OlmInboundGroupSession* sessionPtr = NULL;
     size_t sessionSize = olm_inbound_group_session_size();
     jbyte* keyPtr = NULL;
+    jboolean keyWasCopied = JNI_FALSE;
     jbyte* pickledPtr = NULL;
 
     LOGD("## deserializeJni(): IN");
@@ -582,7 +591,7 @@ JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env, 
         LOGE(" ## deserializeJni(): failure - serialized data");
         errorMessage = "serialized data";
     }
-    else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, 0)))
+    else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, &keyWasCopied)))
     {
         LOGE(" ## deserializeJni(): failure - keyPtr JNI allocation OOM");
         errorMessage = "keyPtr JNI allocation OOM";
@@ -620,6 +629,9 @@ JNIEXPORT jlong OLM_INBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env, 
     // free alloc
     if (keyPtr)
     {
+        if (keyWasCopied) {
+            memset(keyPtr, 0, (size_t)env->GetArrayLength(aKeyBuffer));
+        }
         env->ReleaseByteArrayElements(aKeyBuffer, keyPtr, JNI_ABORT);
     }
 

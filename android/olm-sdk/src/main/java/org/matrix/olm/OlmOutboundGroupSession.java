@@ -142,7 +142,10 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      */
     public String sessionKey() throws OlmException {
         try {
-            return new String(sessionKeyJni(), "UTF-8");
+            byte[] sessionKeyBuffer = sessionKeyJni();
+            String ret = new String(sessionKeyBuffer, "UTF-8");
+            Arrays.fill(sessionKeyBuffer, (byte) 0);
+            return ret;
         } catch (Exception e) {
             Log.e(LOG_TAG, "## sessionKey() failed " + e.getMessage());
             throw new OlmException(OlmException.EXCEPTION_CODE_OUTBOUND_GROUP_SESSION_KEY, e.getMessage());

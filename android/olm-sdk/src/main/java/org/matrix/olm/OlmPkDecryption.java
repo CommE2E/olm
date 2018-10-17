@@ -68,14 +68,15 @@ public class OlmPkDecryption {
             return null;
         }
 
+        byte[] plaintextBuffer = decryptJni(aMessage);
         try {
-            byte[] plaintextBuffer = decryptJni(aMessage);
             String plaintext = new String(plaintextBuffer, "UTF-8");
-            Arrays.fill(plaintextBuffer, (byte) 0);
             return plaintext;
         } catch (Exception e) {
             Log.e(LOG_TAG, "## pkDecrypt(): failed " + e.getMessage());
             throw new OlmException(OlmException.EXCEPTION_CODE_PK_DECRYPTION_DECRYPT, e.getMessage());
+        } finally {
+            Arrays.fill(plaintextBuffer, (byte) 0);
         }
     }
 

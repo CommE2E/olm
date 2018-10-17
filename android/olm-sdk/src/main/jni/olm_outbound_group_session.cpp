@@ -387,6 +387,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *e
     jbyteArray returnValue = 0;
 
     jbyte* keyPtr = NULL;
+    jboolean keyWasCopied = JNI_FALSE;
     OlmOutboundGroupSession* sessionPtr = NULL;
 
     LOGD("## outbound group session serializeJni(): IN");
@@ -401,7 +402,7 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *e
         LOGE(" ## serializeJni(): failure - invalid key");
         errorMessage = "invalid key";
     }
-    else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, 0)))
+    else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, &keyWasCopied)))
     {
         LOGE(" ## serializeJni(): failure - keyPtr JNI allocation OOM");
         errorMessage = "keyPtr JNI allocation OOM";
@@ -446,6 +447,9 @@ JNIEXPORT jbyteArray OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(serializeJni)(JNIEnv *e
     // free alloc
     if (keyPtr)
     {
+        if (keyWasCopied) {
+            memset(keyPtr, 0, (size_t)env->GetArrayLength(aKeyBuffer));
+        }
         env->ReleaseByteArrayElements(aKeyBuffer, keyPtr, JNI_ABORT);
     }
 
@@ -471,6 +475,7 @@ JNIEXPORT jlong OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env,
     OlmOutboundGroupSession* sessionPtr = NULL;
 
     jbyte* keyPtr = NULL;
+    jboolean keyWasCopied = JNI_FALSE;
     jbyte* pickledPtr = NULL;
 
     LOGD("## deserializeJni(): IN");
@@ -495,7 +500,7 @@ JNIEXPORT jlong OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env,
         LOGE(" ## deserializeJni(): failure - serialized data");
         errorMessage = "invalid serialized data";
     }
-    else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, 0)))
+    else if (!(keyPtr = env->GetByteArrayElements(aKeyBuffer, &keyWasCopied)))
     {
         LOGE(" ## deserializeJni(): failure - keyPtr JNI allocation OOM");
         errorMessage = "keyPtr JNI allocation OOM";
@@ -532,6 +537,9 @@ JNIEXPORT jlong OLM_OUTBOUND_GROUP_SESSION_FUNC_DEF(deserializeJni)(JNIEnv *env,
     // free alloc
     if (keyPtr)
     {
+        if (keyWasCopied) {
+            memset(keyPtr, 0, (size_t)env->GetArrayLength(aKeyBuffer));
+        }
         env->ReleaseByteArrayElements(aKeyBuffer, keyPtr, JNI_ABORT);
     }
 

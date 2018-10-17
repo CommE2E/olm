@@ -90,6 +90,7 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
     jbyte* signaturePtr = NULL;
     jbyte* keyPtr = NULL;
     jbyte* messagePtr = NULL;
+    jboolean messageWasCopied = JNI_FALSE;
 
     LOGD("## verifyEd25519SignatureJni(): IN");
 
@@ -109,7 +110,7 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
     {
         LOGE(" ## verifyEd25519SignatureJni(): failure - key JNI allocation OOM");
     }
-    else if (!(messagePtr = env->GetByteArrayElements(aMessageBuffer, 0)))
+    else if (!(messagePtr = env->GetByteArrayElements(aMessageBuffer, &messageWasCopied)))
     {
         LOGE(" ## verifyEd25519SignatureJni(): failure - message JNI allocation OOM");
     }
@@ -152,6 +153,9 @@ JNIEXPORT jstring OLM_UTILITY_FUNC_DEF(verifyEd25519SignatureJni)(JNIEnv *env, j
 
     if (messagePtr)
     {
+        if (messageWasCopied) {
+            memset(messagePtr, 0, (size_t)env->GetArrayLength(aMessageBuffer));
+        }
         env->ReleaseByteArrayElements(aMessageBuffer, messagePtr, JNI_ABORT);
     }
 
@@ -171,6 +175,7 @@ JNIEXPORT jbyteArray OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, 
 
     OlmUtility* utilityPtr = getUtilityInstanceId(env, thiz);
     jbyte* messagePtr = NULL;
+    jboolean messageWasCopied = JNI_FALSE;
 
     LOGD("## sha256Jni(): IN");
 
@@ -182,7 +187,7 @@ JNIEXPORT jbyteArray OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, 
     {
         LOGE(" ## sha256Jni(): failure - invalid message parameters ");
     }
-    else if(!(messagePtr = env->GetByteArrayElements(aMessageToHashBuffer, 0)))
+    else if(!(messagePtr = env->GetByteArrayElements(aMessageToHashBuffer, &messageWasCopied)))
     {
         LOGE(" ## sha256Jni(): failure - message JNI allocation OOM");
     }
@@ -221,6 +226,9 @@ JNIEXPORT jbyteArray OLM_UTILITY_FUNC_DEF(sha256Jni)(JNIEnv *env, jobject thiz, 
 
     if (messagePtr)
     {
+        if (messageWasCopied) {
+            memset(messagePtr, 0, (size_t)env->GetArrayLength(aMessageToHashBuffer));
+        }
         env->ReleaseByteArrayElements(aMessageToHashBuffer, messagePtr, JNI_ABORT);
     }
 

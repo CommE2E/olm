@@ -73,10 +73,10 @@ public class OlmPkEncryption {
 
         OlmPkMessage encryptedMsgRetValue = new OlmPkMessage();
 
+        byte[] plaintextBuffer = null;
         try {
-            byte[] plaintextBuffer = aPlaintext.getBytes("UTF-8");
+            plaintextBuffer = aPlaintext.getBytes("UTF-8");
             byte[] ciphertextBuffer = encryptJni(plaintextBuffer, encryptedMsgRetValue);
-            Arrays.fill(plaintextBuffer, (byte) 0);
 
             if (null != ciphertextBuffer) {
                 encryptedMsgRetValue.mCipherText = new String(ciphertextBuffer, "UTF-8");
@@ -84,6 +84,10 @@ public class OlmPkEncryption {
         } catch (Exception e) {
             Log.e(LOG_TAG, "## pkEncrypt(): failed " + e.getMessage());
             throw new OlmException(OlmException.EXCEPTION_CODE_PK_ENCRYPTION_ENCRYPT, e.getMessage());
+        } finally {
+            if (null != plaintextBuffer) {
+                Arrays.fill(plaintextBuffer, (byte) 0);
+            }
         }
 
         return encryptedMsgRetValue;
