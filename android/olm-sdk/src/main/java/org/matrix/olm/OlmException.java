@@ -68,6 +68,8 @@ public class OlmException extends IOException {
     public static final int EXCEPTION_CODE_PK_DECRYPTION_CREATION = 700;
     public static final int EXCEPTION_CODE_PK_DECRYPTION_GENERATE_KEY = 701;
     public static final int EXCEPTION_CODE_PK_DECRYPTION_DECRYPT = 702;
+    public static final int EXCEPTION_CODE_PK_DECRYPTION_SET_PRIVATE_KEY = 703;
+    public static final int EXCEPTION_CODE_PK_DECRYPTION_PRIVATE_KEY = 704;
 
     // exception human readable messages
     public static final String EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION = "invalid de-serialized parameters";

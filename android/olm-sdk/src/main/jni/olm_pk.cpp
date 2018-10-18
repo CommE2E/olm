@@ -364,6 +364,79 @@ JNIEXPORT void OLM_PK_DECRYPTION_FUNC_DEF(releasePkDecryptionJni)(JNIEnv *env, j
     }
 }
 
+JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(setPrivateKeyJni)(JNIEnv *env, jobject thiz, jbyteArray key)
+{
+    jbyteArray publicKeyRet = 0;
+    jbyte *keyPtr = NULL;
+    jboolean keyWasCopied = JNI_FALSE;
+
+    const char* errorMessage = NULL;
+
+    OlmPkDecryption* decryptionPtr = getPkDecryptionInstanceId(env, thiz);
+
+    if (!decryptionPtr)
+    {
+        LOGE(" ## pkSetPrivateKeyJni(): failure - invalid Decryption ptr=NULL");
+    }
+    else if (!key)
+    {
+        LOGE(" ## pkSetPrivateKeyJni(): failure - invalid key");
+        errorMessage = "invalid key";
+    }
+    else if (!(keyPtr = env->GetByteArrayElements(key, &keyWasCopied)))
+    {
+        LOGE(" ## pkSetPrivateKeyJni(): failure - key JNI allocation OOM");
+        errorMessage = "key JNI allocation OOM";
+    }
+    else
+    {
+        size_t publicKeyLength = olm_pk_key_length();
+        uint8_t *publicKeyPtr = NULL;
+        size_t keyLength = (size_t)env->GetArrayLength(key);
+        if (!(publicKeyPtr = (uint8_t*)malloc(publicKeyLength)))
+        {
+            LOGE("## pkSetPrivateKeyJni(): failure - public key JNI allocation OOM");
+            errorMessage = "public key JNI allocation OOM";
+        }
+        else
+        {
+            size_t returnValue = olm_pk_key_from_private(
+                decryptionPtr,
+                publicKeyPtr, publicKeyLength,
+                keyPtr, keyLength
+            );
+            if (returnValue == olm_error())
+            {
+                errorMessage = olm_pk_decryption_last_error(decryptionPtr);
+                LOGE(" ## pkSetPrivateKeyJni(): failure - olm_pk_key_from_private Msg=%s", errorMessage);
+            }
+            else
+            {
+                publicKeyRet = env->NewByteArray(publicKeyLength);
+                env->SetByteArrayRegion(
+                    publicKeyRet, 0, publicKeyLength, (jbyte*)publicKeyPtr
+                );
+            }
+        }
+    }
+
+    if (keyPtr)
+    {
+        if (keyWasCopied)
+        {
+            memset(keyPtr, 0, (size_t)env->GetArrayLength(key));
+        }
+        env->ReleaseByteArrayElements(key, keyPtr, JNI_ABORT);
+    }
+
+    if (errorMessage)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
+    return publicKeyRet;
+}
+
 JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(generateKeyJni)(JNIEnv *env, jobject thiz)
 {
     size_t randomLength = olm_pk_private_key_length();
@@ -418,6 +491,57 @@ JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(generateKeyJni)(JNIEnv *env, job
     }
 
     return publicKeyRet;
+}
+
+JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(privateKeyJni)(JNIEnv *env, jobject thiz)
+{
+    jbyteArray privateKeyRet = 0;
+
+    const char* errorMessage = NULL;
+
+    OlmPkDecryption* decryptionPtr = getPkDecryptionInstanceId(env, thiz);
+
+    if (!decryptionPtr)
+    {
+        LOGE(" ## pkPrivateKeyJni(): failure - invalid Decryption ptr=NULL");
+    }
+    else
+    {
+        size_t privateKeyLength = olm_pk_private_key_length();
+        uint8_t *privateKeyPtr = NULL;
+        if (!(privateKeyPtr = (uint8_t*)malloc(privateKeyLength)))
+        {
+            LOGE("## pkPrivateKeyJni(): failure - private key JNI allocation OOM");
+            errorMessage = "private key JNI allocation OOM";
+        }
+        else
+        {
+            size_t returnValue = olm_pk_get_private_key(
+                decryptionPtr,
+                privateKeyPtr, privateKeyLength
+            );
+            if (returnValue == olm_error())
+            {
+                errorMessage = olm_pk_decryption_last_error(decryptionPtr);
+                LOGE(" ## pkPrivateKeyJni(): failure - olm_pk_get_private_key Msg=%s", errorMessage);
+            }
+            else
+            {
+                privateKeyRet = env->NewByteArray(privateKeyLength);
+                env->SetByteArrayRegion(
+                    privateKeyRet, 0, privateKeyLength, (jbyte*)privateKeyPtr
+                );
+                memset(privateKeyPtr, 0, privateKeyLength);
+            }
+        }
+    }
+
+    if (errorMessage)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
+    return privateKeyRet;
 }
 
 JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(decryptJni)(

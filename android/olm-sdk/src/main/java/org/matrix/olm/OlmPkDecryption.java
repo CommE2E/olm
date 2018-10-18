@@ -51,6 +51,18 @@ public class OlmPkDecryption {
         return (0 == mNativeId);
     }
 
+    public String setPrivateKey(byte[] privateKey) throws OlmException {
+        try {
+            byte[] key = setPrivateKeyJni(privateKey);
+            return new String(key, "UTF-8");
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## setPrivateKey(): failed " + e.getMessage());
+            throw new OlmException(OlmException.EXCEPTION_CODE_PK_DECRYPTION_SET_PRIVATE_KEY, e.getMessage());
+        }
+    }
+
+    private native byte[] setPrivateKeyJni(byte[] privateKey);
+
     public String generateKey() throws OlmException {
         try {
             byte[] key = generateKeyJni();
@@ -62,6 +74,17 @@ public class OlmPkDecryption {
     }
 
     private native byte[] generateKeyJni();
+
+    public byte[] privateKey() throws OlmException {
+        try {
+            return privateKeyJni();
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## privateKey(): failed " + e.getMessage());
+            throw new OlmException(OlmException.EXCEPTION_CODE_PK_DECRYPTION_PRIVATE_KEY, e.getMessage());
+        }
+    }
+
+    private native byte[] privateKeyJni();
 
     public String decrypt(OlmPkMessage aMessage) throws OlmException {
         if (null == aMessage) {
