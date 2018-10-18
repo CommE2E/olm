@@ -414,12 +414,6 @@ JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(generateKeyJni)(JNIEnv *env, job
 
     if (errorMessage)
     {
-        // release the allocated data
-        if (decryptionPtr)
-        {
-            olm_clear_pk_decryption(decryptionPtr);
-            free(decryptionPtr);
-        }
         env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
     }
 
