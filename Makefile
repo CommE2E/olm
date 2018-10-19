@@ -161,6 +161,7 @@ $(RELEASE_TARGET): $(RELEASE_OBJECTS)
             $(OLM_LDFLAGS) \
             $(OUTPUT_OPTION) $(RELEASE_OBJECTS)
 	ln -sf libolm.$(SO).$(VERSION) $(BUILD_DIR)/libolm.$(SO).$(MAJOR)
+	ln -sf libolm.$(SO).$(VERSION) $(BUILD_DIR)/libolm.$(SO)
 
 debug: $(DEBUG_TARGET)
 .PHONY: debug

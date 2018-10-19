@@ -1,56 +1,110 @@
-from ._base import lib, c_void_p, c_size_t, c_char_p, \
-    create_string_buffer, ERR, OlmError
+# -*- coding: utf-8 -*-
+# libolm python bindings
+# Copyright © 2015-2017 OpenMarket Ltd
+# Copyright © 2018 Damir Jelić <poljar@termina.org.uk>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""libolm Utility module.
 
-lib.olm_utility_size.argtypes = []
-lib.olm_utility_size.restype = c_size_t
+This module contains utilities for olm.
+It only contains the ed25519_verify function for signature verification.
 
-lib.olm_utility.argtypes = [c_void_p]
-lib.olm_utility.restype = c_void_p
+Examples:
+    >>> alice = Account()
 
-lib.olm_utility_last_error.argtypes = [c_void_p]
-lib.olm_utility_last_error.restype = c_char_p
+    >>> message = "Test"
+    >>> signature = alice.sign(message)
+    >>> signing_key = alice.identity_keys["ed25519"]
 
+    >>> ed25519_verify(signing_key, message, signature)
 
-def utility_errcheck(res, func, args):
-    if res == ERR:
-        raise OlmError("%s: %s" % (
-            func.__name__, lib.olm_utility_last_error(args[0])
-        ))
-    return res
+"""
 
+# pylint: disable=redefined-builtin,unused-import
+from typing import AnyStr, Type
 
-def utility_function(func, *types):
-    func.argtypes = (c_void_p,) + types
-    func.restypes = c_size_t
-    func.errcheck = utility_errcheck
+# pylint: disable=no-name-in-module
+from _libolm import ffi, lib  # type: ignore
 
-utility_function(
-    lib.olm_ed25519_verify,
-    c_void_p, c_size_t,  # key, key_length
-    c_void_p, c_size_t,  # message, message_length
-    c_void_p, c_size_t,  # signature, signature_length
-)
+from ._compat import to_bytearray, to_bytes
+from ._finalize import track_for_finalization
 
 
-class Utility(object):
-    def __init__(self):
-        self.buf = create_string_buffer(lib.olm_utility_size())
-        self.ptr = lib.olm_utility(self.buf)
+def _clear_utility(utility):  # pragma: no cover
+    # type: (ffi.cdata) -> None
+    lib.olm_clear_utility(utility)
 
-_utility = None
+
+class OlmVerifyError(Exception):
+    """libolm signature verification exception."""
+
+
+class _Utility(object):
+    # pylint: disable=too-few-public-methods
+    """libolm Utility class."""
+
+    _buf = None
+    _utility = None
+
+    @classmethod
+    def _allocate(cls):
+        # type: (Type[_Utility]) -> None
+        cls._buf = ffi.new("char[]", lib.olm_utility_size())
+        cls._utility = lib.olm_utility(cls._buf)
+        track_for_finalization(cls, cls._utility, _clear_utility)
+
+    @classmethod
+    def _check_error(cls, ret):
+        # type: (int) -> None
+        if ret != lib.olm_error():
+            return
+
+        raise OlmVerifyError("{}".format(
+            ffi.string(lib.olm_utility_last_error(
+                cls._utility)).decode("utf-8")))
+
+    @classmethod
+    def _ed25519_verify(cls, key, message, signature):
+        # type: (Type[_Utility], AnyStr, AnyStr, AnyStr) -> None
+        if not cls._utility:
+            cls._allocate()
+
+        byte_key = to_bytes(key)
+        byte_message = to_bytearray(message)
+        byte_signature = to_bytes(signature)
+
+        try:
+            cls._check_error(
+                lib.olm_ed25519_verify(cls._utility, byte_key, len(byte_key),
+                                       ffi.from_buffer(byte_message),
+                                       len(byte_message),
+                                       byte_signature, len(byte_signature)))
+        finally:
+            # clear out copies of the message, which may be a plaintext
+            if byte_message is not message:
+                for i in range(0, len(byte_message)):
+                    byte_message[i] = 0
 
 
 def ed25519_verify(key, message, signature):
-    """ Verify an ed25519 signature. Raises an OlmError if verification fails.
+    # type: (AnyStr, AnyStr, AnyStr) -> None
+    """Verify an ed25519 signature.
+
+    Raises an OlmVerifyError if verification fails.
+
     Args:
-        key(bytes): The ed25519 public key used for signing.
-        message(bytes): The signed message.
+        key(str): The ed25519 public key used for signing.
+        message(str): The signed message.
         signature(bytes): The message signature.
     """
-    global _utility
-    if not _utility:
-        _utility = Utility()
-    lib.olm_ed25519_verify(_utility.ptr,
-                           key, len(key),
-                           message, len(message),
-                           signature, len(signature))
+    return _Utility._ed25519_verify(key, message, signature)

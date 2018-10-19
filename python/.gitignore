@@ -1,5 +1,12 @@
+.coverage
+.mypy_cache/
+.ropeproject/
+.pytest_cache/
+packages/
+python_olm.egg-info/
+_libolm*
+__pycache__
 *.pyc
-/*.account
-/*.session
-/*.group_session
-/group_message
+.hypothesis/
+.tox/
+include/
