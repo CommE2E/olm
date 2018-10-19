@@ -91,11 +91,19 @@ Account.prototype['sign'] = restore_stack(function(message) {
     var message_array = array_from_string(message);
     var message_buffer = stack(message_array);
     var signature_buffer = stack(signature_length + NULL_BYTE_PADDING_LENGTH);
-    account_method(Module['_olm_account_sign'])(
-        this.ptr,
-        message_buffer, message_array.length,
-        signature_buffer, signature_length
-    );
+    try {
+        account_method(Module['_olm_account_sign'])(
+            this.ptr,
+            message_buffer, message_array.length,
+            signature_buffer, signature_length
+        );
+    } finally {
+        // clear out copies of the message, which may be plaintext
+        bzero(message_buffer, message_array.length);
+        for (var i = 0; i < message_array.length; i++) {
+            message_array[i] = 0;
+        }
+    }
     return Pointer_stringify(signature_buffer);
 });
 
@@ -145,9 +153,17 @@ Account.prototype['pickle'] = restore_stack(function(key) {
     )(this.ptr);
     var key_buffer = stack(key_array);
     var pickle_buffer = stack(pickle_length + NULL_BYTE_PADDING_LENGTH);
-    account_method(Module['_olm_pickle_account'])(
-        this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
-    );
+    try {
+        account_method(Module['_olm_pickle_account'])(
+            this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
+        );
+    } finally {
+        // clear out copies of the pickle key
+        bzero(key_buffer, key_array.length)
+        for (var i = 0; i < key_array.length; i++) {
+            key_array[i] = 0;
+        }
+    }
     return Pointer_stringify(pickle_buffer);
 });
 
@@ -156,10 +172,18 @@ Account.prototype['unpickle'] = restore_stack(function(key, pickle) {
     var key_buffer = stack(key_array);
     var pickle_array = array_from_string(pickle);
     var pickle_buffer = stack(pickle_array);
-    account_method(Module['_olm_unpickle_account'])(
-        this.ptr, key_buffer, key_array.length, pickle_buffer,
-        pickle_array.length
-    );
+    try {
+        account_method(Module['_olm_unpickle_account'])(
+            this.ptr, key_buffer, key_array.length, pickle_buffer,
+            pickle_array.length
+        );
+    } finally {
+        // clear out copies of the pickle key
+        bzero(key_buffer, key_array.length)
+        for (var i = 0; i < key_array.length; i++) {
+            key_array[i] = 0;
+        }
+    }
 });
 
 function Session() {
@@ -193,9 +217,17 @@ Session.prototype['pickle'] = restore_stack(function(key) {
     )(this.ptr);
     var key_buffer = stack(key_array);
     var pickle_buffer = stack(pickle_length + NULL_BYTE_PADDING_LENGTH);
-    session_method(Module['_olm_pickle_session'])(
-        this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
-    );
+    try {
+        session_method(Module['_olm_pickle_session'])(
+            this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
+        );
+    } finally {
+        // clear out copies of the pickle key
+        bzero(key_buffer, key_array.length)
+        for (var i = 0; i < key_array.length; i++) {
+            key_array[i] = 0;
+        }
+    }
     return Pointer_stringify(pickle_buffer);
 });
 
@@ -204,10 +236,18 @@ Session.prototype['unpickle'] = restore_stack(function(key, pickle) {
     var key_buffer = stack(key_array);
     var pickle_array = array_from_string(pickle);
     var pickle_buffer = stack(pickle_array);
-    session_method(Module['_olm_unpickle_session'])(
-        this.ptr, key_buffer, key_array.length, pickle_buffer,
-        pickle_array.length
-    );
+    try {
+        session_method(Module['_olm_unpickle_session'])(
+            this.ptr, key_buffer, key_array.length, pickle_buffer,
+            pickle_array.length
+        );
+    } finally {
+        // clear out copies of the pickle key
+        bzero(key_buffer, key_array.length)
+        for (var i = 0; i < key_array.length; i++) {
+            key_array[i] = 0;
+        }
+    }
 });
 
 Session.prototype['create_outbound'] = restore_stack(function(
@@ -221,12 +261,17 @@ Session.prototype['create_outbound'] = restore_stack(function(
     var one_time_key_array = array_from_string(their_one_time_key);
     var identity_key_buffer = stack(identity_key_array);
     var one_time_key_buffer = stack(one_time_key_array);
-    session_method(Module['_olm_create_outbound_session'])(
-        this.ptr, account.ptr,
-        identity_key_buffer, identity_key_array.length,
-        one_time_key_buffer, one_time_key_array.length,
-        random, random_length
-    );
+    try {
+        session_method(Module['_olm_create_outbound_session'])(
+            this.ptr, account.ptr,
+            identity_key_buffer, identity_key_array.length,
+            one_time_key_buffer, one_time_key_array.length,
+            random, random_length
+        );
+    } finally {
+        // clear the random buffer, which is key data
+        bzero(random, random_length);
+    }
 });
 
 Session.prototype['create_inbound'] = restore_stack(function(
@@ -234,9 +279,17 @@ Session.prototype['create_inbound'] = restore_stack(function(
 ) {
     var message_array = array_from_string(one_time_key_message);
     var message_buffer = stack(message_array);
-    session_method(Module['_olm_create_inbound_session'])(
-        this.ptr, account.ptr, message_buffer, message_array.length
-    );
+    try {
+        session_method(Module['_olm_create_inbound_session'])(
+            this.ptr, account.ptr, message_buffer, message_array.length
+        );
+    } finally {
+        // clear out copies of the key
+        bzero(message_buffer, message_array.length);
+        for (var i = 0; i < message_array.length; i++) {
+            message_array[i] = 0;
+        }
+    }
 });
 
 Session.prototype['create_inbound_from'] = restore_stack(function(
@@ -246,11 +299,19 @@ Session.prototype['create_inbound_from'] = restore_stack(function(
     var identity_key_buffer = stack(identity_key_array);
     var message_array = array_from_string(one_time_key_message);
     var message_buffer = stack(message_array);
-    session_method(Module['_olm_create_inbound_session_from'])(
-        this.ptr, account.ptr,
-        identity_key_buffer, identity_key_array.length,
-        message_buffer, message_array.length
-    );
+    try {
+        session_method(Module['_olm_create_inbound_session_from'])(
+            this.ptr, account.ptr,
+            identity_key_buffer, identity_key_array.length,
+            message_buffer, message_array.length
+        );
+    } finally {
+        // clear out copies of the key
+        bzero(message_buffer, message_array.length);
+        for (var i = 0; i < message_array.length; i++) {
+            message_array[i] = 0;
+        }
+    }
 });
 
 Session.prototype['session_id'] = restore_stack(function() {
@@ -296,9 +357,9 @@ Session.prototype['matches_inbound_from'] = restore_stack(function(
 Session.prototype['encrypt'] = restore_stack(function(
     plaintext
 ) {
-    var plaintext_buffer, message_buffer, plaintext_length;
+    var plaintext_buffer, message_buffer, plaintext_length, random, random_length;
     try {
-        var random_length = session_method(
+        random_length = session_method(
             Module['_olm_encrypt_random_length']
         )(this.ptr);
         var message_type = session_method(
@@ -310,7 +371,7 @@ Session.prototype['encrypt'] = restore_stack(function(
             Module['_olm_encrypt_message_length']
         )(this.ptr, plaintext_length);
 
-        var random = random_stack(random_length);
+        random = random_stack(random_length);
 
         // need to allow space for the terminator (which stringToUTF8 always
         // writes), hence + 1.
@@ -338,6 +399,10 @@ Session.prototype['encrypt'] = restore_stack(function(
             "body": UTF8ToString(message_buffer),
         };
     } finally {
+        if (random !== undefined) {
+            // clear out the random buffer, since it is the private key
+            bzero(random, random_length);
+        }
         if (plaintext_buffer !== undefined) {
             // don't leave a copy of the plaintext in the heap.
             bzero(plaintext_buffer, plaintext_length + 1);
@@ -423,11 +488,19 @@ Utility.prototype['sha256'] = restore_stack(function(input) {
     var input_array = array_from_string(input);
     var input_buffer = stack(input_array);
     var output_buffer = stack(output_length + NULL_BYTE_PADDING_LENGTH);
-    utility_method(Module['_olm_sha256'])(
-        this.ptr,
-        input_buffer, input_array.length,
-        output_buffer, output_length
-    );
+    try {
+        utility_method(Module['_olm_sha256'])(
+            this.ptr,
+            input_buffer, input_array.length,
+            output_buffer, output_length
+        );
+    } finally {
+        // clear out copies of the input buffer, which may be plaintext
+        bzero(input_buffer, input_array.length);
+        for (var i = 0; i < input_array.length; i++) {
+            input_array[i] = 0;
+        }
+    }
     return Pointer_stringify(output_buffer);
 });
 
@@ -440,12 +513,20 @@ Utility.prototype['ed25519_verify'] = restore_stack(function(
     var message_buffer = stack(message_array);
     var signature_array = array_from_string(signature);
     var signature_buffer = stack(signature_array);
-    utility_method(Module['_olm_ed25519_verify'])(
-        this.ptr,
-        key_buffer, key_array.length,
-        message_buffer, message_array.length,
-        signature_buffer, signature_array.length
-    );
+    try {
+        utility_method(Module['_olm_ed25519_verify'])(
+            this.ptr,
+            key_buffer, key_array.length,
+            message_buffer, message_array.length,
+            signature_buffer, signature_array.length
+        );
+    } finally {
+        // clear out copies of the input buffer, which may be plaintext
+        bzero(message_buffer, message_array.length);
+        for (var i = 0; i < message_array.length; i++) {
+            message_array[i] = 0;
+        }
+    }
 });
 
 olm_exports["Account"] = Account;
