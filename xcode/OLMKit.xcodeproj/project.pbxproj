@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3244277D2175EF700023EDF1 /* OLMKitPkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3244277C2175EF700023EDF1 /* OLMKitPkTests.m */; };
 		3274F6021D9A633A005282E4 /* OLMKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3274F5F81D9A633A005282E4 /* OLMKit.framework */; };
 		3274F6071D9A633A005282E4 /* OLMKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3274F6061D9A633A005282E4 /* OLMKitTests.m */; };
 		3274F6131D9A698E005282E4 /* OLMKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 3274F6121D9A698E005282E4 /* OLMKit.h */; };
@@ -27,6 +28,7 @@
 
 /* Begin PBXFileReference section */
 		1B226B371526F2782C9D6372 /* Pods-OLMKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OLMKit.release.xcconfig"; path = "Pods/Target Support Files/Pods-OLMKit/Pods-OLMKit.release.xcconfig"; sourceTree = "<group>"; };
+		3244277C2175EF700023EDF1 /* OLMKitPkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OLMKitPkTests.m; sourceTree = "<group>"; };
 		3274F5F81D9A633A005282E4 /* OLMKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OLMKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3274F5FC1D9A633A005282E4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3274F6011D9A633A005282E4 /* OLMKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OLMKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -105,6 +107,7 @@
 		3274F6051D9A633A005282E4 /* OLMKitTests */ = {
 			isa = PBXGroup;
 			children = (
+				3244277C2175EF700023EDF1 /* OLMKitPkTests.m */,
 				3274F6061D9A633A005282E4 /* OLMKitTests.m */,
 				32A151301DABDD4300400192 /* OLMKitGroupTests.m */,
 				3274F6081D9A633A005282E4 /* Info.plist */,
@@ -279,6 +282,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3274F6071D9A633A005282E4 /* OLMKitTests.m in Sources */,
+				3244277D2175EF700023EDF1 /* OLMKitPkTests.m in Sources */,
 				32A151311DABDD4300400192 /* OLMKitGroupTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
