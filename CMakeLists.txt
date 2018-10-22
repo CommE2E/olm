@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.1)
 project(olm VERSION 2.3.0 LANGUAGES CXX C)
 
 option(OLM_TESTS "Build tests" ON)
+option(BUILD_SHARED_LIBS "Build as a shared library" ON)
 
 add_definitions(-DOLMLIB_VERSION_MAJOR=${PROJECT_VERSION_MAJOR})
 add_definitions(-DOLMLIB_VERSION_MINOR=${PROJECT_VERSION_MINOR})
