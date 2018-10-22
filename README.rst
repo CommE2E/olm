@@ -25,7 +25,7 @@ To run the tests run:
 
     make test
 
-To build the javascript bindings, install emscripten from http://kripken.github.io/emscripten-site/ and then run:
+To build the JavaScript bindings, install emscripten from http://kripken.github.io/emscripten-site/ and then run:
 
 .. code:: bash
 
@@ -59,8 +59,8 @@ Release process
 ---------------
 
 First: bump version numbers in ``common.mk``, ``CMakeLists.txt``,
-``javascript/package.json``, ``OLMKit.podspec``, and
-``android/olm-sdk/build.gradle`` (``versionCode``, ``versionName`` and
+``javascript/package.json``, ``python/olm/__version__.py``, ``OLMKit.podspec``,
+and ``android/olm-sdk/build.gradle`` (``versionCode``, ``versionName`` and
 ``version``).
 
 Also, ensure the changelog is up to date, and that everyting is committed to
