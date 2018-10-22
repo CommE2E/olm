@@ -6,6 +6,7 @@
   "files": [
     "olm.js",
     "olm.wasm",
+    "olm_legacy.js",
     "README.md"
   ],
   "scripts": {
