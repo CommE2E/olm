@@ -13,13 +13,30 @@ ratchet, as specified in `<docs/megolm.rst>`_.
 Building
 --------
 
-To build olm as a shared library run:
+To build olm as a shared library run either:
+
+.. code:: bash
+
+    cmake . -Bbuild
+    cmake --build build
+
+or:
 
 .. code:: bash
 
     make
 
-To run the tests run:
+Using cmake is the preferred method for building the shared library; the
+Makefile may be removed in the future.
+
+To run the tests when using cmake, run:
+
+.. code:: bash
+
+    cd build/tests
+    ctest .
+
+To run the tests when using make, run:
 
 .. code:: bash
 
@@ -49,11 +66,38 @@ To build the Xcode workspace for Objective-C bindings, run:
     pod install
     open OLMKit.xcworkspace
 
-To build olm as a static library (which still needs libstdc++ dynamically) run:
+To build the Python bindings, first build olm as a shared library as above, and
+then run:
+
+.. code:: bash
+
+    cd python
+    make
+
+to make both the Python 2 and Python 3 bindings.  To make only one version, use
+``make olm-python2`` or ``make olm-python3`` instead of just ``make``.
+
+To build olm as a static library (which still needs libstdc++ dynamically) run
+either:
+
+.. code:: bash
+
+    cmake . -Bbuild -DBUILD_SHARED_LIBS=NO
+    cmake --build build
+
+or
 
 .. code:: bash
 
     make static
+
+The library can also be used as a dependency with CMake using:
+
+.. code:: cmake
+
+    find_package(Olm::Olm REQUIRED)
+    target_link_libraries(my_exe Olm::Olm)
+
 
 Release process
 ---------------
