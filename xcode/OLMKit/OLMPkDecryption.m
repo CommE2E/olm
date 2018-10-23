@@ -130,7 +130,7 @@
     return privateKey;
 }
 
--(NSString *)decryptMessage:(OLMPkMessage *)message error:(NSError *__autoreleasing  _Nullable *)error {
+- (NSString *)decryptMessage:(OLMPkMessage *)message error:(NSError *__autoreleasing  _Nullable *)error {
     NSData *messageData = [message.ciphertext dataUsingEncoding:NSUTF8StringEncoding];
     NSData *macData = [message.mac dataUsingEncoding:NSUTF8StringEncoding];
     NSData *ephemeralKeyData = [message.ephemeralKey dataUsingEncoding:NSUTF8StringEncoding];
@@ -187,6 +187,10 @@
     NSString *plaintext = [[NSString alloc] initWithData:plaintextData encoding:NSUTF8StringEncoding];
     [plaintextData resetBytesInRange:NSMakeRange(0, plaintextData.length)];
     return plaintext;
+}
+
++ (NSUInteger)privateKeyLength {
+    return olm_pk_private_key_length();
 }
 
 #pragma mark OLMSerializable

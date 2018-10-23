@@ -59,6 +59,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSString *)decryptMessage:(OLMPkMessage*)message error:(NSError* _Nullable *)error;
 
+/**
+ Private key length.
+
+ @return the length in bytes.
+ */
++ (NSUInteger)privateKeyLength;
+
 @end
 
 NS_ASSUME_NONNULL_END
