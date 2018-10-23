@@ -51,6 +51,8 @@ public class OlmPkDecryption {
         return (0 == mNativeId);
     }
 
+    public static native int privateKeyLength();
+
     public String setPrivateKey(byte[] privateKey) throws OlmException {
         try {
             byte[] key = setPrivateKeyJni(privateKey);

@@ -364,6 +364,11 @@ JNIEXPORT void OLM_PK_DECRYPTION_FUNC_DEF(releasePkDecryptionJni)(JNIEnv *env, j
     }
 }
 
+JNIEXPORT jint OLM_PK_DECRYPTION_FUNC_DEF(privateKeyLength)(JNIEnv *env, jobject thiz)
+{
+    return (jint) olm_pk_private_key_length();
+}
+
 JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(setPrivateKeyJni)(JNIEnv *env, jobject thiz, jbyteArray key)
 {
     jbyteArray publicKeyRet = 0;

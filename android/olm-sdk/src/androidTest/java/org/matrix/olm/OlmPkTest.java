@@ -116,6 +116,8 @@ public class OlmPkTest {
             (byte)0x1D, (byte)0xB9, (byte)0x2C, (byte)0x2A
         };
 
+        assertTrue(privateKey.length == OlmPkDecryption.privateKeyLength());
+
         try {
             mOlmPkDecryption.setPrivateKey(privateKey);
         } catch (OlmException e) {
