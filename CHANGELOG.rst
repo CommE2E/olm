@@ -1,16 +1,40 @@
-Changes in latest release
+Changes in `3.0.0 <http://matrix.org/git/olm/commit/?h=2.3.0>`_
+===============================================================
 
-BREAKING CHANGE: Olm now uses WebAssembly which means it needs
-to load the wasm file asynchronously, and therefore needs to be
-started up asynchronously. The imported module now has an init()
-method which returns a promise. The library cannot be used until
-this promise resolves. It will reject if the library fails to start.
+This release includes the following changes to 2.3.0:
 
-olm_pk_generate_key() and olm_pk_generate_key_random_length() have
-been removed: to generate a random key, use olm_pk_key_from_private()
-with random bytes as the private key.
+* Support for building using cmake. Thanks to Konstantinos Sideris.
+* Add more functions for managing private keys in the public key decryption
+  functionality. These are meant for use with server-side encrypted key
+  backups.  The new functions are ``olm_pk_private_key_length``,
+  ``olm_pk_key_from_private``, and ``olm_pk_get_private_key``.
+* ``olm_pk_generate_key`` and ``olm_pk_generate_key_random_length`` are
+  deprecated: to generate a random key, use ``olm_pk_key_from_private``
+  with random bytes as the private key.
+
+Python wrapper:
+
+* BREAKING CHANGE: This release introduces a new API for the Python wrapper,
+  thanks to Damir Jelić.  The new API should be much easier to use for Python
+  developers.  However, this means that existing code will need to be rewritten
+  to use the new API.
+
+JavaScript wrapper:
+
+* BREAKING CHANGE: Olm now uses WebAssembly which means it needs
+  to load the wasm file asynchronously, and therefore needs to be
+  started up asynchronously. The imported module now has an init()
+  method which returns a promise. The library cannot be used until
+  this promise resolves. It will reject if the library fails to start.
+* Using ``olm/olm.js`` will use the WebAssembly version of the library.  For
+  environments that do not support WebAssembly, use ``olm/olm_legacy.js``.
+
+Objective-C wrapper:
+
+* Add support for the public key encryption/decryption functionality.
 
 Changes in `2.3.0 <http://matrix.org/git/olm/commit/?h=2.3.0>`_
+===============================================================
 
 This release includes the following changes since 2.2.2:
 
