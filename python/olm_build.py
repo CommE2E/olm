@@ -18,6 +18,7 @@
 from __future__ import unicode_literals
 
 import os
+import subprocess
 
 from cffi import FFI
 
@@ -32,6 +33,8 @@ link_args = ["-L../build"]
 if DEVELOP and DEVELOP.lower() in ["yes", "true", "1"]:
     link_args.append('-Wl,-rpath=../build')
 
+headers_build = subprocess.Popen("make headers", shell=True)
+headers_build.wait()
 
 ffibuilder.set_source(
     "_libolm",

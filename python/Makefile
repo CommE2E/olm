@@ -12,10 +12,12 @@ include/olm/olm.h: $(OLM_HEADERS)
 include/olm/pk.h: include/olm/olm.h ../include/olm/pk.h
 	$(CPP) -I dummy -I ../include ../include/olm/pk.h -o include/olm/pk.h
 
-olm-python2: include/olm/olm.h include/olm/pk.h
+headers: include/olm/olm.h include/olm/pk.h
+
+olm-python2: headers
 	DEVELOP=$(DEVELOP) python2 setup.py build
 
-olm-python3: include/olm/olm.h include/olm/pk.h
+olm-python3: headers
 	DEVELOP=$(DEVELOP) python3 setup.py build
 
 install: install-python2 install-python3
