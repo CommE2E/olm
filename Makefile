@@ -34,7 +34,7 @@ JS_EXPORTED_FUNCTIONS := javascript/exported_functions.json
 JS_EXTRA_EXPORTED_RUNTIME_METHODS := ALLOC_STACK
 JS_EXTERNS := javascript/externs.js
 
-PUBLIC_HEADERS := include/olm/olm.h include/olm/outbound_group_session.h include/olm/inbound_group_session.h include/olm/pk.h
+PUBLIC_HEADERS := include/olm/olm.h include/olm/outbound_group_session.h include/olm/inbound_group_session.h include/olm/pk.h include/olm/sas.h
 
 SOURCES := $(wildcard src/*.cpp) $(wildcard src/*.c) \
     lib/crypto-algorithms/sha256.c \
@@ -60,6 +60,7 @@ JS_PRE := $(wildcard javascript/*pre.js)
 JS_POST := javascript/olm_outbound_group_session.js \
     javascript/olm_inbound_group_session.js \
     javascript/olm_pk.js \
+    javascript/olm_sas.js \
     javascript/olm_post.js
 
 # The prefix & suffix are just added onto the start & end
