@@ -98,3 +98,19 @@ class TestClass(object):
 
         with pytest.raises(OlmVerifyError):
             ed25519_verify(signing_key, message, signature)
+
+    @given(text())
+    def test_signature_verification_twice(self, message):
+        alice = Account()
+
+        signature = alice.sign(message)
+        signing_key = alice.identity_keys["ed25519"]
+
+        assert signature
+        assert signing_key
+
+        ed25519_verify(signing_key, message, signature)
+        assert signature == alice.sign(message)
+
+        ed25519_verify(signing_key, message, signature)
+        assert signature == alice.sign(message)

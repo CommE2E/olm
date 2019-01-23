@@ -81,14 +81,15 @@ class _Utility(object):
 
         byte_key = to_bytes(key)
         byte_message = to_bytearray(message)
-        byte_signature = to_bytes(signature)
+        byte_signature = to_bytearray(signature)
 
         try:
             cls._check_error(
                 lib.olm_ed25519_verify(cls._utility, byte_key, len(byte_key),
                                        ffi.from_buffer(byte_message),
                                        len(byte_message),
-                                       byte_signature, len(byte_signature)))
+                                       ffi.from_buffer(byte_signature),
+                                       len(byte_signature)))
         finally:
             # clear out copies of the message, which may be a plaintext
             if byte_message is not message:
