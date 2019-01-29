@@ -1,4 +1,4 @@
-/* Copyright 2018 New Vector Ltd
+/* Copyright 2018, 2019 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -407,6 +407,90 @@ size_t olm_pk_get_private_key(
         olm_pk_private_key_length()
     );
     return olm_pk_private_key_length();
+}
+
+struct OlmPkSigning {
+    OlmErrorCode last_error;
+    _olm_ed25519_key_pair key_pair;
+};
+
+size_t olm_pk_signing_size(void) {
+    return sizeof(OlmPkSigning);
+}
+
+OlmPkSigning *olm_pk_signing(void * memory) {
+    olm::unset(memory, sizeof(OlmPkSigning));
+    return new(memory) OlmPkSigning;
+}
+
+const char * olm_pk_signing_last_error(OlmPkSigning * sign) {
+    auto error = sign->last_error;
+    return _olm_error_to_string(error);
+}
+
+size_t olm_clear_pk_signing(OlmPkSigning *sign) {
+    /* Clear the memory backing the signing */
+    olm::unset(sign, sizeof(OlmPkSigning));
+    /* Initialise a fresh signing object in case someone tries to use it */
+    new(sign) OlmPkSigning();
+    return sizeof(OlmPkSigning);
+}
+
+size_t olm_pk_sign_seed_length(void) {
+    return ED25519_RANDOM_LENGTH;
+}
+
+size_t olm_pk_sign_public_key_length(void) {
+    return olm::encode_base64_length(ED25519_PUBLIC_KEY_LENGTH);
+}
+
+size_t olm_pk_signing_key_from_seed(
+    OlmPkSigning * signing,
+    void * pubkey, size_t pubkey_length,
+    void * seed, size_t seed_length
+) {
+    if (pubkey_length < olm_pk_sign_public_key_length()) {
+        signing->last_error =
+            OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
+        return std::size_t(-1);
+    }
+    if (seed_length < olm_pk_sign_seed_length()) {
+        signing->last_error =
+            OlmErrorCode::OLM_INPUT_BUFFER_TOO_SMALL;
+        return std::size_t(-1);
+    }
+
+    _olm_crypto_ed25519_generate_key((uint8_t *) seed, &signing->key_pair);
+    olm::encode_base64(
+        (const uint8_t *)signing->key_pair.public_key.public_key,
+        ED25519_PUBLIC_KEY_LENGTH,
+        (uint8_t *)pubkey
+    );
+    return 0;
+}
+
+size_t olm_pk_signature_length() {
+    return olm::encode_base64_length(ED25519_SIGNATURE_LENGTH);
+}
+
+#include "olm/utility.hh"
+
+size_t olm_pk_sign(
+    OlmPkSigning *signing,
+    uint8_t const * message, size_t message_length,
+    uint8_t * signature, size_t signature_length
+) {
+    if (signature_length < olm_pk_signature_length()) {
+        signing->last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
+        return std::size_t(-1);
+    }
+    uint8_t *raw_sig = signature + olm_pk_signature_length() - ED25519_SIGNATURE_LENGTH;
+    _olm_crypto_ed25519_sign(
+        &signing->key_pair,
+        message, message_length, raw_sig
+    );
+    olm::encode_base64(raw_sig, ED25519_SIGNATURE_LENGTH, signature);
+    return olm_pk_signature_length();
 }
 
 }

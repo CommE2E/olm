@@ -34,7 +34,6 @@ describe("olm", function() {
     beforeEach(function(done) {
         // This should really be in a beforeAll, but jasmine-node
         // doesn't support that
-        debugger;
         Olm.init().then(function() {
             aliceAccount = new Olm.Account();
             bobAccount = new Olm.Account();

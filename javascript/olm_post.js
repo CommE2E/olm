@@ -534,6 +534,7 @@ olm_exports["Session"] = Session;
 olm_exports["Utility"] = Utility;
 olm_exports["PkEncryption"] = PkEncryption;
 olm_exports["PkDecryption"] = PkDecryption;
+olm_exports["PkSigning"] = PkSigning;
 olm_exports["SAS"] = SAS;
 
 olm_exports["get_library_version"] = restore_stack(function() {

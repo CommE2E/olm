@@ -163,4 +163,74 @@ free(ciphertext);
 free(plaintext_buffer);
 
 }
+
+{ /* Signing Test Case 1 */
+
+TestCase test_case("Public Key Signing");
+
+std::uint8_t signing_buffer[olm_pk_signing_size()];
+OlmPkSigning *signing = olm_pk_signing(signing_buffer);
+
+std::uint8_t seed[32] = {
+    0x77, 0x07, 0x6D, 0x0A, 0x73, 0x18, 0xA5, 0x7D,
+    0x3C, 0x16, 0xC1, 0x72, 0x51, 0xB2, 0x66, 0x45,
+    0xDF, 0x4C, 0x2F, 0x87, 0xEB, 0xC0, 0x99, 0x2A,
+    0xB1, 0x77, 0xFB, 0xA5, 0x1D, 0xB9, 0x2C, 0x2A
+};
+
+//const std::uint8_t *pub_key = (std::uint8_t *) "hSDwCYkwp1R0i33ctD73Wg2/Og0mOBr066SpjqqbTmoK";
+
+char pubkey[olm_pk_sign_public_key_length() + 1];
+
+olm_pk_signing_key_from_seed(
+    signing,
+    pubkey, sizeof(pubkey),
+    seed, sizeof(seed)
+);
+
+printf("pubkey: %s\n", pubkey);
+
+char *message = strdup("We hold these truths to be self-evident, that all men are created equal, that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty and the pursuit of Happiness.");
+
+std::uint8_t *sig_buffer = (std::uint8_t *) malloc(olm_pk_signature_length() + 1);
+
+olm_pk_sign(
+    signing,
+    (const uint8_t *)message, strlen(message),
+    sig_buffer, olm_pk_signature_length()
+);
+
+printf("sig: %s\n", sig_buffer);
+
+void * utility_buffer = malloc(::olm_utility_size());
+::OlmUtility * utility = ::olm_utility(utility_buffer);
+
+size_t result;
+
+result = ::olm_ed25519_verify(
+    utility,
+    pubkey, olm_pk_sign_public_key_length(),
+    message, strlen(message),
+    sig_buffer, olm_pk_signature_length()
+);
+
+assert_equals((size_t)0, result);
+
+sig_buffer[5] = 'm';
+
+result = ::olm_ed25519_verify(
+    utility,
+    pubkey, olm_pk_sign_public_key_length(),
+    message, strlen(message),
+    sig_buffer, olm_pk_signature_length()
+);
+
+assert_equals((size_t)-1, result);
+
+free(message);
+free(sig_buffer);
+
+olm_clear_pk_signing(signing);
+
+}
 }
