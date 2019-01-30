@@ -213,7 +213,7 @@ typedef struct OlmPkSigning OlmPkSigning;
 size_t olm_pk_signing_size(void);
 
 /** Initialise a signing object using the supplied memory
- *  The supplied memory must be at least olm_pk_sign_size() bytes */
+ *  The supplied memory must be at least olm_pk_signing_size() bytes */
 OlmPkSigning *olm_pk_signing(
     void * memory
 );
