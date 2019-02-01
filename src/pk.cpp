@@ -473,8 +473,6 @@ size_t olm_pk_signature_length() {
     return olm::encode_base64_length(ED25519_SIGNATURE_LENGTH);
 }
 
-#include "olm/utility.hh"
-
 size_t olm_pk_sign(
     OlmPkSigning *signing,
     uint8_t const * message, size_t message_length,
