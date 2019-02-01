@@ -271,3 +271,92 @@ PkDecryption.prototype['decrypt'] = restore_stack(function (
         }
     }
 })
+
+
+function PkSigning() {
+    var size = Module['_olm_pk_signing_size']();
+    this.buf = malloc(size);
+    this.ptr = Module['_olm_pk_signing'](this.buf);
+}
+
+function pk_signing_method(wrapped) {
+    return function() {
+        var result = wrapped.apply(this, arguments);
+        if (result === OLM_ERROR) {
+            var message = Pointer_stringify(
+                Module['_olm_pk_signing_last_error'](arguments[0])
+            );
+            throw new Error("OLM." + message);
+        }
+        return result;
+    }
+}
+
+PkSigning.prototype['free'] = function() {
+    Module['_olm_clear_pk_signing'](this.ptr);
+    free(this.ptr);
+}
+
+PkSigning.prototype['init_with_seed'] = restore_stack(function (seed) {
+    var seed_buffer = stack(seed.length);
+    Module['HEAPU8'].set(seed, seed_buffer);
+
+    var pubkey_length = pk_signing_method(
+        Module['_olm_pk_sign_public_key_length']
+    )();
+    var pubkey_buffer = stack(pubkey_length + NULL_BYTE_PADDING_LENGTH);
+    try {
+        pk_signing_method(Module['_olm_pk_signing_key_from_seed'])(
+            this.ptr,
+            pubkey_buffer, pubkey_length,
+            seed_buffer, seed.length
+        );
+    } finally {
+        // clear out our copy of the seed
+        bzero(seed_buffer, seed.length);
+    }
+    return Pointer_stringify(pubkey_buffer);
+});
+
+PkSigning.prototype['generate_seed'] = restore_stack(function () {
+    var random_length = pk_signing_method(
+        Module['_olm_pk_sign_seed_length']
+    )();
+    var random_buffer = random_stack(random_length);
+    var key_arr = new Uint8Array(
+        new Uint8Array(Module['HEAPU8'].buffer, random_buffer, random_length)
+    );
+    bzero(random_buffer, random_length);
+    return key_arr;
+});
+
+PkSigning.prototype['sign'] = restore_stack(function (message) {
+    // XXX: Should be able to sign any bytes rather than just strings,
+    // but this is consistent with encrypt for now.
+    //var message_buffer = stack(message.length);
+    //Module['HEAPU8'].set(message, message_buffer);
+    var message_buffer, message_length;
+
+    try {
+        message_length = lengthBytesUTF8(message)
+        message_buffer = malloc(message_length + 1);
+        stringToUTF8(message, message_buffer, message_length + 1);
+
+        var sig_length = pk_signing_method(
+            Module['_olm_pk_signature_length']
+        )();
+        var sig_buffer = stack(sig_length + NULL_BYTE_PADDING_LENGTH);
+        pk_signing_method(Module['_olm_pk_sign'])(
+            this.ptr,
+            message_buffer, message_length,
+            sig_buffer, sig_length
+        );
+        return Pointer_stringify(sig_buffer);
+    } finally {
+        if (message_buffer !== undefined) {
+            // don't leave a copy of the plaintext in the heap.
+            bzero(message_buffer, message_length + 1);
+            free(message_buffer);
+        }
+    }
+});

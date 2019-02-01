@@ -1,5 +1,5 @@
 /*
-Copyright 2018 New Vector Ltd
+Copyright 2018, 2019 New Vector Ltd
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,12 +19,13 @@ limitations under the License.
 var Olm = require('../olm');
 
 describe("pk", function() {
-    var encryption, decryption;
+    var encryption, decryption, signing;
 
     beforeEach(function(done) {
         Olm.init().then(function() {
             encryption = new Olm.PkEncryption();
             decryption = new Olm.PkDecryption();
+            signing = new Olm.PkSigning();
 
             done();
         });
@@ -38,6 +39,10 @@ describe("pk", function() {
         if (decryption !== undefined) {
             decryption.free();
             decryption = undefined;
+        }
+        if (signing !== undefined) {
+            signing.free();
+            signing = undefined;
         }
     });
 
@@ -88,5 +93,30 @@ describe("pk", function() {
         console.log(TEST_TEXT, "->", decrypted);
         expect(decrypted).toEqual(TEST_TEXT);
         new_decryption.free();
+    });
+
+    it('should sign and verify', function () {
+        var seed = new Uint8Array([
+            0x77, 0x07, 0x6D, 0x0A, 0x73, 0x18, 0xA5, 0x7D,
+            0x3C, 0x16, 0xC1, 0x72, 0x51, 0xB2, 0x66, 0x45,
+            0xDF, 0x4C, 0x2F, 0x87, 0xEB, 0xC0, 0x99, 0x2A,
+            0xB1, 0x77, 0xFB, 0xA5, 0x1D, 0xB9, 0x2C, 0x2A
+        ]);
+
+        var TEST_TEXT = "We hold these truths to be self-evident, that all men are created equal, that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty and the pursuit of Happiness.";
+        //var seed = signing.generate_seed();
+        var pubkey = signing.init_with_seed(seed);
+        var sig = signing.sign(TEST_TEXT);
+
+        var util = new Olm.Utility();
+        util.ed25519_verify(pubkey, TEST_TEXT, sig);
+        var verifyFailure;
+        try {
+            util.ed25519_verify(pubkey, TEST_TEXT, 'p' + sig.slice(1));
+        } catch (e) {
+            verifyFailure = e;
+        }
+        expect(verifyFailure).not.toBeNull();
+        util.free();
     });
 });

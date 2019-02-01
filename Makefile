@@ -86,9 +86,6 @@ CXXFLAGS += -Wall -Werror -std=c++11 -fPIC
 LDFLAGS += -Wall -Werror
 
 EMCCFLAGS = --closure 1 --memory-init-file 0 -s NO_FILESYSTEM=1 -s INVOKE_RUN=0 -s MODULARIZE=1
-# NO_BROWSER is kept for compatibility with emscripten 1.35.24, but is no
-# longer needed.
-EMCCFLAGS += -s NO_BROWSER=1
 
 # Olm generally doesn't need a lot of memory to encrypt / decrypt its usual
 # payloads (ie. Matrix messages), but we do need about 128K of heap to encrypt

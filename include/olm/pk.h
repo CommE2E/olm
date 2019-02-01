@@ -1,4 +1,4 @@
-/* Copyright 2018 New Vector Ltd
+/* Copyright 2018, 2019 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -205,6 +205,48 @@ size_t olm_pk_decrypt(
 size_t olm_pk_get_private_key(
     OlmPkDecryption * decryption,
     void *private_key, size_t private_key_length
+);
+
+typedef struct OlmPkSigning OlmPkSigning;
+
+/* The size of a signing object in bytes */
+size_t olm_pk_signing_size(void);
+
+/** Initialise a signing object using the supplied memory
+ *  The supplied memory must be at least olm_pk_signing_size() bytes */
+OlmPkSigning *olm_pk_signing(
+    void * memory
+);
+
+/** A null terminated string describing the most recent error to happen to a
+ * signing object */
+const char * olm_pk_signing_last_error(
+    OlmPkSigning * sign
+);
+
+/** Clears the memory used to back this signing object */
+size_t olm_clear_pk_signing(
+    OlmPkSigning *sign
+);
+
+/**
+ * Initialise the signing object with a public/private keypair from a seed
+ */
+size_t olm_pk_signing_key_from_seed(
+    OlmPkSigning * sign,
+    void * pubkey, size_t pubkey_length,
+    void * seed, size_t seed_length
+);
+
+size_t olm_pk_sign_seed_length(void);
+size_t olm_pk_sign_public_key_length(void);
+
+size_t olm_pk_signature_length();
+
+size_t olm_pk_sign(
+    OlmPkSigning *sign,
+    uint8_t const * message, size_t message_length,
+    uint8_t * signature, size_t signature_length
 );
 
 #ifdef __cplusplus
