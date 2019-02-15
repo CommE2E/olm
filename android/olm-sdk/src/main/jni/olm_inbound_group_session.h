@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef _OMLINBOUND_GROUP_SESSION_H
-#define _OMLINBOUND_GROUP_SESSION_H
+#ifndef _OLMINBOUND_GROUP_SESSION_H
+#define _OLMINBOUND_GROUP_SESSION_H
 
 #include "olm_jni.h"
 #include "olm/olm.h"

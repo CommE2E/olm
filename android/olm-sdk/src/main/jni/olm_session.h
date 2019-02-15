@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef _OMLSESSION_H
-#define _OMLSESSION_H
+#ifndef _OLMSESSION_H
+#define _OLMSESSION_H
 
 #include "olm_jni.h"
 #include "olm/olm.h"

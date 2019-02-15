@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef _OMLACCOUNT_H
-#define _OMLACCOUNT_H
+#ifndef _OLMACCOUNT_H
+#define _OLMACCOUNT_H
 
 #include "olm_jni.h"
 #include "olm/olm.h"

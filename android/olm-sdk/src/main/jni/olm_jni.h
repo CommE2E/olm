@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef _OMLJNI_H
-#define _OMLJNI_H
+#ifndef _OLMJNI_H
+#define _OLMJNI_H
 
 #include <cstdlib>
 #include <cstdio>

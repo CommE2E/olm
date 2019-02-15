@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef _OMLUTILITY_H
-#define _OMLUTILITY_H
+#ifndef _OLMUTILITY_H
+#define _OLMUTILITY_H
 
 #include "olm_jni.h"
 #include "olm/olm.h"

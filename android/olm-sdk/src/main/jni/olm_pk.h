@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef _OMLPK_H
-#define _OMLPK_H
+#ifndef _OLMPK_H
+#define _OLMPK_H
 
 #include "olm_jni.h"
 #include "olm/pk.h"

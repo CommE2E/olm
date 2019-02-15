@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef _OMLMANAGER_H
-#define _OMLMANAGER_H
+#ifndef _OLMMANAGER_H
+#define _OLMMANAGER_H
 
 #include "olm_jni.h"
 #include "olm/olm.h"
