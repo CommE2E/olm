@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 New Vector Ltd
+ * Copyright 2018,2019 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 
 #define OLM_PK_ENCRYPTION_FUNC_DEF(func_name) FUNC_DEF(OlmPkEncryption,func_name)
 #define OLM_PK_DECRYPTION_FUNC_DEF(func_name) FUNC_DEF(OlmPkDecryption,func_name)
+#define OLM_PK_SIGNING_FUNC_DEF(func_name) FUNC_DEF(OlmPkSigning,func_name)
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,6 +41,13 @@ JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(setPrivateKeyJni)(JNIEnv *env, j
 JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(generateKeyJni)(JNIEnv *env, jobject thiz);
 JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(privateKeyJni)(JNIEnv *env, jobject thiz);
 JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(decryptJni)(JNIEnv *env, jobject thiz, jobject aEncryptedMsg);
+
+JNIEXPORT jlong OLM_PK_SIGNING_FUNC_DEF(createNewPkSigningJni)(JNIEnv *env, jobject thiz);
+JNIEXPORT void OLM_PK_SIGNING_FUNC_DEF(releasePkSigningJni)(JNIEnv *env, jobject thiz);
+JNIEXPORT jint OLM_PK_SIGNING_FUNC_DEF(seedLength)(JNIEnv *env, jobject thiz);
+JNIEXPORT jbyteArray OLM_PK_SIGNING_FUNC_DEF(generateSeedJni)(JNIEnv *env, jobject thiz);
+JNIEXPORT jbyteArray OLM_PK_SIGNING_FUNC_DEF(setKeyFromSeedJni)(JNIEnv *env, jobject thiz, jbyteArray seed);
+JNIEXPORT jbyteArray OLM_PK_SIGNING_FUNC_DEF(pkSignJni)(JNIEnv *env, jobject thiz, jbyteArray aMessage);
 
 #ifdef __cplusplus
 }

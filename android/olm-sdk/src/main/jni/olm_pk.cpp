@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 New Vector Ltd
+ * Copyright 2018,2019 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -713,4 +713,280 @@ JNIEXPORT jbyteArray OLM_PK_DECRYPTION_FUNC_DEF(decryptJni)(
     }
 
     return decryptedMsgRet;
+}
+
+OlmPkSigning * initializePkSigningMemory()
+{
+    size_t signingSize = olm_pk_signing_size();
+    OlmPkSigning *signingPtr = (OlmPkSigning *)malloc(signingSize);
+
+    if (signingPtr)
+    {
+        // init encryption object
+        signingPtr = olm_pk_signing(signingPtr);
+        LOGD(
+            "## initializePkSigningMemory(): success - OLM signing size=%lu",
+            static_cast<long unsigned int>(signingSize)
+        );
+    }
+    else
+    {
+        LOGE("## initializePkSigningMemory(): failure - OOM");
+    }
+
+    return signingPtr;
+}
+
+JNIEXPORT jlong OLM_PK_SIGNING_FUNC_DEF(createNewPkSigningJni)(JNIEnv *env, jobject thiz)
+{
+    const char* errorMessage = NULL;
+    OlmPkSigning *signingPtr = initializePkSigningMemory();
+
+    // init signing memory allocation
+    if (!signingPtr)
+    {
+        LOGE("## createNewPkSigningJni(): failure - init signing OOM");
+        errorMessage = "init signing OOM";
+    }
+    else
+    {
+        LOGD("## createNewPkSigningJni(): success - OLM signing created");
+        LOGD(
+            "## createNewPkSigningJni(): signingPtr=%p (jlong)(intptr_t)signingPtr=%lld",
+            signingPtr, (jlong)(intptr_t)signingPtr
+        );
+    }
+
+    if (errorMessage)
+    {
+        // release the allocated data
+        if (signingPtr)
+        {
+            olm_clear_pk_signing(signingPtr);
+            free(signingPtr);
+        }
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
+    return (jlong)(intptr_t)signingPtr;
+}
+
+JNIEXPORT void OLM_PK_SIGNING_FUNC_DEF(releasePkSigningJni)(JNIEnv *env, jobject thiz)
+{
+    LOGD("## releasePkSigningJni(): IN");
+
+    OlmPkSigning* signingPtr = getPkSigningInstanceId(env, thiz);
+
+    if (!signingPtr)
+    {
+        LOGE(" ## releasePkSigningJni(): failure - invalid Signing ptr=NULL");
+    }
+    else
+    {
+        LOGD(" ## releasePkSigningJni(): signingPtr=%p", signingPtr);
+        olm_clear_pk_signing(signingPtr);
+
+        LOGD(" ## releasePkSigningJni(): IN");
+        // even if free(NULL) does not crash, logs are performed for debug
+        // purpose
+        free(signingPtr);
+        LOGD(" ## releasePkSigningJni(): OUT");
+    }
+}
+
+JNIEXPORT jbyteArray OLM_PK_SIGNING_FUNC_DEF(generateSeedJni)(JNIEnv *env, jobject thiz)
+{
+    size_t randomLength = olm_pk_signing_seed_length();
+    uint8_t *randomBuffPtr = NULL;
+    jbyteArray randomRet = 0;
+    const char* errorMessage = NULL;
+
+    if (!setRandomInBuffer(env, &randomBuffPtr, randomLength))
+    {
+        errorMessage = "random buffer init";
+        LOGE("## pkSigningGenerateSeedJni(): failure - %s", errorMessage);
+    }
+    else if (!(randomRet = env->NewByteArray(randomLength)))
+    {
+        errorMessage = "randomRet JNI allocation OOM";
+        LOGE(" ## pkSigningGenerateSeedJni(): falure - %s", errorMessage);
+    }
+    else
+    {
+        env->SetByteArrayRegion(
+            randomRet, 0, randomLength, (jbyte*)randomBuffPtr
+        );
+    }
+
+    if (randomBuffPtr)
+    {
+        memset(randomBuffPtr, 0, randomLength);
+        free(randomBuffPtr);
+    }
+
+    if (errorMessage)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
+    return randomRet;
+}
+
+JNIEXPORT jint OLM_PK_SIGNING_FUNC_DEF(seedLength)(JNIEnv *env, jobject thiz)
+{
+    return (jint) olm_pk_signing_seed_length();
+}
+
+JNIEXPORT jbyteArray OLM_PK_SIGNING_FUNC_DEF(setKeyFromSeedJni)(JNIEnv *env, jobject thiz, jbyteArray seed)
+{
+    const char* errorMessage = NULL;
+    OlmPkSigning *signingPtr = getPkSigningInstanceId(env, thiz);
+
+    jbyteArray publicKeyRet = 0;
+    jbyte *seedPtr = NULL;
+    jboolean seedWasCopied = JNI_FALSE;
+
+    if (!signingPtr)
+    {
+        errorMessage = "invalid Siging ptr=NULL";
+        LOGE(" ## setPkSigningKeyFromSeedJni(): failure - %s", errorMessage);
+    }
+    else if (!seed)
+    {
+        errorMessage = "invalid seed";
+        LOGE(" ## setPkSigningKeyFromSeedJni: failure - %s", errorMessage);
+    }
+    else if (!(seedPtr = env->GetByteArrayElements(seed, &seedWasCopied)))
+    {
+        errorMessage = "seed JNI allocation OOM";
+        LOGE(" ## setPkSigningKeyFromSeedJni(): failure - %s", errorMessage);
+    }
+    else
+    {
+        size_t publicKeyLength = olm_pk_signing_public_key_length();
+        uint8_t *publicKeyPtr = NULL;
+        size_t seedLength = (size_t)env->GetArrayLength(seed);
+        if (!(publicKeyPtr = (uint8_t*)malloc(publicKeyLength)))
+        {
+            errorMessage = "public key JNI allocation OOM";
+            LOGE(" ## setPkSigningKeyFromSeedJni(): falure - %s", errorMessage);
+        }
+        else
+        {
+            size_t returnValue = olm_pk_signing_key_from_seed(
+                signingPtr,
+                publicKeyPtr, publicKeyLength,
+                seedPtr, seedLength
+            );
+            if (returnValue == olm_error())
+            {
+                errorMessage = olm_pk_signing_last_error(signingPtr);
+                LOGE(" ## setPkSigningKeyFromSeedJni: failure - olm_pk_signing_key_from_seed Msg=%s", errorMessage);
+            }
+            else
+            {
+                if (!(publicKeyRet = env->NewByteArray(publicKeyLength))) {
+                    errorMessage = "publicKeyRet JNI allocation OOM";
+                    LOGE(" ## setPkSigningKeyFromSeedJni(): falure - %s", errorMessage);
+                } else {
+                    env->SetByteArrayRegion(
+                        publicKeyRet, 0, publicKeyLength, (jbyte*)publicKeyPtr
+                    );
+                }
+            }
+        }
+    }
+
+    if (seedPtr)
+    {
+        if (seedWasCopied)
+        {
+            memset(seedPtr, 0, (size_t)env->GetArrayLength(seed));
+        }
+        env->ReleaseByteArrayElements(seed, seedPtr, JNI_ABORT);
+    }
+
+    if (errorMessage)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
+    return publicKeyRet;
+}
+
+JNIEXPORT jbyteArray OLM_PK_SIGNING_FUNC_DEF(pkSignJni)(JNIEnv *env, jobject thiz, jbyteArray aMessage)
+{
+    const char* errorMessage = NULL;
+    OlmPkSigning *signingPtr = getPkSigningInstanceId(env, thiz);
+
+    jbyteArray signatureRet = 0;
+    jbyte *messagePtr = NULL;
+    jboolean messageWasCopied = JNI_FALSE;
+
+    if (!signingPtr)
+    {
+        errorMessage = "invalid Siging ptr=NULL";
+        LOGE(" ## setPkSignJni(): failure - %s", errorMessage);
+    }
+    else if (!aMessage)
+    {
+        errorMessage = "message seed";
+        LOGE(" ## setPkSignJni: failure - %s", errorMessage);
+    }
+    else if (!(messagePtr = env->GetByteArrayElements(aMessage, &messageWasCopied)))
+    {
+        errorMessage = "message JNI allocation OOM";
+        LOGE(" ## setPkSignJni(): failure - %s", errorMessage);
+    }
+    else
+    {
+        size_t signatureLength = olm_pk_signature_length();
+        uint8_t *signaturePtr = NULL;
+        size_t messageLength = (size_t)env->GetArrayLength(aMessage);
+        if (!(signaturePtr = (uint8_t*)malloc(signatureLength)))
+        {
+            errorMessage = "signature JNI allocation OOM";
+            LOGE(" ## setPkSignJni(): falure - %s", errorMessage);
+        }
+        else
+        {
+            size_t returnValue = olm_pk_sign(
+                signingPtr,
+                (uint8_t *)messagePtr, messageLength,
+                signaturePtr, signatureLength
+            );
+            if (returnValue == olm_error())
+            {
+                errorMessage = olm_pk_signing_last_error(signingPtr);
+                LOGE(" ## setPkSignJni: failure - olm_pk_sign Msg=%s", errorMessage);
+            }
+            else
+            {
+                if (!(signatureRet = env->NewByteArray(signatureLength))) {
+                    errorMessage = "signatureRet JNI allocation OOM";
+                    LOGE(" ## setPkSignJni(): falure - %s", errorMessage);
+                } else {
+                    env->SetByteArrayRegion(
+                        signatureRet, 0, signatureLength, (jbyte*)signaturePtr
+                    );
+                }
+            }
+        }
+    }
+
+    if (messagePtr)
+    {
+        if (messageWasCopied)
+        {
+            memset(messagePtr, 0, (size_t)env->GetArrayLength(aMessage));
+        }
+        env->ReleaseByteArrayElements(aMessage, messagePtr, JNI_ABORT);
+    }
+
+    if (errorMessage)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
+    return signatureRet;
 }

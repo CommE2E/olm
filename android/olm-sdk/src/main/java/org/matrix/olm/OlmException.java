@@ -1,6 +1,6 @@
 /*
  * Copyright 2017 OpenMarket Ltd
- * Copyright 2017 Vector Creations Ltd
+ * Copyright 2017-2019 Vector Creations Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,11 @@ public class OlmException extends IOException {
     public static final int EXCEPTION_CODE_PK_DECRYPTION_DECRYPT = 702;
     public static final int EXCEPTION_CODE_PK_DECRYPTION_SET_PRIVATE_KEY = 703;
     public static final int EXCEPTION_CODE_PK_DECRYPTION_PRIVATE_KEY = 704;
+
+    public static final int EXCEPTION_CODE_PK_SIGNING_CREATION = 800;
+    public static final int EXCEPTION_CODE_PK_SIGNING_GENERATE_SEED = 801;
+    public static final int EXCEPTION_CODE_PK_SIGNING_INIT_WITH_SEED = 802;
+    public static final int EXCEPTION_CODE_PK_SIGNING_SIGN = 803;
 
     // exception human readable messages
     public static final String EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION = "invalid de-serialized parameters";

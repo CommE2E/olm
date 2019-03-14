@@ -1,6 +1,6 @@
 /*
  * Copyright 2016 OpenMarket Ltd
- * Copyright 2016 Vector Creations Ltd
+ * Copyright 2016,2018,2019 Vector Creations Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,4 +27,5 @@ namespace AndroidOlmSdk
     static const char *CLASS_OLM_UTILITY = "org/matrix/olm/OlmUtility";
     static const char *CLASS_OLM_PK_ENCRYPTION = "org/matrix/olm/OlmPkEncryption";
     static const char *CLASS_OLM_PK_DECRYPTION = "org/matrix/olm/OlmPkDecryption";
+    static const char *CLASS_OLM_PK_SIGNING = "org/matrix/olm/OlmPkSigning";
 }

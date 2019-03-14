@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 New Vector Ltd
+ * Copyright 2018,2019 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ public class OlmPkTest {
 
     private static OlmPkEncryption mOlmPkEncryption;
     private static OlmPkDecryption mOlmPkDecryption;
+    private static OlmPkSigning mOlmPkSigning;
 
     @Test
     public void test01EncryptAndDecrypt() {
@@ -136,5 +137,65 @@ public class OlmPkTest {
 
         mOlmPkDecryption.releaseDecryption();
         assertTrue(mOlmPkDecryption.isReleased());
+    }
+
+    @Test
+    public void test03Signing() {
+        try {
+            mOlmPkSigning = new OlmPkSigning();
+        } catch (OlmException e) {
+            e.printStackTrace();
+            assertTrue("OlmPkSigning failed " + e.getMessage(), false);
+        }
+
+        assertNotNull(mOlmPkSigning);
+
+        byte[] seed = null;
+        try {
+            seed = OlmPkSigning.generateSeed();
+        } catch (OlmException e) {
+            e.printStackTrace();
+            assertTrue("generateSeed failed " + e.getMessage(), false);
+        }
+
+        assertTrue(seed.length == OlmPkSigning.seedLength());
+
+        String pubkey = null;
+        try {
+            pubkey = mOlmPkSigning.initWithSeed(seed);
+        } catch (OlmException e) {
+            e.printStackTrace();
+            assertTrue("initWithSeed failed " + e.getMessage(), false);
+        }
+
+        String message = "We hold these truths to be self-evident, that all men are created equal, that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty and the pursuit of Happiness.";
+
+        String signature = null;
+        try {
+            signature = mOlmPkSigning.sign(message);
+        } catch (OlmException e) {
+            e.printStackTrace();
+            assertTrue("sign failed " + e.getMessage(), false);
+        }
+
+        OlmUtility olmUtility = null;
+        try {
+            olmUtility = new OlmUtility();
+        } catch (OlmException e) {
+            e.printStackTrace();
+            assertTrue("olmUtility failed " + e.getMessage(), false);
+        }
+
+        try {
+            olmUtility.verifyEd25519Signature(signature, pubkey, message);
+        } catch (OlmException e) {
+            e.printStackTrace();
+            assertTrue("Signature verification failed " + e.getMessage(), false);
+        }
+
+        mOlmPkSigning.releaseSigning();
+        assertTrue(mOlmPkSigning.isReleased());
+
+        olmUtility.releaseUtility();
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Copyright 2016 OpenMarket Ltd
- * Copyright 2016 Vector Creations Ltd
+ * Copyright 2016,2018,2019 Vector Creations Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,6 +72,7 @@ struct OlmOutboundGroupSession* getOutboundGroupSessionInstanceId(JNIEnv* aJniEn
 struct OlmUtility* getUtilityInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 struct OlmPkDecryption* getPkDecryptionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 struct OlmPkEncryption* getPkEncryptionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
+struct OlmPkSigning* getPkSigningInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 
 #ifdef __cplusplus
 }
