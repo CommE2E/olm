@@ -238,8 +238,8 @@ size_t olm_pk_signing_key_from_seed(
     void * seed, size_t seed_length
 );
 
-size_t olm_pk_sign_seed_length(void);
-size_t olm_pk_sign_public_key_length(void);
+size_t olm_pk_signing_seed_length(void);
+size_t olm_pk_signing_public_key_length(void);
 
 size_t olm_pk_signature_length();
 

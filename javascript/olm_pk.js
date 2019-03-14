@@ -302,7 +302,7 @@ PkSigning.prototype['init_with_seed'] = restore_stack(function (seed) {
     Module['HEAPU8'].set(seed, seed_buffer);
 
     var pubkey_length = pk_signing_method(
-        Module['_olm_pk_sign_public_key_length']
+        Module['_olm_pk_signing_public_key_length']
     )();
     var pubkey_buffer = stack(pubkey_length + NULL_BYTE_PADDING_LENGTH);
     try {
@@ -320,7 +320,7 @@ PkSigning.prototype['init_with_seed'] = restore_stack(function (seed) {
 
 PkSigning.prototype['generate_seed'] = restore_stack(function () {
     var random_length = pk_signing_method(
-        Module['_olm_pk_sign_seed_length']
+        Module['_olm_pk_signing_seed_length']
     )();
     var random_buffer = random_stack(random_length);
     var key_arr = new Uint8Array(

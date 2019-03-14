@@ -436,11 +436,11 @@ size_t olm_clear_pk_signing(OlmPkSigning *sign) {
     return sizeof(OlmPkSigning);
 }
 
-size_t olm_pk_sign_seed_length(void) {
+size_t olm_pk_signing_seed_length(void) {
     return ED25519_RANDOM_LENGTH;
 }
 
-size_t olm_pk_sign_public_key_length(void) {
+size_t olm_pk_signing_public_key_length(void) {
     return olm::encode_base64_length(ED25519_PUBLIC_KEY_LENGTH);
 }
 
@@ -449,12 +449,12 @@ size_t olm_pk_signing_key_from_seed(
     void * pubkey, size_t pubkey_length,
     void * seed, size_t seed_length
 ) {
-    if (pubkey_length < olm_pk_sign_public_key_length()) {
+    if (pubkey_length < olm_pk_signing_public_key_length()) {
         signing->last_error =
             OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
-    if (seed_length < olm_pk_sign_seed_length()) {
+    if (seed_length < olm_pk_signing_seed_length()) {
         signing->last_error =
             OlmErrorCode::OLM_INPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
