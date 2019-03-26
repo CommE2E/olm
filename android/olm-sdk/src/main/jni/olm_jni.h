@@ -73,6 +73,7 @@ struct OlmUtility* getUtilityInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 struct OlmPkDecryption* getPkDecryptionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 struct OlmPkEncryption* getPkEncryptionInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 struct OlmPkSigning* getPkSigningInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
+struct OlmSAS* getOlmSasInstanceId(JNIEnv* aJniEnv, jobject aJavaObject);
 
 #ifdef __cplusplus
 }

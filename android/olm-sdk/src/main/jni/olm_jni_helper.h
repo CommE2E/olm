@@ -28,4 +28,5 @@ namespace AndroidOlmSdk
     static const char *CLASS_OLM_PK_ENCRYPTION = "org/matrix/olm/OlmPkEncryption";
     static const char *CLASS_OLM_PK_DECRYPTION = "org/matrix/olm/OlmPkDecryption";
     static const char *CLASS_OLM_PK_SIGNING = "org/matrix/olm/OlmPkSigning";
+    static const char *CLASS_OLM_SAS = "org/matrix/olm/OlmSAS";
 }

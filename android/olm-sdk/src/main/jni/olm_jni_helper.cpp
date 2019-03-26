@@ -227,3 +227,8 @@ struct OlmPkSigning* getPkSigningInstanceId(JNIEnv* aJniEnv, jobject aJavaObject
 {
     return (struct OlmPkSigning*)getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_PK_SIGNING);
 }
+
+struct OlmSAS* getOlmSasInstanceId(JNIEnv* aJniEnv, jobject aJavaObject)
+{
+    return (struct OlmSAS*)getInstanceId(aJniEnv, aJavaObject, CLASS_OLM_SAS);
+}
