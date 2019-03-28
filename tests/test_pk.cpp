@@ -180,7 +180,7 @@ std::uint8_t seed[32] = {
 
 //const std::uint8_t *pub_key = (std::uint8_t *) "hSDwCYkwp1R0i33ctD73Wg2/Og0mOBr066SpjqqbTmoK";
 
-char pubkey[olm_pk_sign_public_key_length() + 1];
+char pubkey[olm_pk_signing_public_key_length() + 1];
 
 olm_pk_signing_key_from_seed(
     signing,
@@ -209,7 +209,7 @@ size_t result;
 
 result = ::olm_ed25519_verify(
     utility,
-    pubkey, olm_pk_sign_public_key_length(),
+    pubkey, olm_pk_signing_public_key_length(),
     message, strlen(message),
     sig_buffer, olm_pk_signature_length()
 );
@@ -220,7 +220,7 @@ sig_buffer[5] = 'm';
 
 result = ::olm_ed25519_verify(
     utility,
-    pubkey, olm_pk_sign_public_key_length(),
+    pubkey, olm_pk_signing_public_key_length(),
     message, strlen(message),
     sig_buffer, olm_pk_signature_length()
 );
