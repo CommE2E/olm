@@ -8,7 +8,7 @@ function outbound_group_session_method(wrapped) {
     return function() {
         var result = wrapped.apply(this, arguments);
         if (result === OLM_ERROR) {
-            var message = Pointer_stringify(
+            var message = UTF8ToString(
                 Module['_olm_outbound_group_session_last_error'](arguments[0])
             );
             throw new Error("OLM." + message);
@@ -28,7 +28,7 @@ OutboundGroupSession.prototype['pickle'] = restore_stack(function(key) {
         Module['_olm_pickle_outbound_group_session_length']
     )(this.ptr);
     var key_buffer = stack(key_array);
-    var pickle_buffer = stack(pickle_length + NULL_BYTE_PADDING_LENGTH);
+    var pickle_buffer = stack(pickle_length);
     try {
         outbound_group_session_method(Module['_olm_pickle_outbound_group_session'])(
             this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
@@ -40,7 +40,7 @@ OutboundGroupSession.prototype['pickle'] = restore_stack(function(key) {
             key_array[i] = 0;
         }
     }
-    return Pointer_stringify(pickle_buffer);
+    return UTF8ToString(pickle_buffer, pickle_length);
 });
 
 OutboundGroupSession.prototype['unpickle'] = restore_stack(function(key, pickle) {
@@ -86,21 +86,14 @@ OutboundGroupSession.prototype['encrypt'] = function(plaintext) {
         plaintext_buffer = malloc(plaintext_length + 1);
         stringToUTF8(plaintext, plaintext_buffer, plaintext_length + 1);
 
-        message_buffer = malloc(message_length + NULL_BYTE_PADDING_LENGTH);
+        message_buffer = malloc(message_length);
         outbound_group_session_method(Module['_olm_group_encrypt'])(
             this.ptr,
             plaintext_buffer, plaintext_length,
             message_buffer, message_length
         );
 
-        // UTF8ToString requires a null-terminated argument, so add the
-        // null terminator.
-        setValue(
-            message_buffer+message_length,
-            0, "i8"
-        );
-
-        return UTF8ToString(message_buffer);
+        return UTF8ToString(message_buffer, message_length);
     } finally {
         if (plaintext_buffer !== undefined) {
             // don't leave a copy of the plaintext in the heap.
@@ -117,22 +110,22 @@ OutboundGroupSession.prototype['session_id'] = restore_stack(function() {
     var length = outbound_group_session_method(
         Module['_olm_outbound_group_session_id_length']
     )(this.ptr);
-    var session_id = stack(length + NULL_BYTE_PADDING_LENGTH);
+    var session_id = stack(length);
     outbound_group_session_method(Module['_olm_outbound_group_session_id'])(
         this.ptr, session_id, length
     );
-    return Pointer_stringify(session_id);
+    return UTF8ToString(session_id, length);
 });
 
 OutboundGroupSession.prototype['session_key'] = restore_stack(function() {
     var key_length = outbound_group_session_method(
         Module['_olm_outbound_group_session_key_length']
     )(this.ptr);
-    var key = stack(key_length + NULL_BYTE_PADDING_LENGTH);
+    var key = stack(key_length);
     outbound_group_session_method(Module['_olm_outbound_group_session_key'])(
         this.ptr, key, key_length
     );
-    var key_str = Pointer_stringify(key);
+    var key_str = UTF8ToString(key, key_length);
     bzero(key, key_length); // clear out our copy of the key
     return key_str;
 });

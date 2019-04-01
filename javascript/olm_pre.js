@@ -30,14 +30,6 @@ if (typeof(OLM_OPTIONS) !== 'undefined') {
     }
 }
 
-/* The 'length' argument to Pointer_stringify doesn't work if the input
- * includes characters >= 128, which makes Pointer_stringify unreliable. We
- * could use it on strings which are known to be ascii, but that seems
- * dangerous. Instead we add a NULL character to all of our strings and just
- * use UTF8ToString.
- */
-var NULL_BYTE_PADDING_LENGTH = 1;
-
 Module['onRuntimeInitialized'] = function() {
     OLM_ERROR = Module['_olm_error']();
     olm_exports["PRIVATE_KEY_LENGTH"] = Module['_olm_pk_private_key_length']();
