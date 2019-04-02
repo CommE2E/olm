@@ -32,6 +32,7 @@ Examples:
 
 # pylint: disable=redefined-builtin,unused-import
 from typing import AnyStr, Type
+from future.utils import bytes_to_native_str
 
 # pylint: disable=no-name-in-module
 from _libolm import ffi, lib  # type: ignore
@@ -49,6 +50,10 @@ class OlmVerifyError(Exception):
     """libolm signature verification exception."""
 
 
+class OlmHashError(Exception):
+    """libolm hash calculation exception."""
+
+
 class _Utility(object):
     # pylint: disable=too-few-public-methods
     """libolm Utility class."""
@@ -64,12 +69,12 @@ class _Utility(object):
         track_for_finalization(cls, cls._utility, _clear_utility)
 
     @classmethod
-    def _check_error(cls, ret):
-        # type: (int) -> None
+    def _check_error(cls, ret, error_class):
+        # type: (int, Type) -> None
         if ret != lib.olm_error():
             return
 
-        raise OlmVerifyError("{}".format(
+        raise error_class("{}".format(
             ffi.string(lib.olm_utility_last_error(
                 cls._utility)).decode("utf-8")))
 
@@ -84,17 +89,40 @@ class _Utility(object):
         byte_signature = to_bytearray(signature)
 
         try:
-            cls._check_error(
-                lib.olm_ed25519_verify(cls._utility, byte_key, len(byte_key),
-                                       ffi.from_buffer(byte_message),
-                                       len(byte_message),
-                                       ffi.from_buffer(byte_signature),
-                                       len(byte_signature)))
+            ret = lib.olm_ed25519_verify(
+                cls._utility,
+                byte_key,
+                len(byte_key),
+                ffi.from_buffer(byte_message),
+                len(byte_message),
+                ffi.from_buffer(byte_signature),
+                len(byte_signature)
+            )
+
+            cls._check_error(ret, OlmVerifyError)
+
         finally:
             # clear out copies of the message, which may be a plaintext
             if byte_message is not message:
                 for i in range(0, len(byte_message)):
                     byte_message[i] = 0
+
+    @classmethod
+    def _sha256(cls, input):
+        # type: (Type[_Utility], AnyStr) -> str
+        if not cls._utility:
+            cls._allocate()
+
+        byte_input = to_bytes(input)
+        hash_length = lib.olm_sha256_length(cls._utility)
+        hash = ffi.new("char[]", hash_length)
+
+        ret = lib.olm_sha256(cls._utility, byte_input, len(byte_input),
+                             hash, hash_length)
+
+        cls._check_error(ret, OlmHashError)
+
+        return bytes_to_native_str(ffi.unpack(hash, hash_length))
 
 
 def ed25519_verify(key, message, signature):
@@ -109,3 +137,14 @@ def ed25519_verify(key, message, signature):
         signature(bytes): The message signature.
     """
     return _Utility._ed25519_verify(key, message, signature)
+
+
+def sha256(input_string):
+    # type: (AnyStr) -> str
+    """Calculate the SHA-256 hash of the input and encodes it as base64.
+
+    Args:
+        input_string(str): The input for which the hash will be calculated.
+
+    """
+    return _Utility._sha256(input_string)
