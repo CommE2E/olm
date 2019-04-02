@@ -36,3 +36,4 @@ from .group_session import (
     OutboundGroupSession,
     OlmGroupSessionError
 )
+from .sas import Sas, OlmSasError

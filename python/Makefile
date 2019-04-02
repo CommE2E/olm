@@ -6,10 +6,13 @@ include/olm/olm.h: ../include/olm/olm.h ../include/olm/inbound_group_session.h .
 # add memset to the header so that we can use it to clear buffers
 	echo 'void *memset(void *s, int c, size_t n);' >> include/olm/olm.h
 
-olm-python2: include/olm/olm.h
+include/olm/sas.h: include/olm/olm.h ../include/olm/sas.h
+	$(CPP) -I dummy -I ../include ../include/olm/sas.h -o include/olm/sas.h
+
+olm-python2: include/olm/olm.h include/olm/sas.h
 	DEVELOP=$(DEVELOP) python2 setup.py build
 
-olm-python3: include/olm/olm.h
+olm-python3: include/olm/olm.h include/olm/sas.h
 	DEVELOP=$(DEVELOP) python3 setup.py build
 
 install: install-python2 install-python3
