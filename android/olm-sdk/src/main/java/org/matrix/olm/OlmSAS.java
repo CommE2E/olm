@@ -103,6 +103,14 @@ public class OlmSAS {
         }
     }
 
+    public byte[] calculateMacLongKdf(String message, String info) throws OlmException {
+        try {
+            return calculateMacLongKdfJni(message.getBytes("UTF-8"), info.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_SAS_ERROR, e.getMessage());
+        }
+    }
+
     /**
      * Create an OLM session in native side.<br>
      * Do not forget to call {@link #releaseSASJni()} when JAVA side is done.
@@ -126,6 +134,8 @@ public class OlmSAS {
     private native byte[] generateShortCodeJni(byte[] info, int byteNumber);
 
     private native byte[] calculateMacJni(byte[] message, byte[] info);
+
+    private native byte[] calculateMacLongKdfJni(byte[] message, byte[] info);
 
     /**
      * Release native session and invalid its JAVA reference counter part.<br>

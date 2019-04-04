@@ -83,6 +83,17 @@ public class OlmSasTest {
             Log.e(OlmSasTest.class.getSimpleName(), "#### Bob Mac is " + new String(bobMac, "UTF-8"));
 
 
+            byte[] aliceLongKdfMac = aliceSas.calculateMacLongKdf("Hello world!", "SAS");
+            byte[] bobLongKdfMac = bobSas.calculateMacLongKdf("Hello world!", "SAS");
+
+            assertTrue(aliceLongKdfMac.length > 0 && bobLongKdfMac.length > 0);
+            assertEquals(aliceLongKdfMac.length, bobLongKdfMac.length);
+            assertArrayEquals(aliceLongKdfMac, bobLongKdfMac);
+
+            Log.e(OlmSasTest.class.getSimpleName(), "#### Alice lkdf Mac is " + new String(aliceLongKdfMac, "UTF-8"));
+            Log.e(OlmSasTest.class.getSimpleName(), "#### Bob lkdf Mac is " + new String(bobLongKdfMac, "UTF-8"));
+
+
         } catch (Exception e) {
             assertTrue("OlmSas init failed " + e.getMessage(), false);
             e.printStackTrace();

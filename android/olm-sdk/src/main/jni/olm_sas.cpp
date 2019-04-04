@@ -308,3 +308,83 @@ JNIEXPORT jbyteArray OLM_SAS_FUNC_DEF(calculateMacJni)(JNIEnv *env, jobject thiz
 
     return returnValue;
 }
+
+JNIEXPORT jbyteArray OLM_SAS_FUNC_DEF(calculateMacLongKdfJni)(JNIEnv *env, jobject thiz,jbyteArray messageBuffer,jbyteArray infoBuffer) {
+     LOGD("## calculateMacLongKdfJni(): IN");
+    const char* errorMessage = NULL;
+    jbyteArray returnValue = 0;
+    OlmSAS* sasPtr = getOlmSasInstanceId(env, thiz);
+
+    jbyte *messagePtr = NULL;
+    jboolean messageWasCopied = JNI_FALSE;
+
+    jbyte *infoPtr = NULL;
+    jboolean infoWasCopied = JNI_FALSE;
+
+    if (!sasPtr)
+    {
+        LOGE("## calculateMacLongKdfJni(): failure - invalid SAS ptr=NULL");
+        errorMessage = "invalid SAS ptr=NULL";
+    } else if(!messageBuffer) {
+        LOGE("## calculateMacLongKdfJni(): failure - invalid message");
+        errorMessage = "invalid info";
+    }
+    else if (!(messagePtr = env->GetByteArrayElements(messageBuffer, &messageWasCopied)))
+    {
+        LOGE(" ## calculateMacLongKdfJni(): failure - message JNI allocation OOM");
+        errorMessage = "message JNI allocation OOM";
+    }
+    else if (!(infoPtr = env->GetByteArrayElements(infoBuffer, &infoWasCopied)))
+    {
+        LOGE(" ## calculateMacLongKdfJni(): failure - info JNI allocation OOM");
+        errorMessage = "info JNI allocation OOM";
+    } else {
+
+        size_t infoLength = (size_t)env->GetArrayLength(infoBuffer);
+        size_t messageLength = (size_t)env->GetArrayLength(messageBuffer);
+        size_t macLength = olm_sas_mac_length(sasPtr);
+
+        void *macPtr = malloc(macLength*sizeof(uint8_t));
+
+        size_t result = olm_sas_calculate_mac_long_kdf(sasPtr,messagePtr,messageLength,infoPtr,infoLength,macPtr,macLength);
+        if (result == olm_error())
+        {
+            errorMessage = (const char *)olm_sas_last_error(sasPtr);
+            LOGE("## calculateMacLongKdfJni(): failure - error calculating SAS mac Msg=%s", errorMessage);
+        }
+        else
+        {
+            returnValue = env->NewByteArray(macLength);
+            env->SetByteArrayRegion(returnValue, 0 , macLength, (jbyte*)macPtr);
+        }
+
+        if (macPtr) {
+            free(macPtr);
+        }
+    }
+
+    // free alloc
+    if (infoPtr)
+    {
+        if (infoWasCopied)
+        {
+            memset(infoPtr, 0, (size_t)env->GetArrayLength(infoBuffer));
+        }
+        env->ReleaseByteArrayElements(infoBuffer, infoPtr, JNI_ABORT);
+    }
+    if (messagePtr)
+    {
+        if (messageWasCopied)
+        {
+            memset(messagePtr, 0, (size_t)env->GetArrayLength(messageBuffer));
+        }
+        env->ReleaseByteArrayElements(messageBuffer, messagePtr, JNI_ABORT);
+    }
+
+    if (errorMessage)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
+    return returnValue;
+}
