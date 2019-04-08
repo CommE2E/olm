@@ -28,7 +28,7 @@ SAS.prototype['free'] = function() {
 
 SAS.prototype['get_pubkey'] = restore_stack(function() {
     var pubkey_length = sas_method(Module['_olm_sas_pubkey_length'])(this.ptr);
-    var pubkey_buffer = stack(pubkey_length);
+    var pubkey_buffer = stack(pubkey_length + NULL_BYTE_PADDING_LENGTH);
     sas_method(Module['_olm_sas_get_pubkey'])(this.ptr, pubkey_buffer, pubkey_length);
     return UTF8ToString(pubkey_buffer, pubkey_length);
 });
@@ -66,7 +66,7 @@ SAS.prototype['calculate_mac'] = restore_stack(function(input, info) {
     var info_array = array_from_string(info);
     var info_buffer = stack(info_array);
     var mac_length = sas_method(Module['_olm_sas_mac_length'])(this.ptr);
-    var mac_buffer = stack(mac_length);
+    var mac_buffer = stack(mac_length + NULL_BYTE_PADDING_LENGTH);
     sas_method(Module['_olm_sas_calculate_mac'])(
         this.ptr,
         input_buffer, input_array.length,
@@ -89,5 +89,5 @@ SAS.prototype['calculate_mac_long_kdf'] = restore_stack(function(input, info) {
         info_buffer, info_array.length,
         mac_buffer, mac_length
     );
-    return Pointer_stringify(mac_buffer);
+    return UTF8ToString(mac_buffer, mac_length);
 });

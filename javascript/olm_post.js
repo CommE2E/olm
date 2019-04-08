@@ -77,7 +77,7 @@ Account.prototype['identity_keys'] = restore_stack(function() {
     var keys_length = account_method(
         Module['_olm_account_identity_keys_length']
     )(this.ptr);
-    var keys = stack(keys_length);
+    var keys = stack(keys_length + NULL_BYTE_PADDING_LENGTH);
     account_method(Module['_olm_account_identity_keys'])(
         this.ptr, keys, keys_length
     );
@@ -90,7 +90,7 @@ Account.prototype['sign'] = restore_stack(function(message) {
     )(this.ptr);
     var message_array = array_from_string(message);
     var message_buffer = stack(message_array);
-    var signature_buffer = stack(signature_length);
+    var signature_buffer = stack(signature_length + NULL_BYTE_PADDING_LENGTH);
     try {
         account_method(Module['_olm_account_sign'])(
             this.ptr,
@@ -111,7 +111,7 @@ Account.prototype['one_time_keys'] = restore_stack(function() {
     var keys_length = account_method(
         Module['_olm_account_one_time_keys_length']
     )(this.ptr);
-    var keys = stack(keys_length);
+    var keys = stack(keys_length + NULL_BYTE_PADDING_LENGTH);
     account_method(Module['_olm_account_one_time_keys'])(
         this.ptr, keys, keys_length
     );
@@ -152,7 +152,7 @@ Account.prototype['pickle'] = restore_stack(function(key) {
         Module['_olm_pickle_account_length']
     )(this.ptr);
     var key_buffer = stack(key_array);
-    var pickle_buffer = stack(pickle_length);
+    var pickle_buffer = stack(pickle_length + NULL_BYTE_PADDING_LENGTH);
     try {
         account_method(Module['_olm_pickle_account'])(
             this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
@@ -216,7 +216,7 @@ Session.prototype['pickle'] = restore_stack(function(key) {
         Module['_olm_pickle_session_length']
     )(this.ptr);
     var key_buffer = stack(key_array);
-    var pickle_buffer = stack(pickle_length);
+    var pickle_buffer = stack(pickle_length + NULL_BYTE_PADDING_LENGTH);
     try {
         session_method(Module['_olm_pickle_session'])(
             this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
@@ -316,7 +316,7 @@ Session.prototype['create_inbound_from'] = restore_stack(function(
 
 Session.prototype['session_id'] = restore_stack(function() {
     var id_length = session_method(Module['_olm_session_id_length'])(this.ptr);
-    var id_buffer = stack(id_length);
+    var id_buffer = stack(id_length + NULL_BYTE_PADDING_LENGTH);
     session_method(Module['_olm_session_id'])(
         this.ptr, id_buffer, id_length
     );
@@ -378,13 +378,20 @@ Session.prototype['encrypt'] = restore_stack(function(
         plaintext_buffer = malloc(plaintext_length + 1);
         stringToUTF8(plaintext, plaintext_buffer, plaintext_length + 1);
 
-        message_buffer = malloc(message_length);
+        message_buffer = malloc(message_length + NULL_BYTE_PADDING_LENGTH);
 
         session_method(Module['_olm_encrypt'])(
             this.ptr,
             plaintext_buffer, plaintext_length,
             random, random_length,
             message_buffer, message_length
+        );
+
+        // UTF8ToString requires a null-terminated argument, so add the
+        // null terminator.
+        setValue(
+            message_buffer+message_length,
+            0, "i8"
         );
 
         return {
@@ -423,12 +430,19 @@ Session.prototype['decrypt'] = restore_stack(function(
         // caculating the length destroys the input buffer, so we need to re-copy it.
         writeAsciiToMemory(message, message_buffer, true);
 
-        plaintext_buffer = malloc(max_plaintext_length);
+        plaintext_buffer = malloc(max_plaintext_length + NULL_BYTE_PADDING_LENGTH);
 
         var plaintext_length = session_method(Module["_olm_decrypt"])(
             this.ptr, message_type,
             message_buffer, message.length,
             plaintext_buffer, max_plaintext_length
+        );
+
+        // UTF8ToString requires a null-terminated argument, so add the
+        // null terminator.
+        setValue(
+            plaintext_buffer+plaintext_length,
+            0, "i8"
         );
 
         return UTF8ToString(plaintext_buffer, plaintext_length);
@@ -473,7 +487,7 @@ Utility.prototype['sha256'] = restore_stack(function(input) {
     var output_length = utility_method(Module['_olm_sha256_length'])(this.ptr);
     var input_array = array_from_string(input);
     var input_buffer = stack(input_array);
-    var output_buffer = stack(output_length);
+    var output_buffer = stack(output_length + NULL_BYTE_PADDING_LENGTH);
     try {
         utility_method(Module['_olm_sha256'])(
             this.ptr,

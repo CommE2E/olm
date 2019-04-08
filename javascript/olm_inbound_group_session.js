@@ -28,7 +28,7 @@ InboundGroupSession.prototype['pickle'] = restore_stack(function(key) {
         Module['_olm_pickle_inbound_group_session_length']
     )(this.ptr);
     var key_buffer = stack(key_array);
-    var pickle_buffer = stack(pickle_length);
+    var pickle_buffer = stack(pickle_length + NULL_BYTE_PADDING_LENGTH);
     try {
         inbound_group_session_method(Module['_olm_pickle_inbound_group_session'])(
             this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
@@ -112,7 +112,7 @@ InboundGroupSession.prototype['decrypt'] = restore_stack(function(
         // caculating the length destroys the input buffer, so we need to re-copy it.
         writeAsciiToMemory(message, message_buffer, true);
 
-        plaintext_buffer = malloc(max_plaintext_length);
+        plaintext_buffer = malloc(max_plaintext_length + NULL_BYTE_PADDING_LENGTH);
         var message_index = stack(4);
 
         plaintext_length = inbound_group_session_method(
@@ -122,6 +122,13 @@ InboundGroupSession.prototype['decrypt'] = restore_stack(function(
             message_buffer, message.length,
             plaintext_buffer, max_plaintext_length,
             message_index
+        );
+
+        // UTF8ToString requires a null-terminated argument, so add the
+        // null terminator.
+        setValue(
+            plaintext_buffer+plaintext_length,
+            0, "i8"
         );
 
         return {
@@ -144,7 +151,7 @@ InboundGroupSession.prototype['session_id'] = restore_stack(function() {
     var length = inbound_group_session_method(
         Module['_olm_inbound_group_session_id_length']
     )(this.ptr);
-    var session_id = stack(length);
+    var session_id = stack(length + NULL_BYTE_PADDING_LENGTH);
     inbound_group_session_method(Module['_olm_inbound_group_session_id'])(
         this.ptr, session_id, length
     );
@@ -161,7 +168,7 @@ InboundGroupSession.prototype['export_session'] = restore_stack(function(message
     var key_length = inbound_group_session_method(
         Module['_olm_export_inbound_group_session_length']
     )(this.ptr);
-    var key = stack(key_length);
+    var key = stack(key_length + NULL_BYTE_PADDING_LENGTH);
     outbound_group_session_method(Module['_olm_export_inbound_group_session'])(
         this.ptr, key, key_length, message_index
     );

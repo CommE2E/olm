@@ -28,7 +28,7 @@ OutboundGroupSession.prototype['pickle'] = restore_stack(function(key) {
         Module['_olm_pickle_outbound_group_session_length']
     )(this.ptr);
     var key_buffer = stack(key_array);
-    var pickle_buffer = stack(pickle_length);
+    var pickle_buffer = stack(pickle_length + NULL_BYTE_PADDING_LENGTH);
     try {
         outbound_group_session_method(Module['_olm_pickle_outbound_group_session'])(
             this.ptr, key_buffer, key_array.length, pickle_buffer, pickle_length
@@ -86,11 +86,18 @@ OutboundGroupSession.prototype['encrypt'] = function(plaintext) {
         plaintext_buffer = malloc(plaintext_length + 1);
         stringToUTF8(plaintext, plaintext_buffer, plaintext_length + 1);
 
-        message_buffer = malloc(message_length);
+        message_buffer = malloc(message_length + NULL_BYTE_PADDING_LENGTH);
         outbound_group_session_method(Module['_olm_group_encrypt'])(
             this.ptr,
             plaintext_buffer, plaintext_length,
             message_buffer, message_length
+        );
+
+        // UTF8ToString requires a null-terminated argument, so add the
+        // null terminator.
+        setValue(
+            message_buffer+message_length,
+            0, "i8"
         );
 
         return UTF8ToString(message_buffer, message_length);
@@ -110,7 +117,7 @@ OutboundGroupSession.prototype['session_id'] = restore_stack(function() {
     var length = outbound_group_session_method(
         Module['_olm_outbound_group_session_id_length']
     )(this.ptr);
-    var session_id = stack(length);
+    var session_id = stack(length + NULL_BYTE_PADDING_LENGTH);
     outbound_group_session_method(Module['_olm_outbound_group_session_id'])(
         this.ptr, session_id, length
     );
@@ -121,7 +128,7 @@ OutboundGroupSession.prototype['session_key'] = restore_stack(function() {
     var key_length = outbound_group_session_method(
         Module['_olm_outbound_group_session_key_length']
     )(this.ptr);
-    var key = stack(key_length);
+    var key = stack(key_length + NULL_BYTE_PADDING_LENGTH);
     outbound_group_session_method(Module['_olm_outbound_group_session_key'])(
         this.ptr, key, key_length
     );
