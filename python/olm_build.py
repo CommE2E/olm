@@ -18,6 +18,7 @@
 from __future__ import unicode_literals
 
 import os
+import subprocess
 
 from cffi import FFI
 
@@ -32,6 +33,8 @@ link_args = ["-L../build"]
 if DEVELOP and DEVELOP.lower() in ["yes", "true", "1"]:
     link_args.append('-Wl,-rpath=../build')
 
+headers_build = subprocess.Popen("make headers", shell=True)
+headers_build.wait()
 
 ffibuilder.set_source(
     "_libolm",
@@ -39,6 +42,7 @@ ffibuilder.set_source(
         #include <olm/olm.h>
         #include <olm/inbound_group_session.h>
         #include <olm/outbound_group_session.h>
+        #include <olm/pk.h>
         #include <olm/sas.h>
     """,
     libraries=["olm"],
@@ -46,6 +50,9 @@ ffibuilder.set_source(
     extra_link_args=link_args)
 
 with open(os.path.join(PATH, "include/olm/olm.h")) as f:
+    ffibuilder.cdef(f.read(), override=True)
+
+with open(os.path.join(PATH, "include/olm/pk.h")) as f:
     ffibuilder.cdef(f.read(), override=True)
 
 with open(os.path.join(PATH, "include/olm/sas.h")) as f:

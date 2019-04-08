@@ -139,3 +139,26 @@ size_t olm_sas_calculate_mac(
     _olm_encode_base64((const uint8_t *)mac, SHA256_OUTPUT_LENGTH, (uint8_t *)mac);
     return 0;
 }
+
+// for compatibility with an old version of Riot
+size_t olm_sas_calculate_mac_long_kdf(
+    OlmSAS * sas,
+    void * input, size_t input_length,
+    const void * info, size_t info_length,
+    void * mac, size_t mac_length
+) {
+    if (mac_length < olm_sas_mac_length(sas)) {
+        sas->last_error = OLM_OUTPUT_BUFFER_TOO_SMALL;
+        return (size_t)-1;
+    }
+    uint8_t key[256];
+    _olm_crypto_hkdf_sha256(
+        sas->secret, sizeof(sas->secret),
+        NULL, 0,
+        (const uint8_t *) info, info_length,
+        key, 256
+    );
+    _olm_crypto_hmac_sha256(key, 256, input, input_length, mac);
+    _olm_encode_base64((const uint8_t *)mac, SHA256_OUTPUT_LENGTH, (uint8_t *)mac);
+    return 0;
+}

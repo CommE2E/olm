@@ -36,4 +36,11 @@ from .group_session import (
     OutboundGroupSession,
     OlmGroupSessionError
 )
+from .pk import (
+    PkMessage,
+    PkEncryption,
+    PkDecryption,
+    PkEncryptionError,
+    PkDecryptionError
+)
 from .sas import Sas, OlmSasError
