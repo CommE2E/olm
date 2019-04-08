@@ -40,6 +40,8 @@ from .pk import (
     PkMessage,
     PkEncryption,
     PkDecryption,
+    PkSigning,
     PkEncryptionError,
-    PkDecryptionError
+    PkDecryptionError,
+    PkSigningError
 )
