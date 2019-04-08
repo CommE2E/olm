@@ -52,7 +52,18 @@ NS_ASSUME_NONNULL_BEGIN
  @param error the error if any.
  @return the MAC.
  */
-- (NSString *)calculateMac:(NSString*)input info:(NSString*)info error:(NSError* _Nullable *)error; // TODO: NSError?
+- (NSString *)calculateMac:(NSString*)input info:(NSString*)info error:(NSError* _Nullable *)error;
+
+/**
+ Generate a message authentication code (MAC) based on the shared secret.
+ For compatibility with an old version of olm.js.
+
+ @param input the message to produce the authentication code for.
+ @param info extra information to mix in when generating the MAC, as per the Matrix spec.
+ @param error the error if any.
+ @return the MAC.
+ */
+- (NSString *)calculateMacLongKdf:(NSString*)input info:(NSString*)info error:(NSError* _Nullable *)error;
 
 @end
 

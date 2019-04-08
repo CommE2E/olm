@@ -66,4 +66,21 @@
     XCTAssertNil(bobError);
 }
 
+- (void)testMACLongKdfsMatch {
+    [alice setTheirPublicKey:bob.publicKey];
+    [bob setTheirPublicKey:alice.publicKey];
+
+    NSString *string = @"test";
+    NSString *info = @"MAC";
+
+    NSError *aliceError, *bobError;
+    XCTAssertEqualObjects([alice calculateMacLongKdf:string info:info error:&aliceError],
+                          [bob calculateMacLongKdf:string info:info error:&bobError]);
+    XCTAssertNotEqualObjects([alice calculateMacLongKdf:string info:info error:&aliceError],
+                             [bob calculateMac:string info:info error:&bobError]);
+    XCTAssertNil(aliceError);
+    XCTAssertNil(bobError);
+}
+
+
 @end

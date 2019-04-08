@@ -137,4 +137,38 @@
     return mac;
 }
 
+- (NSString *)calculateMacLongKdf:(NSString *)input info:(NSString *)info error:(NSError *__autoreleasing  _Nullable *)error {
+    NSMutableData *inputData = [input dataUsingEncoding:NSUTF8StringEncoding].mutableCopy;
+    NSData *infoData = [info dataUsingEncoding:NSUTF8StringEncoding];
+
+    size_t macLength = olm_sas_mac_length(olmSAS);
+    NSMutableData *macData = [NSMutableData dataWithLength:macLength];
+    if (!macData) {
+        return nil;
+    }
+
+    size_t result = olm_sas_calculate_mac_long_kdf(olmSAS,
+                                                   inputData.mutableBytes, inputData.length,
+                                                   infoData.bytes, infoData.length,
+                                                   macData.mutableBytes, macLength);
+    if (result == olm_error()) {
+        const char *olm_error = olm_sas_last_error(olmSAS);
+        NSLog(@"[OLMSAS] calculateMacLongKdf: olm_sas_calculate_mac error: %s", olm_error);
+
+        NSString *errorString = [NSString stringWithUTF8String:olm_error];
+        if (error && olm_error && errorString) {
+            *error = [NSError errorWithDomain:OLMErrorDomain
+                                         code:0
+                                     userInfo:@{
+                                                NSLocalizedDescriptionKey: errorString,
+                                                NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"olm_sas_calculate_mac_long_kdf error: %@", errorString]
+                                                }];
+        }
+        return nil;
+    }
+
+    NSString *mac = [[NSString alloc] initWithData:macData encoding:NSUTF8StringEncoding];
+    return mac;
+}
+
 @end
