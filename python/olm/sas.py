@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # libolm python bindings
-# Copyright © 2015-2017 OpenMarket Ltd
 # Copyright © 2019 Damir Jelić <poljar@termina.org.uk>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
