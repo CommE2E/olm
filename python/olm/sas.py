@@ -220,3 +220,38 @@ class Sas(object):
             )
         )
         return bytes_to_native_str(ffi.unpack(mac_buffer, mac_length))
+
+    @other_pubkey_set
+    def calculate_mac_long_kdf(self, message, extra_info):
+        # type: (str, str) -> str
+        """Generate a message authentication code based on the shared secret.
+
+        This function should not be used unless compatibility with an older
+        non-tagged Olm version is required.
+
+        Args:
+            message (str): The message to produce the authentication code for.
+            extra_info (str): Extra information to mix in when generating the
+                MAC
+
+        Raises OlmSasError on failure.
+
+        """
+        byte_message = to_bytes(message)
+        byte_info = to_bytes(extra_info)
+
+        mac_length = lib.olm_sas_mac_length(self._sas)
+        mac_buffer = ffi.new("char[]", mac_length)
+
+        self._check_error(
+            lib.olm_sas_calculate_mac_long_kdf(
+                self._sas,
+                ffi.from_buffer(byte_message),
+                len(byte_message),
+                ffi.from_buffer(byte_info),
+                len(byte_info),
+                mac_buffer,
+                mac_length
+            )
+        )
+        return bytes_to_native_str(ffi.unpack(mac_buffer, mac_length))

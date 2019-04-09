@@ -80,3 +80,20 @@ class TestClass(object):
         alice_mac = sas_alice.calculate_mac(message, extra_info)
 
         assert alice_mac == expected_mac
+
+    def test_long_mac_generating(self):
+        sas_alice = Sas()
+        sas_bob = Sas()
+
+        with pytest.raises(OlmSasError):
+            sas_alice.calculate_mac_long_kdf(MESSAGE, EXTRA_INFO)
+
+        sas_alice.set_their_pubkey(sas_bob.pubkey)
+        sas_bob.set_their_pubkey(sas_alice.pubkey)
+
+        alice_mac = sas_alice.calculate_mac_long_kdf(MESSAGE, EXTRA_INFO)
+        bob_mac = sas_bob.calculate_mac_long_kdf(MESSAGE, EXTRA_INFO)
+        bob_short_mac = sas_bob.calculate_mac(MESSAGE, EXTRA_INFO)
+
+        assert alice_mac == bob_mac
+        assert alice_mac != bob_short_mac
