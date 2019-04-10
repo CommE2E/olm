@@ -86,8 +86,7 @@ public class OlmSAS {
             throw new OlmException(OlmException.EXCEPTION_CODE_SAS_MISSING_THEIR_PKEY, "call setTheirPublicKey first");
         }
         try {
-            byte[] shortBuffer = generateShortCodeJni(info.getBytes("UTF-8"), byteNumber);
-            return shortBuffer;
+            return generateShortCodeJni(info.getBytes("UTF-8"), byteNumber);
         } catch (Exception e) {
             Log.e(LOG_TAG, "## sessionIdentifier(): " + e.getMessage());
             throw new OlmException(OlmException.EXCEPTION_CODE_SAS_GENERATE_SHORT_CODE, e.getMessage());
@@ -95,20 +94,24 @@ public class OlmSAS {
     }
 
 
-    public byte[] calculateMac(String message, String info) throws OlmException {
+    public String calculateMac(String message, String info) throws OlmException {
         try {
-            return calculateMacJni(message.getBytes("UTF-8"), info.getBytes("UTF-8"));
+            byte[] bytes = calculateMacJni(message.getBytes("UTF-8"), info.getBytes("UTF-8"));
+            if (bytes != null) return new String(bytes, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new OlmException(OlmException.EXCEPTION_CODE_SAS_ERROR, e.getMessage());
         }
+        return null;
     }
 
-    public byte[] calculateMacLongKdf(String message, String info) throws OlmException {
+    public String calculateMacLongKdf(String message, String info) throws OlmException {
         try {
-            return calculateMacLongKdfJni(message.getBytes("UTF-8"), info.getBytes("UTF-8"));
+            byte[] bytes = calculateMacLongKdfJni(message.getBytes("UTF-8"), info.getBytes("UTF-8"));
+            if (bytes != null) return new String(bytes, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new OlmException(OlmException.EXCEPTION_CODE_SAS_ERROR, e.getMessage());
         }
+        return null;
     }
 
     /**

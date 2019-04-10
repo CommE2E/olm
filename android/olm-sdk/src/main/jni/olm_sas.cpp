@@ -148,7 +148,7 @@ JNIEXPORT void OLM_SAS_FUNC_DEF(setTheirPubKey)(JNIEnv *env, jobject thiz,jbyteA
     }
     else if (!(pubKeyPtr = env->GetByteArrayElements(pubKeyBuffer, &pubKeyWasCopied)))
     {
-        LOGE(" ## generateShortCodeJni(): failure - info JNI allocation OOM");
+        LOGE(" ## setTheirPubKey(): failure - info JNI allocation OOM");
         errorMessage = "info JNI allocation OOM";
     }
     else 
@@ -230,7 +230,7 @@ JNIEXPORT jbyteArray OLM_SAS_FUNC_DEF(generateShortCodeJni)(JNIEnv *env, jobject
 
 
 JNIEXPORT jbyteArray OLM_SAS_FUNC_DEF(calculateMacJni)(JNIEnv *env, jobject thiz,jbyteArray messageBuffer,jbyteArray infoBuffer) {
-     LOGD("## calculateMacJni(): IN");
+    LOGD("## calculateMacJni(): IN");
     const char* errorMessage = NULL;
     jbyteArray returnValue = 0;
     OlmSAS* sasPtr = getOlmSasInstanceId(env, thiz);
@@ -310,7 +310,7 @@ JNIEXPORT jbyteArray OLM_SAS_FUNC_DEF(calculateMacJni)(JNIEnv *env, jobject thiz
 }
 
 JNIEXPORT jbyteArray OLM_SAS_FUNC_DEF(calculateMacLongKdfJni)(JNIEnv *env, jobject thiz,jbyteArray messageBuffer,jbyteArray infoBuffer) {
-     LOGD("## calculateMacLongKdfJni(): IN");
+    LOGD("## calculateMacLongKdfJni(): IN");
     const char* errorMessage = NULL;
     jbyteArray returnValue = 0;
     OlmSAS* sasPtr = getOlmSasInstanceId(env, thiz);

@@ -72,26 +72,22 @@ public class OlmSasTest {
             assertEquals(codeLength, bob_sas.length);
             assertArrayEquals(alice_sas, bob_sas);
 
-            byte[] aliceMac = aliceSas.calculateMac("Hello world!", "SAS");
-            byte[] bobMac = bobSas.calculateMac("Hello world!", "SAS");
+            String aliceMac = aliceSas.calculateMac("Hello world!", "SAS");
+            String bobMac = bobSas.calculateMac("Hello world!", "SAS");
 
-            assertTrue(aliceMac.length > 0 && bobMac.length > 0);
-            assertEquals(aliceMac.length, bobMac.length);
-            assertArrayEquals(aliceMac, bobMac);
+            assertEquals(aliceMac, bobMac);
 
-            Log.e(OlmSasTest.class.getSimpleName(), "#### Alice Mac is " + new String(aliceMac, "UTF-8"));
-            Log.e(OlmSasTest.class.getSimpleName(), "#### Bob Mac is " + new String(bobMac, "UTF-8"));
+            Log.e(OlmSasTest.class.getSimpleName(), "#### Alice Mac is " + aliceMac);
+            Log.e(OlmSasTest.class.getSimpleName(), "#### Bob Mac is " + bobMac);
 
 
-            byte[] aliceLongKdfMac = aliceSas.calculateMacLongKdf("Hello world!", "SAS");
-            byte[] bobLongKdfMac = bobSas.calculateMacLongKdf("Hello world!", "SAS");
+            String aliceLongKdfMac = aliceSas.calculateMacLongKdf("Hello world!", "SAS");
+            String bobLongKdfMac = bobSas.calculateMacLongKdf("Hello world!", "SAS");
 
-            assertTrue(aliceLongKdfMac.length > 0 && bobLongKdfMac.length > 0);
-            assertEquals(aliceLongKdfMac.length, bobLongKdfMac.length);
-            assertArrayEquals(aliceLongKdfMac, bobLongKdfMac);
+            assertEquals("Mac should be the same", aliceLongKdfMac, bobLongKdfMac);
 
-            Log.e(OlmSasTest.class.getSimpleName(), "#### Alice lkdf Mac is " + new String(aliceLongKdfMac, "UTF-8"));
-            Log.e(OlmSasTest.class.getSimpleName(), "#### Bob lkdf Mac is " + new String(bobLongKdfMac, "UTF-8"));
+            Log.e(OlmSasTest.class.getSimpleName(), "#### Alice lkdf Mac is " + aliceLongKdfMac);
+            Log.e(OlmSasTest.class.getSimpleName(), "#### Bob lkdf Mac is " + bobLongKdfMac);
 
 
         } catch (Exception e) {
