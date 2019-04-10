@@ -76,6 +76,11 @@ public class OlmException extends IOException {
     public static final int EXCEPTION_CODE_PK_SIGNING_INIT_WITH_SEED = 802;
     public static final int EXCEPTION_CODE_PK_SIGNING_SIGN = 803;
 
+    public static final int EXCEPTION_CODE_SAS_CREATION = 900;
+    public static final int EXCEPTION_CODE_SAS_ERROR = 901;
+    public static final int EXCEPTION_CODE_SAS_MISSING_THEIR_PKEY = 902;
+    public static final int EXCEPTION_CODE_SAS_GENERATE_SHORT_CODE = 903;
+
     // exception human readable messages
     public static final String EXCEPTION_MSG_INVALID_PARAMS_DESERIALIZATION = "invalid de-serialized parameters";
 
