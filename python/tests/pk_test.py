@@ -1,6 +1,7 @@
 import pytest
 
-from olm import PkDecryption, PkDecryptionError, PkEncryption
+from olm import (PkDecryption, PkDecryptionError, PkEncryption, PkSigning,
+                 ed25519_verify)
 
 
 class TestClass(object):
@@ -47,3 +48,10 @@ class TestClass(object):
 
         with pytest.raises(PkDecryptionError):
             PkDecryption.from_pickle(pickle, "Not secret")
+
+    def test_signing(self):
+        seed = PkSigning.generate_seed()
+        signing = PkSigning(seed)
+        message = "This statement is true"
+        signature = signing.sign(message)
+        ed25519_verify(signing.public_key, message, signature)

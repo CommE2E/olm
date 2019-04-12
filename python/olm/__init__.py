@@ -40,7 +40,9 @@ from .pk import (
     PkMessage,
     PkEncryption,
     PkDecryption,
+    PkSigning,
     PkEncryptionError,
-    PkDecryptionError
+    PkDecryptionError,
+    PkSigningError
 )
 from .sas import Sas, OlmSasError
