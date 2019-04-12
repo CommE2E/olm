@@ -35,11 +35,13 @@ Examples:
 
 from builtins import super
 from typing import AnyStr, Type
+
 from future.utils import bytes_to_native_str
 
 from _libolm import ffi, lib  # type: ignore
-from ._finalize import track_for_finalization
+
 from ._compat import URANDOM, to_bytearray
+from ._finalize import track_for_finalization
 
 
 class PkEncryptionError(Exception):
