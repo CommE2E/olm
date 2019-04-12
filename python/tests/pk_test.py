@@ -1,12 +1,7 @@
 import pytest
 
-from olm import (
-    ed25519_verify,
-    PkDecryption,
-    PkDecryptionError,
-    PkEncryption,
-    PkSigning
-)
+from olm import (PkDecryption, PkDecryptionError, PkEncryption, PkSigning,
+                 ed25519_verify)
 
 
 class TestClass(object):
