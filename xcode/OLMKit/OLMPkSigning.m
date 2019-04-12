@@ -72,6 +72,8 @@
         return nil;
     }
 
+    [mutableSeed resetBytesInRange:NSMakeRange(0, mutableSeed.length)];
+
     NSString *publicKey = [[NSString alloc] initWithData:publicKeyData encoding:NSUTF8StringEncoding];
     return publicKey;
 }
