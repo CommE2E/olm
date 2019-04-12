@@ -104,4 +104,39 @@
     XCTAssertEqualObjects(decrypted, TEST_TEXT);
 }
 
+- (void)testSignAndVerify {
+
+    UInt8 seedBytes[] = {
+        0x77, 0x07, 0x6D, 0x0A, 0x73, 0x18, 0xA5, 0x7D,
+        0x3C, 0x16, 0xC1, 0x72, 0x51, 0xB2, 0x66, 0x45,
+        0xDF, 0x4C, 0x2F, 0x87, 0xEB, 0xC0, 0x99, 0x2A,
+        0xB1, 0x77, 0xFB, 0xA5, 0x1D, 0xB9, 0x2C, 0x2A
+    };
+
+    NSData *seed = [NSData dataWithBytes:seedBytes length:sizeof(seedBytes)];
+
+    NSString *TEST_TEXT = @"We hold these truths to be self-evident, that all men are created equal, that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty and the pursuit of Happiness.";
+
+    OLMPkSigning *signing = [OLMPkSigning new];
+
+    NSError *error;
+    NSString *pubKey = [signing doInitWithSeed:seed error:&error];
+    XCTAssertNotNil(pubKey);
+    XCTAssertNil(error);
+
+    NSString *sig = [signing sign:TEST_TEXT error:&error];
+    XCTAssertNotNil(sig);
+    XCTAssertNil(error);
+
+    OLMUtility *util = [OLMUtility new];
+    BOOL verify = [util verifyEd25519Signature:sig key:pubKey message:[TEST_TEXT dataUsingEncoding:NSUTF8StringEncoding] error:&error];
+    XCTAssertTrue(verify);
+    XCTAssertNil(error);
+
+    NSString *badSig = [sig stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:@"p"];
+    verify = [util verifyEd25519Signature:badSig key:pubKey message:[TEST_TEXT dataUsingEncoding:NSUTF8StringEncoding] error:&error];
+    XCTAssertFalse(verify);
+    XCTAssertNotNil(error);
+}
+
 @end

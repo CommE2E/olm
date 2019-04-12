@@ -93,7 +93,7 @@ size_t olm_sas_get_pubkey(
  *
  * @param[in] sas the SAS object.
  * @param[in] their_key the other user's public key.
- * @param[in] their_key_size the size of the `their_key` buffer.
+ * @param[in] their_key_length the size of the `their_key` buffer.
  *
  * @return `olm_error()` on failure.  If the `their_key` buffer is too small,
  * then `olm_sas_last_error()` will be `INPUT_BUFFER_TOO_SMALL`.

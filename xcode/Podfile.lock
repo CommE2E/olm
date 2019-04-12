@@ -1,9 +1,9 @@
 PODS:
-  - OLMKit (2.3.0):
-    - OLMKit/olmc (= 2.3.0)
-    - OLMKit/olmcpp (= 2.3.0)
-  - OLMKit/olmc (2.3.0)
-  - OLMKit/olmcpp (2.3.0)
+  - OLMKit (3.0.0):
+    - OLMKit/olmc (= 3.0.0)
+    - OLMKit/olmcpp (= 3.0.0)
+  - OLMKit/olmc (3.0.0)
+  - OLMKit/olmcpp (3.0.0)
 
 DEPENDENCIES:
   - OLMKit (from `../OLMKit.podspec`)
@@ -13,8 +13,8 @@ EXTERNAL SOURCES:
     :path: "../OLMKit.podspec"
 
 SPEC CHECKSUMS:
-  OLMKit: 6af55a19917c35f86df5198c213979ecdf8ba76e
+  OLMKit: 88eda69110489f817d59bcb4353b7c247570aa4f
 
 PODFILE CHECKSUM: 4e261dae61d833ec5585ced2473023b98909fd35
 
-COCOAPODS: 1.6.0.beta.2
+COCOAPODS: 1.6.0

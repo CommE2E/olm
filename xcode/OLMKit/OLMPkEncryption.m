@@ -65,13 +65,13 @@
 
     size_t macLength = olm_pk_mac_length(session);
     NSMutableData *macData = [NSMutableData dataWithLength:macLength];
-    if (!ciphertext) {
+    if (!macData) {
         return nil;
     }
 
     size_t ephemeralKeyLength = olm_pk_key_length();
     NSMutableData *ephemeralKeyData = [NSMutableData dataWithLength:ephemeralKeyLength];
-    if (!ciphertext) {
+    if (!ephemeralKeyData) {
         return nil;
     }
 
