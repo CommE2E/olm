@@ -1,5 +1,5 @@
-Changes in `3.1.0 <http://matrix.org/git/olm/commit/?h=3.1.0>`_
-===============================================================
+Changes in `3.1.0 <https://gitlab.matrix.org/matrix-org/olm/tags/3.1.0>`_
+=========================================================================
 
 This release includes the following changes since 3.0.0:
 
@@ -25,8 +25,8 @@ Python wrapper:
 * Build fixes.
 * Add bindings for the public key encryption/decryption functions from olm 2.3.0.
 
-Changes in `3.0.0 <http://matrix.org/git/olm/commit/?h=3.0.0>`_
-===============================================================
+Changes in `3.0.0 <https://gitlab.matrix.org/matrix-org/olm/tags/3.0.0>`_
+=========================================================================
 
 This release includes the following changes to 2.3.0:
 
@@ -60,8 +60,8 @@ Objective-C wrapper:
 
 * Add support for the public key encryption/decryption functionality.
 
-Changes in `2.3.0 <http://matrix.org/git/olm/commit/?h=2.3.0>`_
-===============================================================
+Changes in `2.3.0 <https://gitlab.matrix.org/matrix-org/olm/tags/2.3.0>`_
+=========================================================================
 
 This release includes the following changes since 2.2.2:
 
@@ -95,22 +95,22 @@ Python wrapper:
 * Add utility module for ``ed25519_verify``. Thanks to Alexander Maznev.
 * Improve portability. Thanks to Jan Jancar.
 
-Changes in `2.2.2 <http://matrix.org/git/olm/commit/?h=2.2.2>`_
-===============================================================
+Changes in `2.2.2 <https://gitlab.matrix.org/matrix-org/olm/tags/2.2.2>`_
+=========================================================================
 
 Objective-C wrapper:
 
 * Fixed type of ``messageIndex`` argument in
   ``exportSessionAtMessageIndex``. Thanks to Greg Hughes.
 
-Changes in `2.2.1 <http://matrix.org/git/olm/commit/?h=2.2.1>`_
-===============================================================
+Changes in `2.2.1 <https://gitlab.matrix.org/matrix-org/olm/tags/2.2.1>`_
+=========================================================================
 
 The only change in this release is a fix to the build scripts for the
 Objective-C wrapper which made it impossible to release the 2.2.0 CocoaPod.
 
-Changes in `2.2.0 <http://matrix.org/git/olm/commit/?h=2.2.0>`_
-===============================================================
+Changes in `2.2.0 <https://gitlab.matrix.org/matrix-org/olm/tags/2.2.0>`_
+=========================================================================
 
 This release includes the following changes since 2.1.0:
 
@@ -130,8 +130,8 @@ Objective-C wrapper:
 * Fix a number of issues with the build scripts which prevented it being used
   for macOS/Swift projects. Thanks to Avery Pierce.
 
-Changes in `2.1.0 <http://matrix.org/git/olm/commit/?h=2.1.0>`_
-===============================================================
+Changes in `2.1.0 <https://gitlab.matrix.org/matrix-org/olm/tags/2.1.0>`_
+=========================================================================
 
 This release includes the following changes since 2.0.0:
 
@@ -147,8 +147,8 @@ Javascript wrapper:
   rather than the stack, allowing more efficient memory use.
 
 
-Changes in `2.0.0 <http://matrix.org/git/olm/commit/?h=2.0.0>`_
-===============================================================
+Changes in `2.0.0 <https://gitlab.matrix.org/matrix-org/olm/tags/2.0.0>`_
+=========================================================================
 
 This release includes the following changes since 1.3.0:
 
@@ -166,8 +166,8 @@ This release includes the following changes since 1.3.0:
   the library). (Credit to Emmanuel Gil Peyrot).
 
 
-Changes in `1.3.0 <http://matrix.org/git/olm/commit/?h=1.3.0>`_
-===============================================================
+Changes in `1.3.0 <https://gitlab.matrix.org/matrix-org/olm/tags/1.3.0>`_
+=========================================================================
 
 This release updates the group session identifier to avoid collisions.
 Group sessions are now identified by their ed25519 public key.
@@ -182,8 +182,8 @@ ed25519 key. No attempt was made to preserve backwards-compatibility.
 Attempting to send session_keys between old and new versions will give
 ``OLM_BAD_SESSION_KEY``.
 
-Changes in `1.2.0 <http://matrix.org/git/olm/commit/?h=1.2.0>`_
-===============================================================
+Changes in `1.2.0 <https://gitlab.matrix.org/matrix-org/olm/tags/1.2.0>`_
+=========================================================================
 
 This release updates the implementation of group session communications, to
 include Ed25519 signatures on group messages, to ensure that participants in
@@ -204,8 +204,8 @@ release, aimed at making the codebase more consistent, and to help with the
 implementation of the group message signatures.
 
 
-Changes in `1.1.0 <http://matrix.org/git/olm/commit/?h=1.1.0>`_
-===============================================================
+Changes in `1.1.0 <https://gitlab.matrix.org/matrix-org/olm/tags/1.1.0>`_
+=========================================================================
 
 This release includes a fix to a bug which caused Ed25519 keypairs to be
 generated and used insecurely. Any Ed25519 keys generated by libolm 1.0.0
@@ -216,8 +216,8 @@ existing OlmAccounts should in any case be considered compromised (as above),
 the library refuses to load them, returning OLM_BAD_LEGACY_ACCOUNT_PICKLE.
 
 
-Changes in `1.0.0 <http://matrix.org/git/olm/commit/?h=1.0.0>`_
-===============================================================
+Changes in `1.0.0 <https://gitlab.matrix.org/matrix-org/olm/tags/1.0.0>`_
+=========================================================================
 
 This release includes a fix to a bug which had the potential to leak sensitive
 data to the application: see
