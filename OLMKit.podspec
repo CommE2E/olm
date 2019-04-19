@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
 				   olm is an implementation of the Double Ratchet cryptographic ratchet in C++
                    DESC
 
-  s.homepage     = "http://matrix.org/git/olm"
+  s.homepage     = "https://gitlab.matrix.org/matrix-org/olm"
 
   s.license      = { :type => "Apache License, Version 2.0", :file => "LICENSE" }
 
@@ -27,7 +27,7 @@ Pod::Spec.new do |s|
   s.public_header_files = "xcode/OLMKit/*.h"
 
   s.source       = {
-    :git => "https://matrix.org/git/olm.git",
+    :git => "https://gitlab.matrix.org/matrix-org/olm.git",
     :tag => s.version.to_s
   }
 
