@@ -1,6 +1,8 @@
 #include "olm/olm.h"
 #include "unittest.hh"
 
+#include <vector>
+
 struct test_case {
     const char *msghex;
     const char *expected_error;
@@ -37,14 +39,14 @@ void decode_hex(
 }
 
 void decrypt_case(int message_type, const test_case * test_case) {
-    std::uint8_t session_memory[olm_session_size()];
-    ::OlmSession * session = ::olm_session(session_memory);
+    std::vector<std::uint8_t> session_memory(olm_session_size());
+    ::OlmSession * session = ::olm_session(session_memory.data());
 
-    std::uint8_t pickled[strlen(session_data)];
-    ::memcpy(pickled, session_data, sizeof(pickled));
+    std::vector<std::uint8_t> pickled(strlen(session_data));
+    ::memcpy(pickled.data(), session_data, pickled.size());
     assert_not_equals(
         ::olm_error(),
-        ::olm_unpickle_session(session, "", 0, pickled, sizeof(pickled))
+        ::olm_unpickle_session(session, "", 0, pickled.data(), pickled.size())
     );
 
     std::size_t message_length = strlen(test_case->msghex) / 2;
@@ -67,12 +69,12 @@ void decrypt_case(int message_type, const test_case * test_case) {
 
     assert_not_equals(::olm_error(), max_length);
 
-    uint8_t plaintext[max_length];
+    std::vector<uint8_t> plaintext(max_length);
     decode_hex(test_case->msghex, message, message_length);
     olm_decrypt(
         session, message_type,
         message, message_length,
-        plaintext, max_length
+        plaintext.data(), max_length
     );
     free(message);
 }

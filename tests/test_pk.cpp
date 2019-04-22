@@ -5,6 +5,7 @@
 #include "unittest.hh"
 
 #include <iostream>
+#include <vector>
 
 int main() {
 
@@ -13,8 +14,8 @@ int main() {
 
 TestCase test_case("Public Key Encryption/Decryption Test Case 1");
 
-std::uint8_t decryption_buffer[olm_pk_decryption_size()];
-OlmPkDecryption *decryption = olm_pk_decryption(decryption_buffer);
+std::vector<std::uint8_t> decryption_buffer(olm_pk_decryption_size());
+OlmPkDecryption *decryption = olm_pk_decryption(decryption_buffer.data());
 
 std::uint8_t alice_private[32] = {
     0x77, 0x07, 0x6D, 0x0A, 0x73, 0x18, 0xA5, 0x7D,
@@ -34,25 +35,25 @@ std::uint8_t bob_private[32] = {
 
 const std::uint8_t *bob_public = (std::uint8_t *) "3p7bfXt9wbTTW2HC7OQ1Nz+DQ8hbeGdNrfx+FG+IK08";
 
-std::uint8_t pubkey[::olm_pk_key_length()];
+std::vector<std::uint8_t> pubkey(::olm_pk_key_length());
 
 olm_pk_key_from_private(
     decryption,
-    pubkey, sizeof(pubkey),
+    pubkey.data(), pubkey.size(),
     alice_private, sizeof(alice_private)
 );
 
-assert_equals(alice_public, pubkey, olm_pk_key_length());
+assert_equals(alice_public, pubkey.data(), olm_pk_key_length());
 
 uint8_t *alice_private_back_out = (uint8_t *)malloc(olm_pk_private_key_length());
 olm_pk_get_private_key(decryption, alice_private_back_out, olm_pk_private_key_length());
 assert_equals(alice_private, alice_private_back_out, olm_pk_private_key_length());
 free(alice_private_back_out);
 
-std::uint8_t encryption_buffer[olm_pk_encryption_size()];
-OlmPkEncryption *encryption = olm_pk_encryption(encryption_buffer);
+std::vector<std::uint8_t> encryption_buffer(olm_pk_encryption_size());
+OlmPkEncryption *encryption = olm_pk_encryption(encryption_buffer.data());
 
-olm_pk_encryption_set_recipient_key(encryption, pubkey, sizeof(pubkey));
+olm_pk_encryption_set_recipient_key(encryption, pubkey.data(), pubkey.size());
 
 const size_t plaintext_length = 14;
 const std::uint8_t *plaintext = (std::uint8_t *) "This is a test";
@@ -60,27 +61,27 @@ const std::uint8_t *plaintext = (std::uint8_t *) "This is a test";
 size_t ciphertext_length = olm_pk_ciphertext_length(encryption, plaintext_length);
 std::uint8_t *ciphertext_buffer = (std::uint8_t *) malloc(ciphertext_length);
 
-std::uint8_t output_buffer[olm_pk_mac_length(encryption)];
-std::uint8_t ephemeral_key[olm_pk_key_length()];
+std::vector<std::uint8_t> output_buffer(olm_pk_mac_length(encryption));
+std::vector<std::uint8_t> ephemeral_key(olm_pk_key_length());
 
 olm_pk_encrypt(
     encryption,
     plaintext, plaintext_length,
     ciphertext_buffer, ciphertext_length,
-    output_buffer, sizeof(output_buffer),
-    ephemeral_key, sizeof(ephemeral_key),
+    output_buffer.data(), output_buffer.size(),
+    ephemeral_key.data(), ephemeral_key.size(),
     bob_private, sizeof(bob_private)
 );
 
-assert_equals(bob_public, ephemeral_key, olm_pk_key_length());
+assert_equals(bob_public, ephemeral_key.data(), olm_pk_key_length());
 
 size_t max_plaintext_length = olm_pk_max_plaintext_length(decryption, ciphertext_length);
 std::uint8_t *plaintext_buffer = (std::uint8_t *) malloc(max_plaintext_length);
 
 olm_pk_decrypt(
     decryption,
-    ephemeral_key, sizeof(ephemeral_key),
-    output_buffer, sizeof(output_buffer),
+    ephemeral_key.data(), ephemeral_key.size(),
+    output_buffer.data(), output_buffer.size(),
     ciphertext_buffer, ciphertext_length,
     plaintext_buffer, max_plaintext_length
 );
@@ -96,8 +97,8 @@ free(plaintext_buffer);
 
 TestCase test_case("Public Key Decryption pickling");
 
-std::uint8_t decryption_buffer[olm_pk_decryption_size()];
-OlmPkDecryption *decryption = olm_pk_decryption(decryption_buffer);
+std::vector<std::uint8_t> decryption_buffer(olm_pk_decryption_size());
+OlmPkDecryption *decryption = olm_pk_decryption(decryption_buffer.data());
 
 std::uint8_t alice_private[32] = {
     0x77, 0x07, 0x6D, 0x0A, 0x73, 0x18, 0xA5, 0x7D,
@@ -108,37 +109,37 @@ std::uint8_t alice_private[32] = {
 
 const std::uint8_t *alice_public = (std::uint8_t *) "hSDwCYkwp1R0i33ctD73Wg2/Og0mOBr066SpjqqbTmoK";
 
-std::uint8_t pubkey[olm_pk_key_length()];
+std::vector<std::uint8_t> pubkey(olm_pk_key_length());
 
 olm_pk_key_from_private(
     decryption,
-    pubkey, sizeof(pubkey),
+    pubkey.data(), pubkey.size(),
     alice_private, sizeof(alice_private)
 );
 
 const uint8_t *PICKLE_KEY=(uint8_t *)"secret_key";
-std::uint8_t pickle_buffer[olm_pickle_pk_decryption_length(decryption)];
+std::vector<std::uint8_t> pickle_buffer(olm_pickle_pk_decryption_length(decryption));
 const uint8_t *expected_pickle = (uint8_t *) "qx37WTQrjZLz5tId/uBX9B3/okqAbV1ofl9UnHKno1eipByCpXleAAlAZoJgYnCDOQZDQWzo3luTSfkF9pU1mOILCbbouubs6TVeDyPfgGD9i86J8irHjA";
 
 olm_pickle_pk_decryption(
     decryption,
     PICKLE_KEY, strlen((char *)PICKLE_KEY),
-    pickle_buffer, sizeof(pickle_buffer)
+    pickle_buffer.data(), pickle_buffer.size()
 );
-assert_equals(expected_pickle, pickle_buffer, olm_pickle_pk_decryption_length(decryption));
+assert_equals(expected_pickle, pickle_buffer.data(), olm_pickle_pk_decryption_length(decryption));
 
 olm_clear_pk_decryption(decryption);
 
-memset(pubkey, 0, olm_pk_key_length());
+memset(pubkey.data(), 0, olm_pk_key_length());
 
 olm_unpickle_pk_decryption(
     decryption,
     PICKLE_KEY, strlen((char *)PICKLE_KEY),
-    pickle_buffer, sizeof(pickle_buffer),
-    pubkey, sizeof(pubkey)
+    pickle_buffer.data(), pickle_buffer.size(),
+    pubkey.data(), pubkey.size()
 );
 
-assert_equals(alice_public, pubkey, olm_pk_key_length());
+assert_equals(alice_public, pubkey.data(), olm_pk_key_length());
 
 char *ciphertext = strdup("ntk49j/KozVFtSqJXhCejg");
 const char *mac = "zpzU6BkZcNI";
@@ -168,8 +169,8 @@ free(plaintext_buffer);
 
 TestCase test_case("Public Key Signing");
 
-std::uint8_t signing_buffer[olm_pk_signing_size()];
-OlmPkSigning *signing = olm_pk_signing(signing_buffer);
+std::vector<std::uint8_t> signing_buffer(olm_pk_signing_size());
+OlmPkSigning *signing = olm_pk_signing(signing_buffer.data());
 
 std::uint8_t seed[32] = {
     0x77, 0x07, 0x6D, 0x0A, 0x73, 0x18, 0xA5, 0x7D,
@@ -180,11 +181,11 @@ std::uint8_t seed[32] = {
 
 //const std::uint8_t *pub_key = (std::uint8_t *) "hSDwCYkwp1R0i33ctD73Wg2/Og0mOBr066SpjqqbTmoK";
 
-char pubkey[olm_pk_signing_public_key_length() + 1];
+std::vector<char> pubkey(olm_pk_signing_public_key_length() + 1);
 
 olm_pk_signing_key_from_seed(
     signing,
-    pubkey, sizeof(pubkey),
+    pubkey.data(), pubkey.size() - 1,
     seed, sizeof(seed)
 );
 
@@ -205,7 +206,7 @@ size_t result;
 
 result = ::olm_ed25519_verify(
     utility,
-    pubkey, olm_pk_signing_public_key_length(),
+    pubkey.data(), olm_pk_signing_public_key_length(),
     message, strlen(message),
     sig_buffer, olm_pk_signature_length()
 );
@@ -216,7 +217,7 @@ sig_buffer[5] = 'm';
 
 result = ::olm_ed25519_verify(
     utility,
-    pubkey, olm_pk_signing_public_key_length(),
+    pubkey.data(), olm_pk_signing_public_key_length(),
     message, strlen(message),
     sig_buffer, olm_pk_signature_length()
 );

@@ -146,7 +146,10 @@ assert_equals(input, actual, length);
 
 TestCase test_case("SHA 256 Test Case 1");
 
-std::uint8_t input[0] = {};
+// we want to take the hash of the empty string, but MSVC doesn't like
+// allocating 0 bytes, so allocate one item, but pass a length of zero to
+// sha256
+std::uint8_t input[1] = {0};
 
 std::uint8_t expected[32] = {
     0xE3, 0xB0, 0xC4, 0x42, 0x98, 0xFC, 0x1C, 0x14,
@@ -157,7 +160,7 @@ std::uint8_t expected[32] = {
 
 std::uint8_t actual[32];
 
-_olm_crypto_sha256(input, sizeof(input), actual);
+_olm_crypto_sha256(input, 0, actual);
 
 assert_equals(expected, actual, 32);
 
@@ -167,7 +170,10 @@ assert_equals(expected, actual, 32);
 
 TestCase test_case("HMAC Test Case 1");
 
-std::uint8_t input[0] = {};
+// we want to take the hash of the empty string, but MSVC doesn't like
+// allocating 0 bytes, so allocate one item, but pass a length of zero to
+// hmac_sha256
+std::uint8_t input[1] = {0};
 
 std::uint8_t expected[32] = {
     0xb6, 0x13, 0x67, 0x9a, 0x08, 0x14, 0xd9, 0xec,
@@ -178,7 +184,7 @@ std::uint8_t expected[32] = {
 
 std::uint8_t actual[32];
 
-_olm_crypto_hmac_sha256(input, sizeof(input), input, sizeof(input), actual);
+_olm_crypto_hmac_sha256(input, 0, input, 0, actual);
 
 assert_equals(expected, actual, 32);
 

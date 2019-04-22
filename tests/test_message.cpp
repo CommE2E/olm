@@ -49,7 +49,7 @@ TestCase test_case("Message encode test");
 std::size_t length = olm::encode_message_length(1, 10, 10, 8);
 assert_equals(std::size_t(35), length);
 
-std::uint8_t output[length];
+std::uint8_t output[35];
 
 olm::MessageWriter writer;
 olm::encode_message(writer, 3, 1, 10, 10, output);

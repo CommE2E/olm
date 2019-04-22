@@ -16,6 +16,7 @@
 #include "olm/cipher.h"
 #include "unittest.hh"
 
+#include <vector>
 
 int main() {
 
@@ -57,23 +58,23 @@ std::size_t encrypt_length, decrypt_length;
     random_length = alice.encrypt_random_length();
     assert_equals(std::size_t(0), random_length);
 
-    std::uint8_t message[message_length];
+    std::vector<std::uint8_t> message(message_length);
 
     encrypt_length = alice.encrypt(
         plaintext, plaintext_length,
         NULL, 0,
-        message, message_length
+        message.data(), message_length
     );
     assert_equals(message_length, encrypt_length);
 
-    output_length = bob.decrypt_max_plaintext_length(message, message_length);
-    std::uint8_t output[output_length];
+    output_length = bob.decrypt_max_plaintext_length(message.data(), message_length);
+    std::vector<std::uint8_t> output(output_length);
     decrypt_length = bob.decrypt(
-        message, message_length,
-        output, output_length
+        message.data(), message_length,
+        output.data(), output_length
     );
     assert_equals(plaintext_length, decrypt_length);
-    assert_equals(plaintext, output, decrypt_length);
+    assert_equals(plaintext, output.data(), decrypt_length);
 }
 
 
@@ -83,24 +84,24 @@ std::size_t encrypt_length, decrypt_length;
     random_length = bob.encrypt_random_length();
     assert_equals(std::size_t(32), random_length);
 
-    std::uint8_t message[message_length];
+    std::vector<std::uint8_t> message(message_length);
     std::uint8_t random[] = "This is a random 32 byte string.";
 
     encrypt_length = bob.encrypt(
         plaintext, plaintext_length,
         random, 32,
-        message, message_length
+        message.data(), message_length
     );
     assert_equals(message_length, encrypt_length);
 
-    output_length = alice.decrypt_max_plaintext_length(message, message_length);
-    std::uint8_t output[output_length];
+    output_length = alice.decrypt_max_plaintext_length(message.data(), message_length);
+    std::vector<std::uint8_t> output(output_length);
     decrypt_length = alice.decrypt(
-        message, message_length,
-        output, output_length
+        message.data(), message_length,
+        output.data(), output_length
     );
     assert_equals(plaintext_length, decrypt_length);
-    assert_equals(plaintext, output, decrypt_length);
+    assert_equals(plaintext, output.data(), decrypt_length);
 }
 
 } /* Send/receive message test case */
@@ -130,12 +131,12 @@ std::size_t encrypt_length, decrypt_length;
     random_length = alice.encrypt_random_length();
     assert_equals(std::size_t(0), random_length);
 
-    std::uint8_t message_1[message_1_length];
+    std::vector<std::uint8_t> message_1(message_1_length);
     std::uint8_t random[] = "This is a random 32 byte string.";
     encrypt_length = alice.encrypt(
         plaintext_1, plaintext_1_length,
         random, 32,
-        message_1, message_1_length
+        message_1.data(), message_1_length
     );
     assert_equals(message_1_length, encrypt_length);
 
@@ -143,36 +144,36 @@ std::size_t encrypt_length, decrypt_length;
     random_length = alice.encrypt_random_length();
     assert_equals(std::size_t(0), random_length);
 
-    std::uint8_t message_2[message_2_length];
+    std::vector<std::uint8_t> message_2(message_2_length);
     encrypt_length = alice.encrypt(
         plaintext_2, plaintext_2_length,
         NULL, 0,
-        message_2, message_2_length
+        message_2.data(), message_2_length
     );
     assert_equals(message_2_length, encrypt_length);
 
     output_length = bob.decrypt_max_plaintext_length(
-        message_2, message_2_length
+        message_2.data(), message_2_length
     );
-    std::uint8_t output_1[output_length];
+    std::vector<std::uint8_t> output_1(output_length);
     decrypt_length = bob.decrypt(
-        message_2, message_2_length,
-        output_1, output_length
+        message_2.data(), message_2_length,
+        output_1.data(), output_length
     );
     assert_equals(plaintext_2_length, decrypt_length);
-    assert_equals(plaintext_2, output_1, decrypt_length);
+    assert_equals(plaintext_2, output_1.data(), decrypt_length);
 
     output_length = bob.decrypt_max_plaintext_length(
-        message_1, message_1_length
+        message_1.data(), message_1_length
     );
-    std::uint8_t output_2[output_length];
+    std::vector<std::uint8_t> output_2(output_length);
     decrypt_length = bob.decrypt(
-        message_1, message_1_length,
-        output_2, output_length
+        message_1.data(), message_1_length,
+        output_2.data(), output_length
     );
 
     assert_equals(plaintext_1_length, decrypt_length);
-    assert_equals(plaintext_1, output_2, decrypt_length);
+    assert_equals(plaintext_1, output_2.data(), decrypt_length);
 }
 
 } /* Out of order test case */
@@ -193,24 +194,24 @@ std::uint8_t random[] = "This is a random 32 byte string";
 
 for (unsigned i = 0; i < 8; ++i) {
 {
-    std::uint8_t msg[alice.encrypt_output_length(sizeof(plaintext))];
+    std::vector<std::uint8_t> msg(alice.encrypt_output_length(sizeof(plaintext)));
     alice.encrypt(
-        plaintext, 15, random, 32, msg, sizeof(msg)
+        plaintext, 15, random, 32, msg.data(), msg.size()
     );
-    std::uint8_t output[bob.decrypt_max_plaintext_length(msg, sizeof(msg))];
+    std::vector<std::uint8_t> output(bob.decrypt_max_plaintext_length(msg.data(), msg.size()));
     assert_equals(
-        std::size_t(15), bob.decrypt(msg, sizeof(msg), output, sizeof(output))
+        std::size_t(15), bob.decrypt(msg.data(), msg.size(), output.data(), output.size())
     );
 }
 random[31]++;
 {
-    std::uint8_t msg[bob.encrypt_output_length(sizeof(plaintext))];
+    std::vector<std::uint8_t> msg(bob.encrypt_output_length(sizeof(plaintext)));
     bob.encrypt(
-        plaintext, 15, random, 32, msg, sizeof(msg)
+        plaintext, 15, random, 32, msg.data(), msg.size()
     );
-    std::uint8_t output[alice.decrypt_max_plaintext_length(msg, sizeof(msg))];
+    std::vector<std::uint8_t> output(alice.decrypt_max_plaintext_length(msg.data(), msg.size()));
     assert_equals(
-        std::size_t(15), alice.decrypt(msg, sizeof(msg), output, sizeof(output))
+        std::size_t(15), alice.decrypt(msg.data(), msg.size(), output.data(), output.size())
     );
 }
 random[31]++;
