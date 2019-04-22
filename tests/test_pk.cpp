@@ -188,8 +188,6 @@ olm_pk_signing_key_from_seed(
     seed, sizeof(seed)
 );
 
-printf("pubkey: %s\n", pubkey);
-
 char *message = strdup("We hold these truths to be self-evident, that all men are created equal, that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty and the pursuit of Happiness.");
 
 std::uint8_t *sig_buffer = (std::uint8_t *) malloc(olm_pk_signature_length() + 1);
@@ -199,8 +197,6 @@ olm_pk_sign(
     (const uint8_t *)message, strlen(message),
     sig_buffer, olm_pk_signature_length()
 );
-
-printf("sig: %s\n", sig_buffer);
 
 void * utility_buffer = malloc(::olm_utility_size());
 ::OlmUtility * utility = ::olm_utility(utility_buffer);
