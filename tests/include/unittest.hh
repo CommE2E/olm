@@ -16,7 +16,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
-
+#include <string>
 
 std::ostream & print_hex(
     std::ostream & os,
