@@ -32,6 +32,7 @@ add_library(olm
     src/session.cpp
     src/utility.cpp
     src/pk.cpp
+    src/sas.c
 
     src/ed25519.c
     src/error.c
@@ -79,6 +80,7 @@ install(FILES
     ${CMAKE_SOURCE_DIR}/include/olm/outbound_group_session.h
     ${CMAKE_SOURCE_DIR}/include/olm/inbound_group_session.h
     ${CMAKE_SOURCE_DIR}/include/olm/pk.h
+    ${CMAKE_SOURCE_DIR}/include/olm/sas.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/olm)
 
 # Export the targets to a script.
