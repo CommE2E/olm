@@ -1,3 +1,11 @@
+Changes in `3.1.1 <https://gitlab.matrix.org/matrix-org/olm/tags/3.1.1>`_
+=========================================================================
+
+This release fixes various build issues:
+
+* Include the SAS files and tests in the CMake files.
+* Address some build issues on Windows.
+
 Changes in `3.1.0 <https://gitlab.matrix.org/matrix-org/olm/tags/3.1.0>`_
 =========================================================================
 
