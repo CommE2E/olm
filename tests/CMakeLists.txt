@@ -15,6 +15,7 @@ foreach(test IN ITEMS
     test_ratchet
     test_session
     test_pk
+    test_sas
     )
 add_executable(${test} ${test}.cpp)
 target_include_directories(${test} PRIVATE include)
@@ -35,3 +36,4 @@ add_test(OlmUsingMalloc test_olm_using_malloc)
 add_test(Ratchet test_ratchet)
 add_test(Session test_session)
 add_test(PublicKey test_session)
+add_test(SAS test_sas)
