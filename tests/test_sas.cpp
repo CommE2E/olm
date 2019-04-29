@@ -5,6 +5,7 @@
 #include "unittest.hh"
 
 #include <iostream>
+#include <vector>
 
 int main() {
 
@@ -31,26 +32,26 @@ std::uint8_t bob_private[32] = {
 
 const std::uint8_t *bob_public = (std::uint8_t *) "3p7bfXt9wbTTW2HC7OQ1Nz+DQ8hbeGdNrfx+FG+IK08";
 
-std::uint8_t alice_sas_buffer[olm_sas_size()];
-OlmSAS *alice_sas = olm_sas(alice_sas_buffer);
+std::vector<std::uint8_t> alice_sas_buffer(olm_sas_size());
+OlmSAS *alice_sas = olm_sas(alice_sas_buffer.data());
 olm_create_sas(alice_sas, alice_private, sizeof(alice_private));
-std::uint8_t bob_sas_buffer[olm_sas_size()];
-OlmSAS *bob_sas = olm_sas(bob_sas_buffer);
+std::vector<std::uint8_t> bob_sas_buffer(olm_sas_size());
+OlmSAS *bob_sas = olm_sas(bob_sas_buffer.data());
 olm_create_sas(bob_sas, bob_private, sizeof(bob_private));
 
-std::uint8_t pubkey[::olm_sas_pubkey_length(alice_sas)];
+std::vector<std::uint8_t> pubkey(::olm_sas_pubkey_length(alice_sas));
 
-olm_sas_get_pubkey(alice_sas, pubkey, sizeof(pubkey));
+olm_sas_get_pubkey(alice_sas, pubkey.data(), pubkey.size());
 
-assert_equals(alice_public, pubkey, olm_sas_pubkey_length(alice_sas));
+assert_equals(alice_public, pubkey.data(), olm_sas_pubkey_length(alice_sas));
 
-olm_sas_set_their_key(bob_sas, pubkey, olm_sas_pubkey_length(bob_sas));
+olm_sas_set_their_key(bob_sas, pubkey.data(), olm_sas_pubkey_length(bob_sas));
 
-olm_sas_get_pubkey(bob_sas, pubkey, sizeof(pubkey));
+olm_sas_get_pubkey(bob_sas, pubkey.data(), pubkey.size());
 
-assert_equals(bob_public, pubkey, olm_sas_pubkey_length(bob_sas));
+assert_equals(bob_public, pubkey.data(), olm_sas_pubkey_length(bob_sas));
 
-olm_sas_set_their_key(alice_sas, pubkey, olm_sas_pubkey_length(alice_sas));
+olm_sas_set_their_key(alice_sas, pubkey.data(), olm_sas_pubkey_length(alice_sas));
 
 std::uint8_t alice_bytes[6];
 std::uint8_t bob_bytes[6];
@@ -84,34 +85,34 @@ std::uint8_t bob_private[32] = {
 
 const std::uint8_t *bob_public = (std::uint8_t *) "3p7bfXt9wbTTW2HC7OQ1Nz+DQ8hbeGdNrfx+FG+IK08";
 
-std::uint8_t alice_sas_buffer[olm_sas_size()];
-OlmSAS *alice_sas = olm_sas(alice_sas_buffer);
+std::vector<std::uint8_t> alice_sas_buffer(olm_sas_size());
+OlmSAS *alice_sas = olm_sas(alice_sas_buffer.data());
 olm_create_sas(alice_sas, alice_private, sizeof(alice_private));
-std::uint8_t bob_sas_buffer[olm_sas_size()];
-OlmSAS *bob_sas = olm_sas(bob_sas_buffer);
+std::vector<std::uint8_t> bob_sas_buffer(olm_sas_size());
+OlmSAS *bob_sas = olm_sas(bob_sas_buffer.data());
 olm_create_sas(bob_sas, bob_private, sizeof(bob_private));
 
-std::uint8_t pubkey[::olm_sas_pubkey_length(alice_sas)];
+std::vector<std::uint8_t> pubkey(::olm_sas_pubkey_length(alice_sas));
 
-olm_sas_get_pubkey(alice_sas, pubkey, sizeof(pubkey));
+olm_sas_get_pubkey(alice_sas, pubkey.data(), pubkey.size());
 
-assert_equals(alice_public, pubkey, olm_sas_pubkey_length(alice_sas));
+assert_equals(alice_public, pubkey.data(), olm_sas_pubkey_length(alice_sas));
 
-olm_sas_set_their_key(bob_sas, pubkey, olm_sas_pubkey_length(bob_sas));
+olm_sas_set_their_key(bob_sas, pubkey.data(), olm_sas_pubkey_length(bob_sas));
 
-olm_sas_get_pubkey(bob_sas, pubkey, sizeof(pubkey));
+olm_sas_get_pubkey(bob_sas, pubkey.data(), pubkey.size());
 
-assert_equals(bob_public, pubkey, olm_sas_pubkey_length(bob_sas));
+assert_equals(bob_public, pubkey.data(), olm_sas_pubkey_length(bob_sas));
 
-olm_sas_set_their_key(alice_sas, pubkey, olm_sas_pubkey_length(alice_sas));
+olm_sas_set_their_key(alice_sas, pubkey.data(), olm_sas_pubkey_length(alice_sas));
 
-std::uint8_t alice_mac[olm_sas_mac_length(alice_sas)];
-std::uint8_t bob_mac[olm_sas_mac_length(bob_sas)];
+std::vector<std::uint8_t> alice_mac(olm_sas_mac_length(alice_sas));
+std::vector<std::uint8_t> bob_mac(olm_sas_mac_length(bob_sas));
 
-olm_sas_calculate_mac(alice_sas, (void *) "Hello world!", 12, "MAC", 3, alice_mac, olm_sas_mac_length(alice_sas));
-olm_sas_calculate_mac(bob_sas, (void *) "Hello world!", 12, "MAC", 3, bob_mac, olm_sas_mac_length(bob_sas));
+olm_sas_calculate_mac(alice_sas, (void *) "Hello world!", 12, "MAC", 3, alice_mac.data(), olm_sas_mac_length(alice_sas));
+olm_sas_calculate_mac(bob_sas, (void *) "Hello world!", 12, "MAC", 3, bob_mac.data(), olm_sas_mac_length(bob_sas));
 
-assert_equals(alice_mac, bob_mac, olm_sas_mac_length(alice_sas));
+assert_equals(alice_mac.data(), bob_mac.data(), olm_sas_mac_length(alice_sas));
 
 }
 }
