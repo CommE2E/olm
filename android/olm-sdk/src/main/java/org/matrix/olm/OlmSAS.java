@@ -40,6 +40,8 @@ public class OlmSAS {
 
     /**
      * Gets the Public Key encoded in Base64 with no padding
+     * @return The public key
+     * @throws OlmException the failure reason
      */
     public String getPublicKey() throws OlmException {
         try {
@@ -60,7 +62,7 @@ public class OlmSAS {
      * Sets the public key of other user.
      *
      * @param otherPkey other user public key (base64 encoded with no padding)
-     * @throws OlmException
+     * @throws OlmException the failure reason
      */
     public void setTheirPublicKey(String otherPkey) throws OlmException {
         try {
@@ -79,7 +81,7 @@ public class OlmSAS {
      *                   per the Matrix spec.
      * @param byteNumber The size of the short code to generate
      * @return The generated shortcode
-     * @throws OlmException
+     * @throws OlmException the failure reason
      */
     public byte[] generateShortCode(String info, int byteNumber) throws OlmException {
         if (theirPublicKey == null || theirPublicKey.isEmpty()) {
