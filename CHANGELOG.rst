@@ -1,3 +1,8 @@
+Changes in `3.1.2 <https://gitlab.matrix.org/matrix-org/olm/tags/3.1.2>`_
+=========================================================================
+
+This release updates the Android bindings to use a newer Android SDK version.
+
 Changes in `3.1.1 <https://gitlab.matrix.org/matrix-org/olm/tags/3.1.1>`_
 =========================================================================
 

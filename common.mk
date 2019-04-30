@@ -1,4 +1,4 @@
 
 MAJOR := 3
 MINOR := 1
-PATCH := 1
+PATCH := 2
