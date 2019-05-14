@@ -59,7 +59,8 @@ size_t olm_create_sas_random_length(
 /** Creates a new SAS object.
  *
  * @param[in] sas the SAS object to create, initialized by `olm_sas()`.
- * @param[in] random array of random bytes.
+ * @param[in] random array of random bytes.  The contents of the buffer may be
+ *     overwritten.
  * @param[in] random_length the number of random bytes provided.  Must be at
  *    least `olm_create_sas_random_length()`.
  *
@@ -92,7 +93,8 @@ size_t olm_sas_get_pubkey(
 /** Sets the public key of other user.
  *
  * @param[in] sas the SAS object.
- * @param[in] their_key the other user's public key.
+ * @param[in] their_key the other user's public key.  The contents of the
+ *     buffer will be overwritten.
  * @param[in] their_key_length the size of the `their_key` buffer.
  *
  * @return `olm_error()` on failure.  If the `their_key` buffer is too small,
@@ -142,7 +144,7 @@ size_t olm_sas_mac_length(
  */
 size_t olm_sas_calculate_mac(
     OlmSAS * sas,
-    void * input, size_t input_length,
+    const void * input, size_t input_length,
     const void * info, size_t info_length,
     void * mac, size_t mac_length
 );
@@ -150,7 +152,7 @@ size_t olm_sas_calculate_mac(
 // for compatibility with an old version of Riot
 size_t olm_sas_calculate_mac_long_kdf(
     OlmSAS * sas,
-    void * input, size_t input_length,
+    const void * input, size_t input_length,
     const void * info, size_t info_length,
     void * mac, size_t mac_length
 );

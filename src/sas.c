@@ -120,7 +120,7 @@ size_t olm_sas_mac_length(
 
 size_t olm_sas_calculate_mac(
     OlmSAS * sas,
-    void * input, size_t input_length,
+    const void * input, size_t input_length,
     const void * info, size_t info_length,
     void * mac, size_t mac_length
 ) {
@@ -143,7 +143,7 @@ size_t olm_sas_calculate_mac(
 // for compatibility with an old version of Riot
 size_t olm_sas_calculate_mac_long_kdf(
     OlmSAS * sas,
-    void * input, size_t input_length,
+    const void * input, size_t input_length,
     const void * info, size_t info_length,
     void * mac, size_t mac_length
 ) {
