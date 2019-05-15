@@ -87,7 +87,7 @@ size_t olm_pk_encrypt(
     void * ciphertext, size_t ciphertext_length,
     void * mac, size_t mac_length,
     void * ephemeral_key, size_t ephemeral_key_size,
-    void * random, size_t random_length
+    const void * random, size_t random_length
 );
 
 typedef struct OlmPkDecryption OlmPkDecryption;
@@ -133,7 +133,7 @@ size_t olm_pk_generate_key_random_length(void);
 size_t olm_pk_key_from_private(
     OlmPkDecryption * decryption,
     void * pubkey, size_t pubkey_length,
-    void * privkey, size_t privkey_length
+    const void * privkey, size_t privkey_length
 );
 
 /** DEPRECATED: Use olm_pk_key_from_private
@@ -141,7 +141,7 @@ size_t olm_pk_key_from_private(
 size_t olm_pk_generate_key(
     OlmPkDecryption * decryption,
     void * pubkey, size_t pubkey_length,
-    void * privkey, size_t privkey_length
+    const void * privkey, size_t privkey_length
 );
 
 /** Returns the number of bytes needed to store a decryption object. */
@@ -230,19 +230,39 @@ size_t olm_clear_pk_signing(
 );
 
 /**
- * Initialise the signing object with a public/private keypair from a seed
+ * Initialise the signing object with a public/private keypair from a seed. The
+ * associated public key will be written to the pubkey buffer. Returns
+ * olm_error() on failure. If the public key buffer is too small then
+ * olm_pk_signing_last_error() will be "OUTPUT_BUFFER_TOO_SMALL".  If the seed
+ * buffer is too small then olm_pk_signing_last_error() will be
+ * "INPUT_BUFFER_TOO_SMALL".
  */
 size_t olm_pk_signing_key_from_seed(
     OlmPkSigning * sign,
     void * pubkey, size_t pubkey_length,
-    void * seed, size_t seed_length
+    const void * seed, size_t seed_length
 );
 
+/**
+ * The size required for the seed for initialising a signing object.
+ */
 size_t olm_pk_signing_seed_length(void);
+
+/**
+ * The size of the public key of a signing object.
+ */
 size_t olm_pk_signing_public_key_length(void);
 
-size_t olm_pk_signature_length();
+/**
+ * The size of a signature created by a signing object.
+ */
+size_t olm_pk_signature_length(void);
 
+/**
+ * Sign a message. The signature will be written to the signature
+ * buffer. Returns olm_error() on failure. If the signature buffer is too
+ * small, olm_pk_signing_last_error() will be "OUTPUT_BUFFER_TOO_SMALL".
+ */
 size_t olm_pk_sign(
     OlmPkSigning *sign,
     uint8_t const * message, size_t message_length,
