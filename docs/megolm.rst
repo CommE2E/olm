@@ -96,7 +96,7 @@ from :math:`R_{i,0}`.
 
 The complete ratchet value, :math:`R_{i}`, is hashed to generate the keys used
 to encrypt each message.  This scheme allows the ratchet to be advanced an
-arbitrary amount forwards while needing at most 1023 hash computations.  A
+arbitrary amount forwards while needing at most 1020 hash computations.  A
 client can decrypt chat history onwards from the earliest value of the ratchet
 it is aware of, but cannot decrypt history from before that point without
 reversing the hash function.
