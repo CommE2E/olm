@@ -1,5 +1,4 @@
-Contributing code to libolm
-===========================
+# Contributing code to libolm
 
 To contribute code to this library, the preferred way is to clone the git
 repository, create a git patch series (for example via ``git
@@ -8,18 +7,16 @@ format-patch --stdout origin/master``), and send this by email to
 
 Naturally, you must be willing to license your contributions under the same
 license as the project itself - in this case, Apache Software License v2 (see
-`<LICENSE>`_).
+[LICENSE](LICENSE)).
 
-Sign off
---------
+## Sign off
 
 In order to have a concrete record that your contribution is intentional and
 you agree to license it under the same terms as the project's license, we've
 adopted the same lightweight approach that the
-`Linux Kernel <https://www.kernel.org/doc/Documentation/SubmittingPatches>`_,
-`Docker <https://github.com/docker/docker/blob/master/CONTRIBUTING.md>`_,
-and many other projects use: the DCO
-(`Developer Certificate of Origin <http://developercertificate.org/>`_).
+[Linux Kernel](https://www.kernel.org/doc/html/latest/process/submitting-patches.html#sign-your-work-the-developer-s-certificate-of-origin),
+[Docker](https://github.com/docker/docker/blob/master/CONTRIBUTING.md),
+and many other projects use: the DCO ([Developer Certificate of Origin](http://developercertificate.org/)).
 This is a simple declaration that you wrote the contribution or otherwise have
 the right to contribute it to Matrix::
 
