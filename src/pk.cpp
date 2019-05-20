@@ -108,7 +108,7 @@ size_t olm_pk_encrypt(
     void * ciphertext, size_t ciphertext_length,
     void * mac, size_t mac_length,
     void * ephemeral_key, size_t ephemeral_key_size,
-    void * random, size_t random_length
+    const void * random, size_t random_length
 ) {
     if (ciphertext_length
             < olm_pk_ciphertext_length(encryption, plaintext_length)
@@ -127,7 +127,7 @@ size_t olm_pk_encrypt(
     }
 
     _olm_curve25519_key_pair ephemeral_keypair;
-    _olm_crypto_curve25519_generate_key((uint8_t *) random, &ephemeral_keypair);
+    _olm_crypto_curve25519_generate_key((const uint8_t *) random, &ephemeral_keypair);
     olm::encode_base64(
         (const uint8_t *)ephemeral_keypair.public_key.public_key,
         CURVE25519_KEY_LENGTH,
@@ -202,7 +202,7 @@ size_t olm_pk_key_length(void) {
 size_t olm_pk_key_from_private(
     OlmPkDecryption * decryption,
     void * pubkey, size_t pubkey_length,
-    void * privkey, size_t privkey_length
+    const void * privkey, size_t privkey_length
 ) {
     if (pubkey_length < olm_pk_key_length()) {
         decryption->last_error =
@@ -215,7 +215,7 @@ size_t olm_pk_key_from_private(
         return std::size_t(-1);
     }
 
-    _olm_crypto_curve25519_generate_key((uint8_t *) privkey, &decryption->key_pair);
+    _olm_crypto_curve25519_generate_key((const uint8_t *) privkey, &decryption->key_pair);
     olm::encode_base64(
         (const uint8_t *)decryption->key_pair.public_key.public_key,
         CURVE25519_KEY_LENGTH,
@@ -227,7 +227,7 @@ size_t olm_pk_key_from_private(
 size_t olm_pk_generate_key(
     OlmPkDecryption * decryption,
     void * pubkey, size_t pubkey_length,
-    void * privkey, size_t privkey_length
+    const void * privkey, size_t privkey_length
 ) {
     return olm_pk_key_from_private(decryption, pubkey, pubkey_length, privkey, privkey_length);
 }
@@ -447,7 +447,7 @@ size_t olm_pk_signing_public_key_length(void) {
 size_t olm_pk_signing_key_from_seed(
     OlmPkSigning * signing,
     void * pubkey, size_t pubkey_length,
-    void * seed, size_t seed_length
+    const void * seed, size_t seed_length
 ) {
     if (pubkey_length < olm_pk_signing_public_key_length()) {
         signing->last_error =
@@ -460,7 +460,7 @@ size_t olm_pk_signing_key_from_seed(
         return std::size_t(-1);
     }
 
-    _olm_crypto_ed25519_generate_key((uint8_t *) seed, &signing->key_pair);
+    _olm_crypto_ed25519_generate_key((const uint8_t *) seed, &signing->key_pair);
     olm::encode_base64(
         (const uint8_t *)signing->key_pair.public_key.public_key,
         ED25519_PUBLIC_KEY_LENGTH,
@@ -469,7 +469,7 @@ size_t olm_pk_signing_key_from_seed(
     return 0;
 }
 
-size_t olm_pk_signature_length() {
+size_t olm_pk_signature_length(void) {
     return olm::encode_base64_length(ED25519_SIGNATURE_LENGTH);
 }
 
