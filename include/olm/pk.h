@@ -152,7 +152,7 @@ size_t olm_pickle_pk_decryption_length(
 /** Stores decryption object as a base64 string. Encrypts the object using the
  * supplied key. Returns the length of the pickled object on success.
  * Returns olm_error() on failure. If the pickle output buffer
- * is smaller than olm_pickle_account_length() then
+ * is smaller than olm_pickle_decryption_length() then
  * olm_pk_decryption_last_error() will be "OUTPUT_BUFFER_TOO_SMALL" */
 size_t olm_pickle_pk_decryption(
     OlmPkDecryption * decryption,
