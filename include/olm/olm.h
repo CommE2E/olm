@@ -435,7 +435,7 @@ size_t olm_sha256(
 );
 
 /** Verify an ed25519 signature. If the key was too small then
- * olm_session_last_error will be "INVALID_BASE64". If the signature was invalid
+ * olm_utility_last_error() will be "INVALID_BASE64". If the signature was invalid
  * then olm_utility_last_error() will be "BAD_MESSAGE_MAC". */
 size_t olm_ed25519_verify(
     OlmUtility * utility,
