@@ -33,7 +33,7 @@ from future.utils import bytes_to_native_str
 # pylint: disable=no-name-in-module
 from _libolm import ffi, lib  # type: ignore
 
-from ._compat import URANDOM, to_bytearray, to_bytes
+from ._compat import URANDOM, to_bytearray, to_bytes, to_native_str
 from ._finalize import track_for_finalization
 
 
@@ -176,8 +176,8 @@ class InboundGroupSession(object):
 
         raise OlmGroupSessionError(last_error)
 
-    def decrypt(self, ciphertext):
-        # type: (AnyStr) -> Tuple[str, int]
+    def decrypt(self, ciphertext, errors="replace"):
+        # type: (AnyStr, str) -> Tuple[str, int]
         """Decrypt a message
 
         Returns a tuple of the decrypted plain-text and the message index of
@@ -197,6 +197,13 @@ class InboundGroupSession(object):
         Args:
             ciphertext(str): Base64 encoded ciphertext containing the encrypted
                 message
+            unicode_errors(str, optional): The error handling scheme to use for
+                unicode decoding errors. The default is "replace" meaning that
+                the character that was unable to decode will be replaced with
+                the unicode replacement character (U+FFFD). Other possible
+                values are "strict", "ignore" and "xmlcharrefreplace" as well
+                as any other name registered with codecs.register_error that
+                can handle UnicodeEncodeErrors.
         """
         if not ciphertext:
             raise ValueError("Ciphertext can't be empty.")
@@ -223,10 +230,10 @@ class InboundGroupSession(object):
 
         self._check_error(plaintext_length)
 
-        plaintext = bytes_to_native_str(ffi.unpack(
-            plaintext_buffer,
-            plaintext_length
-        ))
+        plaintext = to_native_str(
+            ffi.unpack(plaintext_buffer, plaintext_length),
+            errors=errors
+        )
 
         # clear out copies of the plaintext
         lib.memset(plaintext_buffer, 0, max_plaintext_length)

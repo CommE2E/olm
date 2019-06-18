@@ -30,15 +30,15 @@ Examples:
 
 """
 
-from functools import wraps
 from builtins import bytes
+from functools import wraps
 from typing import Optional
 
 from future.utils import bytes_to_native_str
 
 from _libolm import ffi, lib
 
-from ._compat import URANDOM, to_bytes, to_bytearray
+from ._compat import URANDOM, to_bytearray, to_bytes
 from ._finalize import track_for_finalization
 
 
