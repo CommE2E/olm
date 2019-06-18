@@ -267,8 +267,16 @@ future research.
 
 ### Lack of Backward Secrecy
 
-Once the key to a Megolm session is compromised, the attacker can decrypt any
-future messages sent via that session.
+[Backward secrecy](https://intensecrypto.org/public/lec_08_hash_functions_part2.html#sec-forward-and-backward-secrecy)
+(also called 'future secrecy' or 'post-compromise security') is the property
+that if current private keys are compromised, an attacker cannot decrypt
+future messages in a given session.  In other words, when looking
+**backwards** into the past at a compromise, messages sent since the compromise
+will be secret.
+
+By itself, Megolm does not posess this property: once the key to a Megolm
+session is compromised, the attacker can decrypt any future messages sent via
+that session.
 
 In order to mitigate this, the application should ensure that Megolm sessions
 are not used indefinitely. Instead it should periodically start a new session,
@@ -279,7 +287,15 @@ with new keys shared over a secure channel.
 
 ### Partial Forward Secrecy
 
-Each recipient maintains a record of the ratchet value which allows them to
+[Forward secrecy](https://intensecrypto.org/public/lec_08_hash_functions_part2.html#sec-forward-and-backward-secrecy)
+is the property that if the current private keys are compromised, an attacker
+cannot decrypt *past* messages in a given session (unless past private keys
+are retained). 'Perfect forward secrecy' means that no past keys are retained.
+'Partial forward secrecy' means that some past key data may be retained. In
+other words, when looking **forwards** into the future at a potential
+compromise, messages sent prior to the compromise will be secret.
+
+In Megolm, each recipient maintains a record of the ratchet value which allows them to
 decrypt any messages sent in the session after the corresponding point in the
 conversation. If this value is compromised, an attacker can similarly decrypt
 those past messages.
