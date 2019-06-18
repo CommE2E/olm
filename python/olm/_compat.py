@@ -18,6 +18,8 @@
 from builtins import bytes, str
 from typing import AnyStr
 
+from future.utils import bytes_to_native_str, native_str
+
 try:
     import secrets
     URANDOM = secrets.token_bytes  # pragma: no cover
@@ -44,3 +46,24 @@ def to_bytes(string):
         return bytes(string, "utf-8")
 
     raise TypeError("Invalid type {}".format(type(string)))
+
+
+def to_native_str(byte_string, errors="replace"):
+    """Turn a byte string into a native string decoding it as UTF-8.
+
+    Args:
+        byte_string (bytes): The bytestring that will be converted to a native
+            string.
+        errors (str, optional): The error handling scheme that should be used
+            to handle unicode decode errors. Can be one of "strict" (raise an
+            UnicodeDecodeError exception, "ignore" (remove the offending
+            characters), "replace" (replace the offending character with
+            U+FFFD), "xmlcharrefreplace" as well as any other name registered
+            with codecs.register_error that can handle UnicodeEncodeErrors.
+
+    Returns the decoded native string.
+    """
+    try:
+        return native_str(byte_string, errors=errors)
+    except TypeError:
+        return bytes(byte_string).decode(errors=errors)
