@@ -276,8 +276,8 @@ messages are still secret.
 
 By itself, Megolm does not possess this property: once the key to a Megolm
 session is compromised, the attacker can decrypt any message that was
-encrypted using a key derived from the compromised key or any following
-ratchet values.
+encrypted using a key derived from the compromised or subsequent ratchet
+values.
 
 In order to mitigate this, the application should ensure that Megolm sessions
 are not used indefinitely. Instead it should periodically start a new session,
@@ -298,8 +298,8 @@ In Megolm, each recipient maintains a record of the ratchet value which allows
 them to decrypt any messages sent in the session after the corresponding point
 in the conversation. If this value is compromised, an attacker can similarly
 decrypt past messages which were encrypted by a key derived from the
-compromised key or any following ratchet values. This gives 'partial'
-forrward secrecy.
+compromised or subsequent ratchet values. This gives 'partial' forward
+secrecy.
 
 To mitigate this issue, the application should offer the user the option to
 discard historical conversations, by winding forward any stored ratchet values,
