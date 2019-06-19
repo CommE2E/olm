@@ -18,8 +18,6 @@
 from builtins import bytes, str
 from typing import AnyStr
 
-from future.utils import native_str
-
 try:
     import secrets
     URANDOM = secrets.token_bytes  # pragma: no cover
