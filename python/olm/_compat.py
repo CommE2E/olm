@@ -48,8 +48,11 @@ def to_bytes(string):
     raise TypeError("Invalid type {}".format(type(string)))
 
 
-def to_native_str(byte_string, errors="replace"):
-    """Turn a byte string into a native string decoding it as UTF-8.
+def to_unicode_str(byte_string, errors="replace"):
+    """Turn a byte string into a unicode string.
+
+    Should be used everywhere where the input byte string might not be trusted
+    and may contain invalid unicode values.
 
     Args:
         byte_string (bytes): The bytestring that will be converted to a native
@@ -63,7 +66,4 @@ def to_native_str(byte_string, errors="replace"):
 
     Returns the decoded native string.
     """
-    try:
-        return native_str(byte_string, errors=errors)
-    except TypeError:
-        return bytes(byte_string).decode(errors=errors)
+    return byte_string.decode(errors=errors)

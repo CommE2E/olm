@@ -33,7 +33,7 @@ from future.utils import bytes_to_native_str
 # pylint: disable=no-name-in-module
 from _libolm import ffi, lib  # type: ignore
 
-from ._compat import URANDOM, to_bytearray, to_bytes, to_native_str
+from ._compat import URANDOM, to_bytearray, to_bytes, to_unicode_str
 from ._finalize import track_for_finalization
 
 
@@ -230,7 +230,7 @@ class InboundGroupSession(object):
 
         self._check_error(plaintext_length)
 
-        plaintext = to_native_str(
+        plaintext = to_unicode_str(
             ffi.unpack(plaintext_buffer, plaintext_length),
             errors=errors
         )

@@ -40,7 +40,7 @@ from future.utils import bytes_to_native_str
 
 from _libolm import ffi, lib  # type: ignore
 
-from ._compat import URANDOM, to_bytearray, to_native_str
+from ._compat import URANDOM, to_bytearray, to_unicode_str
 from ._finalize import track_for_finalization
 
 
@@ -361,7 +361,7 @@ class PkDecryption(object):
         # clear out copies of the plaintext
         lib.memset(plaintext_buffer, 0, max_plaintext_length)
 
-        return to_native_str(plaintext, errors=errors)
+        return to_unicode_str(plaintext, errors=errors)
 
 
 def _clear_pk_signing(pk_struct):
