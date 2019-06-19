@@ -18,7 +18,7 @@
 from builtins import bytes, str
 from typing import AnyStr
 
-from future.utils import bytes_to_native_str, native_str
+from future.utils import native_str
 
 try:
     import secrets
