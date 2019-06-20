@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-
-from builtins import bytes
-
 import pytest
 
 from olm import InboundGroupSession, OlmGroupSessionError, OutboundGroupSession
@@ -121,7 +118,7 @@ class TestClass(object):
         outbound = OutboundGroupSession()
         inbound = InboundGroupSession(outbound.session_key)
 
-        text = outbound.encrypt(bytes([0xed]))
+        text = outbound.encrypt(b"\xed")
         plaintext, _ = inbound.decrypt(text)
 
         print(plaintext)

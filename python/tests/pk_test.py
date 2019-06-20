@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from builtins import bytes
-
 import pytest
 
 from olm import (PkDecryption, PkDecryptionError, PkEncryption, PkSigning,
@@ -62,6 +60,6 @@ class TestClass(object):
     def test_invalid_unicode_decrypt(self):
         decryption = PkDecryption()
         encryption = PkEncryption(decryption.public_key)
-        message = encryption.encrypt(bytes([0xed]))
+        message = encryption.encrypt(b"\xed")
         plaintext = decryption.decrypt(message)
         assert plaintext == u"�"

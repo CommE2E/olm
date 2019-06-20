@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from builtins import bytes
-
 import pytest
 
 from olm import (Account, InboundSession, OlmMessage, OlmPreKeyMessage,
@@ -147,7 +145,7 @@ class TestClass(object):
 
     def test_invalid_unicode_decrypt(self):
         alice, bob, session = self._create_session()
-        message = session.encrypt(bytes([0xed]))
+        message = session.encrypt(b"\xed")
 
         bob_session = InboundSession(bob, message)
         plaintext = bob_session.decrypt(message)
