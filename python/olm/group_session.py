@@ -176,7 +176,7 @@ class InboundGroupSession(object):
 
         raise OlmGroupSessionError(last_error)
 
-    def decrypt(self, ciphertext, errors="replace"):
+    def decrypt(self, ciphertext, unicode_errors="replace"):
         # type: (AnyStr, str) -> Tuple[str, int]
         """Decrypt a message
 
@@ -232,7 +232,7 @@ class InboundGroupSession(object):
 
         plaintext = to_unicode_str(
             ffi.unpack(plaintext_buffer, plaintext_length),
-            errors=errors
+            errors=unicode_errors
         )
 
         # clear out copies of the plaintext

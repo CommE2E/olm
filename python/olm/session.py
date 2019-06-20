@@ -273,7 +273,7 @@ class Session(object):
         else:  # pragma: no cover
             raise ValueError("Unknown message type")
 
-    def decrypt(self, message, errors="replace"):
+    def decrypt(self, message, unicode_errors="replace"):
         # type: (_OlmMessage, str) -> str
         """Decrypts a message using the session. Returns the plaintext string
         on success. Raises OlmSessionError on failure. If the base64 couldn't
@@ -320,7 +320,7 @@ class Session(object):
         self._check_error(plaintext_length)
         plaintext = to_unicode_str(
             ffi.unpack(plaintext_buffer, plaintext_length),
-            errors=errors
+            errors=unicode_errors
         )
 
         # clear out copies of the plaintext

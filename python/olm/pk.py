@@ -313,7 +313,7 @@ class PkDecryption(object):
 
         return obj
 
-    def decrypt(self, message, errors="replace"):
+    def decrypt(self, message, unicode_errors="replace"):
         # type (PkMessage, str) -> str
         """Decrypt a previously encrypted Pk message.
 
@@ -361,7 +361,7 @@ class PkDecryption(object):
         # clear out copies of the plaintext
         lib.memset(plaintext_buffer, 0, max_plaintext_length)
 
-        return to_unicode_str(plaintext, errors=errors)
+        return to_unicode_str(plaintext, errors=unicode_errors)
 
 
 def _clear_pk_signing(pk_struct):
