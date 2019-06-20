@@ -21,9 +21,5 @@ class TestClass(object):
 
         hashlib_hash = bytes_to_native_str(hashlib_hash[:-1])
 
-        if input1 == input2:
-            assert first_hash == second_hash
-        else:
-            assert first_hash != second_hash
-
+        assert first_hash != second_hash
         assert hashlib_hash == first_hash
