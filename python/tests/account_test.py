@@ -1,8 +1,6 @@
 from builtins import int
 
 import pytest
-from hypothesis import given
-from hypothesis.strategies import text
 
 from olm import Account, OlmAccountError, OlmVerifyError, ed25519_verify
 from olm._compat import to_bytes
@@ -73,8 +71,8 @@ class TestClass(object):
         alice = Account()
         del alice
 
-    @given(text())
-    def test_valid_signature(self, message):
+    def test_valid_signature(self):
+        message = "It's a secret to everybody"
         alice = Account()
 
         signature = alice.sign(message)
@@ -85,8 +83,8 @@ class TestClass(object):
 
         ed25519_verify(signing_key, message, signature)
 
-    @given(text())
-    def test_invalid_signature(self, message):
+    def test_invalid_signature(self):
+        message = "It's a secret to everybody"
         alice = Account()
         bob = Account()
 
@@ -99,8 +97,8 @@ class TestClass(object):
         with pytest.raises(OlmVerifyError):
             ed25519_verify(signing_key, message, signature)
 
-    @given(text())
-    def test_signature_verification_twice(self, message):
+    def test_signature_verification_twice(self):
+        message = "It's a secret to everybody"
         alice = Account()
 
         signature = alice.sign(message)
