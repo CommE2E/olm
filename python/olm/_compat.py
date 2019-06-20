@@ -64,4 +64,4 @@ def to_unicode_str(byte_string, errors="replace"):
 
     Returns the decoded native string.
     """
-    return byte_string.decode(errors=errors)
+    return byte_string.decode(encoding="utf-8", errors=errors)
