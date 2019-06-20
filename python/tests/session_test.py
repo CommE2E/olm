@@ -151,4 +151,4 @@ class TestClass(object):
 
         bob_session = InboundSession(bob, message)
         plaintext = bob_session.decrypt(message)
-        assert plaintext == "�"
+        assert plaintext == u"�"

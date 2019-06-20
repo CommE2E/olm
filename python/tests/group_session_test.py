@@ -125,7 +125,7 @@ class TestClass(object):
         plaintext, _ = inbound.decrypt(text)
 
         print(plaintext)
-        assert plaintext == "�"
+        assert plaintext == u"�"
 
         plaintext, _ = inbound.decrypt(text, "ignore")
         assert plaintext == ""

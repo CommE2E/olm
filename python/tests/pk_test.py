@@ -64,4 +64,4 @@ class TestClass(object):
         encryption = PkEncryption(decryption.public_key)
         message = encryption.encrypt(bytes([0xed]))
         plaintext = decryption.decrypt(message)
-        assert plaintext == "�"
+        assert plaintext == u"�"
