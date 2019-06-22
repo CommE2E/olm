@@ -32,6 +32,7 @@ Examples:
 
 # pylint: disable=redefined-builtin,unused-import
 from typing import AnyStr, Type
+
 from future.utils import bytes_to_native_str
 
 # pylint: disable=no-name-in-module

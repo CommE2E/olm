@@ -43,6 +43,9 @@ test: olm-python2 olm-python3
 	PYTHONPATH=install-temp/3 python3 -m pytest --cov --cov-branch --benchmark-disable
 	rm -rf install-temp
 
+isort:
+	isort -y -p olm
+
 clean:
 	rm -rf python_olm.egg-info/ dist/ __pycache__/
 	rm -rf *.so _libolm.o

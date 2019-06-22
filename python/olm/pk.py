@@ -40,7 +40,7 @@ from future.utils import bytes_to_native_str
 
 from _libolm import ffi, lib  # type: ignore
 
-from ._compat import URANDOM, to_bytearray
+from ._compat import URANDOM, to_bytearray, to_unicode_str
 from ._finalize import track_for_finalization
 
 
@@ -313,8 +313,8 @@ class PkDecryption(object):
 
         return obj
 
-    def decrypt(self, message):
-        # type (PkMessage) -> str
+    def decrypt(self, message, unicode_errors="replace"):
+        # type (PkMessage, str) -> str
         """Decrypt a previously encrypted Pk message.
 
         Returns the decrypted plaintext.
@@ -322,6 +322,13 @@ class PkDecryption(object):
 
         Args:
             message(PkMessage): the pk message to decrypt.
+            unicode_errors(str, optional): The error handling scheme to use for
+                unicode decoding errors. The default is "replace" meaning that
+                the character that was unable to decode will be replaced with
+                the unicode replacement character (U+FFFD). Other possible
+                values are "strict", "ignore" and "xmlcharrefreplace" as well
+                as any other name registered with codecs.register_error that
+                can handle UnicodeEncodeErrors.
         """
         ephemeral_key = to_bytearray(message.ephemeral_key)
         ephemeral_key_size = len(ephemeral_key)
@@ -354,7 +361,7 @@ class PkDecryption(object):
         # clear out copies of the plaintext
         lib.memset(plaintext_buffer, 0, max_plaintext_length)
 
-        return bytes_to_native_str(plaintext)
+        return to_unicode_str(plaintext, errors=unicode_errors)
 
 
 def _clear_pk_signing(pk_struct):

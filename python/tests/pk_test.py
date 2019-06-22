@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pytest
 
 from olm import (PkDecryption, PkDecryptionError, PkEncryption, PkSigning,
@@ -55,3 +56,10 @@ class TestClass(object):
         message = "This statement is true"
         signature = signing.sign(message)
         ed25519_verify(signing.public_key, message, signature)
+
+    def test_invalid_unicode_decrypt(self):
+        decryption = PkDecryption()
+        encryption = PkEncryption(decryption.public_key)
+        message = encryption.encrypt(b"\xed")
+        plaintext = decryption.decrypt(message)
+        assert plaintext == u"�"

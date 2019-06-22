@@ -40,7 +40,7 @@ from future.utils import bytes_to_native_str
 # pylint: disable=no-name-in-module
 from _libolm import ffi, lib  # type: ignore
 
-from ._compat import URANDOM, to_bytearray, to_bytes
+from ._compat import URANDOM, to_bytearray, to_bytes, to_unicode_str
 from ._finalize import track_for_finalization
 
 # This is imported only for type checking purposes
@@ -273,8 +273,8 @@ class Session(object):
         else:  # pragma: no cover
             raise ValueError("Unknown message type")
 
-    def decrypt(self, message):
-        # type: (_OlmMessage) -> str
+    def decrypt(self, message, unicode_errors="replace"):
+        # type: (_OlmMessage, str) -> str
         """Decrypts a message using the session. Returns the plaintext string
         on success. Raises OlmSessionError on failure. If the base64 couldn't
         be decoded then the error message will be "INVALID_BASE64". If the
@@ -285,7 +285,14 @@ class Session(object):
 
         Args:
             message(OlmMessage): The Olm message that will be decrypted. It can
-            be either an OlmPreKeyMessage or an OlmMessage.
+                be either an OlmPreKeyMessage or an OlmMessage.
+            unicode_errors(str, optional): The error handling scheme to use for
+                unicode decoding errors. The default is "replace" meaning that
+                the character that was unable to decode will be replaced with
+                the unicode replacement character (U+FFFD). Other possible
+                values are "strict", "ignore" and "xmlcharrefreplace" as well
+                as any other name registered with codecs.register_error that
+                can handle UnicodeEncodeErrors.
         """
         if not message.ciphertext:
             raise ValueError("Ciphertext can't be empty")
@@ -311,8 +318,10 @@ class Session(object):
             plaintext_buffer, max_plaintext_length
         )
         self._check_error(plaintext_length)
-        plaintext = bytes_to_native_str(
-            ffi.unpack(plaintext_buffer, plaintext_length))
+        plaintext = to_unicode_str(
+            ffi.unpack(plaintext_buffer, plaintext_length),
+            errors=unicode_errors
+        )
 
         # clear out copies of the plaintext
         lib.memset(plaintext_buffer, 0, max_plaintext_length)

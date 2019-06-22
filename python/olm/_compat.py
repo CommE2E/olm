@@ -44,3 +44,24 @@ def to_bytes(string):
         return bytes(string, "utf-8")
 
     raise TypeError("Invalid type {}".format(type(string)))
+
+
+def to_unicode_str(byte_string, errors="replace"):
+    """Turn a byte string into a unicode string.
+
+    Should be used everywhere where the input byte string might not be trusted
+    and may contain invalid unicode values.
+
+    Args:
+        byte_string (bytes): The bytestring that will be converted to a native
+            string.
+        errors (str, optional): The error handling scheme that should be used
+            to handle unicode decode errors. Can be one of "strict" (raise an
+            UnicodeDecodeError exception, "ignore" (remove the offending
+            characters), "replace" (replace the offending character with
+            U+FFFD), "xmlcharrefreplace" as well as any other name registered
+            with codecs.register_error that can handle UnicodeEncodeErrors.
+
+    Returns the decoded native string.
+    """
+    return byte_string.decode(encoding="utf-8", errors=errors)

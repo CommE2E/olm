@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pytest
 
 from olm import InboundGroupSession, OlmGroupSessionError, OutboundGroupSession
@@ -112,3 +113,16 @@ class TestClass(object):
         outbound = OutboundGroupSession()
         inbound = InboundGroupSession(outbound.session_key)
         del inbound
+
+    def test_invalid_unicode_decrypt(self):
+        outbound = OutboundGroupSession()
+        inbound = InboundGroupSession(outbound.session_key)
+
+        text = outbound.encrypt(b"\xed")
+        plaintext, _ = inbound.decrypt(text)
+
+        print(plaintext)
+        assert plaintext == u"�"
+
+        plaintext, _ = inbound.decrypt(text, "ignore")
+        assert plaintext == ""
