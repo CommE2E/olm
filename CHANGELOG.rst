@@ -1,3 +1,9 @@
+Changes in `3.1.3 <https://gitlab.matrix.org/matrix-org/olm/tags/3.1.3>`_
+=========================================================================
+
+This release fixes unicode issues in the Python bindings, and adds some
+clarifications to the documentation.
+
 Changes in `3.1.2 <https://gitlab.matrix.org/matrix-org/olm/tags/3.1.2>`_
 =========================================================================
 
