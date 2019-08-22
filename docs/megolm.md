@@ -69,8 +69,8 @@ R_{i,3} &=
 
 where $`H_0`$, $`H_1`$, $`H_2`$, and $`H_3`$ are different hash
 functions. In summary: every $`2^8`$ iterations, $`R_{i,3}`$ is
-reseeded from $`R_{i,2}`$. Every $`2^16`$ iterations, $`R_{i,2}`$
-and $`R_{i,3}`$ are reseeded from $`R_{i,1}`$. Every $`2^24`$
+reseeded from $`R_{i,2}`$. Every $`2^{16}`$ iterations, $`R_{i,2}`$
+and $`R_{i,3}`$ are reseeded from $`R_{i,1}`$. Every $`2^{24}`$
 iterations, $`R_{i,1}`$, $`R_{i,2}`$ and $`R_{i,3}`$ are reseeded
 from $`R_{i,0}`$.
 
@@ -119,26 +119,27 @@ copy of the counter, ratchet, and public key.
 
 ### Message encryption
 
-This version of Megolm uses AES-256_ in CBC_ mode with [PKCS#7][] padding and
-HMAC-SHA-256_ (truncated to 64 bits). The 256 bit AES key, 256 bit HMAC key,
+This version of Megolm uses [AES-256][] in [CBC][] mode with [PKCS#7][] padding and
+[HMAC-SHA-256][] (truncated to 64 bits). The 256 bit AES key, 256 bit HMAC key,
 and 128 bit AES IV are derived from the megolm ratchet $`R_i`$:
 
 ```math
 \begin{aligned}
-AES\_KEY_{i}\;\parallel\;HMAC\_KEY_{i}\;\parallel\;AES\_IV_{i}
-    &= HKDF\left(0,\,R_{i},\text{"MEGOLM\_KEYS"},\,80\right) \\
+ \mathit{AES\_KEY}_{i}\;\parallel\;\mathit{HMAC\_KEY}_{i}\;\parallel\;\mathit{AES\_IV}_{i}
+    &= \operatorname{HKDF}\left(0,\,R_{i},\text{"MEGOLM\_KEYS"},\,80\right) \\
 \end{aligned}
 ```
 
 where $`\parallel`$ represents string splitting, and
-$`HKDF\left(salt,\,IKM,\,info,\,L\right)`$ refers to the [HMAC-based key
+$`\operatorname{HKDF}\left(\mathit{salt},\,\mathit{IKM},\,\mathit{info},\,L\right)`$
+refers to the [HMAC-based key
 derivation function][] using using [SHA-256][] as the hash function
-([HKDF-SHA-256][]) with a salt value of $`salt`$, input key material of
-$`IKM`$, context string $`info`$, and output keying material length of
+([HKDF-SHA-256][]) with a salt value of $`\mathit{salt}`$, input key material of
+$`\mathit{IKM}`$, context string $`\mathit{info}`$, and output keying material length of
 $`L`$ bytes.
 
-The plain-text is encrypted with AES-256, using the key $`AES\_KEY_{i}`$
-and the IV $`AES\_IV_{i}`$ to give the cipher-text, $`X_{i}`$.
+The plain-text is encrypted with AES-256, using the key $`\mathit{AES\_KEY}_{i}`$
+and the IV $`\mathit{AES\_IV}_{i}`$ to give the cipher-text, $`X_{i}`$.
 
 The ratchet index $`i`$, and the cipher-text $`X_{i}`$, are then packed
 into a message as described in [Message format](#message-format). Then the entire message
@@ -160,14 +161,14 @@ described in [The Megolm ratchet algorithm](#the-megolm-ratchet-algorithm), usin
 
 ```math
 \begin{aligned}
-    H_0(A) &\equiv HMAC(A,\text{"\x00"}) \\
-    H_1(A) &\equiv HMAC(A,\text{"\x01"}) \\
-    H_2(A) &\equiv HMAC(A,\text{"\x02"}) \\
-    H_3(A) &\equiv HMAC(A,\text{"\x03"}) \\
+    H_0(A) &\equiv \operatorname{HMAC}(A,\text{"\x00"}) \\
+    H_1(A) &\equiv \operatorname{HMAC}(A,\text{"\x01"}) \\
+    H_2(A) &\equiv \operatorname{HMAC}(A,\text{"\x02"}) \\
+    H_3(A) &\equiv \operatorname{HMAC}(A,\text{"\x03"}) \\
 \end{aligned}
 ```
 
-where $`HMAC(A, T)`$ is the HMAC-SHA-256 of ``T``, using ``A`` as the
+where $`\operatorname{HMAC}(A, T)`$ is the HMAC-SHA-256 of ``T``, using ``A`` as the
 key.
 
 For outbound sessions, the updated ratchet and counter are stored in the
