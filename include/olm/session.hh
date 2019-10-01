@@ -17,6 +17,8 @@
 
 #include "olm/ratchet.hh"
 
+#define DESCRIBE_BUFFER_LEN 256
+
 namespace olm {
 
 struct Account;
@@ -34,6 +36,8 @@ struct Session {
     OlmErrorCode last_error;
 
     bool received_message;
+
+    char describe_buffer[DESCRIBE_BUFFER_LEN];
 
     _olm_curve25519_public_key alice_identity_key;
     _olm_curve25519_public_key alice_base_key;
@@ -131,6 +135,14 @@ struct Session {
         std::uint8_t const * message, std::size_t message_length,
         std::uint8_t * plaintext, std::size_t max_plaintext_length
     );
+
+    /**
+     * Return a string describing this session and its state (not including the
+     * private key)
+     * The pointer returned refers to an internal buffer which will be valid
+     * up until the next time describe() is called.
+     */
+    const char *describe();
 };
 
 

@@ -459,6 +459,13 @@ Session.prototype['decrypt'] = restore_stack(function(
 
 });
 
+Session.prototype['describe'] = restore_stack(function() {
+    var description_buf = session_method(Module['_olm_session_describe'])(
+        this.ptr
+    );
+    return UTF8ToString(description_buf);
+});
+
 function Utility() {
     var size = Module['_olm_utility_size']();
     this.buf = malloc(size);

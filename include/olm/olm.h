@@ -318,6 +318,8 @@ int olm_session_has_received_message(
     OlmSession *session
 );
 
+const char * olm_session_describe(OlmSession * session);
+
 /** Checks if the PRE_KEY message is for this in-bound session. This can happen
  * if multiple messages are sent to this account before this account sends a
  * message in reply. The one_time_key_message buffer is destroyed. Returns 1 if
