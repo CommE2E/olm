@@ -318,6 +318,12 @@ int olm_session_has_received_message(
     OlmSession *session
 );
 
+/**
+ * Return a string describing the internal state of an olm session,
+ * for debugging and logging purposes. The pointer returned points
+ * to an internal buffer and is valid until the next call to
+ * olm_session_describe on the same olm session object.
+ */
 const char * olm_session_describe(OlmSession * session);
 
 /** Checks if the PRE_KEY message is for this in-bound session. This can happen
