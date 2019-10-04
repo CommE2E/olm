@@ -535,10 +535,10 @@ int olm_session_has_received_message(
     return from_c(session)->received_message;
 }
 
-const char * olm_session_describe(
-    OlmSession * session
+void olm_session_describe(
+    OlmSession * session, char *buf, size_t buflen
 ) {
-    return from_c(session)->describe();
+    from_c(session)->describe(buf, buflen);
 }
 
 size_t olm_matches_inbound_session(
