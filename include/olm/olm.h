@@ -319,8 +319,8 @@ int olm_session_has_received_message(
 );
 
 /**
- * Write a string describing the internal state of an olm session
- * to the buffer provided for debugging and logging purposes.
+ * Write a null-terminated string describing the internal state of an olm
+ * session to the buffer provided for debugging and logging purposes.
  */
 void olm_session_describe(OlmSession * session, char *buf, size_t buflen);
 

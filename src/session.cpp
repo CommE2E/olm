@@ -404,25 +404,32 @@ void olm::Session::describe(char *describe_buffer, size_t buflen) {
     describe_buffer[0] = '\0';
     char *buf_pos = describe_buffer;
 
-    buf_pos += snprintf(
+    int size;
+
+    size = snprintf(
         buf_pos, buflen - (buf_pos - describe_buffer),
         "sender chain index: %d ", ratchet.sender_chain[0].chain_key.index
     );
+    if (size > 0) buf_pos += size;
 
-    buf_pos += snprintf(buf_pos, buflen - (buf_pos - describe_buffer), "receiver chain indcies:");
+    size = snprintf(buf_pos, buflen - (buf_pos - describe_buffer), "receiver chain indices:");
+    if (size > 0) buf_pos += size;
     for (size_t i = 0; i < ratchet.receiver_chains.size(); ++i) {
-        buf_pos += snprintf(
+        size = snprintf(
             buf_pos, buflen - (buf_pos - describe_buffer),
             " %d", ratchet.receiver_chains[i].chain_key.index
         );
+        if (size > 0) buf_pos += size;
     }
 
-    buf_pos += snprintf(buf_pos, buflen - (buf_pos - describe_buffer), " skipped message keys:");
+    size = snprintf(buf_pos, buflen - (buf_pos - describe_buffer), " skipped message keys:");
+    if (size >= 0) buf_pos += size;
     for (size_t i = 0; i < ratchet.skipped_message_keys.size(); ++i) {
-        buf_pos += snprintf(
+        size = snprintf(
             buf_pos, buflen - (buf_pos - describe_buffer),
             " %d", ratchet.skipped_message_keys[i].message_key.index
         );
+        if (size > 0) buf_pos += size;
     }
 }
 
