@@ -318,6 +318,12 @@ int olm_session_has_received_message(
     OlmSession *session
 );
 
+/**
+ * Write a null-terminated string describing the internal state of an olm
+ * session to the buffer provided for debugging and logging purposes.
+ */
+void olm_session_describe(OlmSession * session, char *buf, size_t buflen);
+
 /** Checks if the PRE_KEY message is for this in-bound session. This can happen
  * if multiple messages are sent to this account before this account sends a
  * message in reply. The one_time_key_message buffer is destroyed. Returns 1 if

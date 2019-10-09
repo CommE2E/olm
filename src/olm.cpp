@@ -535,6 +535,12 @@ int olm_session_has_received_message(
     return from_c(session)->received_message;
 }
 
+void olm_session_describe(
+    OlmSession * session, char *buf, size_t buflen
+) {
+    from_c(session)->describe(buf, buflen);
+}
+
 size_t olm_matches_inbound_session(
     OlmSession * session,
     void * one_time_key_message, size_t message_length

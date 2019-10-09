@@ -131,6 +131,14 @@ struct Session {
         std::uint8_t const * message, std::size_t message_length,
         std::uint8_t * plaintext, std::size_t max_plaintext_length
     );
+
+    /**
+     * Write a string describing this session and its state (not including the
+     * private key) into the buffer provided.
+     *
+     * Takes a buffer to write to and the length of that buffer
+     */
+    void describe(char *buf, size_t buflen);
 };
 
 
