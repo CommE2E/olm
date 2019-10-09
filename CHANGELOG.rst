@@ -1,3 +1,15 @@
+Changes in `3.1.4 <https://gitlab.matrix.org/matrix-org/olm/tags/3.1.4>`_
+=========================================================================
+
+This release includes the following changes since 3.1.4:
+
+* Build improvements:
+  * Install headers in the system-configured include directory with CMake.
+  * Overwrite symbolic links when installing with make.
+  * Improve compatibility with more emscripten versions.
+* Don't use hypothesis in Python unit tests.
+* Some documentation improvements.
+
 Changes in `3.1.3 <https://gitlab.matrix.org/matrix-org/olm/tags/3.1.3>`_
 =========================================================================
 
