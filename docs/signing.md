@@ -49,13 +49,14 @@ compromised keys, and sends a pre-key message using a shared secret $`S`$,
 where:
 
 ```math
-S = ECDH\left(I_A,\,E_E\right)\;\parallel\;ECDH\left(E_A,\,I_B\right)\;
-        \parallel\;ECDH\left(E_A,\,E_E\right)
+S = ECDH\left(I_A,E_E\right)\;\parallel\;
+    ECDH\left(E_A,I_B\right)\;\parallel\;
+    ECDH\left(E_A,E_E\right)
 ```
 
 Eve cannot decrypt the message because she does not have the private parts of
 either $`E_A`$ nor $`I_B`$, so cannot calculate
-$`ECDH\left(E_A,\,I_B\right)`$. However, suppose she later compromises
+$`ECDH\left(E_A,I_B\right)`$. However, suppose she later compromises
 Bob's identity key $`I_B`$. This would give her the ability to decrypt any
 pre-key messages sent to Bob using the compromised one-time keys, and is thus a
 problematic loss of forward secrecy. If Bob signs his keys with his Ed25519
@@ -66,8 +67,9 @@ On the other hand, signing the one-time keys leads to a reduction in
 deniability. Recall that the shared secret is calculated as follows:
 
 ```math
-S = ECDH\left(I_A,\,E_B\right)\;\parallel\;ECDH\left(E_A,\,I_B\right)\;
-    \parallel\;ECDH\left(E_A,\,E_B\right)
+S = ECDH\left(I_A,E_B\right)\;\parallel\;
+    ECDH\left(E_A,I_B\right)\;\parallel\;
+    ECDH\left(E_A,E_B\right)
 ```
 
 If keys are unsigned, a forger can make up values of $`E_A`$ and
