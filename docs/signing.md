@@ -49,9 +49,9 @@ compromised keys, and sends a pre-key message using a shared secret $`S`$,
 where:
 
 ```math
-S = ECDH\left(I_A,E_E\right)\;\parallel\;
-    ECDH\left(E_A,I_B\right)\;\parallel\;
-    ECDH\left(E_A,E_E\right)
+S = \operatorname{ECDH}\left(I_A,E_E\right)\;\parallel\;
+    \operatorname{ECDH}\left(E_A,I_B\right)\;\parallel\;
+    \operatorname{ECDH}\left(E_A,E_E\right)
 ```
 
 Eve cannot decrypt the message because she does not have the private parts of
@@ -67,9 +67,9 @@ On the other hand, signing the one-time keys leads to a reduction in
 deniability. Recall that the shared secret is calculated as follows:
 
 ```math
-S = ECDH\left(I_A,E_B\right)\;\parallel\;
-    ECDH\left(E_A,I_B\right)\;\parallel\;
-    ECDH\left(E_A,E_B\right)
+S = \operatorname{ECDH}\left(I_A,E_B\right)\;\parallel\;
+    \operatorname{ECDH}\left(E_A,I_B\right)\;\parallel\;
+    \operatorname{ECDH}\left(E_A,E_B\right)
 ```
 
 If keys are unsigned, a forger can make up values of $`E_A`$ and
@@ -82,7 +82,7 @@ a conversation between the two of them, rather than constructed by a forger.
 If $`E_B`$ is signed, it is no longer possible to construct arbitrary
 transcripts. Given a transcript and Alice and Bob's identity keys, we can now
 show that at least one of Alice or Bob was involved in the conversation,
-because the ability to calculate $`ECDH\left(I_A,\,E_B\right)`$ requires
+because the ability to calculate $`\operatorname{ECDH}\left(I_A,E_B\right)`$ requires
 knowledge of the private parts of either $`I_A`$ (proving Alice's
 involvement) or $`E_B`$ (proving Bob's involvement, via the
 signature). Note that it remains impossible to show that *both* Alice and Bob
