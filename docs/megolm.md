@@ -161,10 +161,10 @@ described in [The Megolm ratchet algorithm](#the-megolm-ratchet-algorithm), usin
 
 ```math
 \begin{aligned}
-    H_0(A) &\equiv \operatorname{HMAC}(A,\text{"\x00"}) \\
-    H_1(A) &\equiv \operatorname{HMAC}(A,\text{"\x01"}) \\
-    H_2(A) &\equiv \operatorname{HMAC}(A,\text{"\x02"}) \\
-    H_3(A) &\equiv \operatorname{HMAC}(A,\text{"\x03"}) \\
+    H_0(A) &\equiv \operatorname{HMAC}(A,\text{``\char`\\x00"}) \\
+    H_1(A) &\equiv \operatorname{HMAC}(A,\text{``\char`\\x01"}) \\
+    H_2(A) &\equiv \operatorname{HMAC}(A,\text{``\char`\\x02"}) \\
+    H_3(A) &\equiv \operatorname{HMAC}(A,\text{``\char`\\x03"}) \\
 \end{aligned}
 ```
 
