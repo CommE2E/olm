@@ -10,13 +10,13 @@ $`\parallel`$ appears on the right hand side of an $`=`$ it means that
 the inputs are concatenated. When $`\parallel`$ appears on the left hand
 side of an $`=`$ it means that the output is split.
 
-When this document uses $`ECDH\left(K_A,\,K_B\right)`$ it means that each
-party computes a Diffie-Hellman agreement using their private key and the
-remote party's public key.
-So party $`A`$ computes $`ECDH\left(K_B^{public},\,K_A^{private}\right)`$
-and party $`B`$ computes $`ECDH\left(K_A^{public},\,K_B^{private}\right)`$.
+When this document uses $`\operatorname{ECDH}\left(K_A,K_B\right)`$ it means
+that each party computes a Diffie-Hellman agreement using their private key 
+and the remote party's public key.
+So party $`A`$ computes $`\operatorname{ECDH}\left(K_B^{public},K_A^{private}\right)`$
+and party $`B`$ computes $`\operatorname{ECDH}\left(K_A^{public},K_B^{private}\right)`$.
 
-Where this document uses $`HKDF\left(salt,\,IKM,\,info,\,L\right)`$ it
+Where this document uses $`\operatorname{HKDF}\left(salt,IKM,info,L\right)`$ it
 refers to the [HMAC-based key derivation function][] with a salt value of
 $`salt`$, input key material of $`IKM`$, context string $`info`$,
 and output keying material length of $`L`$ bytes.
@@ -35,10 +35,12 @@ HMAC-based Key Derivation Function using [SHA-256][] as the hash function
 
 ```math
 \begin{aligned}
-    S&=ECDH\left(I_A,\,E_B\right)\;\parallel\;ECDH\left(E_A,\,I_B\right)\;
-        \parallel\;ECDH\left(E_A,\,E_B\right)\\
+    S&=\operatorname{ECDH}\left(I_A,E_B\right)\;\parallel\;
+       \operatorname{ECDH}\left(E_A,I_B\right)\;\parallel\;
+       \operatorname{ECDH}\left(E_A,E_B\right)\\
+
     R_0\;\parallel\;C_{0,0}&=
-            HKDF\left(0,\,S,\,\text{"OLM\_ROOT"},\,64\right)
+        \operatorname{HKDF}\left(0,S,\text{``OLM\_ROOT"},64\right)
 \end{aligned}
 ```
 
@@ -55,12 +57,13 @@ info.
 
 ```math
 \begin{aligned}
-    R_i\;\parallel\;C_{i,0}&=HKDF\left(
-        R_{i-1},\,
-        ECDH\left(T_{i-1},\,T_i\right),\,
-        \text{"OLM\_RATCHET"},\,
-        64
-    \right)
+    R_i\;\parallel\;C_{i,0}&=
+        \operatorname{HKDF}\left(
+            R_{i-1},
+            \operatorname{ECDH}\left(T_{i-1},T_i\right),
+            \text{``OLM\_RATCHET"},
+            64
+        \right)
 \end{aligned}
 ```
 
@@ -72,7 +75,7 @@ previous chain key as the key.
 
 ```math
 \begin{aligned}
-    C_{i,j}&=HMAC\left(C_{i,j-1},\,\text{"\x02"}\right)
+    C_{i,j}&=\operatorname{HMAC}\left(C_{i,j-1},\text{``\char`\\x02"}\right)
 \end{aligned}
 ```
 
@@ -86,7 +89,7 @@ by Bob to encrypt messages.
 
 ```math
 \begin{aligned}
-    M_{i,j}&=HMAC\left(C_{i,j},\,\text{"\x01"}\right)
+    M_{i,j}&=\operatorname{HMAC}\left(C_{i,j},\text{``\char`\\x01"}\right)
 \end{aligned}
 ```
 
@@ -263,7 +266,7 @@ message key using [HKDF-SHA-256][] using the default salt and an info of
 ```math
 \begin{aligned}
     AES\_KEY_{i,j}\;\parallel\;HMAC\_KEY_{i,j}\;\parallel\;AES\_IV_{i,j}
-    &= HKDF\left(0,\,M_{i,j},\text{"OLM\_KEYS"},\,80\right) \\
+    &= \operatorname{HKDF}\left(0,M_{i,j},\text{``OLM\_KEYS"},80\right)
 \end{aligned}
 ```
 
