@@ -59,6 +59,31 @@ declare class Utility {
     ed25519verify(key: string, message: string, signature: string): void;
 }
 
+declare class InboundGroupSession {
+    constructor();
+    free(): void;
+    pickle(key: string): string;
+    unpickle(key: string, pickle: string): string;
+    create(session_key: string): string;
+    import_session(session_key: string): string;
+    decrypt(message: string): object;
+    session_id(): string;
+    first_known_index(): number;
+    export_session(message_index: number): string;
+}
+
+declare class OutboundGroupSession {
+    constructor();
+    free(): void;
+    pickle(key: string): string;
+    unpickle(key: string): string;
+    create(): void;
+    encrypt(plaintext: string): string;
+    session_id(): string;
+    session_key(): string;
+    message_index(): number;
+}
+
 declare class PkEncryption {
     constructor();
     free(): void;
