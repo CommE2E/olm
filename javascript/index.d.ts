@@ -99,6 +99,7 @@ declare class PkDecryption {
     get_private_key(): Uint8Array;
     pickle(key: string): string;
     unpickle(key: string, pickle: string): string;
+    decrypt(ephemeral_key: string, mac: string, ciphertext: string): string;
 }
 
 declare class PkSigning {
@@ -107,6 +108,16 @@ declare class PkSigning {
     init_with_seed(seed: Uint8Array): string;
     generate_seed(): Uint8Array;
     sign(message: string): string;
+}
+
+declare class SAS {
+    constructor();
+    free(): void;
+    get_pubkey(): string;
+    set_their_key(their_key: string): void;
+    generate_bytes(info: string, length: number): Uint8Array;
+    calculate_mac(input: string, info: string): string;
+    calculate_mac_long_kdf(input: string, info: string): string;
 }
 
 export function init(): Promise<void>;
