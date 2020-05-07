@@ -63,7 +63,7 @@ declare class InboundGroupSession {
     constructor();
     free(): void;
     pickle(key: string): string;
-    unpickle(key: string, pickle: string): string;
+    unpickle(key: string, pickle: string);
     create(session_key: string): string;
     import_session(session_key: string): string;
     decrypt(message: string): object;
@@ -76,7 +76,7 @@ declare class OutboundGroupSession {
     constructor();
     free(): void;
     pickle(key: string): string;
-    unpickle(key: string): string;
+    unpickle(key: string, pickle: string);
     create(): void;
     encrypt(plaintext: string): string;
     session_id(): string;
