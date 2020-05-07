@@ -10,6 +10,7 @@ JS_OPTIMIZE_FLAGS ?= -O3
 FUZZING_OPTIMIZE_FLAGS ?= -O3
 CC = gcc
 EMCC = emcc
+EMAR = emar
 AFL_CC = afl-gcc
 AFL_CXX = afl-g++
 AR = ar
@@ -29,6 +30,7 @@ STATIC_RELEASE_TARGET := $(BUILD_DIR)/libolm.a
 DEBUG_TARGET := $(BUILD_DIR)/libolm_debug.$(SO).$(VERSION)
 JS_WASM_TARGET := javascript/olm.js
 JS_ASMJS_TARGET := javascript/olm_legacy.js
+WASM_TARGET := $(BUILD_DIR)/wasm/libolm.a
 
 JS_EXPORTED_FUNCTIONS := javascript/exported_functions.json
 JS_EXTRA_EXPORTED_RUNTIME_METHODS := ALLOC_STACK
@@ -52,6 +54,7 @@ FUZZER_BINARIES := $(addprefix $(BUILD_DIR)/,$(basename $(FUZZER_SOURCES)))
 FUZZER_DEBUG_BINARIES := $(patsubst $(BUILD_DIR)/fuzzers/fuzz_%,$(BUILD_DIR)/fuzzers/debug_%,$(FUZZER_BINARIES))
 TEST_BINARIES := $(patsubst tests/%,$(BUILD_DIR)/tests/%,$(basename $(TEST_SOURCES)))
 JS_OBJECTS := $(addprefix $(BUILD_DIR)/javascript/,$(OBJECTS))
+WASM_OBJECTS := $(addprefix $(BUILD_DIR)/wasm/,$(OBJECTS))
 
 # pre & post are the js-pre/js-post options to emcc.
 # They are injected inside the modularised code and
@@ -182,6 +185,12 @@ $(STATIC_RELEASE_TARGET): $(RELEASE_OBJECTS)
 js: $(JS_WASM_TARGET) $(JS_ASMJS_TARGET)
 .PHONY: js
 
+wasm: $(WASM_TARGET)
+.PHONY: wasm
+
+$(WASM_TARGET): $(WASM_OBJECTS)
+	$(EMAR) rcs $@ $^
+
 # Note that the output file we give to emcc determines the name of the
 # wasm file baked into the js, hence messing around outputting to olm.js
 # and then renaming it.
@@ -275,6 +284,14 @@ $(BUILD_DIR)/javascript/%.o: %.c
 	$(EMCC.c) $(OUTPUT_OPTION) $<
 
 $(BUILD_DIR)/javascript/%.o: %.cpp
+	$(call mkdir,$(dir $@))
+	$(EMCC.cc) $(OUTPUT_OPTION) $<
+
+$(BUILD_DIR)/wasm/%.o: %.c
+	$(call mkdir,$(dir $@))
+	$(EMCC.c) $(OUTPUT_OPTION) $<
+
+$(BUILD_DIR)/wasm/%.o: %.cpp
 	$(call mkdir,$(dir $@))
 	$(EMCC.cc) $(OUTPUT_OPTION) $<
 
