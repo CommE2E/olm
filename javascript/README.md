@@ -1,6 +1,9 @@
 Olm
 ===
 
+Note: before using any of the olm functions, you must call `Olm.init()`, and
+wait for the promise to resolve.
+
 Example:
 
     var alice = new Olm.Account();
