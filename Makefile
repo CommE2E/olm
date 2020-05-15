@@ -238,19 +238,19 @@ all: test js lib debug doc
 
 install-headers: $(PUBLIC_HEADERS)
 	test -d $(DESTDIR)$(PREFIX)/include/olm || $(call mkdir,$(DESTDIR)$(PREFIX)/include/olm)
-	install -Dm644 $(PUBLIC_HEADERS) $(DESTDIR)$(PREFIX)/include/olm/
+	install $(PUBLIC_HEADERS) $(DESTDIR)$(PREFIX)/include/olm/
 .PHONY: install-headers
 
 install-debug: debug install-headers
 	test -d $(DESTDIR)$(PREFIX)/lib || $(call mkdir,$(DESTDIR)$(PREFIX)/lib)
-	install -Dm755 $(DEBUG_TARGET) $(DESTDIR)$(PREFIX)/lib/libolm_debug.$(SO).$(VERSION)
+	install $(DEBUG_TARGET) $(DESTDIR)$(PREFIX)/lib/libolm_debug.$(SO).$(VERSION)
 	ln -sf libolm_debug.$(SO).$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm_debug.$(SO).$(MAJOR)
 	ln -sf libolm_debug.$(SO).$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm_debug.$(SO)
 .PHONY: install-debug
 
 install: lib install-headers
 	test -d $(DESTDIR)$(PREFIX)/lib || $(call mkdir,$(DESTDIR)$(PREFIX)/lib)
-	install -Dm755 $(RELEASE_TARGET) $(DESTDIR)$(PREFIX)/lib/libolm.$(SO).$(VERSION)
+	install $(RELEASE_TARGET) $(DESTDIR)$(PREFIX)/lib/libolm.$(SO).$(VERSION)
 	ln -sf libolm.$(SO).$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm.$(SO).$(MAJOR)
 	ln -sf libolm.$(SO).$(VERSION) $(DESTDIR)$(PREFIX)/lib/libolm.$(SO)
 .PHONY: install
