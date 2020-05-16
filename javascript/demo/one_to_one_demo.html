@@ -2,7 +2,13 @@
 <head>
 <script src="../olm.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function (event) {
+document.addEventListener("DOMContentLoaded", function() {
+    Olm.init().then(function() {
+        demo();
+    });
+}, false);
+
+function demo() {
     function progress(who, message) {
         var message_element = document.createElement("pre");
         var progress = document.getElementById(who + "_progress");
@@ -109,7 +115,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
         glue_encrypt("bob", "alice", b_session);
         glue_decrypt("alice", a_session);
     });
- }, false);
+}
 
 </script>
 <body>
