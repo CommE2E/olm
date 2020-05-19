@@ -201,7 +201,7 @@ $(JS_WASM_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS) $
                $(foreach f,$(JS_POST),--post-js $(f)) \
                -s "EXPORTED_FUNCTIONS=@$(JS_EXPORTED_FUNCTIONS)" \
                -s "EXTRA_EXPORTED_RUNTIME_METHODS=$(JS_EXTRA_EXPORTED_RUNTIME_METHODS)" \
-               $(JS_OBJECTS) -o $@
+               -o $@ $(JS_OBJECTS)
 	       mv $@ javascript/olmtmp.js
 	       cat $(JS_PREFIX) javascript/olmtmp.js $(JS_SUFFIX) > $@
 	       rm javascript/olmtmp.js
@@ -213,7 +213,7 @@ $(JS_ASMJS_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS) 
                $(foreach f,$(JS_POST),--post-js $(f)) \
                -s "EXPORTED_FUNCTIONS=@$(JS_EXPORTED_FUNCTIONS)" \
                -s "EXTRA_EXPORTED_RUNTIME_METHODS=$(JS_EXTRA_EXPORTED_RUNTIME_METHODS)" \
-               $(JS_OBJECTS) -o $@
+               -o $@ $(JS_OBJECTS)
 	       mv $@ javascript/olmtmp.js
 	       cat $(JS_PREFIX) javascript/olmtmp.js $(JS_SUFFIX) > $@
 	       rm javascript/olmtmp.js
@@ -297,11 +297,11 @@ $(BUILD_DIR)/wasm/%.o: %.cpp
 
 $(BUILD_DIR)/tests/%: tests/%.c $(DEBUG_OBJECTS)
 	$(call mkdir,$(dir $@))
-	$(LINK.c) $< $(DEBUG_OBJECTS) $(LOADLIBES) $(LDLIBS) -o $@
+	$(LINK.c) -o $@ $< $(DEBUG_OBJECTS) $(LOADLIBES) $(LDLIBS)
 
 $(BUILD_DIR)/tests/%: tests/%.cpp $(DEBUG_OBJECTS)
 	$(call mkdir,$(dir $@))
-	$(LINK.cc) $< $(DEBUG_OBJECTS) $(LOADLIBES) $(LDLIBS) -o $@
+	$(LINK.cc) -o $@ $< $(DEBUG_OBJECTS) $(LOADLIBES) $(LDLIBS)
 
 $(BUILD_DIR)/fuzzers/objects/%.o: %.c
 	$(call mkdir,$(dir $@))
@@ -312,16 +312,16 @@ $(BUILD_DIR)/fuzzers/objects/%.o: %.cpp
 	$(AFL.cc) $(OUTPUT_OPTION) $<
 
 $(BUILD_DIR)/fuzzers/fuzz_%: fuzzers/fuzz_%.c $(FUZZER_OBJECTS)
-	$(AFL_LINK.c) $< $(FUZZER_OBJECTS) $(LOADLIBES) $(LDLIBS) -o $@
+	$(AFL_LINK.c) -o $@ $< $(FUZZER_OBJECTS) $(LOADLIBES) $(LDLIBS)
 
 $(BUILD_DIR)/fuzzers/fuzz_%: fuzzers/fuzz_%.cpp $(FUZZER_OBJECTS)
-	$(AFL_LINK.cc) $< $(FUZZER_OBJECTS) $(LOADLIBES) $(LDLIBS) -o $@
+	$(AFL_LINK.cc) -o $@ $< $(FUZZER_OBJECTS) $(LOADLIBES) $(LDLIBS)
 
 $(BUILD_DIR)/fuzzers/debug_%: fuzzers/fuzz_%.c $(DEBUG_OBJECTS)
-	$(LINK.c) $< $(DEBUG_OBJECTS) $(LOADLIBES) $(LDLIBS) -o $@
+	$(LINK.c) -o $@ $< $(DEBUG_OBJECTS) $(LOADLIBES) $(LDLIBS)
 
 $(BUILD_DIR)/fuzzers/debug_%: fuzzers/fuzz_%.cpp $(DEBUG_OBJECTS)
-	$(LINK.cc) $< $(DEBUG_OBJECTS) $(LOADLIBES) $(LDLIBS) -o $@
+	$(LINK.cc) -o $@ $< $(DEBUG_OBJECTS) $(LOADLIBES) $(LDLIBS)
 
 %.html: %.rst
 	rst2html $< $@
