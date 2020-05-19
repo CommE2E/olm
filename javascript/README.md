@@ -2,7 +2,8 @@ Olm
 ===
 
 Note: before using any of the olm functions, you must call `Olm.init()`, and
-wait for the promise to resolve.
+wait for the promise to resolve, otherwise you will get errors like:
+`Uncaught TypeError: Olm.Account is not a constructor`
 
 Example:
 

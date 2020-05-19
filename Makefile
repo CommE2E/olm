@@ -33,7 +33,7 @@ JS_ASMJS_TARGET := javascript/olm_legacy.js
 WASM_TARGET := $(BUILD_DIR)/wasm/libolm.a
 
 JS_EXPORTED_FUNCTIONS := javascript/exported_functions.json
-JS_EXTRA_EXPORTED_RUNTIME_METHODS := ALLOC_STACK
+JS_EXTRA_EXPORTED_RUNTIME_METHODS := [ALLOC_STACK]
 JS_EXTERNS := javascript/externs.js
 
 PUBLIC_HEADERS := include/olm/olm.h include/olm/outbound_group_session.h include/olm/inbound_group_session.h include/olm/pk.h include/olm/sas.h

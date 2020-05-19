@@ -489,4 +489,8 @@ function startDemo() {
 }
 
 
-document.addEventListener("DOMContentLoaded", startDemo, false);
+document.addEventListener("DOMContentLoaded", function() {
+    Olm.init().then(function() {
+        startDemo();
+    });
+}, false);
