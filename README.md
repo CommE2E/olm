@@ -95,6 +95,24 @@ find_package(Olm::Olm REQUIRED)
 target_link_libraries(my_exe Olm::Olm)
 ```
 
+## Bindings
+
+libolm can be used in different environments using bindings. In addition to the
+JavaScript, Python, Java (Android), and Objective-C bindings included in this
+repository, some bindings are (in alphabetical order):
+
+- [dart-olm](https://gitlab.com/famedly/libraries/dart-olm) (AGPLv3) Dart bindings
+- [Dhole/go-olm](https://github.com/Dhole/go-olm) (Apache-2.0) Go bindings
+- [libQtOlm](https://gitlab.com/b0/libqtolm/) (GPLv3) Qt bindings
+- [matrix-kt](https://github.com/Dominaezzz/matrix-kt) (Apache-2.0) Kotlin
+  library for Matrix, including Olm methods
+- [maunium.net/go/mautrix/crypto/olm](https://github.com/tulir/mautrix-go/tree/master/crypto/olm)
+  (Apache-2.0) fork of Dhole/go-olm
+- [olm-sys](https://gitlab.gnome.org/BrainBlasted/olm-sys) (Apache-2.0) Rust
+  bindings
+
+Note that bindings may have a different license from libolm.
+
 ## Release process
 
 First: bump version numbers in ``common.mk``, ``CMakeLists.txt``,
