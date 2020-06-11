@@ -134,11 +134,11 @@ make test
 
 # build and test JS wrapper
 make js
-(cd javascript && npm run test)
-npm pack javascript
+(cd javascript && npm run test && npm pack javascript)
 
 VERSION=x.y.z
-scp olm-$VERSION.tgz packages@ares.matrix.org:packages/npm/olm/
+gpg -b -a -u F75FDC22C1DE8453 javascript/olm-$VERSION.tgz
+scp javascript/olm-$VERSION.tgz packages@ares.matrix.org:packages/npm/olm/
 git tag $VERSION -s
 git push --tags
 
