@@ -1,7 +1,22 @@
-Changes in `3.1.4 <https://gitlab.matrix.org/matrix-org/olm/tags/3.1.4>`_
+Changes in `3.1.5 <https://gitlab.matrix.org/matrix-org/olm/tags/3.1.5>`_
 =========================================================================
 
 This release includes the following changes since 3.1.4:
+
+* Build improvements:
+  * Fix CMake handling when installing in a non-standard location. Thanks to
+    Alexey Rusakov.
+  * Add support in the Makefile for creating a WASM-ready archive. Thanks to
+    stoically.
+  * Improve support for LLVM is Makefile. Thanks to caywin25 for reporting.
+* Add a TypeScript definition file.
+* Some documentation and example fixes.
+* Add list of bindings to the README.
+
+Changes in `3.1.4 <https://gitlab.matrix.org/matrix-org/olm/tags/3.1.4>`_
+=========================================================================
+
+This release includes the following changes since 3.1.3:
 
 * Build improvements:
   * Install headers in the system-configured include directory with CMake.
