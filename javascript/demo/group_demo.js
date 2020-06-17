@@ -167,20 +167,13 @@ DemoUser.prototype.getIdKeys = function() {
     return JSON.parse(this.olmAccount.identity_keys());
 };
 
-DemoUser.prototype.generateKeys = function(callback) {
-    var self = this;
-    this.addTask("generate one time key", function(done) {
-        self.olmAccount.generate_one_time_keys(1);
-        done();
-    }, callback);
-};
-
 DemoUser.prototype.getOneTimeKey = function() {
     var self = this;
-    var keys = JSON.parse(self.olmAccount.one_time_keys())
-        .curve25519;
+    self.olmAccount.generate_one_time_keys(1);
+    var keys = JSON.parse(self.olmAccount.one_time_keys()).curve25519;
     for (key_id in keys) {
         if (keys.hasOwnProperty(key_id)) {
+            self.olmAccount.mark_keys_as_published();
             return keys[key_id];
         }
     }
@@ -478,14 +471,31 @@ function initUserDiv(demoUser, div) {
 function startDemo() {
     var user1 = new DemoUser();
     initUserDiv(user1, document.getElementById("user1"));
-    user1.generateKeys();
 
     var user2 = new DemoUser();
     initUserDiv(user2, document.getElementById("user2"));
-    user2.generateKeys();
+
+    var user3 = new DemoUser();
+    initUserDiv(user3, document.getElementById("user3"));
+
+    var user4 = new DemoUser();
+    initUserDiv(user4, document.getElementById("user4"));
 
     user1.addPeer(user2.remoteOps);
+    user1.addPeer(user3.remoteOps);
+    user1.addPeer(user4.remoteOps);
+
     user2.addPeer(user1.remoteOps);
+    user2.addPeer(user3.remoteOps);
+    user2.addPeer(user4.remoteOps);
+
+    user3.addPeer(user1.remoteOps);
+    user3.addPeer(user2.remoteOps);
+    user3.addPeer(user4.remoteOps);
+
+    user4.addPeer(user1.remoteOps);
+    user4.addPeer(user2.remoteOps);
+    user4.addPeer(user3.remoteOps);
 }
 
 
