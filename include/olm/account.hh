@@ -43,6 +43,8 @@ struct Account {
     Account();
     IdentityKeys identity_keys;
     List<OneTimeKey, MAX_ONE_TIME_KEYS> one_time_keys;
+    OneTimeKey current_fallback_key;
+    OneTimeKey prev_fallback_key;
     std::uint32_t next_one_time_key_id;
     OlmErrorCode last_error;
 
@@ -124,6 +126,36 @@ struct Account {
     std::size_t generate_one_time_keys(
         std::size_t number_of_keys,
         std::uint8_t const * random, std::size_t random_length
+    );
+
+    /** The number of random bytes needed to generate a fallback key. */
+    std::size_t generate_fallback_key_random_length(
+    );
+
+    /** Generates a new fallback key. Returns std::size_t(-1) on error. If the
+     * number of random bytes is too small then last_error will be
+     * NOT_ENOUGH_RANDOM */
+    std::size_t generate_fallback_key(
+        std::uint8_t const * random, std::size_t random_length
+    );
+
+    /** Number of bytes needed to output the one time keys for this account */
+    std::size_t get_fallback_key_json_length();
+
+    /** Output the fallback key as JSON:
+     *
+     *  {"curve25519":
+     *  ["<6 byte key id>":"<43 base64 characters>"
+     *  ,"<6 byte key id>":"<43 base64 characters>"
+     *  ...
+     *  ]
+     *  }
+     *
+     * Returns the size of the JSON written or std::size_t(-1) on error.
+     * If the buffer is too small last_error will be OUTPUT_BUFFER_TOO_SMALL.
+     */
+    std::size_t get_fallback_key_json(
+        std::uint8_t * fallback_json, std::size_t fallback_json_length
     );
 
     /** Lookup a one time key with the given public key */
