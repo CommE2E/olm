@@ -21,7 +21,7 @@ declare class Account {
     free();
     create();
     identity_keys(): string;
-    sign(message: string): string;
+    sign(message: string | Uint8Array): string;
     one_time_keys(): string;
     mark_keys_as_published();
     max_number_of_one_time_keys(): number;
@@ -36,8 +36,8 @@ declare class Account {
 declare class Session {
     constructor();
     free(): void;
-    pickle(key: string): string;
-    unpickle(key: string, pickle: string);
+    pickle(key: string | Uint8Array): string;
+    unpickle(key: string | Uint8Array, pickle: string);
     create_outbound(
         account: Account, their_identity_key: string, their_one_time_key: string,
     ): void;
@@ -57,8 +57,8 @@ declare class Session {
 declare class Utility {
     constructor();
     free(): void;
-    sha256(input: string): string;
-    ed25519verify(key: string, message: string, signature: string): void;
+    sha256(input: string | Uint8Array): string;
+    ed25519_verify(key: string, message: string | Uint8Array, signature: string): void;
 }
 
 declare class InboundGroupSession {
@@ -99,8 +99,8 @@ declare class PkDecryption {
     init_with_private_key(key: Uint8Array): string;
     generate_key(): string;
     get_private_key(): Uint8Array;
-    pickle(key: string): string;
-    unpickle(key: string, pickle: string): string;
+    pickle(key: string | Uint8Array): string;
+    unpickle(key: string | Uint8Array, pickle: string): string;
     decrypt(ephemeral_key: string, mac: string, ciphertext: string): string;
 }
 
@@ -122,6 +122,6 @@ declare class SAS {
     calculate_mac_long_kdf(input: string, info: string): string;
 }
 
-export function init(): Promise<void>;
+export function init(opts?: object): Promise<void>;
 
 export function get_library_version(): [number, number, number];

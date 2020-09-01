@@ -11,7 +11,7 @@ function stack(size_or_array) {
 }
 
 function array_from_string(string) {
-    return intArrayFromString(string, true);
+    return string instanceof Uint8Array ? string : intArrayFromString(string, true);
 }
 
 function random_stack(size) {
