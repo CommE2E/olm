@@ -129,8 +129,7 @@ struct Account {
     );
 
     /** The number of random bytes needed to generate a fallback key. */
-    std::size_t generate_fallback_key_random_length(
-    );
+    std::size_t generate_fallback_key_random_length();
 
     /** Generates a new fallback key. Returns std::size_t(-1) on error. If the
      * number of random bytes is too small then last_error will be

@@ -38,11 +38,17 @@ olm::OneTimeKey const * olm::Account::lookup_key(
         }
     }
     if (current_fallback_key.published
-        && olm::array_equal(current_fallback_key.key.public_key.public_key, public_key.public_key)) {
+            && olm::array_equal(
+                current_fallback_key.key.public_key.public_key, public_key.public_key
+            )
+    ) {
         return &current_fallback_key;
     }
     if (prev_fallback_key.published
-        && olm::array_equal(prev_fallback_key.key.public_key.public_key, public_key.public_key)) {
+            && olm::array_equal(
+                prev_fallback_key.key.public_key.public_key, public_key.public_key
+            )
+    ) {
         return &prev_fallback_key;
     }
     return 0;
@@ -62,11 +68,17 @@ std::size_t olm::Account::remove_key(
     // check if the key is a fallback key, to avoid returning an error, but
     // don't actually remove it
     if (current_fallback_key.published
-        && olm::array_equal(current_fallback_key.key.public_key.public_key, public_key.public_key)) {
+            && olm::array_equal(
+                current_fallback_key.key.public_key.public_key, public_key.public_key
+            )
+    ) {
         return current_fallback_key.id;
     }
     if (prev_fallback_key.published
-        && olm::array_equal(prev_fallback_key.key.public_key.public_key, public_key.public_key)) {
+            && olm::array_equal(
+                prev_fallback_key.key.public_key.public_key, public_key.public_key
+            )
+    ) {
         return prev_fallback_key.id;
     }
     return std::size_t(-1);
