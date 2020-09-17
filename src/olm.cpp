@@ -417,6 +417,42 @@ size_t olm_account_generate_one_time_keys(
 }
 
 
+size_t olm_account_generate_fallback_key_random_length(
+    OlmAccount * account
+) {
+    return from_c(account)->generate_fallback_key_random_length();
+}
+
+
+size_t olm_account_generate_fallback_key(
+    OlmAccount * account,
+    void * random, size_t random_length
+) {
+    size_t result = from_c(account)->generate_fallback_key(
+        from_c(random), random_length
+    );
+    olm::unset(random, random_length);
+    return result;
+}
+
+
+size_t olm_account_fallback_key_length(
+    OlmAccount * account
+) {
+    return from_c(account)->get_fallback_key_json_length();
+}
+
+
+size_t olm_account_fallback_key(
+    OlmAccount * account,
+    void * fallback_key_json, size_t fallback_key_json_length
+) {
+    return from_c(account)->get_fallback_key_json(
+        from_c(fallback_key_json), fallback_key_json_length
+    );
+}
+
+
 size_t olm_create_outbound_session_random_length(
     OlmSession * session
 ) {

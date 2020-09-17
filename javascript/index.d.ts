@@ -27,6 +27,8 @@ declare class Account {
     max_number_of_one_time_keys(): number;
     generate_one_time_keys(number_of_keys: number);
     remove_one_time_keys(session: Session);
+    generate_fallback_key();
+    fallback_key(): string;
     pickle(key: string): string;
     unpickle(key: string, pickle: string);
 }

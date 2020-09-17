@@ -141,9 +141,30 @@ Account.prototype['generate_one_time_keys'] = restore_stack(function(
 });
 
 Account.prototype['remove_one_time_keys'] = restore_stack(function(session) {
-     account_method(Module['_olm_remove_one_time_keys'])(
+    account_method(Module['_olm_remove_one_time_keys'])(
         this.ptr, session.ptr
     );
+});
+
+Account.prototype['generate_fallback_key'] = restore_stack(function() {
+    var random_length = account_method(
+        Module['_olm_account_generate_fallback_key_random_length']
+    )(this.ptr);
+    var random = random_stack(random_length);
+    account_method(Module['_olm_account_generate_fallback_key'])(
+        this.ptr, random, random_length
+    );
+});
+
+Account.prototype['fallback_key'] = restore_stack(function() {
+    var keys_length = account_method(
+        Module['_olm_account_fallback_key_length']
+    )(this.ptr);
+    var keys = stack(keys_length + NULL_BYTE_PADDING_LENGTH);
+    account_method(Module['_olm_account_fallback_key'])(
+        this.ptr, keys, keys_length
+    );
+    return UTF8ToString(keys, keys_length);
 });
 
 Account.prototype['pickle'] = restore_stack(function(key) {

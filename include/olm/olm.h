@@ -254,6 +254,31 @@ size_t olm_account_generate_one_time_keys(
     void * random, size_t random_length
 );
 
+/** The number of random bytes needed to generate a fallback key. */
+size_t olm_account_generate_fallback_key_random_length(
+    OlmAccount * account
+);
+
+/** Generates a new fallback key. Only one previous fallback key is
+ * stored. Returns olm_error() on error. If the number of random bytes is too
+ * small then olm_account_last_error() will be "NOT_ENOUGH_RANDOM". */
+size_t olm_account_generate_fallback_key(
+    OlmAccount * account,
+    void * random, size_t random_length
+);
+
+/** The number of bytes needed to hold the fallback key as returned by
+ * olm_account_fallback_key. */
+size_t olm_account_fallback_key_length(
+    OlmAccount * account
+);
+
+size_t olm_account_fallback_key(
+    OlmAccount * account,
+    void * fallback_key, size_t fallback_key_size
+);
+
+
 /** The number of random bytes needed to create an outbound session */
 size_t olm_create_outbound_session_random_length(
     OlmSession * session
