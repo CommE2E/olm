@@ -41,26 +41,26 @@ advanced as follows:
 \begin{aligned}
 R_{i,0} &=
     \begin{cases}
-    H_0\left(R_{2^24(n-1),0}\right) &\text{if }\exists n | i = 2^24n\\
+    H_0\left(R_{2^{24}(n-1),0}\right) &\text{if }\exists n | i = 2^{24}n\\
     R_{i-1,0} &\text{otherwise}
     \end{cases}\\
 R_{i,1} &=
     \begin{cases}
-    H_1\left(R_{2^24(n-1),0}\right) &\text{if }\exists n | i = 2^24n\\
-    H_1\left(R_{2^16(m-1),1}\right) &\text{if }\exists m | i = 2^16m\\
+    H_1\left(R_{2^{24}(n-1),0}\right) &\text{if }\exists n | i = 2^{24}n\\
+    H_1\left(R_{2^{16}(m-1),1}\right) &\text{if }\exists m | i = 2^{16}m\\
     R_{i-1,1} &\text{otherwise}
     \end{cases}\\
 R_{i,2} &=
     \begin{cases}
-    H_2\left(R_{2^24(n-1),0}\right) &\text{if }\exists n | i = 2^24n\\
-    H_2\left(R_{2^16(m-1),1}\right) &\text{if }\exists m | i = 2^16m\\
+    H_2\left(R_{2^{24}(n-1),0}\right) &\text{if }\exists n | i = 2^{24}n\\
+    H_2\left(R_{2^{16}(m-1),1}\right) &\text{if }\exists m | i = 2^{16}m\\
     H_2\left(R_{2^8(p-1),2}\right) &\text{if }\exists p | i = 2^8p\\
     R_{i-1,2} &\text{otherwise}
     \end{cases}\\
 R_{i,3} &=
     \begin{cases}
-    H_3\left(R_{2^24(n-1),0}\right) &\text{if }\exists n | i = 2^24n\\
-    H_3\left(R_{2^16(m-1),1}\right) &\text{if }\exists m | i = 2^16m\\
+    H_3\left(R_{2^{24}(n-1),0}\right) &\text{if }\exists n | i = 2^{24}n\\
+    H_3\left(R_{2^{16}(m-1),1}\right) &\text{if }\exists m | i = 2^{16}m\\
     H_3\left(R_{2^8(p-1),2}\right) &\text{if }\exists p | i = 2^8p\\
     H_3\left(R_{i-1,3}\right) &\text{otherwise}
     \end{cases}
