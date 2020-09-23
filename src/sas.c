@@ -63,6 +63,7 @@ size_t olm_create_sas(
         return (size_t)-1;
     }
     _olm_crypto_curve25519_generate_key((uint8_t *) random, &sas->curve25519_key);
+    sas->their_key_set = 0;
     return 0;
 }
 
