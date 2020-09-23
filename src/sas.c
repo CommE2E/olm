@@ -141,6 +141,10 @@ size_t olm_sas_calculate_mac(
         sas->last_error = OLM_OUTPUT_BUFFER_TOO_SMALL;
         return (size_t)-1;
     }
+    if (!sas->their_key_set) {
+        sas->last_error = OLM_SAS_THEIR_KEY_NOT_SET;
+        return (size_t)-1;
+    }
     uint8_t key[32];
     _olm_crypto_hkdf_sha256(
         sas->secret, sizeof(sas->secret),
@@ -162,6 +166,10 @@ size_t olm_sas_calculate_mac_long_kdf(
 ) {
     if (mac_length < olm_sas_mac_length(sas)) {
         sas->last_error = OLM_OUTPUT_BUFFER_TOO_SMALL;
+        return (size_t)-1;
+    }
+    if (!sas->their_key_set) {
+        sas->last_error = OLM_SAS_THEIR_KEY_NOT_SET;
         return (size_t)-1;
     }
     uint8_t key[256];
