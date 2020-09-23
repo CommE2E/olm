@@ -105,6 +105,15 @@ size_t olm_sas_set_their_key(
     void * their_key, size_t their_key_length
 );
 
+/** Checks if their key was set.
+ *
+ * @param[in] sas the SAS object.
+ *
+ */
+int olm_sas_is_their_key_set(
+    OlmSAS *sas
+);
+
 /** Generate bytes to use for the short authentication string.
  *
  * @param[in] sas the SAS object.
@@ -114,6 +123,9 @@ size_t olm_sas_set_their_key(
  * @param[out] output the output buffer.
  * @param[in] output_length the size of the output buffer.  For hex-based SAS
  *     as in the Matrix spec, this will be 5.
+ *
+ * @return `olm_error()` on failure. If their key wasn't set then
+ * `olm_sas_last_error()` will be `SAS_THEIR_KEY_NOT_SET`.
  */
 size_t olm_sas_generate_bytes(
     OlmSAS * sas,

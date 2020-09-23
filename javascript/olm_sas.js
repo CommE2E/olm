@@ -42,6 +42,12 @@ SAS.prototype['set_their_key'] = restore_stack(function(their_key) {
     );
 });
 
+SAS.prototype['is_their_key_set'] = restore_stack(function() {
+    return sas_method(Module['_olm_sas_is_their_key_set'])(
+        this.ptr
+    ) ? true : false;
+});
+
 SAS.prototype['generate_bytes'] = restore_stack(function(info, length) {
     var info_array = array_from_string(info);
     var info_buffer = stack(info_array);

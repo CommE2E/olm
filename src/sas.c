@@ -23,6 +23,7 @@ struct OlmSAS {
     enum OlmErrorCode last_error;
     struct _olm_curve25519_key_pair curve25519_key;
     uint8_t secret[CURVE25519_SHARED_SECRET_LENGTH];
+    int their_key_set;
 };
 
 const char * olm_sas_last_error(
@@ -95,7 +96,14 @@ size_t olm_sas_set_their_key(
     }
     _olm_decode_base64(their_key, their_key_length, their_key);
     _olm_crypto_curve25519_shared_secret(&sas->curve25519_key, their_key, sas->secret);
+    sas->their_key_set = 1;
     return 0;
+}
+
+int olm_sas_is_their_key_set(
+    OlmSAS *sas
+) {
+    return sas->their_key_set;
 }
 
 size_t olm_sas_generate_bytes(
@@ -103,6 +111,10 @@ size_t olm_sas_generate_bytes(
     const void * info, size_t info_length,
     void * output, size_t output_length
 ) {
+    if (!sas->their_key_set) {
+        sas->last_error = OLM_SAS_THEIR_KEY_NOT_SET;
+        return (size_t)-1;
+    }
     _olm_crypto_hkdf_sha256(
         sas->secret, sizeof(sas->secret),
         NULL, 0,
