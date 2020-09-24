@@ -42,16 +42,6 @@ from ._compat import URANDOM, to_bytearray, to_bytes
 from ._finalize import track_for_finalization
 
 
-def other_pubkey_set(func):
-    """Ensure that the other pubkey is added to the Sas object."""
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        if not self.other_key_set:
-            raise OlmSasError("The other public key isn't set.")
-        return func(self, *args, **kwargs)
-    return wrapper
-
-
 def _clear_sas(sas):
     # type: (ffi.cdata) -> None
     lib.olm_clear_sas(sas)
@@ -73,16 +63,11 @@ class Sas(object):
                 key is necesary to generate bytes for the authentication string
                 as well as to calculate the MAC.
 
-        Attributes:
-            other_key_set (bool): A boolean flag that tracks if we set the
-                other users public key for this SAS object.
-
         Raises OlmSasError on failure.
 
         """
         self._buf = ffi.new("char[]", lib.olm_sas_size())
         self._sas = lib.olm_sas(self._buf)
-        self.other_key_set = False
         track_for_finalization(self, self._sas, _clear_sas)
 
         random_length = lib.olm_create_sas_random_length(self._sas)
@@ -132,6 +117,13 @@ class Sas(object):
 
         return bytes_to_native_str(ffi.unpack(pubkey_buffer, pubkey_length))
 
+    @property
+    def other_key_set(self):
+        # type: () -> bool
+        """Check if the other user's pubkey has been set.
+        """
+        return lib.olm_sas_is_their_key_set(self._sas) == 1
+
     def set_their_pubkey(self, key):
         # type: (str) -> None
         """Set the public key of the other user.
@@ -155,9 +147,7 @@ class Sas(object):
                 len(byte_key)
             )
         )
-        self.other_key_set = True
 
-    @other_pubkey_set
     def generate_bytes(self, extra_info, length):
         # type: (str, int) -> bytes
         """Generate bytes to use for the short authentication string.
@@ -189,7 +179,6 @@ class Sas(object):
 
         return ffi.unpack(out_buffer, length)
 
-    @other_pubkey_set
     def calculate_mac(self, message, extra_info):
         # type: (str, str) -> str
         """Generate a message authentication code based on the shared secret.
@@ -221,7 +210,6 @@ class Sas(object):
         )
         return bytes_to_native_str(ffi.unpack(mac_buffer, mac_length))
 
-    @other_pubkey_set
     def calculate_mac_long_kdf(self, message, extra_info):
         # type: (str, str) -> str
         """Generate a message authentication code based on the shared secret.
