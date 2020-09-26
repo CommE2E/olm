@@ -199,12 +199,11 @@ $(JS_WASM_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS) $
 	       $(EMCCFLAGS_WASM) \
                $(foreach f,$(JS_PRE),--pre-js $(f)) \
                $(foreach f,$(JS_POST),--post-js $(f)) \
+               $(foreach f,$(JS_PREFIX),--extern-pre-js $(f)) \
+               $(foreach f,$(JS_SUFFIX),--extern-post-js $(f)) \
                -s "EXPORTED_FUNCTIONS=@$(JS_EXPORTED_FUNCTIONS)" \
                -s "EXTRA_EXPORTED_RUNTIME_METHODS=$(JS_EXTRA_EXPORTED_RUNTIME_METHODS)" \
                -o $@ $(JS_OBJECTS)
-	       mv $@ javascript/olmtmp.js
-	       cat $(JS_PREFIX) javascript/olmtmp.js $(JS_SUFFIX) > $@
-	       rm javascript/olmtmp.js
 
 $(JS_ASMJS_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS) $(JS_PREFIX) $(JS_SUFFIX)
 	EMCC_CLOSURE_ARGS="--externs $(JS_EXTERNS)" $(EMCC_LINK) \
