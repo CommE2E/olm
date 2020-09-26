@@ -6,7 +6,7 @@ import json
 
 expr = re.compile(r"(olm_[^( ]*)\(")
 
-exports = set()
+exports = {'_free', '_malloc'}
 
 for f in sys.argv[1:]:
     with open(f) as fp:
