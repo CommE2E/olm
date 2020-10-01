@@ -224,6 +224,9 @@ result = ::olm_ed25519_verify(
 
 assert_equals((size_t)-1, result);
 
+olm_clear_utility(utility);
+free(utility_buffer);
+
 free(message);
 free(sig_buffer);
 

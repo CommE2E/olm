@@ -69,12 +69,22 @@ assert_not_equals(std::size_t(-1), ::olm_account_identity_keys(
     account, id_keys, id_keys_size
 ));
 
+olm_clear_account(account);
+free(account_buffer);
+
 void * utility_buffer = check_malloc(::olm_utility_size());
 ::OlmUtility * utility = ::olm_utility(utility_buffer);
 
 assert_not_equals(std::size_t(-1), ::olm_ed25519_verify(
     utility, id_keys + 71, 43, message, message_size, signature, signature_size
 ));
+
+olm_clear_utility(utility);
+free(utility_buffer);
+
+free(id_keys);
+free(signature);
+free(message);
 
 }
 
