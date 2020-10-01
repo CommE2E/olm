@@ -225,6 +225,12 @@ test: build_tests
 	    $$i || exit $$?; \
 	done
 
+test_mem: build_tests
+	for i in $(TEST_BINARIES); do \
+	    echo $$i; \
+	    valgrind -q --leak-check=yes --exit-on-first-error=yes --error-exitcode=1 $$i || exit $$?; \
+	done
+
 fuzzers: $(FUZZER_BINARIES) $(FUZZER_DEBUG_BINARIES)
 .PHONY: fuzzers
 
