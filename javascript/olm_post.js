@@ -2,12 +2,20 @@ var malloc = Module['_malloc'];
 var free = Module['_free'];
 var OLM_ERROR;
 
+function filled_stack(size, filler) {
+    var ptr = stackAlloc(size);
+    filler(new Uint8Array(Module['HEAPU8'].buffer, ptr, size));
+    return ptr;
+}
+
 /* allocate a number of bytes of storage on the stack.
  *
  * If size_or_array is a Number, allocates that number of zero-initialised bytes.
  */
 function stack(size_or_array) {
-    return allocate(size_or_array, 'i8', Module['ALLOC_STACK']);
+    return (typeof size_or_array == 'number')
+        ? filled_stack(size_or_array, function(x) { x.fill(0) })
+        : filled_stack(size_or_array.length, function(x) { x.set(size_or_array) });
 }
 
 function array_from_string(string) {
@@ -15,10 +23,7 @@ function array_from_string(string) {
 }
 
 function random_stack(size) {
-    var ptr = stack(size);
-    var array = new Uint8Array(Module['HEAPU8'].buffer, ptr, size);
-    get_random_values(array);
-    return ptr;
+    return filled_stack(size, get_random_values);
 }
 
 function restore_stack(wrapped) {
