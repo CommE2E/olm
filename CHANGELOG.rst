@@ -1,3 +1,20 @@
+Changes in `3.2.0 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.0>`_
+=========================================================================
+
+This release includes the following changes since 3.1.5:
+
+* Add support for fallback keys (MSC2732).
+* Allow some arguments in the JavaScript bindings to be either Uint8Array or
+  strings.
+* Fixes to the TypeScript definition file.
+* Improvements to the JavaScript group demo. Thanks to Saúl Ibarra Corretgé.
+* Ensure that the other party's public key has been set in SAS module. Thanks
+  to Saúl Ibarra Corretgé.
+* Fix building with newer versions of emscripten, and simplify makefile. Thanks
+  to Lukas Lihotzki.
+* Reduce pollution of the global namespace in the Javascript binding. Thanks to
+  Lukas Lihotzki.
+
 Changes in `3.1.5 <https://gitlab.matrix.org/matrix-org/olm/tags/3.1.5>`_
 =========================================================================
 
