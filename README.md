@@ -120,7 +120,7 @@ First: bump version numbers in ``common.mk``, ``CMakeLists.txt``,
 and ``android/olm-sdk/build.gradle`` (``versionCode``, ``versionName`` and
 ``version``).
 
-Also, ensure the changelog is up to date, and that everyting is committed to
+Also, ensure the changelog is up to date, and that everything is committed to
 git.
 
 It's probably sensible to do the above on a release branch (``release-vx.y.z``
