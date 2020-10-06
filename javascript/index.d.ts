@@ -29,8 +29,8 @@ declare class Account {
     remove_one_time_keys(session: Session);
     generate_fallback_key();
     fallback_key(): string;
-    pickle(key: string): string;
-    unpickle(key: string, pickle: string);
+    pickle(key: string | Uint8Array): string;
+    unpickle(key: string | Uint8Array, pickle: string);
 }
 
 declare class Session {
@@ -64,8 +64,8 @@ declare class Utility {
 declare class InboundGroupSession {
     constructor();
     free(): void;
-    pickle(key: string): string;
-    unpickle(key: string, pickle: string);
+    pickle(key: string | Uint8Array): string;
+    unpickle(key: string | Uint8Array, pickle: string);
     create(session_key: string): string;
     import_session(session_key: string): string;
     decrypt(message: string): object;
@@ -77,8 +77,8 @@ declare class InboundGroupSession {
 declare class OutboundGroupSession {
     constructor();
     free(): void;
-    pickle(key: string): string;
-    unpickle(key: string, pickle: string);
+    pickle(key: string | Uint8Array): string;
+    unpickle(key: string | Uint8Array, pickle: string);
     create(): void;
     encrypt(plaintext: string): string;
     session_id(): string;
