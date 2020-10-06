@@ -1,3 +1,10 @@
+Changes in `3.2.1 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.1>`_
+=========================================================================
+
+This release includes the following changes since 3.2.1:
+
+* Fixes in the TypeScript definition file.
+
 Changes in `3.2.0 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.0>`_
 =========================================================================
 
