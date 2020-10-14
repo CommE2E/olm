@@ -125,3 +125,5 @@ declare class SAS {
 export function init(opts?: object): Promise<void>;
 
 export function get_library_version(): [number, number, number];
+
+export const PRIVATE_KEY_LENGTH: number;
