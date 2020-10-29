@@ -79,11 +79,11 @@ install(TARGETS olm
 # The exported target will be named Olm.
 set_target_properties(olm PROPERTIES EXPORT_NAME Olm)
 install(FILES
-    ${CMAKE_SOURCE_DIR}/include/olm/olm.h
-    ${CMAKE_SOURCE_DIR}/include/olm/outbound_group_session.h
-    ${CMAKE_SOURCE_DIR}/include/olm/inbound_group_session.h
-    ${CMAKE_SOURCE_DIR}/include/olm/pk.h
-    ${CMAKE_SOURCE_DIR}/include/olm/sas.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/olm.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/outbound_group_session.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/inbound_group_session.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/pk.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/sas.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/olm)
 
 # Export the targets to a script.
