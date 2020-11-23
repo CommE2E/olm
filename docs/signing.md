@@ -75,7 +75,7 @@ S = \operatorname{ECDH}\left(I_A,E_B\right)\;\parallel\;
 If keys are unsigned, a forger can make up values of $`E_A`$ and
 $`E_B`$, and construct a transcript of a conversation which looks like it
 was between Alice and Bob. Alice and Bob can therefore plausibly deny their
-partition in any conversation even if they are both forced to divulge their
+participation in any conversation even if they are both forced to divulge their
 private identity keys, since it is impossible to prove that the transcript was
 a conversation between the two of them, rather than constructed by a forger.
 
