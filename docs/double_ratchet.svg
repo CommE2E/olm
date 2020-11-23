@@ -1,1007 +1,433 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="892.75781"
-   height="561"
-   id="svg2"
-   version="1.1"
-   inkscape:version="0.48.4 r9939"
-   sodipodi:docname="Axolotl.svg">
-  <defs
-     id="defs4">
-    <marker
-       inkscape:stockid="Arrow2Lend"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lend"
-       style="overflow:visible">
-      <path
-         id="path4029"
-         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(-1.1,0,0,-1.1,-1.1,0)"
-         inkscape:connector-curvature="0" />
-    </marker>
-  </defs>
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="630.66152"
-     inkscape:cy="166.30515"
-     inkscape:document-units="px"
-     inkscape:current-layer="layer1"
-     showgrid="false"
-     inkscape:window-width="1855"
-     inkscape:window-height="1056"
-     inkscape:window-x="65"
-     inkscape:window-y="24"
-     inkscape:window-maximized="1"
-     fit-margin-top="0"
-     fit-margin-left="0"
-     fit-margin-right="0"
-     fit-margin-bottom="0" />
-  <metadata
-     id="metadata7">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(0.5,0.5)">
-    <g
-       id="g2991">
-      <rect
-         ry="8"
-         rx="8"
-         y="0"
-         x="0"
-         height="48"
-         width="256"
-         id="rect2985"
-         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-      <text
-         sodipodi:linespacing="125%"
-         id="text2987"
-         y="32"
-         x="8"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-         xml:space="preserve"><tspan
-           style="font-size:24px"
-           y="32"
-           x="8"
-           id="tspan2989"
-           sodipodi:role="line">Initial Shared Secret</tspan></text>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
+<svg width="35cm" height="41cm" viewBox="-11 -2 691 809" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g id="Background">
+    <g>
+      <ellipse style="fill: #90ee90; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" cx="150" cy="154" rx="32" ry="12"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="150" y="157.9">
+        <tspan x="150" y="157.9">HKDF</tspan>
+      </text>
     </g>
-    <g
-       id="g4701"
-       transform="translate(192,100)">
-      <g
-         id="hkdf_chain_keys">
-        <rect
-           ry="8"
-           rx="8"
-           y="0"
-           x="0"
-           height="80"
-           width="256"
-           id="rect3023"
-           style="fill:none;stroke:#000000" />
-        <g
-           id="g3031">
-          <rect
-             style="fill:none;stroke:#000000"
-             id="rect3019"
-             width="64"
-             height="24"
-             x="0"
-             y="0"
-             rx="8"
-             ry="8" />
-          <text
-             xml:space="preserve"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             x="32"
-             y="18"
-             id="text3025"
-             sodipodi:linespacing="125%"><tspan
-               sodipodi:role="line"
-               id="tspan3027"
-               x="32"
-               y="18">Secret</tspan></text>
-        </g>
-        <text
-           sodipodi:linespacing="125%"
-           id="text3052"
-           y="48"
-           x="128"
-           style="font-size:24px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           xml:space="preserve"><tspan
-             y="48"
-             x="128"
-             id="tspan3054"
-             sodipodi:role="line">HKDF</tspan></text>
-        <g
-           transform="translate(0,56)"
-           id="g3073">
-          <rect
-             ry="8"
-             rx="8"
-             y="0"
-             x="0"
-             height="24"
-             width="128"
-             id="rect3075"
-             style="fill:none;stroke:#000000" />
-          <text
-             sodipodi:linespacing="125%"
-             id="text3077"
-             y="18"
-             x="64"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             xml:space="preserve"><tspan
-               y="18"
-               x="64"
-               id="tspan3079"
-               sodipodi:role="line">Root Key</tspan></text>
-        </g>
-        <g
-           id="g3081"
-           transform="translate(128,56)">
-          <rect
-             style="fill:none;stroke:#000000"
-             id="rect3083"
-             width="128"
-             height="24"
-             x="0"
-             y="0"
-             rx="8"
-             ry="8" />
-          <text
-             xml:space="preserve"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             x="64"
-             y="18"
-             id="text3085"
-             sodipodi:linespacing="125%"><tspan
-               sodipodi:role="line"
-               id="tspan3087"
-               x="64"
-               y="18">Chain Key</tspan></text>
-        </g>
-        <g
-           id="g4802"
-           transform="translate(192,0)">
-          <rect
-             style="fill:none;stroke:#000000"
-             id="rect4804"
-             width="64"
-             height="24"
-             x="0"
-             y="0"
-             rx="8"
-             ry="8" />
-          <text
-             xml:space="preserve"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             x="32"
-             y="18"
-             id="text4806"
-             sodipodi:linespacing="125%"><tspan
-               sodipodi:role="line"
-               id="tspan4808"
-               x="32"
-               y="18">Info</tspan></text>
-          <path
-             style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
-             d="m 32,-60 0,56"
-             id="path4810"
-             inkscape:connector-curvature="0" />
-          <text
-             sodipodi:linespacing="125%"
-             id="text4812"
-             y="-64"
-             x="32"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             xml:space="preserve"><tspan
-               y="-64"
-               x="32"
-               id="tspan4814"
-               sodipodi:role="line">&quot;OLM_ROOT&quot;</tspan></text>
-        </g>
-        <g
-           transform="translate(64,0)"
-           id="g4830">
-          <rect
-             ry="8"
-             rx="8"
-             y="0"
-             x="0"
-             height="24"
-             width="64"
-             id="rect4832"
-             style="fill:none;stroke:#000000" />
-          <text
-             sodipodi:linespacing="125%"
-             id="text4834"
-             y="18"
-             x="32"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             xml:space="preserve"><tspan
-               y="18"
-               x="32"
-               id="tspan4836"
-               sodipodi:role="line">Salt</tspan></text>
-          <path
-             inkscape:connector-curvature="0"
-             id="path4838"
-             d="m 32,-28 0,24"
-             style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)" />
-          <text
-             xml:space="preserve"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             x="32"
-             y="-32"
-             id="text4840"
-             sodipodi:linespacing="125%"><tspan
-               sodipodi:role="line"
-               id="tspan4842"
-               x="32"
-               y="-32">&quot;&quot;</tspan></text>
-        </g>
-      </g>
-      <g
-         id="hmac_chain_key"
-         transform="translate(128,160)">
-        <rect
-           style="fill:none;stroke:#000000"
-           id="rect3147"
-           width="128"
-           height="80"
-           x="0"
-           y="0"
-           rx="8"
-           ry="8" />
-        <g
-           id="g3149">
-          <rect
-             ry="8"
-             rx="8"
-             y="0"
-             x="0"
-             height="24"
-             width="64"
-             id="rect3151"
-             style="fill:none;stroke:#000000" />
-          <text
-             sodipodi:linespacing="125%"
-             id="text3153"
-             y="18"
-             x="32"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             xml:space="preserve"><tspan
-               y="18"
-               x="32"
-               id="tspan3155"
-               sodipodi:role="line">Key</tspan></text>
-        </g>
-        <g
-           id="g3157"
-           transform="translate(64,0)">
-          <rect
-             style="fill:none;stroke:#000000"
-             id="rect3159"
-             width="64"
-             height="24"
-             x="0"
-             y="0"
-             rx="8"
-             ry="8" />
-          <text
-             xml:space="preserve"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             x="32"
-             y="18"
-             id="text3161"
-             sodipodi:linespacing="125%"><tspan
-               sodipodi:role="line"
-               id="tspan3163"
-               x="32"
-               y="18">Data</tspan></text>
-        </g>
-        <text
-           xml:space="preserve"
-           style="font-size:24px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           x="64"
-           y="48"
-           id="text3173"
-           sodipodi:linespacing="125%"><tspan
-             sodipodi:role="line"
-             id="tspan3175"
-             x="64"
-             y="48">HMAC</tspan></text>
-        <g
-           transform="translate(0,56)"
-           id="g3185">
-          <rect
-             ry="8"
-             rx="8"
-             y="0"
-             x="0"
-             height="24"
-             width="128"
-             id="rect3187"
-             style="fill:none;stroke:#000000" />
-          <text
-             sodipodi:linespacing="125%"
-             id="text3189"
-             y="18"
-             x="64"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             xml:space="preserve"><tspan
-               y="18"
-               x="64"
-               id="tspan3191"
-               sodipodi:role="line">Chain Key</tspan></text>
-        </g>
-        <text
-           sodipodi:linespacing="125%"
-           id="text3225"
-           y="-32"
-           x="96"
-           style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           xml:space="preserve"><tspan
-             y="-32"
-             x="96"
-             id="tspan3227"
-             sodipodi:role="line">&quot;\x02&quot;</tspan></text>
-        <path
-           inkscape:connector-curvature="0"
-           id="path3231"
-           d="m 96,-28 0,24"
-           style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)" />
-        <path
-           style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
-           d="m 32,-76 0,72"
-           id="path4639"
-           inkscape:connector-curvature="0" />
-      </g>
-      <g
-         transform="translate(320,56)"
-         id="hmac_message_key">
-        <path
-           inkscape:connector-curvature="0"
-           id="path4641"
-           d="m -60,12 56,0"
-           style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)" />
-        <text
-           xml:space="preserve"
-           style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           x="96"
-           y="-32"
-           id="text4633"
-           sodipodi:linespacing="125%"><tspan
-             sodipodi:role="line"
-             id="tspan4635"
-             x="96"
-             y="-32">&quot;\x01&quot;</tspan></text>
-        <path
-           style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
-           d="m 96,-28 0,24"
-           id="path4630"
-           inkscape:connector-curvature="0" />
-        <rect
-           ry="8"
-           rx="8"
-           y="0"
-           x="0"
-           height="80"
-           width="128"
-           id="rect3195"
-           style="fill:none;stroke:#000000" />
-        <g
-           id="g3197">
-          <rect
-             style="fill:none;stroke:#000000"
-             id="rect3199"
-             width="64"
-             height="24"
-             x="0"
-             y="0"
-             rx="8"
-             ry="8" />
-          <text
-             xml:space="preserve"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             x="32"
-             y="18"
-             id="text3201"
-             sodipodi:linespacing="125%"><tspan
-               sodipodi:role="line"
-               id="tspan3203"
-               x="32"
-               y="18">Key</tspan></text>
-        </g>
-        <g
-           transform="translate(64,0)"
-           id="g3205">
-          <rect
-             ry="8"
-             rx="8"
-             y="0"
-             x="0"
-             height="24"
-             width="64"
-             id="rect3207"
-             style="fill:none;stroke:#000000" />
-          <text
-             sodipodi:linespacing="125%"
-             id="text3209"
-             y="18"
-             x="32"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             xml:space="preserve"><tspan
-               y="18"
-               x="32"
-               id="tspan3211"
-               sodipodi:role="line">Data</tspan></text>
-        </g>
-        <text
-           sodipodi:linespacing="125%"
-           id="text3213"
-           y="48"
-           x="64"
-           style="font-size:24px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           xml:space="preserve"><tspan
-             y="48"
-             x="64"
-             id="tspan3215"
-             sodipodi:role="line">HMAC</tspan></text>
-        <g
-           id="g3217"
-           transform="translate(0,56)">
-          <rect
-             style="fill:none;stroke:#000000"
-             id="rect3219"
-             width="128"
-             height="24"
-             x="0"
-             y="0"
-             rx="8"
-             ry="8" />
-          <text
-             xml:space="preserve"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             x="64"
-             y="18"
-             id="text3221"
-             sodipodi:linespacing="125%"><tspan
-               sodipodi:role="line"
-               id="tspan3223"
-               x="64"
-               y="18">Message Key</tspan></text>
-        </g>
-      </g>
-      <g
-         transform="translate(320,168)"
-         id="hkdf_message_keys">
-        <rect
-           style="fill:none;stroke:#000000"
-           id="rect3091"
-           width="320"
-           height="80"
-           x="0"
-           y="0"
-           rx="8"
-           ry="8" />
-        <g
-           id="g3093">
-          <rect
-             ry="8"
-             rx="8"
-             y="0"
-             x="0"
-             height="24"
-             width="128"
-             id="rect3095"
-             style="fill:none;stroke:#000000" />
-          <text
-             sodipodi:linespacing="125%"
-             id="text3097"
-             y="18"
-             x="64"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             xml:space="preserve"><tspan
-               y="18"
-               x="64"
-               id="tspan3099"
-               sodipodi:role="line">Secret</tspan></text>
-          <path
-             inkscape:connector-curvature="0"
-             id="path4644"
-             d="m 64,-28 0,24"
-             style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)" />
-        </g>
-        <g
-           id="g3101"
-           transform="translate(128,0)">
-          <rect
-             style="fill:none;stroke:#000000"
-             id="rect3103"
-             width="64"
-             height="24"
-             x="0"
-             y="0"
-             rx="8"
-             ry="8" />
-          <text
-             xml:space="preserve"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             x="32"
-             y="18"
-             id="text3105"
-             sodipodi:linespacing="125%"><tspan
-               sodipodi:role="line"
-               id="tspan3107"
-               x="32"
-               y="18">Salt</tspan></text>
-          <path
-             style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
-             d="m 32,-28 0,24"
-             id="path4660"
-             inkscape:connector-curvature="0" />
-          <text
-             sodipodi:linespacing="125%"
-             id="text3225-6"
-             y="-32"
-             x="32"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             xml:space="preserve"><tspan
-               y="-32"
-               x="32"
-               id="tspan3227-8"
-               sodipodi:role="line">&quot;&quot;</tspan></text>
-        </g>
-        <g
-           transform="translate(256,0)"
-           id="g3109">
-          <rect
-             ry="8"
-             rx="8"
-             y="0"
-             x="0"
-             height="24"
-             width="64"
-             id="rect3111"
-             style="fill:none;stroke:#000000" />
-          <text
-             sodipodi:linespacing="125%"
-             id="text3113"
-             y="18"
-             x="32"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             xml:space="preserve"><tspan
-               y="18"
-               x="32"
-               id="tspan3115"
-               sodipodi:role="line">Info</tspan></text>
-          <path
-             inkscape:connector-curvature="0"
-             id="path4664"
-             d="m 32,-60 0,56"
-             style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)" />
-          <text
-             xml:space="preserve"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             x="32"
-             y="-64"
-             id="text4693"
-             sodipodi:linespacing="125%"><tspan
-               sodipodi:role="line"
-               id="tspan4695"
-               x="32"
-               y="-64">&quot;OLM_KEYS&quot;</tspan></text>
-        </g>
-        <text
-           xml:space="preserve"
-           style="font-size:24px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           x="160"
-           y="48"
-           id="text3117"
-           sodipodi:linespacing="125%"><tspan
-             sodipodi:role="line"
-             id="tspan3119"
-             x="160"
-             y="48">HKDF</tspan></text>
-        <g
-           id="g3121"
-           transform="translate(0,56)">
-          <rect
-             style="fill:none;stroke:#000000"
-             id="rect3123"
-             width="128"
-             height="24"
-             x="0"
-             y="0"
-             rx="8"
-             ry="8" />
-          <text
-             xml:space="preserve"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             x="64"
-             y="18"
-             id="text3125"
-             sodipodi:linespacing="125%"><tspan
-               sodipodi:role="line"
-               id="tspan3127"
-               x="64"
-               y="18">Cipher Key</tspan></text>
-        </g>
-        <g
-           transform="translate(128,56)"
-           id="g3129">
-          <rect
-             ry="8"
-             rx="8"
-             y="0"
-             x="0"
-             height="24"
-             width="128"
-             id="rect3131"
-             style="fill:none;stroke:#000000" />
-          <text
-             sodipodi:linespacing="125%"
-             id="text3133"
-             y="18"
-             x="64"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             xml:space="preserve"><tspan
-               y="18"
-               x="64"
-               id="tspan3135"
-               sodipodi:role="line">Mac Key</tspan></text>
-        </g>
-        <g
-           id="g3137"
-           transform="translate(256,56)">
-          <rect
-             style="fill:none;stroke:#000000"
-             id="rect3139"
-             width="64"
-             height="24"
-             x="0"
-             y="0"
-             rx="8"
-             ry="8" />
-          <text
-             xml:space="preserve"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             x="32"
-             y="18"
-             id="text3141"
-             sodipodi:linespacing="125%"><tspan
-               sodipodi:role="line"
-               id="tspan3143"
-               x="32"
-               y="18">IV</tspan></text>
-        </g>
-      </g>
-      <path
-         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
-         d="m 32,-48 0,44"
-         id="path5157"
-         inkscape:connector-curvature="0" />
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #000000" x1="150" y1="21" x2="150" y2="137.276"/>
+      <polygon style="fill: #000000; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #000000" fill-rule="evenodd" points="150,141.776 147,135.776 150,137.276 153,135.776 "/>
     </g>
-    <g
-       id="g4858"
-       transform="translate(192,480)">
-      <g
-         id="g4860">
-        <rect
-           style="fill:none;stroke:#000000"
-           id="rect4862"
-           width="256"
-           height="80"
-           x="0"
-           y="0"
-           rx="8"
-           ry="8" />
-        <g
-           id="g4864">
-          <rect
-             ry="8"
-             rx="8"
-             y="0"
-             x="0"
-             height="24"
-             width="64"
-             id="rect4866"
-             style="fill:none;stroke:#000000" />
-          <text
-             sodipodi:linespacing="125%"
-             id="text4868"
-             y="18"
-             x="32"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             xml:space="preserve"><tspan
-               y="18"
-               x="32"
-               id="tspan4870"
-               sodipodi:role="line">Secret</tspan></text>
-        </g>
-        <text
-           xml:space="preserve"
-           style="font-size:24px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-           x="128"
-           y="48"
-           id="text4872"
-           sodipodi:linespacing="125%"><tspan
-             sodipodi:role="line"
-             id="tspan4874"
-             x="128"
-             y="48">HKDF</tspan></text>
-        <g
-           id="g4876"
-           transform="translate(0,56)">
-          <rect
-             style="fill:none;stroke:#000000"
-             id="rect4878"
-             width="128"
-             height="24"
-             x="0"
-             y="0"
-             rx="8"
-             ry="8" />
-          <text
-             xml:space="preserve"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             x="64"
-             y="18"
-             id="text4880"
-             sodipodi:linespacing="125%"><tspan
-               sodipodi:role="line"
-               id="tspan4882"
-               x="64"
-               y="18">Root Key</tspan></text>
-        </g>
-        <g
-           transform="translate(128,56)"
-           id="g4884">
-          <rect
-             ry="8"
-             rx="8"
-             y="0"
-             x="0"
-             height="24"
-             width="128"
-             id="rect4886"
-             style="fill:none;stroke:#000000" />
-          <text
-             sodipodi:linespacing="125%"
-             id="text4888"
-             y="18"
-             x="64"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             xml:space="preserve"><tspan
-               y="18"
-               x="64"
-               id="tspan4890"
-               sodipodi:role="line">Chain Key</tspan></text>
-        </g>
-        <g
-           transform="translate(192,0)"
-           id="g4892">
-          <rect
-             ry="8"
-             rx="8"
-             y="0"
-             x="0"
-             height="24"
-             width="64"
-             id="rect4894"
-             style="fill:none;stroke:#000000" />
-          <text
-             sodipodi:linespacing="125%"
-             id="text4896"
-             y="18"
-             x="32"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             xml:space="preserve"><tspan
-               y="18"
-               x="32"
-               id="tspan4898"
-               sodipodi:role="line">Info</tspan></text>
-          <path
-             inkscape:connector-curvature="0"
-             id="path4900"
-             d="m 32,-60 0,56"
-             style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)" />
-          <text
-             xml:space="preserve"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             x="32"
-             y="-64"
-             id="text4902"
-             sodipodi:linespacing="125%"><tspan
-               sodipodi:role="line"
-               id="tspan4904"
-               x="32"
-               y="-64">&quot;OLM_RATCHET&quot;</tspan></text>
-        </g>
-        <g
-           id="g4906"
-           transform="translate(64,0)">
-          <rect
-             style="fill:none;stroke:#000000"
-             id="rect4908"
-             width="64"
-             height="24"
-             x="0"
-             y="0"
-             rx="8"
-             ry="8" />
-          <text
-             xml:space="preserve"
-             style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-             x="32"
-             y="18"
-             id="text4910"
-             sodipodi:linespacing="125%"><tspan
-               sodipodi:role="line"
-               id="tspan4912"
-               x="32"
-               y="18">Salt</tspan></text>
-          <path
-             style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)"
-             d="M 32,-296 32,-4"
-             id="path5070"
-             inkscape:connector-curvature="0" />
-        </g>
-        <path
-           inkscape:connector-curvature="0"
-           id="path5154"
-           d="m 32,-96 0,92"
-           style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend)" />
-      </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="130" y="-1" width="40" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #000000; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="150" y="13.9">
+        <tspan x="150" y="13.9">S</tspan>
+      </text>
     </g>
-    <text
-       xml:space="preserve"
-       style="font-size:24px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="20"
-       y="150"
-       id="text5162"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan5164"
-         x="20"
-         y="140">Alice's Chain</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:24px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="20"
-       y="530"
-       id="text5166"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan5168"
-         x="20"
-         y="528.07648">Bob's Chain</tspan></text>
-  </g>
-  <g
-     id="g5074"
-     transform="translate(0.5,300.5)">
-    <rect
-       style="fill:none;stroke:#000000"
-       id="rect5076"
-       width="256"
-       height="80"
-       x="0"
-       y="0"
-       rx="8"
-       ry="8" />
-    <g
-       id="g5078">
-      <rect
-         ry="8"
-         rx="8"
-         y="0"
-         x="0"
-         height="24"
-         width="128"
-         id="rect5080"
-         style="fill:none;stroke:#000000" />
-      <text
-         sodipodi:linespacing="125%"
-         id="text5082"
-         y="18"
-         x="64"
-         style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-         xml:space="preserve"><tspan
-           y="18"
-           x="64"
-           id="tspan5084"
-           sodipodi:role="line">Bob's Key</tspan></text>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="90" y="117" width="20" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="100" y="131.9">
+        <tspan x="100" y="131.9">0</tspan>
+      </text>
     </g>
-    <g
-       id="g5086"
-       transform="translate(128,0)">
-      <rect
-         style="fill:none;stroke:#000000"
-         id="rect5088"
-         width="128"
-         height="24"
-         x="0"
-         y="0"
-         rx="8"
-         ry="8" />
-      <text
-         xml:space="preserve"
-         style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-         x="64"
-         y="18"
-         id="text5090"
-         sodipodi:linespacing="125%"><tspan
-           sodipodi:role="line"
-           id="tspan5092"
-           x="64"
-           y="18">Alice's Key</tspan></text>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="110" y1="133.5" x2="123.488" y2="142.828"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="127.189,145.388 120.547,144.442 123.488,142.828 123.96,139.507 "/>
     </g>
-    <text
-       xml:space="preserve"
-       style="font-size:24px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="128"
-       y="48"
-       id="text5094"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan5096"
-         x="128"
-         y="48">ECDH</tspan></text>
-    <g
-       transform="translate(0,56)"
-       id="g5098">
-      <rect
-         ry="8"
-         rx="8"
-         y="0"
-         x="0"
-         height="24"
-         width="256"
-         id="rect5100"
-         style="fill:none;stroke:#000000" />
-      <text
-         sodipodi:linespacing="125%"
-         id="text5102"
-         y="18"
-         x="128"
-         style="font-size:16px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-         xml:space="preserve"><tspan
-           y="18"
-           x="128"
-           id="tspan5104"
-           sodipodi:role="line">Shared Secret</tspan></text>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="130" y="189" width="40" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="150" y="203.9">
+        <tspan x="150" y="203.9">R[0]</tspan>
+      </text>
     </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="190" y="189" width="48" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="214" y="203.9">
+        <tspan x="214" y="203.9">C[0,0]</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="150" y1="166" x2="150" y2="184.276"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="150,188.776 147,182.776 150,184.276 153,182.776 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="165.653" y1="164.536" x2="198.081" y2="186.362"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="201.814,188.875 195.162,188.014 198.081,186.362 198.512,183.036 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="214" y1="211" x2="214" y2="217.276"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="214,221.776 211,215.776 214,217.276 217,215.776 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="190" y="257" width="48" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="214" y="271.9">
+        <tspan x="214" y="271.9">M[0,0]</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="214" y1="242" x2="214" y2="252.276"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="214,256.776 211,250.776 214,252.276 217,250.776 "/>
+    </g>
+    <g>
+      <ellipse style="fill: #90ee90; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" cx="286" cy="200" rx="28" ry="10"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="286" y="203.9">
+        <tspan x="286" y="203.9">HMAC</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="238" y1="200" x2="253.276" y2="200"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="257.776,200 251.776,203 253.276,200 251.776,197 "/>
+    </g>
+    <g>
+      <ellipse style="fill: #90ee90; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" cx="214" cy="232" rx="28" ry="10"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="214" y="235.9">
+        <tspan x="214" y="235.9">HMAC</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="314" y1="200" x2="329.276" y2="200"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="333.776,200 327.776,203 329.276,200 327.776,197 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="334" y="189" width="48" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="358" y="203.9">
+        <tspan x="358" y="203.9">C[0,1]</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="358" y1="211" x2="358" y2="217.276"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="358,221.776 355,215.776 358,217.276 361,215.776 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="334" y="257" width="48" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="358" y="271.9">
+        <tspan x="358" y="271.9">M[0,1]</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="358" y1="242" x2="358" y2="252.276"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="358,256.776 355,250.776 358,252.276 361,250.776 "/>
+    </g>
+    <g>
+      <ellipse style="fill: #90ee90; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" cx="358" cy="232" rx="28" ry="10"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="358" y="235.9">
+        <tspan x="358" y="235.9">HMAC</tspan>
+      </text>
+    </g>
+    <g>
+      <ellipse style="fill: #90ee90; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" cx="430" cy="200" rx="28" ry="10"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="430" y="203.9">
+        <tspan x="430" y="203.9">HMAC</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="382" y1="200" x2="397.276" y2="200"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="401.776,200 395.776,203 397.276,200 395.776,197 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="458" y1="200" x2="473.276" y2="200"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="477.776,200 471.776,203 473.276,200 471.776,197 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="478" y="189" width="48" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="502" y="203.9">
+        <tspan x="502" y="203.9">C[0,2]</tspan>
+      </text>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="29.025" y="79" width="31.95" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="45" y="93.9">
+        <tspan x="45" y="93.9">T[0]</tspan>
+      </text>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="29" y="329" width="31.95" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005f5f; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="44.975" y="343.9">
+        <tspan x="44.975" y="343.9">T[1]</tspan>
+      </text>
+    </g>
+    <g>
+      <ellipse style="fill: #d8e5e5; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" cx="100" cy="362" rx="20" ry="12"/>
+      <text font-size="12.8" style="fill: #005f5f; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="100" y="365.9">
+        <tspan x="100" y="365.9">DH</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="60.95" y1="345.5" x2="81.3612" y2="352.067"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="85.6449,353.446 79.0144,354.464 81.3612,352.067 80.8521,348.752 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="45" y1="101" x2="98.9812" y2="345.388"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="99.9518,349.782 95.7283,344.57 98.9812,345.388 101.587,343.276 "/>
+    </g>
+    <g>
+      <ellipse style="fill: #d8e5e5; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" cx="150" cy="394" rx="32" ry="12"/>
+      <text font-size="12.8" style="fill: #005f5f; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="150" y="397.9">
+        <tspan x="150" y="397.9">HKDF</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="114.142" y1="370.486" x2="124.251" y2="381.969"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="127.225,385.346 121.008,382.825 124.251,381.969 125.512,378.86 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="130" y="429" width="40" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005f5f; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="150" y="443.9">
+        <tspan x="150" y="443.9">R[1]</tspan>
+      </text>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="190" y="429" width="48" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005f5f; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="214" y="443.9">
+        <tspan x="214" y="443.9">C[1,0]</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="150" y1="406" x2="150" y2="424.276"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="150,428.776 147,422.776 150,424.276 153,422.776 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="165.653" y1="404.536" x2="198.081" y2="426.362"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="201.814,428.875 195.162,428.014 198.081,426.362 198.512,423.036 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="214" y1="451" x2="214" y2="457.276"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="214,461.776 211,455.776 214,457.276 217,455.776 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="190" y="497" width="48" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005f5f; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="214" y="511.9">
+        <tspan x="214" y="511.9">M[1,0]</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="214" y1="482" x2="214" y2="492.276"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="214,496.776 211,490.776 214,492.276 217,490.776 "/>
+    </g>
+    <g>
+      <ellipse style="fill: #d8e5e5; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" cx="286" cy="440" rx="28" ry="10"/>
+      <text font-size="12.8" style="fill: #005f5f; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="286" y="443.9">
+        <tspan x="286" y="443.9">HMAC</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="238" y1="440" x2="253.276" y2="440"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="257.776,440 251.776,443 253.276,440 251.776,437 "/>
+    </g>
+    <g>
+      <ellipse style="fill: #d8e5e5; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" cx="214" cy="472" rx="28" ry="10"/>
+      <text font-size="12.8" style="fill: #005f5f; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="214" y="475.9">
+        <tspan x="214" y="475.9">HMAC</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="314" y1="440" x2="329.276" y2="440"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="333.776,440 327.776,443 329.276,440 327.776,437 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="150" y1="211" x2="150" y2="377.276"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="150,381.776 147,375.776 150,377.276 153,375.776 "/>
+    </g>
+    <g>
+      <ellipse style="fill: #90ee90; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" cx="100" cy="602" rx="20" ry="12"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="100" y="605.9">
+        <tspan x="100" y="605.9">DH</tspan>
+      </text>
+    </g>
+    <g>
+      <ellipse style="fill: #90ee90; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" cx="150" cy="634" rx="32" ry="12"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="150" y="637.9">
+        <tspan x="150" y="637.9">HKDF</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="114.142" y1="610.486" x2="124.251" y2="621.969"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="127.225,625.346 121.008,622.825 124.251,621.969 125.512,618.86 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="130" y="669" width="40" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="150" y="683.9">
+        <tspan x="150" y="683.9">R[2]</tspan>
+      </text>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="190" y="669" width="48" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="214" y="683.9">
+        <tspan x="214" y="683.9">C[2,0]</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="150" y1="646" x2="150" y2="664.276"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="150,668.776 147,662.776 150,664.276 153,662.776 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="165.653" y1="644.536" x2="198.081" y2="666.362"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="201.814,668.875 195.162,668.014 198.081,666.362 198.512,663.036 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="214" y1="691" x2="214" y2="697.276"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="214,701.776 211,695.776 214,697.276 217,695.776 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="190" y="737" width="48" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="214" y="751.9">
+        <tspan x="214" y="751.9">M[2,0]</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="214" y1="722" x2="214" y2="732.276"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="214,736.776 211,730.776 214,732.276 217,730.776 "/>
+    </g>
+    <g>
+      <ellipse style="fill: #90ee90; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" cx="286" cy="680" rx="28" ry="10"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="286" y="683.9">
+        <tspan x="286" y="683.9">HMAC</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="238" y1="680" x2="253.276" y2="680"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="257.776,680 251.776,683 253.276,680 251.776,677 "/>
+    </g>
+    <g>
+      <ellipse style="fill: #90ee90; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" cx="214" cy="712" rx="28" ry="10"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="214" y="715.9">
+        <tspan x="214" y="715.9">HMAC</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="314" y1="680" x2="329.276" y2="680"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="333.776,680 327.776,683 329.276,680 327.776,677 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="526" y1="200" x2="541.276" y2="200"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="545.776,200 539.776,203 541.276,200 539.776,197 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="502" y1="211" x2="502" y2="217.276"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="502,221.776 499,215.776 502,217.276 505,215.776 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="150" y1="451" x2="150" y2="617.276"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="150,621.776 147,615.776 150,617.276 153,615.776 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="334" y="429" width="48" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005f5f; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="358" y="443.9">
+        <tspan x="358" y="443.9">C[1,1]</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="358" y1="451" x2="358" y2="457.276"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="358,461.776 355,455.776 358,457.276 361,455.776 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="334" y="499" width="48" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005f5f; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="358" y="513.9">
+        <tspan x="358" y="513.9">M[1,1]</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="358" y1="482" x2="358" y2="494.276"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="358,498.776 355,492.776 358,494.276 361,492.776 "/>
+    </g>
+    <g>
+      <ellipse style="fill: #d8e5e5; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" cx="358" cy="472" rx="28" ry="10"/>
+      <text font-size="12.8" style="fill: #005f5f; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="358" y="475.9">
+        <tspan x="358" y="475.9">HMAC</tspan>
+      </text>
+    </g>
+    <g>
+      <ellipse style="fill: #d8e5e5; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" cx="430" cy="440" rx="28" ry="10"/>
+      <text font-size="12.8" style="fill: #005f5f; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="430" y="443.9">
+        <tspan x="430" y="443.9">HMAC</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="382" y1="440" x2="397.276" y2="440"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="401.776,440 395.776,443 397.276,440 395.776,437 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="458" y1="440" x2="473.276" y2="440"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="477.776,440 471.776,443 473.276,440 471.776,437 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="478" y="429" width="48" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005f5f; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="502" y="443.9">
+        <tspan x="502" y="443.9">C[1,2]</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="526" y1="440" x2="541.276" y2="440"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="545.776,440 539.776,443 541.276,440 539.776,437 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="502" y1="451" x2="502" y2="457.276"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="502,461.776 499,455.776 502,457.276 505,455.776 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="334" y="669" width="48" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="358" y="683.9">
+        <tspan x="358" y="683.9">C[2,1]</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="358" y1="691" x2="358" y2="697.276"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="358,701.776 355,695.776 358,697.276 361,695.776 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="334" y="737" width="48" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="358" y="751.9">
+        <tspan x="358" y="751.9">M[2,1]</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="358" y1="722" x2="358" y2="732.276"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="358,736.776 355,730.776 358,732.276 361,730.776 "/>
+    </g>
+    <g>
+      <ellipse style="fill: #90ee90; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" cx="358" cy="712" rx="28" ry="10"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="358" y="715.9">
+        <tspan x="358" y="715.9">HMAC</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="382" y1="680" x2="397.276" y2="680"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="401.776,680 395.776,683 397.276,680 395.776,677 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #ffffff" x="29.025" y="569" width="31.95" height="22" rx="0" ry="0"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:middle;font-family:sans-serif;font-style:normal;font-weight:normal" x="45" y="583.9">
+        <tspan x="45" y="583.9">T[2]</tspan>
+      </text>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" x1="44.975" y1="351" x2="91.4314" y2="586.28"/>
+      <polygon style="fill: #005f5f; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005f5f" fill-rule="evenodd" points="92.3031,590.695 88.1976,585.389 91.4314,586.28 94.084,584.227 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="60.975" y1="580" x2="81.7069" y2="591.26"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="85.6613,593.407 78.957,593.18 81.7069,591.26 81.8205,587.907 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="150" y1="691" x2="150" y2="795.276"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="150,799.776 147,793.776 150,795.276 153,793.776 "/>
+    </g>
+    <g>
+      <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" x1="52.9875" y1="591" x2="59.2318" y2="802.192"/>
+      <polygon style="fill: #005200; fill-opacity: 1; stroke-opacity: 1; stroke-width: 0.2; stroke: #005200" fill-rule="evenodd" points="59.3648,806.69 56.1888,800.782 59.2318,802.192 62.1862,800.604 "/>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke: none" x="230" y="68.1" width="107.55" height="14.95"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="230" y="80">
+        <tspan x="230" y="80">Initiated by Alice</tspan>
+      </text>
+    </g>
+    <g>
+      <rect style="fill: #ffffff; fill-opacity: 1; stroke: none" x="230" y="558.1" width="107.55" height="14.95"/>
+      <text font-size="12.8" style="fill: #005200; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="230" y="570">
+        <tspan x="230" y="570">Initiated by Alice</tspan>
+      </text>
+    </g>
+    <text font-size="12.8" style="fill: #005f5f; fill-opacity: 1; stroke: none;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="230" y="330">
+      <tspan x="230" y="330">Initiated by Bob</tspan>
+    </text>
+    <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke-dasharray: 20; stroke: #000000" x1="0" y1="40" x2="680" y2="40"/>
+    <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke-dasharray: 20; stroke: #000000" x1="0" y1="290" x2="680" y2="290"/>
+    <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke-dasharray: 20; stroke: #000000" x1="0" y1="530" x2="680" y2="530"/>
+    <line style="fill: none; stroke-opacity: 1; stroke-width: 0.2; stroke-dasharray: 20; stroke: #000000" x1="-10" y1="770" x2="670" y2="770"/>
   </g>
 </svg>
