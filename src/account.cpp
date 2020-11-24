@@ -316,7 +316,7 @@ std::size_t olm::Account::generate_fallback_key(
 
 std::size_t olm::Account::get_fallback_key_json_length(
 ) {
-    std::size_t length = 4 + sizeof(KEY_JSON_CURVE25519); /* {"curve25519":{}} */
+    std::size_t length = 4 + sizeof(KEY_JSON_CURVE25519) - 1; /* {"curve25519":{}} */
     OneTimeKey & key = current_fallback_key;
     if (key.published) {
         length += 1; /* " */
