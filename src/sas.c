@@ -152,8 +152,11 @@ size_t olm_sas_calculate_mac(
         (const uint8_t *) info, info_length,
         key, 32
     );
-    _olm_crypto_hmac_sha256(key, 32, input, input_length, mac);
-    _olm_encode_base64((const uint8_t *)mac, SHA256_OUTPUT_LENGTH, (uint8_t *)mac);
+
+    uint8_t temp_mac[32];
+    _olm_crypto_hmac_sha256(key, 32, input, input_length, temp_mac);
+    _olm_encode_base64((const uint8_t *)temp_mac, SHA256_OUTPUT_LENGTH, (uint8_t *)mac);
+
     return 0;
 }
 
@@ -179,7 +182,10 @@ size_t olm_sas_calculate_mac_long_kdf(
         (const uint8_t *) info, info_length,
         key, 256
     );
-    _olm_crypto_hmac_sha256(key, 256, input, input_length, mac);
-    _olm_encode_base64((const uint8_t *)mac, SHA256_OUTPUT_LENGTH, (uint8_t *)mac);
+
+    uint8_t temp_mac[32];
+    _olm_crypto_hmac_sha256(key, 256, input, input_length, temp_mac);
+    _olm_encode_base64((const uint8_t *)temp_mac, SHA256_OUTPUT_LENGTH, (uint8_t *)mac);
+
     return 0;
 }
