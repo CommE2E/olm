@@ -131,7 +131,9 @@ size_t olm_sas_mac_length(
     return _olm_encode_base64_length(SHA256_OUTPUT_LENGTH);
 }
 
-size_t olm_sas_calculate_mac(
+// A version of the calculate mac function that produces base64 strings that are
+// compatible with other base64 implementations.
+size_t olm_sas_calculate_mac_fixed_base64(
     OlmSAS * sas,
     const void * input, size_t input_length,
     const void * info, size_t info_length,
@@ -160,6 +162,33 @@ size_t olm_sas_calculate_mac(
     return 0;
 }
 
+
+size_t olm_sas_calculate_mac(
+    OlmSAS * sas,
+    const void * input, size_t input_length,
+    const void * info, size_t info_length,
+    void * mac, size_t mac_length
+) {
+    if (mac_length < olm_sas_mac_length(sas)) {
+        sas->last_error = OLM_OUTPUT_BUFFER_TOO_SMALL;
+        return (size_t)-1;
+    }
+    if (!sas->their_key_set) {
+        sas->last_error = OLM_SAS_THEIR_KEY_NOT_SET;
+        return (size_t)-1;
+    }
+    uint8_t key[32];
+    _olm_crypto_hkdf_sha256(
+        sas->secret, sizeof(sas->secret),
+        NULL, 0,
+        (const uint8_t *) info, info_length,
+        key, 32
+    );
+    _olm_crypto_hmac_sha256(key, 32, input, input_length, mac);
+    _olm_encode_base64((const uint8_t *)mac, SHA256_OUTPUT_LENGTH, (uint8_t *)mac);
+    return 0;
+}
+
 // for compatibility with an old version of Riot
 size_t olm_sas_calculate_mac_long_kdf(
     OlmSAS * sas,
@@ -182,10 +211,7 @@ size_t olm_sas_calculate_mac_long_kdf(
         (const uint8_t *) info, info_length,
         key, 256
     );
-
-    uint8_t temp_mac[32];
-    _olm_crypto_hmac_sha256(key, 256, input, input_length, temp_mac);
-    _olm_encode_base64((const uint8_t *)temp_mac, SHA256_OUTPUT_LENGTH, (uint8_t *)mac);
-
+    _olm_crypto_hmac_sha256(key, 256, input, input_length, mac);
+    _olm_encode_base64((const uint8_t *)mac, SHA256_OUTPUT_LENGTH, (uint8_t *)mac);
     return 0;
 }
