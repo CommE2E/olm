@@ -30,4 +30,15 @@
     return [NSString stringWithFormat:@"%tu.%tu.%tu", major, minor, patch];
 }
 
++ (instancetype)sharedInstance
+{
+    static OLMKit *sharedInstance = nil;
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[self alloc] init];
+    });
+    return sharedInstance;
+}
+
 @end

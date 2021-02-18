@@ -21,6 +21,7 @@
 #import "OLMSession.h"
 #import "OLMSession_Private.h"
 #import "OLMUtility.h"
+#import "OLMKit.h"
 
 @import Security;
 
@@ -243,6 +244,13 @@
 
         self = [self initWithSerializedData:pickle key:key error:&error];
     }
+    else if ([version isEqualToString:@"2"]) {
+        NSString *pickle = [decoder decodeObjectOfClass:[NSString class] forKey:@"pickle"];
+        NSData *key = OLMKit.sharedInstance.pickleKeyDelegate.pickleKey;
+        NSParameterAssert(key);
+        
+        self = [self initWithSerializedData:pickle key:key error:&error];
+    }
     
     NSParameterAssert(error == nil);
     NSParameterAssert(self != nil);
@@ -254,14 +262,23 @@
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder {
-    NSData *key = [OLMUtility randomBytesOfLength:32];
+    NSData *key = OLMKit.sharedInstance.pickleKeyDelegate.pickleKey;
+    if (key)
+    {
+        [encoder encodeObject:@"2" forKey:@"version"];
+    }
+    else
+    {
+        key = [OLMUtility randomBytesOfLength:32];
+        [encoder encodeObject:key forKey:@"key"];
+        [encoder encodeObject:@"1" forKey:@"version"];
+    }
+    
     NSError *error = nil;
     NSString *pickle = [self serializeDataWithKey:key error:&error];
     NSParameterAssert(pickle.length > 0 && error == nil);
     
     [encoder encodeObject:pickle forKey:@"pickle"];
-    [encoder encodeObject:key forKey:@"key"];
-    [encoder encodeObject:@"1" forKey:@"version"];
 }
 
 

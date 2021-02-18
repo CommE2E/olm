@@ -31,9 +31,31 @@
 #import <OLMKit/OLMPkSigning.h>
 #import <OLMKit/OLMSAS.h>
 
-@interface OLMKit : NSObject
 
-//! Project version string for OLMKit, the same as libolm.
-+ (NSString*)versionString;
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ `OLMKitPickleKeyDelegate` provides the key to use for every pickle operation.
+ */
+@protocol OLMKitPickleKeyDelegate <NSObject>
+
+- (NSData*)pickleKey;
 
 @end
+
+
+@interface OLMKit : NSObject
+
+/// Project version string for OLMKit, the same as libolm.
++ (NSString*)versionString;
+
+/// The optional delegate that provides the pickle key.
+/// If not provided, OLMKit will use default pickle keys.
+@property (nonatomic, weak, nullable) id<OLMKitPickleKeyDelegate> pickleKeyDelegate;
+
+/// The singleton instance.
++ (instancetype)sharedInstance;
+
+@end
+
+NS_ASSUME_NONNULL_END
