@@ -1,5 +1,5 @@
 {
-  "name": "olm",
+  "name": "@matrix-org/olm",
   "version": "3.2.1",
   "description": "An implementation of the Double Ratchet cryptographic ratchet",
   "main": "olm.js",
@@ -8,7 +8,9 @@
     "olm.wasm",
     "olm_legacy.js",
     "index.d.ts",
-    "README.md"
+    "README.md",
+    "checksums.txt",
+    "checksums.txt.asc"
   ],
   "scripts": {
     "build": "make -C .. js",
@@ -16,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/matrix-org/olm.git"
+    "url": "git+https://gitlab.matrix.org/matrix-org/olm.git"
   },
   "keywords": [
     "matrix-org"
@@ -26,8 +28,11 @@
   "bugs": {
     "url": "https://github.com/matrix-org/olm/issues"
   },
-  "homepage": "https://github.com/matrix-org/olm#readme",
+  "homepage": "https://gitlab.matrix.org/matrix-org/olm",
   "devDependencies": {
     "jasmine-node": "^1.14.5"
+  },
+  "publishConfig": {
+    "@matrix-org:registry":"https://gitlab.matrix.org/api/v4/projects/27/packages/npm/"
   }
 }

@@ -6,6 +6,9 @@
 /olm-*.tgz
 /README.html
 /tracing/README.html
+/python/dist
+/javascript/checksums.txt
+/javascript/checksums.txt.asc
 
 # Xcode
 build/
