@@ -1,3 +1,20 @@
+Changes in `3.2.2 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.2>`_
+=========================================================================
+
+This release includes the following changes since 3.2.1:
+
+* Fixes in the TypeScript definition file.
+* CMake build fixes.  Thanks to Gorgurov Alexey.
+* Change the JavaScript package name to ``@matrix-org/olm``.  Note that
+  this means that packages will need to change their ``require`` or
+  ``import`` statements to use this new name.
+* Include file checksums in the JavaScript package.
+* Fix length calculation in fallback key json.  Thanks to Tobias Furuholm.
+* Add a new function to calculate the correct base64 encoding for SAS.
+  (Currently only available in the C API.)
+* Add the ability to specify a pickle key in the Objective-C binding.
+* Add pkg-config file on Unix-like systems.
+
 Changes in `3.2.1 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.1>`_
 =========================================================================
 
