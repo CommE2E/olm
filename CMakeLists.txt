@@ -64,10 +64,14 @@ set_target_properties(olm PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 
+include(GNUInstallDirs)
+
+# Make a pkg-config file
+configure_file(${PROJECT_NAME}.pc.in ${PROJECT_NAME}.pc @ONLY NEWLINE_STYLE UNIX)
+
 #
 # Installation
 #
-include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Olm)
 install(TARGETS olm
     EXPORT olm-targets
@@ -85,6 +89,12 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/pk.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/sas.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/olm)
+
+if (UNIX AND NOT APPLE)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+    )
+endif ()
 
 # Export the targets to a script.
 install(EXPORT olm-targets
