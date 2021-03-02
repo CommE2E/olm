@@ -101,6 +101,7 @@ libolm can be used in different environments using bindings. In addition to the
 JavaScript, Python, Java (Android), and Objective-C bindings included in this
 repository, some bindings are (in alphabetical order):
 
+- [cl-megolm](https://github.com/K1D77A/cl-megolm) (MIT) Common Lisp bindings
 - [dart-olm](https://gitlab.com/famedly/libraries/dart-olm) (AGPLv3) Dart bindings
 - [Dhole/go-olm](https://github.com/Dhole/go-olm) (Apache-2.0) Go bindings
 - [libQtOlm](https://gitlab.com/b0/libqtolm/) (GPLv3) Qt bindings
@@ -112,7 +113,8 @@ repository, some bindings are (in alphabetical order):
 - [olm-sys](https://gitlab.gnome.org/BrainBlasted/olm-sys) (Apache-2.0) Rust
   bindings
 
-Note that bindings may have a different license from libolm.
+Note that bindings may have a different license from libolm, and are *not*
+endorsed by the Matrix.org Foundation C.I.C.
 
 ## Release process
 
