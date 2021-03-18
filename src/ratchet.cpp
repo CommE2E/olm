@@ -595,7 +595,7 @@ std::size_t olm::Ratchet::decrypt(
     if (!chain) {
         /* They have started using a new ephemeral ratchet key.
          * We need to derive a new set of chain keys.
-         * We can discard our previous empheral ratchet key.
+         * We can discard our previous ephemeral ratchet key.
          * We will generate a new key when we send the next message. */
 
         chain = receiver_chains.insert();

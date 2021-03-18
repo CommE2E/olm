@@ -94,7 +94,7 @@ struct Ratchet {
 
     /** The sender chain is used to send messages. Each time a new ephemeral
      * key is received from the remote server we generate a new sender chain
-     * with a new empheral key when we next send a message. */
+     * with a new ephemeral key when we next send a message. */
     List<SenderChain, 1> sender_chain;
 
     /** The receiver chain is used to decrypt received messages. We store the
