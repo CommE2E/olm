@@ -34,3 +34,5 @@ if (typeof module === 'object') {
     // level wrapper class.
     module.exports = Olm;
 }
+
+// @license-end
