@@ -119,7 +119,7 @@ endorsed by the Matrix.org Foundation C.I.C.
 ## Release process
 
 First: bump version numbers in ``common.mk``, ``CMakeLists.txt``,
-``javascript/package.json``, ``python/olm/__version__.py``, ``OLMKit.podspec``,
+``javascript/package.json``, ``python/olm/__version__.py``, ``OLMKit.podspec``, ``Package.swift``,
 and ``android/olm-sdk/build.gradle`` (``versionCode``, ``versionName`` and
 ``version``).
 
