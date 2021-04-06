@@ -12,6 +12,7 @@
 
 # Xcode
 build/
+.build/
 DerivedData/
 *.pbxuser
 !default.pbxuser
