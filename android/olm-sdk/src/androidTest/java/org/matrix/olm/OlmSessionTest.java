@@ -38,9 +38,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -84,7 +87,7 @@ public class OlmSessionTest {
             aliceAccount = new OlmAccount();
             bobAccount = new OlmAccount();
         } catch (OlmException e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         // test accounts creation
@@ -97,17 +100,17 @@ public class OlmSessionTest {
         try {
             bobIdentityKeys = bobAccount.identityKeys();
         } catch (Exception e) {
-            assertTrue("identityKeys failed " + e.getMessage(), false);
+            fail("identityKeys failed " + e.getMessage());
         }
 
         bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
-        assertTrue(null != bobIdentityKey);
+        assertNotNull(bobIdentityKey);
 
         // get bob one time keys
         try {
             bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         Map<String, Map<String, String>> bobOneTimeKeys = null;
@@ -115,7 +118,7 @@ public class OlmSessionTest {
         try {
             bobOneTimeKeys = bobAccount.oneTimeKeys();
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys, 1);
@@ -126,7 +129,7 @@ public class OlmSessionTest {
         try {
             aliceSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg=" + e.getMessage(), false);
+            fail("Exception Msg=" + e.getMessage());
         }
         assertTrue(0 != aliceSession.getOlmSessionId());
 
@@ -134,14 +137,14 @@ public class OlmSessionTest {
         try {
             aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         String clearMsg = "Heloo bob , this is alice!";
         OlmMessage encryptedMsgToBob = null;
         try {
             encryptedMsgToBob = aliceSession.encryptMessage(clearMsg);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(encryptedMsgToBob);
         assertNotNull(encryptedMsgToBob.mCipherText);
@@ -152,32 +155,32 @@ public class OlmSessionTest {
         try {
             bobSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg=" + e.getMessage(), false);
+            fail("Exception Msg=" + e.getMessage());
         }
         assertTrue(0 != bobSession.getOlmSessionId());
 
         try {
             bobSession.initInboundSession(bobAccount, encryptedMsgToBob.mCipherText);
         } catch (Exception e) {
-            assertTrue("initInboundSessionWithAccount failed " + e.getMessage(), false);
+            fail("initInboundSessionWithAccount failed " + e.getMessage());
         }
 
         String decryptedMsg = null;
         try {
             decryptedMsg = bobSession.decryptMessage(encryptedMsgToBob);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(decryptedMsg);
 
         // MESSAGE COMPARISON: decrypted vs encrypted
-        assertTrue(clearMsg.equals(decryptedMsg));
+        assertEquals(clearMsg, decryptedMsg);
 
         // clean objects..
         try {
             bobAccount.removeOneTimeKeys(bobSession);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         // release accounts
@@ -220,7 +223,7 @@ public class OlmSessionTest {
             aliceAccount = new OlmAccount();
             bobAccount = new OlmAccount();
         } catch (OlmException e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         // test accounts creation
@@ -233,17 +236,17 @@ public class OlmSessionTest {
         try {
             bobIdentityKeys = bobAccount.identityKeys();
         } catch (Exception e) {
-            assertTrue("identityKeys failed " + e.getMessage(), false);
+            fail("identityKeys failed " + e.getMessage());
         }
 
         bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
-        assertTrue(null != bobIdentityKey);
+        assertNotNull(bobIdentityKey);
 
         // get bob one time keys
         try {
             bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         Map<String, Map<String, String>> bobOneTimeKeys = null;
@@ -251,7 +254,7 @@ public class OlmSessionTest {
         try {
             bobOneTimeKeys = bobAccount.oneTimeKeys();
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys, 1);
@@ -262,7 +265,7 @@ public class OlmSessionTest {
         try {
             aliceSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg=" + e.getMessage(), false);
+            fail("Exception Msg=" + e.getMessage());
         }
         assertTrue(0 != aliceSession.getOlmSessionId());
 
@@ -270,7 +273,7 @@ public class OlmSessionTest {
         try {
             aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         String helloClearMsg = "Hello I'm Alice!";
@@ -280,7 +283,7 @@ public class OlmSessionTest {
         try {
             encryptedAliceToBobMsg1 = aliceSession.encryptMessage(helloClearMsg);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         assertNotNull(encryptedAliceToBobMsg1);
@@ -291,7 +294,7 @@ public class OlmSessionTest {
         try {
             bobSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg=" + e.getMessage(), false);
+            fail("Exception Msg=" + e.getMessage());
         }
 
         assertTrue(0 != bobSession.getOlmSessionId());
@@ -299,7 +302,7 @@ public class OlmSessionTest {
         try {
             bobSession.initInboundSession(bobAccount, encryptedAliceToBobMsg1.mCipherText);
         } catch (Exception e) {
-            assertTrue("initInboundSessionWithAccount failed " + e.getMessage(), false);
+            fail("initInboundSessionWithAccount failed " + e.getMessage());
         }
 
         // DECRYPT MESSAGE FROM ALICE
@@ -307,12 +310,12 @@ public class OlmSessionTest {
         try {
             decryptedMsg01 = bobSession.decryptMessage(encryptedAliceToBobMsg1);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(decryptedMsg01);
 
         // MESSAGE COMPARISON: decrypted vs encrypted
-        assertTrue(helloClearMsg.equals(decryptedMsg01));
+        assertEquals(helloClearMsg, decryptedMsg01);
 
         // BACK/FORTH MESSAGE COMPARISON
         String clearMsg1 = "Hello I'm Bob!";
@@ -324,7 +327,7 @@ public class OlmSessionTest {
         try {
             encryptedMsg1 = bobSession.encryptMessage(clearMsg1);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(encryptedMsg1);
 
@@ -332,7 +335,7 @@ public class OlmSessionTest {
         try {
             encryptedMsg2 = bobSession.encryptMessage(clearMsg2);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(encryptedMsg2);
 
@@ -341,7 +344,7 @@ public class OlmSessionTest {
         try {
             encryptedMsg3 = bobSession.encryptMessage(clearMsg3);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(encryptedMsg3);
 
@@ -350,7 +353,7 @@ public class OlmSessionTest {
         try {
             decryptedMsg1 = aliceSession.decryptMessage(encryptedMsg1);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         assertNotNull(decryptedMsg1);
@@ -358,7 +361,7 @@ public class OlmSessionTest {
         try {
             decryptedMsg2 = aliceSession.decryptMessage(encryptedMsg2);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         assertNotNull(decryptedMsg2);
@@ -366,14 +369,14 @@ public class OlmSessionTest {
         try {
             decryptedMsg3 = aliceSession.decryptMessage(encryptedMsg3);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(decryptedMsg3);
 
         // comparison tests
-        assertTrue(clearMsg1.equals(decryptedMsg1));
-        assertTrue(clearMsg2.equals(decryptedMsg2));
-        assertTrue(clearMsg3.equals(decryptedMsg3));
+        assertEquals(clearMsg1, decryptedMsg1);
+        assertEquals(clearMsg2, decryptedMsg2);
+        assertEquals(clearMsg3, decryptedMsg3);
 
         // and one more from alice to bob
         clearMsg1 = "another message from Alice to Bob!!";
@@ -382,7 +385,7 @@ public class OlmSessionTest {
         try {
             encryptedMsg1 = aliceSession.encryptMessage(clearMsg1);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(encryptedMsg1);
 
@@ -390,20 +393,20 @@ public class OlmSessionTest {
         try {
             decryptedMsg1 = bobSession.decryptMessage(encryptedMsg1);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         assertNotNull(decryptedMsg1);
-        assertTrue(clearMsg1.equals(decryptedMsg1));
+        assertEquals(clearMsg1, decryptedMsg1);
 
         // comparison test
-        assertTrue(clearMsg1.equals(decryptedMsg1));
+        assertEquals(clearMsg1, decryptedMsg1);
 
         // clean objects..
         try {
             bobAccount.removeOneTimeKeys(bobSession);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         bobAccount.releaseAccount();
@@ -427,7 +430,7 @@ public class OlmSessionTest {
             aliceAccount = new OlmAccount();
             bobAccount = new OlmAccount();
         } catch (OlmException e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         // test accounts creation
@@ -440,7 +443,7 @@ public class OlmSessionTest {
         try {
             aliceSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg=" + e.getMessage(), false);
+            fail("Exception Msg=" + e.getMessage());
         }
         assertTrue(0 != aliceSession.getOlmSessionId());
 
@@ -450,7 +453,7 @@ public class OlmSessionTest {
             bobSession = new OlmSession();
         } catch (OlmException e) {
             e.printStackTrace();
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertTrue(0 != bobSession.getOlmSessionId());
 
@@ -458,7 +461,7 @@ public class OlmSessionTest {
         try {
             aliceSessionId = aliceSession.sessionIdentifier();
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         assertNotNull(aliceSessionId);
@@ -467,12 +470,12 @@ public class OlmSessionTest {
         try {
             bobSessionId = bobSession.sessionIdentifier();
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(bobSessionId);
 
         // must be the same for both ends of the conversation
-        assertTrue(aliceSessionId.equals(bobSessionId));
+        assertEquals(aliceSessionId, bobSessionId);
 
         aliceAccount.releaseAccount();
         bobAccount.releaseAccount();
@@ -495,7 +498,7 @@ public class OlmSessionTest {
             aliceAccount = new OlmAccount();
             bobAccount = new OlmAccount();
         } catch (OlmException e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         // CREATE ALICE SESSION
@@ -503,7 +506,7 @@ public class OlmSessionTest {
             aliceSession = new OlmSession();
             bobSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg=" + e.getMessage(), false);
+            fail("Exception Msg=" + e.getMessage());
         }
 
         // get bob/luke identity key
@@ -512,7 +515,7 @@ public class OlmSessionTest {
         try {
             bobIdentityKeys = bobAccount.identityKeys();
         } catch (Exception e) {
-            assertTrue("identityKeys failed " + e.getMessage(), false);
+            fail("identityKeys failed " + e.getMessage());
         }
 
         Map<String, String> aliceIdentityKeys = null;
@@ -520,7 +523,7 @@ public class OlmSessionTest {
         try {
             aliceIdentityKeys = aliceAccount.identityKeys();
         } catch (Exception e) {
-            assertTrue("identityKeys failed " + e.getMessage(), false);
+            fail("identityKeys failed " + e.getMessage());
         }
 
         String bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
@@ -530,13 +533,13 @@ public class OlmSessionTest {
         try {
             bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         try {
             aliceAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         Map<String, Map<String, String>> bobOneTimeKeys = null;
@@ -544,7 +547,7 @@ public class OlmSessionTest {
         try {
             bobOneTimeKeys = bobAccount.oneTimeKeys();
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         String bobOneTimeKey1 = TestHelper.getOneTimeKey(bobOneTimeKeys, 1);
@@ -553,7 +556,7 @@ public class OlmSessionTest {
         try {
             aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey1);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         String aliceClearMsg = "hello helooo to bob!";
@@ -562,7 +565,7 @@ public class OlmSessionTest {
         try {
             encryptedAliceToBobMsg1 = aliceSession.encryptMessage(aliceClearMsg);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         assertFalse(bobSession.matchesInboundSession(encryptedAliceToBobMsg1.mCipherText));
@@ -571,7 +574,7 @@ public class OlmSessionTest {
         try {
             bobSession.initInboundSession(bobAccount, encryptedAliceToBobMsg1.mCipherText);
         } catch (Exception e) {
-            assertTrue("initInboundSessionWithAccount failed " + e.getMessage(), false);
+            fail("initInboundSessionWithAccount failed " + e.getMessage());
         }
 
         // test matchesInboundSession() and matchesInboundSessionFrom()
@@ -584,7 +587,7 @@ public class OlmSessionTest {
         try {
             bobAccount.removeOneTimeKeys(bobSession);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         aliceAccount.releaseAccount();
@@ -621,7 +624,7 @@ public class OlmSessionTest {
             aliceAccount = new OlmAccount();
             bobAccount = new OlmAccount();
         } catch (OlmException e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         // test accounts creation
@@ -634,17 +637,17 @@ public class OlmSessionTest {
         try {
             bobIdentityKeys = bobAccount.identityKeys();
         } catch (Exception e) {
-            assertTrue("identityKeys failed " + e.getMessage(), false);
+            fail("identityKeys failed " + e.getMessage());
         }
 
         bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
-        assertTrue(null != bobIdentityKey);
+        assertNotNull(bobIdentityKey);
 
         // get bob one time keys
         try {
             bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         Map<String, Map<String, String>> bobOneTimeKeys = null;
@@ -652,7 +655,7 @@ public class OlmSessionTest {
         try {
             bobOneTimeKeys = bobAccount.oneTimeKeys();
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys, 1);
@@ -663,7 +666,7 @@ public class OlmSessionTest {
         try {
             aliceSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg=" + e.getMessage(), false);
+            fail("Exception Msg=" + e.getMessage());
         }
         assertTrue(0 != aliceSession.getOlmSessionId());
 
@@ -671,7 +674,7 @@ public class OlmSessionTest {
         try {
             aliceSession.initOutboundSession(aliceAccount, bobIdentityKey, bobOneTimeKey);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         String helloClearMsg = "Hello I'm Alice!";
@@ -680,7 +683,7 @@ public class OlmSessionTest {
         try {
             encryptedAliceToBobMsg1 = aliceSession.encryptMessage(helloClearMsg);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(encryptedAliceToBobMsg1);
         assertNotNull(encryptedAliceToBobMsg1.mCipherText);
@@ -690,7 +693,7 @@ public class OlmSessionTest {
         try {
             bobSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg=" + e.getMessage(), false);
+            fail("Exception Msg=" + e.getMessage());
         }
         assertTrue(0 != bobSession.getOlmSessionId());
 
@@ -698,7 +701,7 @@ public class OlmSessionTest {
         try {
             bobSession.initInboundSession(bobAccount, encryptedAliceToBobMsg1.mCipherText);
         } catch (Exception e) {
-            assertTrue("initInboundSessionWithAccount failed " + e.getMessage(), false);
+            fail("initInboundSessionWithAccount failed " + e.getMessage());
         }
 
         // DECRYPT MESSAGE FROM ALICE
@@ -707,13 +710,13 @@ public class OlmSessionTest {
         try {
             decryptedMsg01 = bobSession.decryptMessage(encryptedAliceToBobMsg1);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         assertNotNull(decryptedMsg01);
 
         // MESSAGE COMPARISON: decrypted vs encrypted
-        assertTrue(helloClearMsg.equals(decryptedMsg01));
+        assertEquals(helloClearMsg, decryptedMsg01);
 
         // BACK/FORTH MESSAGE COMPARISON
         String clearMsg1 = "Hello I'm Bob!";
@@ -725,7 +728,7 @@ public class OlmSessionTest {
         try {
             encryptedMsg1 = bobSession.encryptMessage(clearMsg1);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(encryptedMsg1);
 
@@ -733,7 +736,7 @@ public class OlmSessionTest {
         try {
             encryptedMsg2 = bobSession.encryptMessage(clearMsg2);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(encryptedMsg2);
 
@@ -741,7 +744,7 @@ public class OlmSessionTest {
         try {
             encryptedMsg3 = bobSession.encryptMessage(clearMsg3);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(encryptedMsg3);
 
@@ -772,15 +775,15 @@ public class OlmSessionTest {
             assertNotNull(decryptedMsg3);
 
             // comparison tests
-            assertTrue(clearMsg1.equals(decryptedMsg1));
-            assertTrue(clearMsg2.equals(decryptedMsg2));
-            assertTrue(clearMsg3.equals(decryptedMsg3));
+            assertEquals(clearMsg1, decryptedMsg1);
+            assertEquals(clearMsg2, decryptedMsg2);
+            assertEquals(clearMsg3, decryptedMsg3);
 
             // clean objects..
             try {
                 bobAccount.removeOneTimeKeys(bobSession);
             } catch (Exception e) {
-                assertTrue(e.getMessage(), false);
+                fail(e.getMessage());
             }
 
             bobAccount.releaseAccount();
@@ -796,19 +799,19 @@ public class OlmSessionTest {
             assertTrue(aliceSessionDeserial.isReleased());
         } catch (FileNotFoundException e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception FileNotFoundException Msg==" + e.getMessage());
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         } catch (ClassNotFoundException e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception ClassNotFoundException Msg==" + e.getMessage());
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         } catch (IOException e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception IOException Msg==" + e.getMessage());
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         /*catch (OlmException e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception OlmException Msg==" + e.getMessage());
         }*/ catch (Exception e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception Msg==" + e.getMessage());
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
     }
 
@@ -828,7 +831,7 @@ public class OlmSessionTest {
             aliceAccount = new OlmAccount();
             bobAccount = new OlmAccount();
         } catch (OlmException e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         // get bob identity key
@@ -837,17 +840,17 @@ public class OlmSessionTest {
         try {
             bobIdentityKeys = bobAccount.identityKeys();
         } catch (Exception e) {
-            assertTrue("identityKeys failed " + e.getMessage(), false);
+            fail("identityKeys failed " + e.getMessage());
         }
 
         String bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
-        assertTrue(null != bobIdentityKey);
+        assertNotNull(bobIdentityKey);
 
         // get bob one time keys
         try {
             bobAccount.generateOneTimeKeys(ONE_TIME_KEYS_NUMBER);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         Map<String, Map<String, String>> bobOneTimeKeys = null;
@@ -855,7 +858,7 @@ public class OlmSessionTest {
         try {
             bobOneTimeKeys = bobAccount.oneTimeKeys();
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         assertNotNull(bobOneTimeKeys);
@@ -867,7 +870,7 @@ public class OlmSessionTest {
         try {
             aliceSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg=" + e.getMessage(), false);
+            fail("Exception Msg=" + e.getMessage());
         }
 
         // SANITY CHECK TESTS FOR: initOutboundSessionWithAccount()
@@ -877,7 +880,7 @@ public class OlmSessionTest {
         } catch (Exception e) {
             errorMessage = e.getMessage();
         }
-        assertTrue(null != errorMessage);
+        assertNotNull(errorMessage);
 
         errorMessage = null;
         try {
@@ -885,7 +888,7 @@ public class OlmSessionTest {
         } catch (Exception e) {
             errorMessage = e.getMessage();
         }
-        assertTrue(null != errorMessage);
+        assertNotNull(errorMessage);
 
         errorMessage = null;
         try {
@@ -893,7 +896,7 @@ public class OlmSessionTest {
         } catch (Exception e) {
             errorMessage = e.getMessage();
         }
-        assertTrue(null != errorMessage);
+        assertNotNull(errorMessage);
 
         errorMessage = null;
         try {
@@ -901,7 +904,7 @@ public class OlmSessionTest {
         } catch (Exception e) {
             errorMessage = e.getMessage();
         }
-        assertTrue(null != errorMessage);
+        assertNotNull(errorMessage);
 
         // init properly
         errorMessage = null;
@@ -910,23 +913,23 @@ public class OlmSessionTest {
         } catch (Exception e) {
             errorMessage = e.getMessage();
         }
-        assertTrue(null == errorMessage);
+        assertNull(errorMessage);
 
         // SANITY CHECK TESTS FOR: encryptMessage()
         OlmMessage message = null;
         try {
             message = aliceSession.encryptMessage(null);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
-        assertTrue(null == message);
+        assertNull(message);
 
         // encrypt properly
         OlmMessage encryptedMsgToBob = null;
         try {
             encryptedMsgToBob = aliceSession.encryptMessage("A message for bob");
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(encryptedMsgToBob);
 
@@ -941,7 +944,7 @@ public class OlmSessionTest {
                 errorMessage = e.getMessage();
             }
 
-            assertTrue(!TextUtils.isEmpty(errorMessage));
+            assertFalse(TextUtils.isEmpty(errorMessage));
 
             errorMessage = null;
             try {
@@ -950,7 +953,7 @@ public class OlmSessionTest {
                 errorMessage = e.getMessage();
             }
 
-            assertTrue(!TextUtils.isEmpty(errorMessage));
+            assertFalse(TextUtils.isEmpty(errorMessage));
 
             errorMessage = null;
             try {
@@ -959,7 +962,7 @@ public class OlmSessionTest {
                 errorMessage = e.getMessage();
             }
 
-            assertTrue(!TextUtils.isEmpty(errorMessage));
+            assertFalse(TextUtils.isEmpty(errorMessage));
 
             // init properly
             errorMessage = null;
@@ -971,7 +974,7 @@ public class OlmSessionTest {
 
             assertTrue(TextUtils.isEmpty(errorMessage));
         } catch (OlmException e) {
-            assertTrue("Exception Msg=" + e.getMessage(), false);
+            fail("Exception Msg=" + e.getMessage());
         }
 
         // SANITY CHECK TESTS FOR: decryptMessage()
@@ -979,22 +982,22 @@ public class OlmSessionTest {
         try {
             decryptedMsg = aliceSession.decryptMessage(null);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
-        assertTrue(null == decryptedMsg);
+        assertNull(decryptedMsg);
 
         // SANITY CHECK TESTS FOR: matchesInboundSession()
-        assertTrue(!aliceSession.matchesInboundSession(null));
+        assertFalse(aliceSession.matchesInboundSession(null));
 
         // SANITY CHECK TESTS FOR: matchesInboundSessionFrom()
-        assertTrue(!aliceSession.matchesInboundSessionFrom(null, null));
+        assertFalse(aliceSession.matchesInboundSessionFrom(null, null));
 
         // release objects
         try {
             bobAccount.removeOneTimeKeys(bobSession);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         aliceAccount.releaseAccount();
