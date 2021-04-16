@@ -3,14 +3,11 @@ import org.apache.tools.ant.taskdefs.condition.Os
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
 
     defaultConfig {
         minSdkVersion 11
-        targetSdkVersion 28
-        versionCode 322
-        versionName "3.2.2"
-        version "3.2.2"
+        targetSdkVersion 30
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -34,7 +31,7 @@ android {
         jni.srcDirs = []
     }
 
-   task buildJavaDoc(type: Javadoc) {
+    task buildJavaDoc(type: Javadoc) {
         source = android.sourceSets.main.java.srcDirs
         classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
         destinationDir = file("./doc/")
@@ -60,14 +57,15 @@ android {
     }
 
     tasks.withType(JavaCompile) {
-        compileTask -> if (compileTask.name.startsWith('compileDebugJava')) {
-            println 'test compile: Debug'
-            compileTask.dependsOn ndkBuildNativeDebug
-        } else if (compileTask.name.startsWith('compileReleaseJava')) {
-            println 'test compile: Release'
-            compileTask.dependsOn ndkBuildNativeRelease
-        }
-        compileTask.dependsOn buildJavaDoc
+        compileTask ->
+            if (compileTask.name.startsWith('compileDebugJava')) {
+                println 'test compile: Debug'
+                compileTask.dependsOn ndkBuildNativeDebug
+            } else if (compileTask.name.startsWith('compileReleaseJava')) {
+                println 'test compile: Release'
+                compileTask.dependsOn ndkBuildNativeRelease
+            }
+            compileTask.dependsOn buildJavaDoc
     }
 
     clean.dependsOn cleanNative
@@ -117,9 +115,9 @@ def gitRevisionDate() {
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support:support-annotations:28.0.0'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test:rules:1.0.2'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'junit:junit:4.13.2'
+
+    androidTestImplementation 'androidx.test:runner:1.3.0'
+    androidTestImplementation 'androidx.test:rules:1.3.0'
 }
