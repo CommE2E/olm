@@ -18,11 +18,12 @@
 package org.matrix.olm;
 
 import android.content.Context;
-import android.support.test.runner.AndroidJUnit4;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.json.JSONObject;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -37,7 +38,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Map;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -53,13 +53,13 @@ public class OlmSessionTest {
     private static OlmManager mOlmManager;
 
     @BeforeClass
-    public static void setUpClass(){
+    public static void setUpClass() {
         // load native lib
         mOlmManager = new OlmManager();
 
         String version = mOlmManager.getOlmLibVersion();
         assertNotNull(version);
-        Log.d(LOG_TAG, "## setUpClass(): lib version="+version);
+        Log.d(LOG_TAG, "## setUpClass(): lib version=" + version);
     }
 
     /**
@@ -75,7 +75,7 @@ public class OlmSessionTest {
     public void test01AliceToBob() {
         final int ONE_TIME_KEYS_NUMBER = 5;
         String bobIdentityKey = null;
-        String bobOneTimeKey=null;
+        String bobOneTimeKey = null;
         OlmAccount bobAccount = null;
         OlmAccount aliceAccount = null;
 
@@ -84,12 +84,12 @@ public class OlmSessionTest {
             aliceAccount = new OlmAccount();
             bobAccount = new OlmAccount();
         } catch (OlmException e) {
-            assertTrue(e.getMessage(),false);
+            assertTrue(e.getMessage(), false);
         }
 
         // test accounts creation
-        assertTrue(0!=bobAccount.getOlmAccountId());
-        assertTrue(0!=aliceAccount.getOlmAccountId());
+        assertTrue(0 != bobAccount.getOlmAccountId());
+        assertTrue(0 != aliceAccount.getOlmAccountId());
 
         // get bob identity key
         Map<String, String> bobIdentityKeys = null;
@@ -101,7 +101,7 @@ public class OlmSessionTest {
         }
 
         bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
-        assertTrue(null!=bobIdentityKey);
+        assertTrue(null != bobIdentityKey);
 
         // get bob one time keys
         try {
@@ -118,7 +118,7 @@ public class OlmSessionTest {
             assertTrue(e.getMessage(), false);
         }
 
-        bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys,1);
+        bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys, 1);
         assertNotNull(bobOneTimeKey);
 
         // CREATE ALICE SESSION
@@ -126,9 +126,9 @@ public class OlmSessionTest {
         try {
             aliceSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg="+e.getMessage(), false);
+            assertTrue("Exception Msg=" + e.getMessage(), false);
         }
-        assertTrue(0!=aliceSession.getOlmSessionId());
+        assertTrue(0 != aliceSession.getOlmSessionId());
 
         // CREATE ALICE OUTBOUND SESSION and encrypt message to bob
         try {
@@ -145,16 +145,16 @@ public class OlmSessionTest {
         }
         assertNotNull(encryptedMsgToBob);
         assertNotNull(encryptedMsgToBob.mCipherText);
-        Log.d(LOG_TAG,"## test01AliceToBob(): encryptedMsg="+encryptedMsgToBob.mCipherText);
+        Log.d(LOG_TAG, "## test01AliceToBob(): encryptedMsg=" + encryptedMsgToBob.mCipherText);
 
         // CREATE BOB INBOUND SESSION and decrypt message from alice
         OlmSession bobSession = null;
         try {
             bobSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg="+e.getMessage(), false);
+            assertTrue("Exception Msg=" + e.getMessage(), false);
         }
-        assertTrue(0!=bobSession.getOlmSessionId());
+        assertTrue(0 != bobSession.getOlmSessionId());
 
         try {
             bobSession.initInboundSession(bobAccount, encryptedMsgToBob.mCipherText);
@@ -220,12 +220,12 @@ public class OlmSessionTest {
             aliceAccount = new OlmAccount();
             bobAccount = new OlmAccount();
         } catch (OlmException e) {
-            assertTrue(e.getMessage(),false);
+            assertTrue(e.getMessage(), false);
         }
 
         // test accounts creation
-        assertTrue(0!=bobAccount.getOlmAccountId());
-        assertTrue(0!=aliceAccount.getOlmAccountId());
+        assertTrue(0 != bobAccount.getOlmAccountId());
+        assertTrue(0 != aliceAccount.getOlmAccountId());
 
         // get bob identity key
         Map<String, String> bobIdentityKeys = null;
@@ -237,7 +237,7 @@ public class OlmSessionTest {
         }
 
         bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
-        assertTrue(null!=bobIdentityKey);
+        assertTrue(null != bobIdentityKey);
 
         // get bob one time keys
         try {
@@ -254,7 +254,7 @@ public class OlmSessionTest {
             assertTrue(e.getMessage(), false);
         }
 
-        bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys,1);
+        bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys, 1);
         assertNotNull(bobOneTimeKey);
 
         // CREATE ALICE SESSION
@@ -262,9 +262,9 @@ public class OlmSessionTest {
         try {
             aliceSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg="+e.getMessage(), false);
+            assertTrue("Exception Msg=" + e.getMessage(), false);
         }
-        assertTrue(0!=aliceSession.getOlmSessionId());
+        assertTrue(0 != aliceSession.getOlmSessionId());
 
         // CREATE ALICE OUTBOUND SESSION and encrypt message to bob
         try {
@@ -291,10 +291,10 @@ public class OlmSessionTest {
         try {
             bobSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg="+e.getMessage(), false);
+            assertTrue("Exception Msg=" + e.getMessage(), false);
         }
 
-        assertTrue(0!=bobSession.getOlmSessionId());
+        assertTrue(0 != bobSession.getOlmSessionId());
 
         try {
             bobSession.initInboundSession(bobAccount, encryptedAliceToBobMsg1.mCipherText);
@@ -427,12 +427,12 @@ public class OlmSessionTest {
             aliceAccount = new OlmAccount();
             bobAccount = new OlmAccount();
         } catch (OlmException e) {
-            assertTrue(e.getMessage(),false);
+            assertTrue(e.getMessage(), false);
         }
 
         // test accounts creation
-        assertTrue(0!=bobAccount.getOlmAccountId());
-        assertTrue(0!=aliceAccount.getOlmAccountId());
+        assertTrue(0 != bobAccount.getOlmAccountId());
+        assertTrue(0 != aliceAccount.getOlmAccountId());
 
         // CREATE ALICE SESSION
 
@@ -440,9 +440,9 @@ public class OlmSessionTest {
         try {
             aliceSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg="+e.getMessage(), false);
+            assertTrue("Exception Msg=" + e.getMessage(), false);
         }
-        assertTrue(0!=aliceSession.getOlmSessionId());
+        assertTrue(0 != aliceSession.getOlmSessionId());
 
         // CREATE ALICE SESSION
         OlmSession bobSession = null;
@@ -452,7 +452,7 @@ public class OlmSessionTest {
             e.printStackTrace();
             assertTrue(e.getMessage(), false);
         }
-        assertTrue(0!=bobSession.getOlmSessionId());
+        assertTrue(0 != bobSession.getOlmSessionId());
 
         String aliceSessionId = null;
         try {
@@ -487,7 +487,7 @@ public class OlmSessionTest {
 
     @Test
     public void test04MatchInboundSession() {
-        OlmAccount aliceAccount=null, bobAccount=null;
+        OlmAccount aliceAccount = null, bobAccount = null;
         OlmSession aliceSession = null, bobSession = null;
 
         // ACCOUNTS CREATION
@@ -601,6 +601,7 @@ public class OlmSessionTest {
     // ********************************************************
     // ************* SERIALIZATION TEST ***********************
     // ********************************************************
+
     /**
      * Same as {@link #test02AliceToBobBackAndForth()}, but alice's session
      * is serialized and de-serialized before performing the final
@@ -620,12 +621,12 @@ public class OlmSessionTest {
             aliceAccount = new OlmAccount();
             bobAccount = new OlmAccount();
         } catch (OlmException e) {
-            assertTrue(e.getMessage(),false);
+            assertTrue(e.getMessage(), false);
         }
 
         // test accounts creation
-        assertTrue(0!=bobAccount.getOlmAccountId());
-        assertTrue(0!=aliceAccount.getOlmAccountId());
+        assertTrue(0 != bobAccount.getOlmAccountId());
+        assertTrue(0 != aliceAccount.getOlmAccountId());
 
         // get bob identity key
         Map<String, String> bobIdentityKeys = null;
@@ -637,7 +638,7 @@ public class OlmSessionTest {
         }
 
         bobIdentityKey = TestHelper.getIdentityKey(bobIdentityKeys);
-        assertTrue(null!=bobIdentityKey);
+        assertTrue(null != bobIdentityKey);
 
         // get bob one time keys
         try {
@@ -654,7 +655,7 @@ public class OlmSessionTest {
             assertTrue(e.getMessage(), false);
         }
 
-        bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys,1);
+        bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys, 1);
         assertNotNull(bobOneTimeKey);
 
         // CREATE ALICE SESSION
@@ -662,9 +663,9 @@ public class OlmSessionTest {
         try {
             aliceSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg="+e.getMessage(), false);
+            assertTrue("Exception Msg=" + e.getMessage(), false);
         }
-        assertTrue(0!=aliceSession.getOlmSessionId());
+        assertTrue(0 != aliceSession.getOlmSessionId());
 
         // CREATE ALICE OUTBOUND SESSION and encrypt message to bob
         try {
@@ -689,9 +690,9 @@ public class OlmSessionTest {
         try {
             bobSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg="+e.getMessage(), false);
+            assertTrue("Exception Msg=" + e.getMessage(), false);
         }
-        assertTrue(0!=bobSession.getOlmSessionId());
+        assertTrue(0 != bobSession.getOlmSessionId());
 
         // init bob session with alice PRE KEY
         try {
@@ -745,7 +746,7 @@ public class OlmSessionTest {
         assertNotNull(encryptedMsg3);
 
         // serialize alice session
-        Context context = getInstrumentation().getContext();
+        Context context = ApplicationProvider.getApplicationContext();
         try {
             FileOutputStream fileOutput = context.openFileOutput(FILE_NAME_SERIAL_SESSION, Context.MODE_PRIVATE);
             ObjectOutputStream objectOutput = new ObjectOutputStream(fileOutput);
@@ -793,23 +794,19 @@ public class OlmSessionTest {
             assertTrue(bobSession.isReleased());
             assertTrue(aliceSession.isReleased());
             assertTrue(aliceSessionDeserial.isReleased());
-        }
-        catch (FileNotFoundException e) {
-            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception FileNotFoundException Msg=="+e.getMessage());
+        } catch (FileNotFoundException e) {
+            Log.e(LOG_TAG, "## test03SessionSerialization(): Exception FileNotFoundException Msg==" + e.getMessage());
             assertTrue(e.getMessage(), false);
-        }
-        catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception ClassNotFoundException Msg==" + e.getMessage());
             assertTrue(e.getMessage(), false);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception IOException Msg==" + e.getMessage());
             assertTrue(e.getMessage(), false);
         }
         /*catch (OlmException e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception OlmException Msg==" + e.getMessage());
-        }*/
-        catch (Exception e) {
+        }*/ catch (Exception e) {
             Log.e(LOG_TAG, "## test03SessionSerialization(): Exception Msg==" + e.getMessage());
             assertTrue(e.getMessage(), false);
         }
@@ -862,7 +859,7 @@ public class OlmSessionTest {
         }
 
         assertNotNull(bobOneTimeKeys);
-        String bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys,1);
+        String bobOneTimeKey = TestHelper.getOneTimeKey(bobOneTimeKeys, 1);
         assertNotNull(bobOneTimeKey);
 
         // CREATE ALICE SESSION
@@ -922,7 +919,7 @@ public class OlmSessionTest {
         } catch (Exception e) {
             assertTrue(e.getMessage(), false);
         }
-        assertTrue(null==message);
+        assertTrue(null == message);
 
         // encrypt properly
         OlmMessage encryptedMsgToBob = null;
@@ -974,7 +971,7 @@ public class OlmSessionTest {
 
             assertTrue(TextUtils.isEmpty(errorMessage));
         } catch (OlmException e) {
-            assertTrue("Exception Msg="+e.getMessage(), false);
+            assertTrue("Exception Msg=" + e.getMessage(), false);
         }
 
         // SANITY CHECK TESTS FOR: decryptMessage()
@@ -985,13 +982,13 @@ public class OlmSessionTest {
             assertTrue(e.getMessage(), false);
         }
 
-        assertTrue(null==decryptedMsg);
+        assertTrue(null == decryptedMsg);
 
         // SANITY CHECK TESTS FOR: matchesInboundSession()
         assertTrue(!aliceSession.matchesInboundSession(null));
 
         // SANITY CHECK TESTS FOR: matchesInboundSessionFrom()
-        assertTrue(!aliceSession.matchesInboundSessionFrom(null,null));
+        assertTrue(!aliceSession.matchesInboundSessionFrom(null, null));
 
         // release objects
         try {

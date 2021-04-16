@@ -18,9 +18,11 @@
 package org.matrix.olm;
 
 import android.content.Context;
-import android.support.test.runner.AndroidJUnit4;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -36,7 +38,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -223,7 +224,7 @@ public class OlmGroupSessionTest {
 
 
         // serialize alice session
-        Context context = getInstrumentation().getContext();
+        Context context = ApplicationProvider.getApplicationContext();
         try {
             FileOutputStream fileOutput = context.openFileOutput(FILE_NAME_SERIAL_OUT_SESSION, Context.MODE_PRIVATE);
             ObjectOutputStream objectOutput = new ObjectOutputStream(fileOutput);
@@ -312,7 +313,7 @@ public class OlmGroupSessionTest {
         assertNotNull(bobInboundGroupSessionRef);
 
         // serialize alice session
-        Context context = getInstrumentation().getContext();
+        Context context = ApplicationProvider.getApplicationContext();
         try {
             FileOutputStream fileOutput = context.openFileOutput(FILE_NAME_SERIAL_IN_SESSION, Context.MODE_PRIVATE);
             ObjectOutputStream objectOutput = new ObjectOutputStream(fileOutput);

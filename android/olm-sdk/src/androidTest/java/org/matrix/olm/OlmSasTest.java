@@ -16,9 +16,9 @@
 
 package org.matrix.olm;
 
-
-import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;

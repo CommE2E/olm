@@ -16,20 +16,18 @@
 
 package org.matrix.olm;
 
-import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
-import java.util.Arrays;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
-import static org.junit.Assert.assertFalse;
+import java.util.Arrays;
+
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
@@ -107,14 +105,14 @@ public class OlmPkTest {
         assertNotNull(mOlmPkDecryption);
 
         byte[] privateKey = {
-            (byte)0x77, (byte)0x07, (byte)0x6D, (byte)0x0A,
-            (byte)0x73, (byte)0x18, (byte)0xA5, (byte)0x7D,
-            (byte)0x3C, (byte)0x16, (byte)0xC1, (byte)0x72,
-            (byte)0x51, (byte)0xB2, (byte)0x66, (byte)0x45,
-            (byte)0xDF, (byte)0x4C, (byte)0x2F, (byte)0x87,
-            (byte)0xEB, (byte)0xC0, (byte)0x99, (byte)0x2A,
-            (byte)0xB1, (byte)0x77, (byte)0xFB, (byte)0xA5,
-            (byte)0x1D, (byte)0xB9, (byte)0x2C, (byte)0x2A
+                (byte) 0x77, (byte) 0x07, (byte) 0x6D, (byte) 0x0A,
+                (byte) 0x73, (byte) 0x18, (byte) 0xA5, (byte) 0x7D,
+                (byte) 0x3C, (byte) 0x16, (byte) 0xC1, (byte) 0x72,
+                (byte) 0x51, (byte) 0xB2, (byte) 0x66, (byte) 0x45,
+                (byte) 0xDF, (byte) 0x4C, (byte) 0x2F, (byte) 0x87,
+                (byte) 0xEB, (byte) 0xC0, (byte) 0x99, (byte) 0x2A,
+                (byte) 0xB1, (byte) 0x77, (byte) 0xFB, (byte) 0xA5,
+                (byte) 0x1D, (byte) 0xB9, (byte) 0x2C, (byte) 0x2A
         };
 
         assertTrue(privateKey.length == OlmPkDecryption.privateKeyLength());

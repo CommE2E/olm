@@ -18,12 +18,12 @@
 package org.matrix.olm;
 
 import android.content.Context;
-import android.support.test.runner.AndroidJUnit4;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -41,7 +41,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Map;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -59,15 +58,15 @@ public class OlmAccountTest {
     private final String FILE_NAME = "SerialTestFile";
 
     @BeforeClass
-    public static void setUpClass(){
+    public static void setUpClass() {
         // load native lib
         mOlmManager = new OlmManager();
 
         String olmLibVersion = mOlmManager.getOlmLibVersion();
         assertNotNull(olmLibVersion);
-        String olmSdkVersion = mOlmManager.getDetailedVersion(getInstrumentation().getContext());
+        String olmSdkVersion = mOlmManager.getDetailedVersion(ApplicationProvider.getApplicationContext());
         assertNotNull(olmLibVersion);
-        Log.d(LOG_TAG, "## setUpClass(): Versions - Android Olm SDK = "+olmSdkVersion+"  Olm lib ="+olmLibVersion);
+        Log.d(LOG_TAG, "## setUpClass(): Versions - Android Olm SDK = " + olmSdkVersion + "  Olm lib =" + olmLibVersion);
     }
 
     @AfterClass
@@ -77,7 +76,7 @@ public class OlmAccountTest {
 
     @Before
     public void setUp() {
-        if(mIsAccountCreated) {
+        if (mIsAccountCreated) {
             assertNotNull(mOlmAccount);
         }
     }
@@ -119,8 +118,8 @@ public class OlmAccountTest {
     @Test
     public void test04GetOlmAccountId() {
         long olmNativeInstance = mOlmAccount.getOlmAccountId();
-        Log.d(LOG_TAG,"## testGetOlmAccountId olmNativeInstance="+olmNativeInstance);
-        assertTrue(0!=olmNativeInstance);
+        Log.d(LOG_TAG, "## testGetOlmAccountId olmNativeInstance=" + olmNativeInstance);
+        assertTrue(0 != olmNativeInstance);
     }
 
     /**
@@ -137,15 +136,15 @@ public class OlmAccountTest {
             assertTrue("identityKeys failed " + e.getMessage(), false);
         }
         assertNotNull(identityKeys);
-        Log.d(LOG_TAG,"## testIdentityKeys Keys="+identityKeys);
+        Log.d(LOG_TAG, "## testIdentityKeys Keys=" + identityKeys);
 
         // is JSON_KEY_FINGER_PRINT_KEY present?
         String fingerPrintKey = TestHelper.getFingerprintKey(identityKeys);
-        assertTrue("fingerprint key missing",!TextUtils.isEmpty(fingerPrintKey));
+        assertTrue("fingerprint key missing", !TextUtils.isEmpty(fingerPrintKey));
 
         // is JSON_KEY_IDENTITY_KEY present?
         String identityKey = TestHelper.getIdentityKey(identityKeys);
-        assertTrue("identity key missing",!TextUtils.isEmpty(identityKey));
+        assertTrue("identity key missing", !TextUtils.isEmpty(identityKey));
     }
 
     //****************************************************
@@ -154,9 +153,9 @@ public class OlmAccountTest {
     @Test
     public void test06MaxOneTimeKeys() {
         long maxOneTimeKeys = mOlmAccount.maxOneTimeKeys();
-        Log.d(LOG_TAG,"## testMaxOneTimeKeys(): maxOneTimeKeys="+maxOneTimeKeys);
+        Log.d(LOG_TAG, "## testMaxOneTimeKeys(): maxOneTimeKeys=" + maxOneTimeKeys);
 
-        assertTrue(maxOneTimeKeys>0);
+        assertTrue(maxOneTimeKeys > 0);
     }
 
     /**
@@ -192,15 +191,15 @@ public class OlmAccountTest {
 
         try {
             Map<String, String> map = oneTimeKeysJson.get(OlmAccount.JSON_KEY_ONE_TIME_KEY);
-            assertTrue(OlmAccount.JSON_KEY_ONE_TIME_KEY +" object is missing", null!=map);
+            assertTrue(OlmAccount.JSON_KEY_ONE_TIME_KEY + " object is missing", null != map);
 
             // test the count of the generated one time keys:
             oneTimeKeysCount = map.size();
 
-            assertTrue("Expected count="+GENERATION_ONE_TIME_KEYS_NUMBER+" found="+oneTimeKeysCount,GENERATION_ONE_TIME_KEYS_NUMBER==oneTimeKeysCount);
+            assertTrue("Expected count=" + GENERATION_ONE_TIME_KEYS_NUMBER + " found=" + oneTimeKeysCount, GENERATION_ONE_TIME_KEYS_NUMBER == oneTimeKeysCount);
 
         } catch (Exception e) {
-            assertTrue("Exception MSg="+e.getMessage(), false);
+            assertTrue("Exception MSg=" + e.getMessage(), false);
         }
     }
 
@@ -210,7 +209,7 @@ public class OlmAccountTest {
         try {
             olmSession = new OlmSession();
         } catch (OlmException e) {
-            assertTrue("Exception Msg="+e.getMessage(), false);
+            assertTrue("Exception Msg=" + e.getMessage(), false);
         }
         long sessionId = olmSession.getOlmSessionId();
         assertTrue(0 != sessionId);
@@ -241,7 +240,7 @@ public class OlmAccountTest {
     @Test
     public void test12SignMessage() {
         String clearMsg = "String to be signed by olm";
-        String signedMsg  = null;
+        String signedMsg = null;
 
         try {
             signedMsg = mOlmAccount.signMessage(clearMsg);
@@ -268,13 +267,13 @@ public class OlmAccountTest {
         try {
             accountRef = new OlmAccount();
         } catch (OlmException e) {
-            assertTrue(e.getMessage(),false);
+            assertTrue(e.getMessage(), false);
         }
 
         try {
             accountRef.generateOneTimeKeys(GENERATION_ONE_TIME_KEYS_NUMBER);
         } catch (Exception e) {
-            assertTrue(e.getMessage(),false);
+            assertTrue(e.getMessage(), false);
         }
 
         // get keys references
@@ -298,7 +297,7 @@ public class OlmAccountTest {
         assertNotNull(oneTimeKeysRef);
 
         try {
-            Context context = getInstrumentation().getContext();
+            Context context = ApplicationProvider.getApplicationContext();
             //context.getFilesDir();
             fileOutput = context.openFileOutput(FILE_NAME, Context.MODE_PRIVATE);
 
@@ -316,7 +315,7 @@ public class OlmAccountTest {
             assertNotNull(accountDeserial);
 
             // get de-serialized keys
-            Map<String, String>  identityKeysDeserial = accountDeserial.identityKeys();
+            Map<String, String> identityKeysDeserial = accountDeserial.identityKeys();
             Map<String, Map<String, String>> oneTimeKeysDeserial = accountDeserial.oneTimeKeys();
             assertNotNull(identityKeysDeserial);
             assertNotNull(oneTimeKeysDeserial);
@@ -329,23 +328,19 @@ public class OlmAccountTest {
 
             accountRef.releaseAccount();
             accountDeserial.releaseAccount();
-        }
-        catch (FileNotFoundException e) {
-            Log.e(LOG_TAG, "## test13Serialization(): Exception FileNotFoundException Msg=="+e.getMessage());
+        } catch (FileNotFoundException e) {
+            Log.e(LOG_TAG, "## test13Serialization(): Exception FileNotFoundException Msg==" + e.getMessage());
             assertTrue("test13Serialization failed " + e.getMessage(), false);
-        }
-        catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             Log.e(LOG_TAG, "## test13Serialization(): Exception ClassNotFoundException Msg==" + e.getMessage());
             assertTrue("test13Serialization failed " + e.getMessage(), false);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Log.e(LOG_TAG, "## test13Serialization(): Exception IOException Msg==" + e.getMessage());
             assertTrue("test13Serialization failed " + e.getMessage(), false);
         }
         /*catch (OlmException e) {
             Log.e(LOG_TAG, "## test13Serialization(): Exception OlmException Msg==" + e.getMessage());
-        }*/
-        catch (Exception e) {
+        }*/ catch (Exception e) {
             Log.e(LOG_TAG, "## test13Serialization(): Exception Msg==" + e.getMessage());
             assertTrue("test13Serialization failed " + e.getMessage(), false);
         }
@@ -386,7 +381,7 @@ public class OlmAccountTest {
         try {
             olmAccount = new OlmAccount();
         } catch (OlmException e) {
-            assertTrue(e.getMessage(),false);
+            assertTrue(e.getMessage(), false);
         }
 
         try {
@@ -404,7 +399,7 @@ public class OlmAccountTest {
         try {
             olmAccount = new OlmAccount();
         } catch (OlmException e) {
-            assertTrue(e.getMessage(),false);
+            assertTrue(e.getMessage(), false);
         }
         String signedMsg = null;
 
@@ -487,7 +482,7 @@ public class OlmAccountTest {
             account10.releaseAccount();
 
         } catch (OlmException e) {
-            assertTrue(e.getMessage(),false);
+            assertTrue(e.getMessage(), false);
         }
     }
 }

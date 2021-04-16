@@ -17,11 +17,11 @@
 
 package org.matrix.olm;
 
-import android.support.test.runner.AndroidJUnit4;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.json.JSONObject;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -43,13 +43,13 @@ public class OlmUtilityTest {
     private static OlmManager mOlmManager;
 
     @BeforeClass
-    public static void setUpClass(){
+    public static void setUpClass() {
         // load native lib
         mOlmManager = new OlmManager();
 
         String version = mOlmManager.getOlmLibVersion();
         assertNotNull(version);
-        Log.d(LOG_TAG, "## setUpClass(): lib version="+version);
+        Log.d(LOG_TAG, "## setUpClass(): lib version=" + version);
     }
 
     /**
@@ -66,7 +66,7 @@ public class OlmUtilityTest {
         try {
             account = new OlmAccount();
         } catch (OlmException e) {
-            assertTrue(e.getMessage(),false);
+            assertTrue(e.getMessage(), false);
         }
         assertNotNull(account);
 
@@ -92,7 +92,7 @@ public class OlmUtilityTest {
 
         assertNotNull(identityKeys);
         fingerPrintKey = TestHelper.getFingerprintKey(identityKeys);
-        assertTrue("fingerprint key missing",!TextUtils.isEmpty(fingerPrintKey));
+        assertTrue("fingerprint key missing", !TextUtils.isEmpty(fingerPrintKey));
 
         // instantiate utility object
         OlmUtility utility = null;
@@ -124,7 +124,7 @@ public class OlmUtilityTest {
         assertTrue(!TextUtils.isEmpty(errorMsg));
 
         // check bad fingerprint size => errorMsg = INVALID_BASE64
-        String badSizeFingerPrintKey = fingerPrintKey.substring(fingerPrintKey.length()/2);
+        String badSizeFingerPrintKey = fingerPrintKey.substring(fingerPrintKey.length() / 2);
 
         errorMsg = null;
         try {
