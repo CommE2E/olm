@@ -16,9 +16,9 @@
 
 package org.matrix.olm;
 
-
-import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -29,6 +29,7 @@ import org.junit.runners.MethodSorters;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -91,7 +92,7 @@ public class OlmSasTest {
 
 
         } catch (Exception e) {
-            assertTrue("OlmSas init failed " + e.getMessage(), false);
+            fail("OlmSas init failed " + e.getMessage());
             e.printStackTrace();
         } finally {
             if (aliceSas != null) {

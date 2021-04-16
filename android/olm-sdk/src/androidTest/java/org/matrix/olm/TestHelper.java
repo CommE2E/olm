@@ -22,6 +22,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Helper class providing helper methods used in the Olm Android SDK unit tests.
@@ -39,7 +40,7 @@ public class TestHelper {
         try {
             idKey = aIdentityKeysMap.get(OlmAccount.JSON_KEY_IDENTITY_KEY);
         } catch (Exception e) {
-            assertTrue("Exception MSg=" + e.getMessage(), false);
+            fail("Exception MSg=" + e.getMessage());
         }
         return idKey;
     }
@@ -55,7 +56,7 @@ public class TestHelper {
         try {
             fingerprintKey = aIdentityKeysMap.get(OlmAccount.JSON_KEY_FINGER_PRINT_KEY);
         } catch (Exception e) {
-            assertTrue("Exception MSg=" + e.getMessage(), false);
+            fail("Exception MSg=" + e.getMessage());
         }
         return fingerprintKey;
     }
@@ -75,7 +76,7 @@ public class TestHelper {
 
             firstOneTimeKey = (new ArrayList<>(generatedKeys.values())).get(aKeyPosition - 1);
         } catch (Exception e) {
-            assertTrue("Exception Msg=" + e.getMessage(), false);
+            fail("Exception Msg=" + e.getMessage());
         }
         return firstOneTimeKey;
     }

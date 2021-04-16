@@ -18,9 +18,11 @@
 package org.matrix.olm;
 
 import android.content.Context;
-import android.support.test.runner.AndroidJUnit4;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -36,10 +38,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -83,7 +87,7 @@ public class OlmGroupSessionTest {
         try {
             mAliceOutboundGroupSession = new OlmOutboundGroupSession();
         } catch (OlmException e) {
-            assertTrue("Exception in OlmOutboundGroupSession, Exception code=" + e.getExceptionCode(), false);
+            fail("Exception in OlmOutboundGroupSession, Exception code=" + e.getExceptionCode());
         }
     }
 
@@ -95,7 +99,7 @@ public class OlmGroupSessionTest {
         try {
             mAliceSessionIdentifier = mAliceOutboundGroupSession.sessionIdentifier();
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         assertNotNull(mAliceSessionIdentifier);
@@ -110,7 +114,7 @@ public class OlmGroupSessionTest {
         try {
             mAliceOutboundSessionKey = mAliceOutboundGroupSession.sessionKey();
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(mAliceOutboundSessionKey);
         assertTrue(mAliceOutboundSessionKey.length() > 0);
@@ -120,7 +124,7 @@ public class OlmGroupSessionTest {
     public void test04GetOutboundGroupMessageIndex() {
         // test message index before any encryption
         mAliceMessageIndex = mAliceOutboundGroupSession.messageIndex();
-        assertTrue(0 == mAliceMessageIndex);
+        assertEquals(0, mAliceMessageIndex);
     }
 
     @Test
@@ -129,13 +133,13 @@ public class OlmGroupSessionTest {
         try {
             mAliceToBobMessage = mAliceOutboundGroupSession.encryptMessage(CLEAR_MESSAGE1);
         } catch (Exception e) {
-            assertTrue("Exception in bob encryptMessage, Exception code=" + e.getMessage(), false);
+            fail("Exception in bob encryptMessage, Exception code=" + e.getMessage());
         }
         assertFalse(TextUtils.isEmpty(mAliceToBobMessage));
 
         // test message index after encryption is incremented
         mAliceMessageIndex = mAliceOutboundGroupSession.messageIndex();
-        assertTrue(1 == mAliceMessageIndex);
+        assertEquals(1, mAliceMessageIndex);
     }
 
     @Test
@@ -144,7 +148,7 @@ public class OlmGroupSessionTest {
         try {
             mBobInboundGroupSession = new OlmInboundGroupSession(mAliceOutboundSessionKey);
         } catch (OlmException e) {
-            assertTrue("Exception in bob OlmInboundGroupSession, Exception code=" + e.getExceptionCode(), false);
+            fail("Exception in bob OlmInboundGroupSession, Exception code=" + e.getExceptionCode());
         }
     }
 
@@ -156,7 +160,7 @@ public class OlmGroupSessionTest {
         try {
             mBobSessionIdentifier = mBobInboundGroupSession.sessionIdentifier();
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertFalse(TextUtils.isEmpty(mBobSessionIdentifier));
     }
@@ -164,7 +168,7 @@ public class OlmGroupSessionTest {
     @Test
     public void test09SessionIdentifiersAreIdentical() {
         // check both session identifiers are equals: alice vs bob
-        assertTrue(mAliceSessionIdentifier.equals(mBobSessionIdentifier));
+        assertEquals(mAliceSessionIdentifier, mBobSessionIdentifier);
     }
 
     @Test
@@ -175,19 +179,19 @@ public class OlmGroupSessionTest {
         try {
             result = mBobInboundGroupSession.decryptMessage(mAliceToBobMessage);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         // test decrypted message
         mBobDecryptedMessage = result.mDecryptedMessage;
         assertFalse(TextUtils.isEmpty(mBobDecryptedMessage));
-        assertTrue(0 == result.mIndex);
+        assertEquals(0, result.mIndex);
     }
 
     @Test
     public void test11InboundDecryptedMessageIdentical() {
         // test decrypted message
-        assertTrue(mBobDecryptedMessage.equals(CLEAR_MESSAGE1));
+        assertEquals(mBobDecryptedMessage, CLEAR_MESSAGE1);
     }
 
     @Test
@@ -217,13 +221,13 @@ public class OlmGroupSessionTest {
         try {
             outboundGroupSessionRef = new OlmOutboundGroupSession();
         } catch (OlmException e) {
-            assertTrue("Exception in OlmOutboundGroupSession, Exception code=" + e.getExceptionCode(), false);
+            fail("Exception in OlmOutboundGroupSession, Exception code=" + e.getExceptionCode());
         }
         assertNotNull(outboundGroupSessionRef);
 
 
         // serialize alice session
-        Context context = getInstrumentation().getContext();
+        Context context = ApplicationProvider.getApplicationContext();
         try {
             FileOutputStream fileOutput = context.openFileOutput(FILE_NAME_SERIAL_OUT_SESSION, Context.MODE_PRIVATE);
             ObjectOutputStream objectOutput = new ObjectOutputStream(fileOutput);
@@ -245,7 +249,7 @@ public class OlmGroupSessionTest {
             assertFalse(TextUtils.isEmpty(sessionKeySerial));
 
             // session keys comparison
-            assertTrue(sessionKeyRef.equals(sessionKeySerial));
+            assertEquals(sessionKeyRef, sessionKeySerial);
 
             // get sessions IDs
             String sessionIdRef = outboundGroupSessionRef.sessionIdentifier();
@@ -254,7 +258,7 @@ public class OlmGroupSessionTest {
             assertFalse(TextUtils.isEmpty(sessionIdSerial));
 
             // session IDs comparison
-            assertTrue(sessionIdRef.equals(sessionIdSerial));
+            assertEquals(sessionIdRef, sessionIdSerial);
 
             outboundGroupSessionRef.releaseSession();
             outboundGroupSessionSerial.releaseSession();
@@ -263,19 +267,19 @@ public class OlmGroupSessionTest {
             assertTrue(outboundGroupSessionSerial.isReleased());
         } catch (FileNotFoundException e) {
             Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception FileNotFoundException Msg=="+e.getMessage());
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         } catch (ClassNotFoundException e) {
             Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception ClassNotFoundException Msg==" + e.getMessage());
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         } catch (OlmException e) {
             Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception OlmException Msg==" + e.getMessage());
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         } catch (IOException e) {
             Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception IOException Msg==" + e.getMessage());
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         } catch (Exception e) {
             Log.e(LOG_TAG, "## test15SerializeOutboundSession(): Exception Msg==" + e.getMessage());
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
     }
 
@@ -289,7 +293,7 @@ public class OlmGroupSessionTest {
         try {
             aliceOutboundGroupSession = new OlmOutboundGroupSession();
         } catch (OlmException e) {
-            assertTrue("Exception in OlmOutboundGroupSession, Exception code=" + e.getExceptionCode(), false);
+            fail("Exception in OlmOutboundGroupSession, Exception code=" + e.getExceptionCode());
         }
         assertNotNull(aliceOutboundGroupSession);
 
@@ -299,7 +303,7 @@ public class OlmGroupSessionTest {
         try {
             sessionKeyRef = aliceOutboundGroupSession.sessionKey();
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
         assertNotNull(sessionKeyRef);
 
@@ -307,12 +311,12 @@ public class OlmGroupSessionTest {
         try {
             bobInboundGroupSessionRef = new OlmInboundGroupSession(sessionKeyRef);
         } catch (OlmException e) {
-            assertTrue("Exception in OlmInboundGroupSession, Exception code=" + e.getExceptionCode(), false);
+            fail("Exception in OlmInboundGroupSession, Exception code=" + e.getExceptionCode());
         }
         assertNotNull(bobInboundGroupSessionRef);
 
         // serialize alice session
-        Context context = getInstrumentation().getContext();
+        Context context = ApplicationProvider.getApplicationContext();
         try {
             FileOutputStream fileOutput = context.openFileOutput(FILE_NAME_SERIAL_IN_SESSION, Context.MODE_PRIVATE);
             ObjectOutputStream objectOutput = new ObjectOutputStream(fileOutput);
@@ -336,8 +340,8 @@ public class OlmGroupSessionTest {
             assertFalse(TextUtils.isEmpty(sessionIdSerial));
 
             // session IDs comparison
-            assertTrue(aliceSessionId.equals(sessionIdSerial));
-            assertTrue(sessionIdRef.equals(sessionIdSerial));
+            assertEquals(aliceSessionId, sessionIdSerial);
+            assertEquals(sessionIdRef, sessionIdSerial);
 
             aliceOutboundGroupSession.releaseSession();
             bobInboundGroupSessionRef.releaseSession();
@@ -348,19 +352,19 @@ public class OlmGroupSessionTest {
             assertTrue(bobInboundGroupSessionSerial.isReleased());
         } catch (FileNotFoundException e) {
             Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception FileNotFoundException Msg=="+e.getMessage());
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         } catch (ClassNotFoundException e) {
             Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception ClassNotFoundException Msg==" + e.getMessage());
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         } catch (OlmException e) {
             Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception OlmException Msg==" + e.getMessage());
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         } catch (IOException e) {
             Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception IOException Msg==" + e.getMessage());
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         } catch (Exception e) {
             Log.e(LOG_TAG, "## test16SerializeInboundSession(): Exception Msg==" + e.getMessage());
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
     }
 
@@ -392,48 +396,48 @@ public class OlmGroupSessionTest {
             // get the session key from the outbound group sessions
             String sessionKey1 = outboundGroupSession1.sessionKey();
             String sessionKey2 = outboundGroupSession2.sessionKey();
-            assertFalse(sessionKey1.equals(sessionKey2));
+            assertNotEquals(sessionKey1, sessionKey2);
 
             String sessionKey3 = outboundGroupSession3.sessionKey();
-            assertFalse(sessionKey2.equals(sessionKey3));
+            assertNotEquals(sessionKey2, sessionKey3);
 
             String sessionKey4 = outboundGroupSession4.sessionKey();
-            assertFalse(sessionKey3.equals(sessionKey4));
+            assertNotEquals(sessionKey3, sessionKey4);
 
             String sessionKey5 = outboundGroupSession5.sessionKey();
-            assertFalse(sessionKey4.equals(sessionKey5));
+            assertNotEquals(sessionKey4, sessionKey5);
 
             String sessionKey6 = outboundGroupSession6.sessionKey();
-            assertFalse(sessionKey5.equals(sessionKey6));
+            assertNotEquals(sessionKey5, sessionKey6);
 
             String sessionKey7 = outboundGroupSession7.sessionKey();
-            assertFalse(sessionKey6.equals(sessionKey7));
+            assertNotEquals(sessionKey6, sessionKey7);
 
             String sessionKey8 = outboundGroupSession8.sessionKey();
-            assertFalse(sessionKey7.equals(sessionKey8));
+            assertNotEquals(sessionKey7, sessionKey8);
 
             // get the session IDs from the outbound group sessions
             String sessionId1 = outboundGroupSession1.sessionIdentifier();
             String sessionId2 = outboundGroupSession2.sessionIdentifier();
-            assertFalse(sessionId1.equals(sessionId2));
+            assertNotEquals(sessionId1, sessionId2);
 
             String sessionId3 = outboundGroupSession3.sessionKey();
-            assertFalse(sessionId2.equals(sessionId3));
+            assertNotEquals(sessionId2, sessionId3);
 
             String sessionId4 = outboundGroupSession4.sessionKey();
-            assertFalse(sessionId3.equals(sessionId4));
+            assertNotEquals(sessionId3, sessionId4);
 
             String sessionId5 = outboundGroupSession5.sessionKey();
-            assertFalse(sessionId4.equals(sessionId5));
+            assertNotEquals(sessionId4, sessionId5);
 
             String sessionId6 = outboundGroupSession6.sessionKey();
-            assertFalse(sessionId5.equals(sessionId6));
+            assertNotEquals(sessionId5, sessionId6);
 
             String sessionId7 = outboundGroupSession7.sessionKey();
-            assertFalse(sessionId6.equals(sessionId7));
+            assertNotEquals(sessionId6, sessionId7);
 
             String sessionId8 = outboundGroupSession8.sessionKey();
-            assertFalse(sessionId7.equals(sessionId8));
+            assertNotEquals(sessionId7, sessionId8);
 
             outboundGroupSession1.releaseSession();
             outboundGroupSession2.releaseSession();
@@ -453,7 +457,7 @@ public class OlmGroupSessionTest {
             assertTrue(outboundGroupSession7.isReleased());
             assertTrue(outboundGroupSession8.isReleased());
         } catch (OlmException e) {
-            assertTrue("Exception in OlmOutboundGroupSession, Exception code=" + e.getExceptionCode(), false);
+            fail("Exception in OlmOutboundGroupSession, Exception code=" + e.getExceptionCode());
         }
     }
 
@@ -476,7 +480,7 @@ public class OlmGroupSessionTest {
         try {
             bobInboundGroupSession = new OlmInboundGroupSession(sessionKeyRef);
         } catch (OlmException e) {
-            assertTrue("Exception in test18TestBadCharacterCrashInDecrypt, Exception code=" + e.getExceptionCode(), false);
+            fail("Exception in test18TestBadCharacterCrashInDecrypt, Exception code=" + e.getExceptionCode());
         }
 
         OlmInboundGroupSession.DecryptMessageResult result = null;
@@ -484,11 +488,11 @@ public class OlmGroupSessionTest {
         try {
             result = bobInboundGroupSession.decryptMessage(msgToDecryptWithEmoji);
         } catch (Exception e) {
-            assertTrue("Exception in test18TestBadCharacterCrashInDecrypt, Exception code=" + e.getMessage(), false);
+            fail("Exception in test18TestBadCharacterCrashInDecrypt, Exception code=" + e.getMessage());
         }
 
         assertNotNull(result.mDecryptedMessage);
-        assertTrue(13 == result.mIndex);
+        assertEquals(13, result.mIndex);
     }
 
     /**
@@ -508,7 +512,7 @@ public class OlmGroupSessionTest {
         try {
             bobInboundGroupSession = new OlmInboundGroupSession(sessionKeyRef);
         } catch (OlmException e) {
-            assertTrue("Exception in test19TestErrorMessageReturnedInDecrypt, Exception code=" + e.getExceptionCode(), false);
+            fail("Exception in test19TestErrorMessageReturnedInDecrypt, Exception code=" + e.getExceptionCode());
         }
 
         String exceptionMessage = null;
@@ -518,8 +522,7 @@ public class OlmGroupSessionTest {
             exceptionMessage = e.getMessage();
         }
 
-        assertTrue(0!=EXPECTED_ERROR_MESSAGE.length());
-        assertTrue(EXPECTED_ERROR_MESSAGE.equals(exceptionMessage));
+        assertEquals(EXPECTED_ERROR_MESSAGE, exceptionMessage);
     }
 
 
@@ -544,7 +547,7 @@ public class OlmGroupSessionTest {
         try {
             inboundGroupSession = new OlmInboundGroupSession(sessionKey);
         } catch (Exception e) {
-            assertTrue("OlmInboundGroupSession failed " + e.getMessage(), false);
+            fail("OlmInboundGroupSession failed " + e.getMessage());
         }
 
         boolean isVerified = false;
@@ -552,7 +555,7 @@ public class OlmGroupSessionTest {
         try {
             isVerified = inboundGroupSession.isVerified();
         } catch (Exception e) {
-            assertTrue("isVerified failed " + e.getMessage(), false);
+            fail("isVerified failed " + e.getMessage());
         }
 
         assertTrue(isVerified);
@@ -562,26 +565,26 @@ public class OlmGroupSessionTest {
         try {
             result = inboundGroupSession.decryptMessage(message);
         } catch (Exception e) {
-            assertTrue("decryptMessage failed " + e.getMessage(), false);
+            fail("decryptMessage failed " + e.getMessage());
         }
 
         assertTrue(TextUtils.equals(result.mDecryptedMessage, "Message"));
-        assertTrue(0 == result.mIndex);
+        assertEquals(0, result.mIndex);
 
         String export = null;
 
         try {
             export = inboundGroupSession.export(0);
         } catch (Exception e) {
-            assertTrue("export failed " + e.getMessage(), false);
+            fail("export failed " + e.getMessage());
         }
-        assertTrue(!TextUtils.isEmpty(export));
+        assertFalse(TextUtils.isEmpty(export));
 
         long index = -1;
         try {
             index = inboundGroupSession.getFirstKnownIndex();
         } catch (Exception e) {
-            assertTrue("getFirstKnownIndex failed " + e.getMessage(), false);
+            fail("getFirstKnownIndex failed " + e.getMessage());
         }
         assertTrue(index >=0);
 
@@ -593,13 +596,13 @@ public class OlmGroupSessionTest {
         try {
             inboundGroupSession2 = inboundGroupSession.importSession(export);
         } catch (Exception e) {
-            assertTrue("OlmInboundGroupSession failed " + e.getMessage(), false);
+            fail("OlmInboundGroupSession failed " + e.getMessage());
         }
 
         try {
             isVerified = inboundGroupSession2.isVerified();
         } catch (Exception e) {
-            assertTrue("isVerified failed " + e.getMessage(), false);
+            fail("isVerified failed " + e.getMessage());
         }
 
         assertFalse(isVerified);
@@ -608,16 +611,16 @@ public class OlmGroupSessionTest {
         try {
             result = inboundGroupSession2.decryptMessage(message);
         } catch (Exception e) {
-            assertTrue("decryptMessage failed " + e.getMessage(), false);
+            fail("decryptMessage failed " + e.getMessage());
         }
 
         assertTrue(TextUtils.equals(result.mDecryptedMessage, "Message"));
-        assertTrue(0 == result.mIndex);
+        assertEquals(0, result.mIndex);
 
         try {
             isVerified = inboundGroupSession2.isVerified();
         } catch (Exception e) {
-            assertTrue("isVerified failed " + e.getMessage(), false);
+            fail("isVerified failed " + e.getMessage());
         }
 
         assertTrue(isVerified);

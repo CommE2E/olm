@@ -24,6 +24,6 @@ Development
 -----------
 import the project from the ``android/`` path.
 
-The project contains some JNI files and some Java wraper files.
+The project contains some JNI files and some Java wrapper files.
 
 The project contains some tests under AndroidTests package.

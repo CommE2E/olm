@@ -17,11 +17,11 @@
 
 package org.matrix.olm;
 
-import android.support.test.runner.AndroidJUnit4;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.json.JSONObject;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -33,6 +33,7 @@ import java.util.Map;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -43,13 +44,13 @@ public class OlmUtilityTest {
     private static OlmManager mOlmManager;
 
     @BeforeClass
-    public static void setUpClass(){
+    public static void setUpClass() {
         // load native lib
         mOlmManager = new OlmManager();
 
         String version = mOlmManager.getOlmLibVersion();
         assertNotNull(version);
-        Log.d(LOG_TAG, "## setUpClass(): lib version="+version);
+        Log.d(LOG_TAG, "## setUpClass(): lib version=" + version);
     }
 
     /**
@@ -66,7 +67,7 @@ public class OlmUtilityTest {
         try {
             account = new OlmAccount();
         } catch (OlmException e) {
-            assertTrue(e.getMessage(),false);
+            fail(e.getMessage());
         }
         assertNotNull(account);
 
@@ -76,7 +77,7 @@ public class OlmUtilityTest {
         try {
             messageSignature = account.signMessage(message);
         } catch (Exception e) {
-            assertTrue(e.getMessage(), false);
+            fail(e.getMessage());
         }
 
         assertNotNull(messageSignature);
@@ -87,12 +88,12 @@ public class OlmUtilityTest {
         try {
             identityKeys = account.identityKeys();
         } catch (Exception e) {
-            assertTrue("identityKeys failed " + e.getMessage(), false);
+            fail("identityKeys failed " + e.getMessage());
         }
 
         assertNotNull(identityKeys);
         fingerPrintKey = TestHelper.getFingerprintKey(identityKeys);
-        assertTrue("fingerprint key missing",!TextUtils.isEmpty(fingerPrintKey));
+        assertFalse("fingerprint key missing", TextUtils.isEmpty(fingerPrintKey));
 
         // instantiate utility object
         OlmUtility utility = null;
@@ -100,7 +101,7 @@ public class OlmUtilityTest {
         try {
             utility = new OlmUtility();
         } catch (Exception e) {
-            assertTrue("failed to create OlmUtility", false);
+            fail("failed to create OlmUtility");
         }
 
         // verify signature
@@ -121,10 +122,10 @@ public class OlmUtilityTest {
         } catch (Exception e) {
             errorMsg = e.getMessage();
         }
-        assertTrue(!TextUtils.isEmpty(errorMsg));
+        assertFalse(TextUtils.isEmpty(errorMsg));
 
         // check bad fingerprint size => errorMsg = INVALID_BASE64
-        String badSizeFingerPrintKey = fingerPrintKey.substring(fingerPrintKey.length()/2);
+        String badSizeFingerPrintKey = fingerPrintKey.substring(fingerPrintKey.length() / 2);
 
         errorMsg = null;
         try {
@@ -132,7 +133,7 @@ public class OlmUtilityTest {
         } catch (Exception e) {
             errorMsg = e.getMessage();
         }
-        assertTrue(!TextUtils.isEmpty(errorMsg));
+        assertFalse(TextUtils.isEmpty(errorMsg));
 
         utility.releaseUtility();
         assertTrue(utility.isReleased());
@@ -148,7 +149,7 @@ public class OlmUtilityTest {
         try {
             utility = new OlmUtility();
         } catch (Exception e) {
-            assertTrue("OlmUtility creation failed", false);
+            fail("OlmUtility creation failed");
         }
         String msgToHash = "The quick brown fox jumps over the lazy dog";
 
