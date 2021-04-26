@@ -161,6 +161,15 @@ size_t olm_sas_calculate_mac(
     void * mac, size_t mac_length
 );
 
+// A version of the calculate mac function that produces base64 strings that are
+// compatible with other base64 implementations.
+size_t olm_sas_calculate_mac_fixed_base64(
+    OlmSAS * sas,
+    const void * input, size_t input_length,
+    const void * info, size_t info_length,
+    void * mac, size_t mac_length
+);
+
 // for compatibility with an old version of Riot
 size_t olm_sas_calculate_mac_long_kdf(
     OlmSAS * sas,
