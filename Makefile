@@ -33,7 +33,7 @@ JS_ASMJS_TARGET := javascript/olm_legacy.js
 WASM_TARGET := $(BUILD_DIR)/wasm/libolm.a
 
 JS_EXPORTED_FUNCTIONS := javascript/exported_functions.json
-JS_EXTRA_EXPORTED_RUNTIME_METHODS := [ALLOC_STACK]
+JS_EXPORTED_RUNTIME_METHODS := [ALLOC_STACK]
 JS_EXTERNS := javascript/externs.js
 
 PUBLIC_HEADERS := include/olm/olm.h include/olm/outbound_group_session.h include/olm/inbound_group_session.h include/olm/pk.h include/olm/sas.h
@@ -205,7 +205,7 @@ $(JS_WASM_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS) $
                $(foreach f,$(JS_PREFIX),--extern-pre-js $(f)) \
                $(foreach f,$(JS_SUFFIX),--extern-post-js $(f)) \
                -s "EXPORTED_FUNCTIONS=@$(JS_EXPORTED_FUNCTIONS)" \
-               -s "EXTRA_EXPORTED_RUNTIME_METHODS=$(JS_EXTRA_EXPORTED_RUNTIME_METHODS)" \
+               -s "EXPORTED_RUNTIME_METHODS=$(JS_EXPORTED_RUNTIME_METHODS)" \
                -o $@ $(JS_OBJECTS)
 
 $(JS_ASMJS_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS) $(JS_PREFIX) $(JS_SUFFIX)
@@ -216,7 +216,7 @@ $(JS_ASMJS_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS) 
                $(foreach f,$(JS_PREFIX),--extern-pre-js $(f)) \
                $(foreach f,$(JS_SUFFIX),--extern-post-js $(f)) \
                -s "EXPORTED_FUNCTIONS=@$(JS_EXPORTED_FUNCTIONS)" \
-               -s "EXTRA_EXPORTED_RUNTIME_METHODS=$(JS_EXTRA_EXPORTED_RUNTIME_METHODS)" \
+               -s "EXPORTED_RUNTIME_METHODS=$(JS_EXPORTED_RUNTIME_METHODS)" \
                -o $@ $(JS_OBJECTS)
 
 build_tests: $(TEST_BINARIES)
