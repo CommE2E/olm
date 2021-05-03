@@ -373,7 +373,9 @@ void _olm_decode_group_message(
     std::uint8_t const * unknown = nullptr;
 
     bool has_message_index = false;
+    results->version = 0;
     results->message_index = 0;
+    results->has_message_index = (int)has_message_index;
     results->ciphertext = nullptr;
     results->ciphertext_length = 0;
 
