@@ -202,7 +202,7 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) when making contributions to the l
 Olm 1.3.0 was independently assessed by NCC Group's Cryptography Services
 Practive in September 2016 to check for security issues: you can read all
 about it at
-https://www.nccgroup.trust/us/our-research/matrix-olm-cryptographic-review/
+https://www.nccgroup.com/globalassets/our-research/us/public-reports/2016/november/ncc_group_olm_cryptogrpahic_review_2016_11_01.pdf
 and https://matrix.org/blog/2016/11/21/matrixs-olm-end-to-end-encryption-security-assessment-released-and-implemented-cross-platform-on-riot-at-last/
 
 ## Bug reports
