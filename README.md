@@ -136,11 +136,13 @@ make test
 
 # build and test JS wrapper
 make js
-(cd javascript && npm run test && npm pack javascript)
+(cd javascript && \
+     npm run test && \
+     sha256sum olm.js olm_legacy.js olm.wasm > checksums.txt && \
+     gpg -b -a -u F75FDC22C1DE8453 checksums.txt && \
+     npm publish)
 
 VERSION=x.y.z
-gpg -b -a -u F75FDC22C1DE8453 javascript/olm-$VERSION.tgz
-scp javascript/olm-$VERSION.tgz packages@ares.matrix.org:packages/npm/olm/
 git tag $VERSION -s
 git push --tags
 
@@ -152,6 +154,12 @@ pod trunk push OLMKit.podspec --use-libraries --allow-warnings
 # Check the pod has been successully published with:
 pod search OLMKit
 ```
+
+Python and JavaScript packages are published to the registry at
+<https://gitlab.matrix.org/matrix-org/olm/-/packages>.  The GitLab
+documentation contains instructions on how to set up twine (Python) and npm
+(JavaScript) to upload to the registry.
+
 
 ## Design
 
