@@ -11,8 +11,6 @@ FUZZING_OPTIMIZE_FLAGS ?= -O3
 CC = gcc
 EMCC = emcc
 EMAR = emar
-AFL_CC = afl-clang-fast
-AFL_CXX = afl-clang-fast++
 AR = ar
 
 UNAME := $(shell uname)
@@ -50,7 +48,11 @@ OBJECTS := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCES)))
 RELEASE_OBJECTS := $(addprefix $(BUILD_DIR)/release/,$(OBJECTS))
 DEBUG_OBJECTS := $(addprefix $(BUILD_DIR)/debug/,$(OBJECTS))
 FUZZER_OBJECTS := $(addprefix $(BUILD_DIR)/fuzzers/objects/,$(OBJECTS))
+FUZZER_ASAN_OBJECTS := $(addprefix $(BUILD_DIR)/fuzzers/objects/,$(addprefix asan_,$(OBJECTS)))
+FUZZER_MSAN_OBJECTS := $(addprefix $(BUILD_DIR)/fuzzers/objects/,$(addprefix msan_,$(OBJECTS)))
 FUZZER_BINARIES := $(addprefix $(BUILD_DIR)/,$(basename $(FUZZER_SOURCES)))
+FUZZER_ASAN_BINARIES := $(addsuffix _asan,$(FUZZER_BINARIES))
+FUZZER_MSAN_BINARIES := $(addsuffix _msan,$(FUZZER_BINARIES))
 FUZZER_DEBUG_BINARIES := $(patsubst $(BUILD_DIR)/fuzzers/fuzz_%,$(BUILD_DIR)/fuzzers/debug_%,$(FUZZER_BINARIES))
 TEST_BINARIES := $(patsubst tests/%,$(BUILD_DIR)/tests/%,$(basename $(TEST_SOURCES)))
 JS_OBJECTS := $(addprefix $(BUILD_DIR)/javascript/,$(OBJECTS))
@@ -109,10 +111,21 @@ EMCC.c = $(EMCC) $(CFLAGS) $(CPPFLAGS) -c
 EMCC.cc = $(EMCC) $(CXXFLAGS) $(CPPFLAGS) -c
 EMCC_LINK = $(EMCC) $(LDFLAGS) $(EMCCFLAGS)
 
+AFL_CC = afl-clang-fast
+AFL_CXX = afl-clang-fast++
+
 AFL.c = $(AFL_CC) $(CFLAGS) $(CPPFLAGS) -c
 AFL.cc = $(AFL_CXX) $(CXXFLAGS) $(CPPFLAGS) -c
 AFL_LINK.c = $(AFL_CC) $(LDFLAGS) $(CFLAGS) $(CPPFLAGS)
 AFL_LINK.cc = $(AFL_CXX) $(LDFLAGS) $(CXXFLAGS) $(CPPFLAGS)
+AFL_ASAN.c = AFL_USE_ASAN=1 $(AFL_CC) -m32 $(CFLAGS) $(CPPFLAGS) -c
+AFL_ASAN.cc = AFL_USE_ASAN=1 $(AFL_CXX) -m32 $(CXXFLAGS) $(CPPFLAGS) -c
+AFL_LINK_ASAN.c = AFL_USE_ASAN=1 $(AFL_CC) -m32 $(LDFLAGS) $(CFLAGS) $(CPPFLAGS)
+AFL_LINK_ASAN.cc = AFL_USE_ASAN=1 $(AFL_CXX) -m32 $(LDFLAGS) $(CXXFLAGS) $(CPPFLAGS)
+AFL_MSAN.c = AFL_USE_MSAN=1 $(AFL_CC) $(CFLAGS) $(CPPFLAGS) -c
+AFL_MSAN.cc = AFL_USE_MSAN=1 $(AFL_CXX) $(CXXFLAGS) $(CPPFLAGS) -c
+AFL_LINK_MSAN.c = AFL_USE_MSAN=1 $(AFL_CC) $(LDFLAGS) $(CFLAGS) $(CPPFLAGS)
+AFL_LINK_MSAN.cc = AFL_USE_MSAN=1 $(AFL_CXX) $(LDFLAGS) $(CXXFLAGS) $(CPPFLAGS)
 
 # generate .d files when compiling
 CPPFLAGS += -MMD
@@ -134,6 +147,10 @@ $(FUZZER_OBJECTS): CFLAGS += $(FUZZER_OPTIMIZE_FLAGS)
 $(FUZZER_OBJECTS): CXXFLAGS += $(FUZZER_OPTIMIZE_FLAGS)
 $(FUZZER_BINARIES): CPPFLAGS += -Ifuzzers/include
 $(FUZZER_BINARIES): LDFLAGS += $(FUZZER_OPTIMIZE_FLAGS) -L$(BUILD_DIR)
+$(FUZZER_ASAN_BINARIES): CPPFLAGS += -Ifuzzers/include
+$(FUZZER_ASAN_BINARIES): LDFLAGS += $(FUZZER_OPTIMIZE_FLAGS) -L$(BUILD_DIR)
+$(FUZZER_MSAN_BINARIES): CPPFLAGS += -Ifuzzers/include
+$(FUZZER_MSAN_BINARIES): LDFLAGS += $(FUZZER_OPTIMIZE_FLAGS) -L$(BUILD_DIR)
 $(FUZZER_DEBUG_BINARIES): CPPFLAGS += -Ifuzzers/include
 $(FUZZER_DEBUG_BINARIES): LDFLAGS += $(DEBUG_OPTIMIZE_FLAGS)
 
@@ -233,7 +250,7 @@ test_mem: build_tests
 	    valgrind -q --leak-check=yes --exit-on-first-error=yes --error-exitcode=1 $$i || exit $$?; \
 	done
 
-fuzzers: $(FUZZER_BINARIES) $(FUZZER_DEBUG_BINARIES)
+fuzzers: $(FUZZER_BINARIES) $(FUZZER_ASAN_BINARIES) $(FUZZER_MSAN_BINARIES) $(FUZZER_DEBUG_BINARIES)
 .PHONY: fuzzers
 
 $(JS_EXPORTED_FUNCTIONS): $(PUBLIC_HEADERS)
@@ -318,6 +335,22 @@ $(BUILD_DIR)/fuzzers/objects/%.o: %.cpp
 	$(call mkdir,$(dir $@))
 	$(AFL.cc) $(OUTPUT_OPTION) $<
 
+$(BUILD_DIR)/fuzzers/objects/asan_%.o: %.c
+	$(call mkdir,$(dir $@))
+	$(AFL_ASAN.c) $(OUTPUT_OPTION) $<
+
+$(BUILD_DIR)/fuzzers/objects/asan_%.o: %.cpp
+	$(call mkdir,$(dir $@))
+	$(AFL_ASAN.cc) $(OUTPUT_OPTION) $<
+
+$(BUILD_DIR)/fuzzers/objects/msan_%.o: %.c
+	$(call mkdir,$(dir $@))
+	$(AFL_MSAN.c) $(OUTPUT_OPTION) $<
+
+$(BUILD_DIR)/fuzzers/objects/msan_%.o: %.cpp
+	$(call mkdir,$(dir $@))
+	$(AFL_MSAN.cc) $(OUTPUT_OPTION) $<
+
 $(BUILD_DIR)/fuzzers/fuzz_%: fuzzers/fuzz_%.c $(FUZZER_OBJECTS)
 	$(AFL_LINK.c) -o $@ $< $(FUZZER_OBJECTS) $(LOADLIBES) $(LDLIBS)
 
@@ -330,6 +363,18 @@ $(BUILD_DIR)/fuzzers/debug_%: fuzzers/fuzz_%.c $(DEBUG_OBJECTS)
 $(BUILD_DIR)/fuzzers/debug_%: fuzzers/fuzz_%.cpp $(DEBUG_OBJECTS)
 	$(LINK.cc) -o $@ $< $(DEBUG_OBJECTS) $(LOADLIBES) $(LDLIBS)
 
+$(BUILD_DIR)/fuzzers/fuzz_%_asan: fuzzers/fuzz_%.c $(FUZZER_ASAN_OBJECTS)
+	$(AFL_LINK_ASAN.c) -o $@ $< $(FUZZER_ASAN_OBJECTS) $(LOADLIBES) $(LDLIBS)
+
+$(BUILD_DIR)/fuzzers/fuzz_%_asan: fuzzers/fuzz_%.cpp $(FUZZER_ASAN_OBJECTS)
+	$(AFL_LINK_ASAN.cc) -o $@ $< $(FUZZER_ASAN_OBJECTS) $(LOADLIBES) $(LDLIBS)
+
+$(BUILD_DIR)/fuzzers/fuzz_%_msan: fuzzers/fuzz_%.c $(FUZZER_MSAN_OBJECTS)
+	$(AFL_LINK_MSAN.c) -o $@ $< $(FUZZER_MSAN_OBJECTS) $(LOADLIBES) $(LDLIBS)
+
+$(BUILD_DIR)/fuzzers/fuzz_%_msan: fuzzers/fuzz_%.cpp $(FUZZER_MSAN_OBJECTS)
+	$(AFL_LINK_MSAN.cc) -o $@ $< $(FUZZER_MSAN_OBJECTS) $(LOADLIBES) $(LDLIBS)
+
 %.html: %.rst
 	rst2html $< $@
 
@@ -340,5 +385,9 @@ $(BUILD_DIR)/fuzzers/debug_%: fuzzers/fuzz_%.cpp $(DEBUG_OBJECTS)
 -include $(JS_OBJECTS:.o=.d)
 -include $(TEST_BINARIES:=.d)
 -include $(FUZZER_OBJECTS:.o=.d)
+-include $(FUZZER_ASAN_OBJECTS:.o=.d)
+-include $(FUZZER_MSAN_OBJECTS:.o=.d)
 -include $(FUZZER_BINARIES:=.d)
+-include $(FUZZER_ASAN_BINARIES:=.d)
+-include $(FUZZER_MSAN_BINARIES:=.d)
 -include $(FUZZER_DEBUG_BINARIES:=.d)
