@@ -24,9 +24,11 @@ ssize_t read_file(
         );
         if (count < 0) break;
         if (count == 0) {
-            uint8_t * return_buffer = (uint8_t *) realloc(current_buffer, buffer_pos);
-            if (return_buffer == NULL) break;
-            *buffer = return_buffer;
+            if (buffer_pos != 0) {
+                current_buffer = (uint8_t *) realloc(current_buffer, buffer_pos);
+                if (current_buffer == NULL) break;
+            }
+            *buffer = current_buffer;
             return buffer_pos;
         }
         buffer_pos += count;
