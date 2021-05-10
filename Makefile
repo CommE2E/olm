@@ -11,8 +11,8 @@ FUZZING_OPTIMIZE_FLAGS ?= -O3
 CC = gcc
 EMCC = emcc
 EMAR = emar
-AFL_CC = afl-gcc
-AFL_CXX = afl-g++
+AFL_CC = afl-clang-fast
+AFL_CXX = afl-clang-fast++
 AR = ar
 
 UNAME := $(shell uname)
