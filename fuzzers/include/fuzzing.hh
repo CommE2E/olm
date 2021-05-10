@@ -15,30 +15,43 @@ ssize_t read_file(
     uint8_t **buffer
 ) {
     size_t buffer_size = 4096;
-    uint8_t * current_buffer = (uint8_t *) malloc(buffer_size);
-    if (current_buffer == NULL) return -1;
     size_t buffer_pos = 0;
+    uint8_t * current_buffer = (uint8_t *) malloc(buffer_size);
+    if (!current_buffer) return -1;
+
     while (1) {
         ssize_t count = read(
             fd, current_buffer + buffer_pos, buffer_size - buffer_pos
         );
-        if (count < 0) break;
+
+        if (count < 0) break;  // A read error happened, so just fail immediately.
+
         if (count == 0) {
+            // Nothing more left to read. We downsize the buffer to fit the
+            // data exactly, unless no data was read at all, in which case we
+            // skip the downsizing.
+
             if (buffer_pos != 0) {
                 current_buffer = (uint8_t *) realloc(current_buffer, buffer_pos);
-                if (current_buffer == NULL) break;
+                if (!current_buffer) break;
             }
+
+            // The read was successful so we return the allocated buffer.
             *buffer = current_buffer;
             return buffer_pos;
         }
+
         buffer_pos += count;
+
+        // We've reached capacity, so enlarge the buffer.
         if (buffer_pos == buffer_size) {
             buffer_size *= 2;
             uint8_t * new_buffer = (uint8_t *) realloc(current_buffer, buffer_size);
-            if (new_buffer == NULL) break;
+            if (!new_buffer) break;
             current_buffer = new_buffer;
         }
     }
+
     free(current_buffer);
     return -1;
 }
