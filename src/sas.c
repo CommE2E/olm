@@ -95,7 +95,13 @@ size_t olm_sas_set_their_key(
         sas->last_error = OLM_INPUT_BUFFER_TOO_SMALL;
         return (size_t)-1;
     }
-    _olm_decode_base64(their_key, their_key_length, their_key);
+
+    size_t ret = _olm_decode_base64(their_key, their_key_length, their_key);
+    if (ret == (size_t)-1) {
+        sas->last_error = OLM_INVALID_BASE64;
+        return (size_t)-1;
+    }
+
     _olm_crypto_curve25519_shared_secret(&sas->curve25519_key, their_key, sas->secret);
     sas->their_key_set = 1;
     return 0;
