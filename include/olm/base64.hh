@@ -51,8 +51,12 @@ std::size_t decode_base64_length(
  * Writes decode_base64_length(input_length) bytes to the output buffer.
  * The output can overlap with the first three quarters of the input buffer.
  * That is, the input pointers and output pointer may be the same.
+ *
+ * Returns the number of bytes of raw data the base64 input decoded to. If the
+ * input length supplied is not a valid length for base64, returns
+ * std::size_t(-1) and does not decode.
  */
-std::uint8_t const * decode_base64(
+std::size_t decode_base64(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
 );

@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <cassert>
+
 #include "olm/base64.h"
 #include "olm/base64.hh"
 
@@ -101,12 +103,19 @@ std::size_t olm::decode_base64_length(
 }
 
 
-std::uint8_t const * olm::decode_base64(
+std::size_t olm::decode_base64(
     std::uint8_t const * input, std::size_t input_length,
     std::uint8_t * output
 ) {
+    size_t raw_length = olm::decode_base64_length(input_length);
+
+    if (raw_length == std::size_t(-1)) {
+        return std::size_t(-1);
+    }
+
     std::uint8_t const * end = input + (input_length / 4) * 4;
     std::uint8_t const * pos = input;
+
     while (pos != end) {
         unsigned value = DECODE_BASE64[pos[0] & 0x7F];
         value <<= 6; value |= DECODE_BASE64[pos[1] & 0x7F];
@@ -118,8 +127,19 @@ std::uint8_t const * olm::decode_base64(
         value >>= 8; output[0] = value;
         output += 3;
     }
+
     unsigned remainder = input + input_length - pos;
     if (remainder) {
+        /* A base64 payload with a single byte remainder cannot occur because
+         * a single base64 character only encodes 6 bits, which is less than
+         * a full byte. Therefore, a minimum of two base64 characters are
+         * required to construct a single output byte and payloads with
+         * a remainder of 1 are illegal.
+         *
+         * Should never be the case due to length check above.
+         */
+        assert(remainder != 1);
+
         unsigned value = DECODE_BASE64[pos[0] & 0x7F];
         value <<= 6; value |= DECODE_BASE64[pos[1] & 0x7F];
         if (remainder == 3) {
@@ -132,7 +152,8 @@ std::uint8_t const * olm::decode_base64(
         }
         output[0] = value;
     }
-    return input + input_length;
+
+    return raw_length;
 }
 
 
@@ -162,6 +183,5 @@ size_t _olm_decode_base64(
     uint8_t const * input, size_t input_length,
     uint8_t * output
 ) {
-    olm::decode_base64(input, input_length, output);
-    return olm::decode_base64_length(input_length);
+    return olm::decode_base64(input, input_length, output);
 }
