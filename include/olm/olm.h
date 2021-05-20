@@ -311,14 +311,9 @@ size_t olm_create_inbound_session(
     void * one_time_key_message, size_t message_length
 );
 
-/** Create a new in-bound session for sending/receiving messages from an
- * incoming PRE_KEY message. Returns olm_error() on failure. If the base64
- * couldn't be decoded then olm_session_last_error will be "INVALID_BASE64".
- * If the message was for an unsupported protocol version then
- * olm_session_last_error() will be "BAD_MESSAGE_VERSION". If the message
- * couldn't be decoded then then olm_session_last_error() will be
- * "BAD_MESSAGE_FORMAT". If the message refers to an unknown one time
- * key then olm_session_last_error() will be "BAD_MESSAGE_KEY_ID". */
+/** Same as olm_create_inbound_session, but ensures that the identity key
+ * in the pre-key message matches the expected identity key, supplied via the
+ * `their_identity_key` parameter. Fails early if there is no match. */
 size_t olm_create_inbound_session_from(
     OlmSession * session,
     OlmAccount * account,
