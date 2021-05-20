@@ -302,7 +302,7 @@ size_t olm_create_outbound_session(
  * couldn't be decoded then olm_session_last_error will be "INVALID_BASE64".
  * If the message was for an unsupported protocol version then
  * olm_session_last_error() will be "BAD_MESSAGE_VERSION". If the message
- * couldn't be decoded then then olm_session_last_error() will be
+ * couldn't be decoded then olm_session_last_error() will be
  * "BAD_MESSAGE_FORMAT". If the message refers to an unknown one time
  * key then olm_session_last_error() will be "BAD_MESSAGE_KEY_ID". */
 size_t olm_create_inbound_session(
