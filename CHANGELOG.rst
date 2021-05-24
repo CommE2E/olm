@@ -1,3 +1,12 @@
+Changes in `3.2.3 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.3>`_
+=========================================================================
+
+This release includes the following changes since 3.2.2:
+
+* Add some checks for invalid input and ensure all fields are initialized.
+* Include LibreJS license tags.  Thanks to Johannes Marbach for the suggestion.
+* Support for Swift Package Manager.  Thanks to Johannes Marbach.
+
 Changes in `3.2.2 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.2>`_
 =========================================================================
 
