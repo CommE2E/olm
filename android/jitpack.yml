@@ -1,0 +1,3 @@
+install:
+  - ./gradlew :olm-sdk:build :olm-sdk:publishToMavenLocal -x :olm-sdk:test
+  - find . -name "*.aar"
