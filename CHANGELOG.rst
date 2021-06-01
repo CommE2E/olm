@@ -1,3 +1,10 @@
+Changes in `3.2.4 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.4>`_
+=========================================================================
+
+This release includes the following changes since 3.2.3:
+
+* Android build fixes.
+
 Changes in `3.2.3 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.3>`_
 =========================================================================
 
