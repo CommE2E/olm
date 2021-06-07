@@ -353,7 +353,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * @return the account as bytes buffer
      */
     @Override
-    protected byte[] serialize(byte[] aKey, StringBuffer aErrorMsg) {
+    public byte[] serialize(byte[] aKey, StringBuffer aErrorMsg) {
         byte[] pickleRetValue = null;
 
         // sanity check
@@ -389,7 +389,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * @exception Exception the exception
      */
     @Override
-    protected void deserialize(byte[] aSerializedData, byte[] aKey) throws Exception {
+    public void deserialize(byte[] aSerializedData, byte[] aKey) throws Exception {
         String errorMsg = null;
 
         try {
