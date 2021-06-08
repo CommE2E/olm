@@ -208,7 +208,7 @@ wasm: $(WASM_TARGET)
 $(WASM_TARGET): $(WASM_OBJECTS)
 	$(EMAR) rcs $@ $^
 
-javascript/olm_prefix.js: javascript/olm_prefix.js.in Makefile
+javascript/olm_prefix.js: javascript/olm_prefix.js.in Makefile common.mk
 	sed s/@VERSION@/$(VERSION)/ javascript/olm_prefix.js.in > $@
 
 # Note that the output file we give to emcc determines the name of the
