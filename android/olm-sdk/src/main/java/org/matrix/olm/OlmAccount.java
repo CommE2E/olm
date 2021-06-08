@@ -353,7 +353,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * @return the account as bytes buffer
      */
     @Override
-    public byte[] serialize(byte[] aKey, StringBuffer aErrorMsg) {
+    protected byte[] serialize(byte[] aKey, StringBuffer aErrorMsg) {
         byte[] pickleRetValue = null;
 
         // sanity check
@@ -389,7 +389,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * @exception Exception the exception
      */
     @Override
-    public void deserialize(byte[] aSerializedData, byte[] aKey) throws Exception {
+    protected void deserialize(byte[] aSerializedData, byte[] aKey) throws Exception {
         String errorMsg = null;
 
         try {
@@ -417,4 +417,29 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
      * @return the deserialized account
      **/
     private native long deserializeJni(byte[] aSerializedDataBuffer, byte[] aKeyBuffer);
+
+    /**
+     * Return a pickled account as a bytes buffer.<br>
+     * The account is serialized and encrypted with aKey.
+     * In case of failure, an error human readable
+     * description is provide in aErrorMsg.
+     * @param aKey encryption key
+     * @param aErrorMsg error message description
+     * @return the pickled account as bytes buffer
+     */
+    public byte[] pickle(byte[] aKey, StringBuffer aErrorMsg) {
+        return serialize(aKey, aErrorMsg);
+    }
+
+    /**
+     * Loads an account from a pickled bytes buffer.<br>
+     * See {@link #serialize(byte[], StringBuffer)}
+     * @param aSerializedData bytes buffer
+     * @param aKey key used to encrypted
+     * @exception Exception the exception
+     */
+    public void unpickle(byte[] aSerializedData, byte[] aKey) throws Exception {
+        deserialize(aSerializedData, aKey);
+    }
+
 }
