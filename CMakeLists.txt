@@ -48,6 +48,10 @@ add_library(olm
     lib/curve25519-donna/curve25519-donna.c)
 add_library(Olm::Olm ALIAS olm)
 
+# restrict the exported symbols
+set(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libolm.version)
+set_target_properties(olm PROPERTIES LINK_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/libolm.version)
+
 target_include_directories(olm
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
