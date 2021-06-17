@@ -102,7 +102,7 @@ JavaScript, Python, Java (Android), and Objective-C bindings included in this
 repository, some bindings are (in alphabetical order):
 
 - [cl-megolm](https://github.com/K1D77A/cl-megolm) (MIT) Common Lisp bindings
-- [dart-olm](https://gitlab.com/famedly/libraries/dart-olm) (AGPLv3) Dart bindings
+- [dart-olm](https://gitlab.com/famedly/company/frontend/libraries/dart-olm) (AGPLv3) Dart bindings
 - [Dhole/go-olm](https://github.com/Dhole/go-olm) (Apache-2.0) Go bindings
 - [libQtOlm](https://gitlab.com/b0/libqtolm/) (GPLv3) Qt bindings
 - [matrix-kt](https://github.com/Dominaezzz/matrix-kt) (Apache-2.0) Kotlin
