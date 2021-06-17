@@ -27,9 +27,15 @@ struct OlmSAS {
 };
 
 const char * olm_sas_last_error(
-    OlmSAS * sas
+    const OlmSAS * sas
 ) {
     return _olm_error_to_string(sas->last_error);
+}
+
+enum OlmErrorCode olm_sas_last_error_code(
+    const OlmSAS * sas
+) {
+    return sas->last_error;
 }
 
 size_t olm_sas_size(void) {

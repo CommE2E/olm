@@ -18,6 +18,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "olm/error.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,6 +42,13 @@ OlmInboundGroupSession * olm_inbound_group_session(
  * A null terminated string describing the most recent error to happen to a
  * group session */
 const char *olm_inbound_group_session_last_error(
+    const OlmInboundGroupSession *session
+);
+
+/**
+ * An error code describing the most recent error to happen to a group
+ * session */
+enum OlmErrorCode olm_inbound_group_session_last_error_code(
     const OlmInboundGroupSession *session
 );
 

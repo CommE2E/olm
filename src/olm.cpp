@@ -42,12 +42,24 @@ static olm::Account * from_c(OlmAccount * account) {
     return reinterpret_cast<olm::Account *>(account);
 }
 
+static const olm::Account * from_c(const OlmAccount * account) {
+    return reinterpret_cast<const olm::Account *>(account);
+}
+
 static olm::Session * from_c(OlmSession * session) {
     return reinterpret_cast<olm::Session *>(session);
 }
 
+static const olm::Session * from_c(const OlmSession * session) {
+    return reinterpret_cast<const olm::Session *>(session);
+}
+
 static olm::Utility * from_c(OlmUtility * utility) {
     return reinterpret_cast<olm::Utility *>(utility);
+}
+
+static const olm::Utility * from_c(const OlmUtility * utility) {
+    return reinterpret_cast<const olm::Utility *>(utility);
 }
 
 static std::uint8_t * from_c(void * bytes) {
@@ -110,25 +122,42 @@ size_t olm_error(void) {
 
 
 const char * olm_account_last_error(
-    OlmAccount * account
+    const OlmAccount * account
 ) {
     auto error = from_c(account)->last_error;
     return _olm_error_to_string(error);
 }
 
+enum OlmErrorCode olm_account_last_error_code(
+    const OlmAccount * account
+) {
+    return from_c(account)->last_error;
+}
 
 const char * olm_session_last_error(
-    OlmSession * session
+    const OlmSession * session
 ) {
     auto error = from_c(session)->last_error;
     return _olm_error_to_string(error);
 }
 
+enum OlmErrorCode olm_session_last_error_code(
+    const OlmSession * session
+) {
+    return from_c(session)->last_error;
+}
+
 const char * olm_utility_last_error(
-    OlmUtility * utility
+    const OlmUtility * utility
 ) {
     auto error = from_c(utility)->last_error;
     return _olm_error_to_string(error);
+}
+
+enum OlmErrorCode olm_utility_last_error_code(
+    const OlmUtility * utility
+) {
+    return from_c(utility)->last_error;
 }
 
 size_t olm_account_size(void) {

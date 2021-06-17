@@ -19,6 +19,8 @@
 
 #include <stddef.h>
 
+#include "olm/error.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -34,7 +36,13 @@ typedef struct OlmSAS OlmSAS;
 /** A null terminated string describing the most recent error to happen to an
  * SAS object. */
 const char * olm_sas_last_error(
-    OlmSAS * sas
+    const OlmSAS * sas
+);
+
+/** An error code describing the most recent error to happen to an SAS
+ * object. */
+enum OlmErrorCode olm_sas_last_error_code(
+    const OlmSAS * sas
 );
 
 /** The size of an SAS object in bytes. */

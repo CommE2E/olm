@@ -37,10 +37,16 @@ struct OlmPkEncryption {
 };
 
 const char * olm_pk_encryption_last_error(
-    OlmPkEncryption * encryption
+    const OlmPkEncryption * encryption
 ) {
     auto error = encryption->last_error;
     return _olm_error_to_string(error);
+}
+
+OlmErrorCode olm_pk_encryption_last_error_code(
+    const OlmPkEncryption * encryption
+) {
+    return encryption->last_error;
 }
 
 size_t olm_pk_encryption_size(void) {
@@ -162,10 +168,16 @@ struct OlmPkDecryption {
 };
 
 const char * olm_pk_decryption_last_error(
-    OlmPkDecryption * decryption
+    const OlmPkDecryption * decryption
 ) {
     auto error = decryption->last_error;
     return _olm_error_to_string(error);
+}
+
+OlmErrorCode olm_pk_decryption_last_error_code(
+    const OlmPkDecryption * decryption
+) {
+    return decryption->last_error;
 }
 
 size_t olm_pk_decryption_size(void) {
@@ -446,9 +458,13 @@ OlmPkSigning *olm_pk_signing(void * memory) {
     return new(memory) OlmPkSigning;
 }
 
-const char * olm_pk_signing_last_error(OlmPkSigning * sign) {
+const char * olm_pk_signing_last_error(const OlmPkSigning * sign) {
     auto error = sign->last_error;
     return _olm_error_to_string(error);
+}
+
+OlmErrorCode olm_pk_signing_last_error_code(const OlmPkSigning * sign) {
+    return sign->last_error;
 }
 
 size_t olm_clear_pk_signing(OlmPkSigning *sign) {

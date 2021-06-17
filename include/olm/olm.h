@@ -19,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "olm/error.h"
 #include "olm/inbound_group_session.h"
 #include "olm/outbound_group_session.h"
 
@@ -71,19 +72,34 @@ size_t olm_error(void);
 /** A null terminated string describing the most recent error to happen to an
  * account */
 const char * olm_account_last_error(
-    OlmAccount * account
+    const OlmAccount * account
+);
+
+/** An error code describing the most recent error to happen to an account */
+enum OlmErrorCode olm_account_last_error_code(
+    const OlmAccount * account
 );
 
 /** A null terminated string describing the most recent error to happen to a
  * session */
 const char * olm_session_last_error(
-    OlmSession * session
+    const OlmSession * session
+);
+
+/** An error code describing the most recent error to happen to a session */
+enum OlmErrorCode olm_session_last_error_code(
+    const OlmSession * session
 );
 
 /** A null terminated string describing the most recent error to happen to a
  * utility */
 const char * olm_utility_last_error(
-    OlmUtility * utility
+    const OlmUtility * utility
+);
+
+/** An error code describing the most recent error to happen to a utility */
+enum OlmErrorCode olm_utility_last_error_code(
+    const OlmUtility * utility
 );
 
 /** Clears the memory used to back this account */

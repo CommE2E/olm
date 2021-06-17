@@ -92,6 +92,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/inbound_group_session.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/pk.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/sas.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/error.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/olm)
 
 if (UNIX AND NOT APPLE)

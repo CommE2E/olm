@@ -76,6 +76,12 @@ const char *olm_inbound_group_session_last_error(
     return _olm_error_to_string(session->last_error);
 }
 
+enum OlmErrorCode olm_inbound_group_session_last_error_code(
+    const OlmInboundGroupSession *session
+) {
+    return session->last_error;
+}
+
 size_t olm_clear_inbound_group_session(
     OlmInboundGroupSession *session
 ) {

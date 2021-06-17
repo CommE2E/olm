@@ -19,6 +19,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "olm/error.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -37,7 +39,13 @@ OlmPkEncryption *olm_pk_encryption(
 /** A null terminated string describing the most recent error to happen to an
  * encryption object */
 const char * olm_pk_encryption_last_error(
-    OlmPkEncryption * encryption
+    const OlmPkEncryption * encryption
+);
+
+/** An error code describing the most recent error to happen to an encryption
+ * object */
+enum OlmErrorCode olm_pk_encryption_last_error_code(
+    const OlmPkEncryption * encryption
 );
 
 /** Clears the memory used to back this encryption object */
@@ -104,7 +112,13 @@ OlmPkDecryption *olm_pk_decryption(
 /** A null terminated string describing the most recent error to happen to a
  * decription object */
 const char * olm_pk_decryption_last_error(
-    OlmPkDecryption * decryption
+    const OlmPkDecryption * decryption
+);
+
+/** An error code describing the most recent error to happen to a decription
+ * object */
+enum OlmErrorCode olm_pk_decryption_last_error_code(
+    const OlmPkDecryption * decryption
 );
 
 /** Clears the memory used to back this decryption object */
@@ -221,7 +235,13 @@ OlmPkSigning *olm_pk_signing(
 /** A null terminated string describing the most recent error to happen to a
  * signing object */
 const char * olm_pk_signing_last_error(
-    OlmPkSigning * sign
+    const OlmPkSigning * sign
+);
+
+/** A null terminated string describing the most recent error to happen to a
+ * signing object */
+enum OlmErrorCode olm_pk_signing_last_error_code(
+    const OlmPkSigning * sign
 );
 
 /** Clears the memory used to back this signing object */
