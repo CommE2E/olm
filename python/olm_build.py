@@ -49,6 +49,9 @@ ffibuilder.set_source(
     extra_compile_args=compile_args,
     extra_link_args=link_args)
 
+with open(os.path.join(PATH, "include/olm/error.h")) as f:
+    ffibuilder.cdef(f.read(), override=True)
+
 with open(os.path.join(PATH, "include/olm/olm.h")) as f:
     ffibuilder.cdef(f.read(), override=True)
 
