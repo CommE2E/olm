@@ -90,7 +90,7 @@ size_t olm_pk_encryption_set_recipient_key (
 }
 
 size_t olm_pk_ciphertext_length(
-    OlmPkEncryption *encryption,
+    const OlmPkEncryption *encryption,
     size_t plaintext_length
 ) {
     return olm::encode_base64_length(
@@ -99,13 +99,13 @@ size_t olm_pk_ciphertext_length(
 }
 
 size_t olm_pk_mac_length(
-    OlmPkEncryption *encryption
+    const OlmPkEncryption *encryption
 ) {
     return olm::encode_base64_length(_olm_cipher_aes_sha_256_ops.mac_length(olm_pk_cipher));
 }
 
 size_t olm_pk_encrypt_random_length(
-    OlmPkEncryption *encryption
+    const OlmPkEncryption *encryption
 ) {
     return CURVE25519_KEY_LENGTH;
 }
@@ -291,7 +291,7 @@ namespace {
 }
 
 size_t olm_pickle_pk_decryption_length(
-    OlmPkDecryption * decryption
+    const OlmPkDecryption * decryption
 ) {
     return _olm_enc_output_length(pickle_length(*decryption));
 }
@@ -355,7 +355,7 @@ size_t olm_unpickle_pk_decryption(
 }
 
 size_t olm_pk_max_plaintext_length(
-    OlmPkDecryption * decryption,
+    const OlmPkDecryption * decryption,
     size_t ciphertext_length
 ) {
     return _olm_cipher_aes_sha_256_ops.decrypt_max_plaintext_length(

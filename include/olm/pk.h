@@ -62,13 +62,13 @@ size_t olm_pk_encryption_set_recipient_key(
 /** Get the length of the ciphertext that will correspond to a plaintext of the
  * given length. */
 size_t olm_pk_ciphertext_length(
-    OlmPkEncryption *encryption,
+    const OlmPkEncryption *encryption,
     size_t plaintext_length
 );
 
 /** Get the length of the message authentication code. */
 size_t olm_pk_mac_length(
-    OlmPkEncryption *encryption
+    const OlmPkEncryption *encryption
 );
 
 /** Get the length of a public or ephemeral key */
@@ -76,7 +76,7 @@ size_t olm_pk_key_length(void);
 
 /** The number of random bytes needed to encrypt a message. */
 size_t olm_pk_encrypt_random_length(
-    OlmPkEncryption *encryption
+    const OlmPkEncryption *encryption
 );
 
 /** Encrypt a plaintext for the recipient set using
@@ -160,7 +160,7 @@ size_t olm_pk_generate_key(
 
 /** Returns the number of bytes needed to store a decryption object. */
 size_t olm_pickle_pk_decryption_length(
-    OlmPkDecryption * decryption
+    const OlmPkDecryption * decryption
 );
 
 /** Stores decryption object as a base64 string. Encrypts the object using the
@@ -191,7 +191,7 @@ size_t olm_unpickle_pk_decryption(
 /** Get the length of the plaintext that will correspond to a ciphertext of the
  * given length. */
 size_t olm_pk_max_plaintext_length(
-    OlmPkDecryption * decryption,
+    const OlmPkDecryption * decryption,
     size_t ciphertext_length
 );
 

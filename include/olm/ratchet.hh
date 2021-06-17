@@ -124,12 +124,12 @@ struct Ratchet {
      * a given message length. */
     std::size_t encrypt_output_length(
         std::size_t plaintext_length
-    );
+    ) const;
 
     /** The number of bytes of random data the encrypt method will need to
      * encrypt a message. This will be 32 bytes if the session needs to
      * generate a new ephemeral key, or will be 0 bytes otherwise.*/
-    std::size_t encrypt_random_length();
+    std::size_t encrypt_random_length() const;
 
     /** Encrypt some plain-text. Returns the length of the encrypted message
      * or std::size_t(-1) on failure. On failure last_error will be set with

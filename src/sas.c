@@ -56,7 +56,7 @@ size_t olm_clear_sas(
     return sizeof(OlmSAS);
 }
 
-size_t olm_create_sas_random_length(OlmSAS * sas) {
+size_t olm_create_sas_random_length(const OlmSAS * sas) {
     return CURVE25519_KEY_LENGTH;
 }
 
@@ -73,7 +73,7 @@ size_t olm_create_sas(
     return 0;
 }
 
-size_t olm_sas_pubkey_length(OlmSAS * sas) {
+size_t olm_sas_pubkey_length(const OlmSAS * sas) {
     return _olm_encode_base64_length(CURVE25519_KEY_LENGTH);
 }
 
@@ -114,7 +114,7 @@ size_t olm_sas_set_their_key(
 }
 
 int olm_sas_is_their_key_set(
-    OlmSAS *sas
+    const OlmSAS *sas
 ) {
     return sas->their_key_set;
 }
@@ -138,7 +138,7 @@ size_t olm_sas_generate_bytes(
 }
 
 size_t olm_sas_mac_length(
-    OlmSAS *sas
+    const OlmSAS *sas
 ) {
     return _olm_encode_base64_length(SHA256_OUTPUT_LENGTH);
 }

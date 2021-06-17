@@ -399,7 +399,7 @@ std::uint8_t const * olm::unpickle(
 
 std::size_t olm::Ratchet::encrypt_output_length(
     std::size_t plaintext_length
-) {
+) const {
     std::size_t counter = 0;
     if (!sender_chain.empty()) {
         counter = sender_chain[0].chain_key.index;
@@ -414,7 +414,7 @@ std::size_t olm::Ratchet::encrypt_output_length(
 }
 
 
-std::size_t olm::Ratchet::encrypt_random_length() {
+std::size_t olm::Ratchet::encrypt_random_length() const {
     return sender_chain.empty() ? CURVE25519_RANDOM_LENGTH : 0;
 }
 

@@ -22,7 +22,7 @@ olm::Utility::Utility(
 }
 
 
-size_t olm::Utility::sha256_length() {
+size_t olm::Utility::sha256_length() const {
     return SHA256_OUTPUT_LENGTH;
 }
 

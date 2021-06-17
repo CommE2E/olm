@@ -84,7 +84,7 @@ std::size_t olm::Account::remove_key(
     return std::size_t(-1);
 }
 
-std::size_t olm::Account::new_account_random_length() {
+std::size_t olm::Account::new_account_random_length() const {
     return ED25519_RANDOM_LENGTH + CURVE25519_RANDOM_LENGTH;
 }
 
@@ -120,7 +120,7 @@ static std::uint8_t * write_string(
 }
 
 
-std::size_t olm::Account::get_identity_json_length() {
+std::size_t olm::Account::get_identity_json_length() const {
     std::size_t length = 0;
     length += 1; /* { */
     length += sizeof(KEY_JSON_CURVE25519) - 1;
@@ -172,7 +172,7 @@ std::size_t olm::Account::get_identity_json(
 
 
 std::size_t olm::Account::signature_length(
-) {
+) const {
     return ED25519_SIGNATURE_LENGTH;
 }
 
@@ -193,7 +193,7 @@ std::size_t olm::Account::sign(
 
 
 std::size_t olm::Account::get_one_time_keys_json_length(
-) {
+) const {
     std::size_t length = 0;
     bool is_empty = true;
     for (auto const & key : one_time_keys) {
@@ -267,13 +267,13 @@ std::size_t olm::Account::mark_keys_as_published(
 
 
 std::size_t olm::Account::max_number_of_one_time_keys(
-) {
+) const {
     return olm::MAX_ONE_TIME_KEYS;
 }
 
 std::size_t olm::Account::generate_one_time_keys_random_length(
     std::size_t number_of_keys
-) {
+) const {
     return CURVE25519_RANDOM_LENGTH * number_of_keys;
 }
 
@@ -295,7 +295,7 @@ std::size_t olm::Account::generate_one_time_keys(
     return number_of_keys;
 }
 
-std::size_t olm::Account::generate_fallback_key_random_length() {
+std::size_t olm::Account::generate_fallback_key_random_length() const {
     return CURVE25519_RANDOM_LENGTH;
 }
 
@@ -315,9 +315,9 @@ std::size_t olm::Account::generate_fallback_key(
 
 
 std::size_t olm::Account::get_fallback_key_json_length(
-) {
+) const {
     std::size_t length = 4 + sizeof(KEY_JSON_CURVE25519) - 1; /* {"curve25519":{}} */
-    OneTimeKey & key = current_fallback_key;
+    const OneTimeKey & key = current_fallback_key;
     if (key.published) {
         length += 1; /* " */
         length += olm::encode_base64_length(_olm_pickle_uint32_length(key.id));

@@ -49,7 +49,7 @@ struct Account {
     OlmErrorCode last_error;
 
     /** Number of random bytes needed to create a new account */
-    std::size_t new_account_random_length();
+    std::size_t new_account_random_length() const;
 
     /** Create a new account. Returns std::size_t(-1) on error. If the number of
      * random bytes is too small then last_error will be NOT_ENOUGH_RANDOM */
@@ -58,7 +58,7 @@ struct Account {
     );
 
     /** Number of bytes needed to output the identity keys for this account */
-    std::size_t get_identity_json_length();
+    std::size_t get_identity_json_length() const;
 
     /** Output the identity keys for this account as JSON in the following
      * format:
@@ -77,7 +77,7 @@ struct Account {
     /**
      * The length of an ed25519 signature in bytes.
      */
-    std::size_t signature_length();
+    std::size_t signature_length() const;
 
     /**
      * Signs a message with the ed25519 key for this account.
@@ -88,7 +88,7 @@ struct Account {
     );
 
     /** Number of bytes needed to output the one time keys for this account */
-    std::size_t get_one_time_keys_json_length();
+    std::size_t get_one_time_keys_json_length() const;
 
     /** Output the one time keys that haven't been published yet as JSON:
      *
@@ -111,13 +111,13 @@ struct Account {
     std::size_t mark_keys_as_published();
 
     /** The largest number of one time keys this account can store. */
-    std::size_t max_number_of_one_time_keys();
+    std::size_t max_number_of_one_time_keys() const;
 
     /** The number of random bytes needed to generate a given number of new one
      * time keys. */
     std::size_t generate_one_time_keys_random_length(
         std::size_t number_of_keys
-    );
+    ) const;
 
     /** Generates a number of new one time keys. If the total number of keys
      * stored by this account exceeds max_number_of_one_time_keys() then the
@@ -129,7 +129,7 @@ struct Account {
     );
 
     /** The number of random bytes needed to generate a fallback key. */
-    std::size_t generate_fallback_key_random_length();
+    std::size_t generate_fallback_key_random_length() const;
 
     /** Generates a new fallback key. Returns std::size_t(-1) on error. If the
      * number of random bytes is too small then last_error will be
@@ -139,7 +139,7 @@ struct Account {
     );
 
     /** Number of bytes needed to output the one time keys for this account */
-    std::size_t get_fallback_key_json_length();
+    std::size_t get_fallback_key_json_length() const;
 
     /** Output the fallback key as JSON:
      *

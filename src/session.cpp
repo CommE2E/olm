@@ -49,7 +49,7 @@ olm::Session::Session(
 }
 
 
-std::size_t olm::Session::new_outbound_session_random_length() {
+std::size_t olm::Session::new_outbound_session_random_length() const {
     return CURVE25519_RANDOM_LENGTH * 2;
 }
 
@@ -193,7 +193,7 @@ std::size_t olm::Session::new_inbound_session(
 }
 
 
-std::size_t olm::Session::session_id_length() {
+std::size_t olm::Session::session_id_length() const {
     return SHA256_OUTPUT_LENGTH;
 }
 
@@ -218,7 +218,7 @@ std::size_t olm::Session::session_id(
 bool olm::Session::matches_inbound_session(
     _olm_curve25519_public_key const * their_identity_key,
     std::uint8_t const * one_time_key_message, std::size_t message_length
-) {
+) const {
     olm::PreKeyMessageReader reader;
     decode_one_time_key_message(reader, one_time_key_message, message_length);
 
@@ -248,7 +248,7 @@ bool olm::Session::matches_inbound_session(
 }
 
 
-olm::MessageType olm::Session::encrypt_message_type() {
+olm::MessageType olm::Session::encrypt_message_type() const {
     if (received_message) {
         return olm::MessageType::MESSAGE;
     } else {
@@ -259,7 +259,7 @@ olm::MessageType olm::Session::encrypt_message_type() {
 
 std::size_t olm::Session::encrypt_message_length(
     std::size_t plaintext_length
-) {
+) const {
     std::size_t message_length = ratchet.encrypt_output_length(
         plaintext_length
     );
@@ -277,7 +277,7 @@ std::size_t olm::Session::encrypt_message_length(
 }
 
 
-std::size_t olm::Session::encrypt_random_length() {
+std::size_t olm::Session::encrypt_random_length() const {
     return ratchet.encrypt_random_length();
 }
 

@@ -119,12 +119,12 @@ size_t olm_clear_utility(
 
 /** Returns the number of bytes needed to store an account */
 size_t olm_pickle_account_length(
-    OlmAccount * account
+    const OlmAccount * account
 );
 
 /** Returns the number of bytes needed to store a session */
 size_t olm_pickle_session_length(
-    OlmSession * session
+    const OlmSession * session
 );
 
 /** Stores an account as a base64 string. Encrypts the account using the
@@ -175,7 +175,7 @@ size_t olm_unpickle_session(
 
 /** The number of random bytes needed to create an account.*/
 size_t olm_create_account_random_length(
-    OlmAccount * account
+    const OlmAccount * account
 );
 
 /** Creates a new account. Returns olm_error() on failure. If there weren't
@@ -188,7 +188,7 @@ size_t olm_create_account(
 
 /** The size of the output buffer needed to hold the identity keys */
 size_t olm_account_identity_keys_length(
-    OlmAccount * account
+    const OlmAccount * account
 );
 
 /** Writes the public parts of the identity keys for the account into the
@@ -203,7 +203,7 @@ size_t olm_account_identity_keys(
 
 /** The length of an ed25519 signature encoded as base64. */
 size_t olm_account_signature_length(
-    OlmAccount * account
+    const OlmAccount * account
 );
 
 /** Signs a message with the ed25519 key for this account. Returns olm_error()
@@ -217,7 +217,7 @@ size_t olm_account_sign(
 
 /** The size of the output buffer needed to hold the one time keys */
 size_t olm_account_one_time_keys_length(
-    OlmAccount * account
+    const OlmAccount * account
 );
 
 /** Writes the public parts of the unpublished one time keys for the account
@@ -250,13 +250,13 @@ size_t olm_account_mark_keys_as_published(
 
 /** The largest number of one time keys this account can store. */
 size_t olm_account_max_number_of_one_time_keys(
-    OlmAccount * account
+    const OlmAccount * account
 );
 
 /** The number of random bytes needed to generate a given number of new one
  * time keys. */
 size_t olm_account_generate_one_time_keys_random_length(
-    OlmAccount * account,
+    const OlmAccount * account,
     size_t number_of_keys
 );
 
@@ -272,7 +272,7 @@ size_t olm_account_generate_one_time_keys(
 
 /** The number of random bytes needed to generate a fallback key. */
 size_t olm_account_generate_fallback_key_random_length(
-    OlmAccount * account
+    const OlmAccount * account
 );
 
 /** Generates a new fallback key. Only one previous fallback key is
@@ -286,7 +286,7 @@ size_t olm_account_generate_fallback_key(
 /** The number of bytes needed to hold the fallback key as returned by
  * olm_account_fallback_key. */
 size_t olm_account_fallback_key_length(
-    OlmAccount * account
+    const OlmAccount * account
 );
 
 size_t olm_account_fallback_key(
@@ -297,7 +297,7 @@ size_t olm_account_fallback_key(
 
 /** The number of random bytes needed to create an outbound session */
 size_t olm_create_outbound_session_random_length(
-    OlmSession * session
+    const OlmSession * session
 );
 
 /** Creates a new out-bound session for sending messages to a given identity_key
@@ -339,7 +339,7 @@ size_t olm_create_inbound_session_from(
 
 /** The length of the buffer needed to return the id for this session. */
 size_t olm_session_id_length(
-    OlmSession * session
+    const OlmSession * session
 );
 
 /** An identifier for this session. Will be the same for both ends of the
@@ -351,7 +351,7 @@ size_t olm_session_id(
 );
 
 int olm_session_has_received_message(
-    OlmSession *session
+    const OlmSession *session
 );
 
 /**
@@ -402,18 +402,18 @@ size_t olm_remove_one_time_keys(
  * Returns OLM_MESSAGE_TYPE_MESSAGE if the message will be a normal message.
  * Returns olm_error on failure. */
 size_t olm_encrypt_message_type(
-    OlmSession * session
+    const OlmSession * session
 );
 
 /** The number of random bytes needed to encrypt the next message. */
 size_t olm_encrypt_random_length(
-    OlmSession * session
+    const OlmSession * session
 );
 
 /** The size of the next message in bytes for the given number of plain-text
  * bytes. */
 size_t olm_encrypt_message_length(
-    OlmSession * session,
+    const OlmSession * session,
     size_t plaintext_length
 );
 
@@ -464,7 +464,7 @@ size_t olm_decrypt(
 
 /** The length of the buffer needed to hold the SHA-256 hash. */
 size_t olm_sha256_length(
-   OlmUtility * utility
+   const OlmUtility * utility
 );
 
 /** Calculates the SHA-256 hash of the input and encodes it as base64. If the

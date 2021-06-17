@@ -32,7 +32,7 @@ struct Utility {
     OlmErrorCode last_error;
 
     /** The length of a SHA-256 hash in bytes. */
-    std::size_t sha256_length();
+    std::size_t sha256_length() const;
 
     /** Compute a SHA-256 hash. Returns the length of the SHA-256 hash in bytes
      * on success. Returns std::size_t(-1) on failure. On failure last_error
