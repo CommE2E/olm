@@ -4,7 +4,7 @@ import sys
 import re
 import json
 
-expr = re.compile(r"(olm_[^( ]*)\(")
+expr = re.compile(r"(_*olm_[^( ]*)\(")
 
 exports = {'_free', '_malloc'}
 
