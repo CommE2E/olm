@@ -1,6 +1,8 @@
 #include "olm/base64.hh"
 #include "olm/base64.h"
 #include "unittest.hh"
+#include <cstring>
+#include <vector>
 
 int main() {
 
@@ -68,7 +70,6 @@ assert_equals(expected_output, output, output_length);
 
 {
 TestCase test_case("Decoding base64 of invalid length fails with -1");
-#include <iostream>
 std::uint8_t input[] = "SGVsbG8gV29ybGQab";
 std::size_t input_length = sizeof(input) - 1;
 
@@ -76,14 +77,12 @@ std::size_t input_length = sizeof(input) - 1;
  * Nothing will be written to the output buffer anyway because the input is
  * invalid. */
 std::size_t buf_length = olm::decode_base64_length(input_length + 1);
-std::uint8_t output[buf_length];
-std::uint8_t expected_output[buf_length];
-memset(output, 0, buf_length);
-memset(expected_output, 0, buf_length);
+std::vector<std::uint8_t> output(buf_length, 0);
+std::vector<std::uint8_t> expected_output(buf_length, 0);
 
-std::size_t output_length = ::_olm_decode_base64(input, input_length, output);
+std::size_t output_length = ::_olm_decode_base64(input, input_length, output.data());
 assert_equals(std::size_t(-1), output_length);
-assert_equals(0, memcmp(output, expected_output, buf_length));
+assert_equals(0, memcmp(output.data(), expected_output.data(), buf_length));
 }
 
 }
