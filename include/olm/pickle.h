@@ -15,7 +15,24 @@
 #ifndef OLM_PICKLE_H_
 #define OLM_PICKLE_H_
 
+#include <stddef.h>
 #include <stdint.h>
+
+/* Convenience macro for checking the return value of internal unpickling
+ * functions and returning early on failure. */
+#ifndef UNPICKLE_OK
+#define UNPICKLE_OK(x) do { if (!(x)) return NULL; } while(0)
+#endif
+
+/* Convenience macro for failing on corrupted pickles from public
+ * API unpickling functions. */
+#define FAIL_ON_CORRUPTED_PICKLE(pos, session) \
+    do { \
+        if (!pos) { \
+          session->last_error = OLM_CORRUPTED_PICKLE;  \
+          return (size_t)-1; \
+        } \
+    } while(0)
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,7 +76,7 @@ uint8_t * _olm_pickle_ed25519_public_key(
 );
 
 /** Unpickle the ed25519 public key. Returns a pointer to the next item in the
- * buffer. */
+ * buffer on success, NULL on error. */
 const uint8_t * _olm_unpickle_ed25519_public_key(
     const uint8_t *pos, const uint8_t *end,
     struct _olm_ed25519_public_key * value
@@ -77,7 +94,7 @@ uint8_t * _olm_pickle_ed25519_key_pair(
 );
 
 /** Unpickle the ed25519 key pair. Returns a pointer to the next item in the
- * buffer. */
+ * buffer on success, NULL on error. */
 const uint8_t * _olm_unpickle_ed25519_key_pair(
     const uint8_t *pos, const uint8_t *end,
     struct _olm_ed25519_key_pair * value

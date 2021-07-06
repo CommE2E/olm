@@ -30,7 +30,7 @@ std::uint8_t const * olm::unpickle(
     std::uint32_t & value
 ) {
     value = 0;
-    if (end < pos + 4) return end;
+    if (!pos || end <= pos + 4) return nullptr;
     for (unsigned i = 4; i--;) { value <<= 8; value |= *(pos++); }
     return pos;
 }
@@ -47,7 +47,7 @@ std::uint8_t const * olm::unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
     bool & value
 ) {
-    if (pos == end) return end;
+    if (!pos || pos == end) return nullptr;
     value = *(pos++);
     return pos;
 }
@@ -64,7 +64,7 @@ std::uint8_t const * olm::unpickle_bytes(
     std::uint8_t const * pos, std::uint8_t const * end,
     std::uint8_t * bytes, std::size_t bytes_length
 ) {
-    if (end < pos + bytes_length) return end;
+    if (!pos || end < pos + bytes_length) return nullptr;
     std::memcpy(bytes, pos, bytes_length);
     return pos + bytes_length;
 }
@@ -92,11 +92,9 @@ std::uint8_t const * olm::unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
     _olm_curve25519_public_key & value
 ) {
-    pos = olm::unpickle_bytes(
+    return olm::unpickle_bytes(
         pos, end, value.public_key, sizeof(value.public_key)
     );
-    return pos;
-
 }
 
 
@@ -132,10 +130,14 @@ std::uint8_t const * olm::unpickle(
         pos, end, value.public_key.public_key,
         sizeof(value.public_key.public_key)
     );
+    if (!pos) return nullptr;
+
     pos = olm::unpickle_bytes(
         pos, end, value.private_key.private_key,
         sizeof(value.private_key.private_key)
     );
+    if (!pos) return nullptr;
+
     return pos;
 }
 
@@ -152,10 +154,9 @@ std::uint8_t * _olm_pickle_ed25519_public_key(
     std::uint8_t * pos,
     const _olm_ed25519_public_key *value
 ) {
-    pos = olm::pickle_bytes(
+    return olm::pickle_bytes(
         pos, value->public_key, sizeof(value->public_key)
     );
-    return pos;
 }
 
 
@@ -163,10 +164,9 @@ std::uint8_t const * _olm_unpickle_ed25519_public_key(
     std::uint8_t const * pos, std::uint8_t const * end,
     _olm_ed25519_public_key * value
 ) {
-    pos = olm::unpickle_bytes(
+    return olm::unpickle_bytes(
         pos, end, value->public_key, sizeof(value->public_key)
     );
-    return pos;
 }
 
 
@@ -202,10 +202,14 @@ std::uint8_t const * _olm_unpickle_ed25519_key_pair(
         pos, end, value->public_key.public_key,
         sizeof(value->public_key.public_key)
     );
+    if (!pos) return nullptr;
+
     pos = olm::unpickle_bytes(
         pos, end, value->private_key.private_key,
         sizeof(value->private_key.private_key)
     );
+    if (!pos) return nullptr;
+
     return pos;
 }
 

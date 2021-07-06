@@ -382,8 +382,8 @@ static std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
     olm::IdentityKeys & value
 ) {
-    pos = _olm_unpickle_ed25519_key_pair(pos, end, &value.ed25519_key);
-    pos = olm::unpickle(pos, end, value.curve25519_key);
+    pos = _olm_unpickle_ed25519_key_pair(pos, end, &value.ed25519_key); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.curve25519_key); UNPICKLE_OK(pos);
     return pos;
 }
 
@@ -414,9 +414,9 @@ static std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
     olm::OneTimeKey & value
 ) {
-    pos = olm::unpickle(pos, end, value.id);
-    pos = olm::unpickle(pos, end, value.published);
-    pos = olm::unpickle(pos, end, value.key);
+    pos = olm::unpickle(pos, end, value.id); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.published); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.key); UNPICKLE_OK(pos);
     return pos;
 }
 
@@ -463,28 +463,34 @@ std::uint8_t const * olm::unpickle(
     olm::Account & value
 ) {
     uint32_t pickle_version;
-    pos = olm::unpickle(pos, end, pickle_version);
+
+    pos = olm::unpickle(pos, end, pickle_version); UNPICKLE_OK(pos);
+
     switch (pickle_version) {
         case ACCOUNT_PICKLE_VERSION:
         case 2:
             break;
         case 1:
             value.last_error = OlmErrorCode::OLM_BAD_LEGACY_ACCOUNT_PICKLE;
-            return end;
+            return nullptr;
         default:
             value.last_error = OlmErrorCode::OLM_UNKNOWN_PICKLE_VERSION;
-            return end;
+            return nullptr;
     }
-    pos = olm::unpickle(pos, end, value.identity_keys);
-    pos = olm::unpickle(pos, end, value.one_time_keys);
+
+    pos = olm::unpickle(pos, end, value.identity_keys); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.one_time_keys); UNPICKLE_OK(pos);
+
     if (pickle_version == 2) {
         // version 2 did not have fallback keys
         value.current_fallback_key.published = false;
         value.prev_fallback_key.published = false;
     } else {
-        pos = olm::unpickle(pos, end, value.current_fallback_key);
-        pos = olm::unpickle(pos, end, value.prev_fallback_key);
+        pos = olm::unpickle(pos, end, value.current_fallback_key); UNPICKLE_OK(pos);
+        pos = olm::unpickle(pos, end, value.prev_fallback_key); UNPICKLE_OK(pos);
     }
-    pos = olm::unpickle(pos, end, value.next_one_time_key_id);
+
+    pos = olm::unpickle(pos, end, value.next_one_time_key_id); UNPICKLE_OK(pos);
+
     return pos;
 }

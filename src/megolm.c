@@ -73,7 +73,11 @@ const uint8_t * megolm_unpickle(Megolm *megolm, const uint8_t *pos,
                                 const uint8_t *end) {
     pos = _olm_unpickle_bytes(pos, end, (uint8_t *)(megolm->data),
                              MEGOLM_RATCHET_LENGTH);
+    UNPICKLE_OK(pos);
+
     pos = _olm_unpickle_uint32(pos, end, &megolm->counter);
+    UNPICKLE_OK(pos);
+
     return pos;
 }
 

@@ -280,9 +280,9 @@ static std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
     olm::SenderChain & value
 ) {
-    pos = olm::unpickle(pos, end, value.ratchet_key);
-    pos = olm::unpickle(pos, end, value.chain_key.key);
-    pos = olm::unpickle(pos, end, value.chain_key.index);
+    pos = olm::unpickle(pos, end, value.ratchet_key); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.chain_key.key); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.chain_key.index); UNPICKLE_OK(pos);
     return pos;
 }
 
@@ -312,9 +312,9 @@ static std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
     olm::ReceiverChain & value
 ) {
-    pos = olm::unpickle(pos, end, value.ratchet_key);
-    pos = olm::unpickle(pos, end, value.chain_key.key);
-    pos = olm::unpickle(pos, end, value.chain_key.index);
+    pos = olm::unpickle(pos, end, value.ratchet_key); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.chain_key.key); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.chain_key.index); UNPICKLE_OK(pos);
     return pos;
 }
 
@@ -345,9 +345,9 @@ static std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
     olm::SkippedMessageKey & value
 ) {
-    pos = olm::unpickle(pos, end, value.ratchet_key);
-    pos = olm::unpickle(pos, end, value.message_key.key);
-    pos = olm::unpickle(pos, end, value.message_key.index);
+    pos = olm::unpickle(pos, end, value.ratchet_key); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.message_key.key); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.message_key.index); UNPICKLE_OK(pos);
     return pos;
 }
 
@@ -383,15 +383,15 @@ std::uint8_t const * olm::unpickle(
     olm::Ratchet & value,
     bool includes_chain_index
 ) {
-    pos = unpickle(pos, end, value.root_key);
-    pos = unpickle(pos, end, value.sender_chain);
-    pos = unpickle(pos, end, value.receiver_chains);
-    pos = unpickle(pos, end, value.skipped_message_keys);
+    pos = unpickle(pos, end, value.root_key); UNPICKLE_OK(pos);
+    pos = unpickle(pos, end, value.sender_chain); UNPICKLE_OK(pos);
+    pos = unpickle(pos, end, value.receiver_chains); UNPICKLE_OK(pos);
+    pos = unpickle(pos, end, value.skipped_message_keys); UNPICKLE_OK(pos);
 
     // pickle v 0x80000001 includes a chain index; pickle v1 does not.
     if (includes_chain_index) {
         std::uint32_t dummy;
-        pos = unpickle(pos, end, dummy);
+        pos = unpickle(pos, end, dummy); UNPICKLE_OK(pos);
     }
     return pos;
 }

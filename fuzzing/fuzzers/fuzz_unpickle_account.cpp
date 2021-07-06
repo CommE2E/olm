@@ -9,11 +9,7 @@ size_t fuzz_unpickle_account(
     std::uint8_t * const pos = reinterpret_cast<std::uint8_t *>(pickled);
     std::uint8_t * const end = pos + pickled_length;
 
-    /* On success unpickle will return (pos + raw_length). If unpickling
-     * terminates too soon then it will return a pointer before
-     * (pos + raw_length). On error unpickle will return (pos + raw_length + 1).
-     */
-    if (end != unpickle(pos, end + 1, object)) {
+    if (!unpickle(pos, end, object)) {
         if (object.last_error == OlmErrorCode::OLM_SUCCESS) {
             object.last_error = OlmErrorCode::OLM_CORRUPTED_PICKLE;
         }

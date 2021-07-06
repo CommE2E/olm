@@ -274,7 +274,7 @@ namespace {
         OlmPkDecryption & value
     ) {
         uint32_t pickle_version;
-        pos = olm::unpickle(pos, end, pickle_version);
+        pos = olm::unpickle(pos, end, pickle_version); UNPICKLE_OK(pos);
 
         switch (pickle_version) {
         case 1:
@@ -282,10 +282,11 @@ namespace {
 
         default:
             value.last_error = OlmErrorCode::OLM_UNKNOWN_PICKLE_VERSION;
-            return end;
+            return nullptr;
         }
 
-        pos = olm::unpickle(pos, end, value.key_pair);
+        pos = olm::unpickle(pos, end, value.key_pair); UNPICKLE_OK(pos);
+
         return pos;
     }
 }
@@ -334,11 +335,8 @@ size_t olm_unpickle_pk_decryption(
         return std::size_t(-1);
     }
     std::uint8_t * const end = pos + raw_length;
-    /* On success unpickle will return (pos + raw_length). If unpickling
-     * terminates too soon then it will return a pointer before
-     * (pos + raw_length). On error unpickle will return (pos + raw_length + 1).
-     */
-    if (end != unpickle(pos, end + 1, object)) {
+
+    if (!unpickle(pos, end, object)) {
         if (object.last_error == OlmErrorCode::OLM_SUCCESS) {
             object.last_error = OlmErrorCode::OLM_CORRUPTED_PICKLE;
         }

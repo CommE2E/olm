@@ -290,11 +290,7 @@ size_t olm_unpickle_account(
         return std::size_t(-1);
     }
     std::uint8_t * const end = pos + raw_length;
-    /* On success unpickle will return (pos + raw_length). If unpickling
-     * terminates too soon then it will return a pointer before
-     * (pos + raw_length). On error unpickle will return (pos + raw_length + 1).
-     */
-    if (end != unpickle(pos, end + 1, object)) {
+    if (!unpickle(pos, end, object)) {
         if (object.last_error == OlmErrorCode::OLM_SUCCESS) {
             object.last_error = OlmErrorCode::OLM_CORRUPTED_PICKLE;
         }
@@ -319,11 +315,7 @@ size_t olm_unpickle_session(
     }
 
     std::uint8_t * const end = pos + raw_length;
-    /* On success unpickle will return (pos + raw_length). If unpickling
-     * terminates too soon then it will return a pointer before
-     * (pos + raw_length). On error unpickle will return (pos + raw_length + 1).
-     */
-    if (end != unpickle(pos, end + 1, object)) {
+    if (!unpickle(pos, end, object)) {
         if (object.last_error == OlmErrorCode::OLM_SUCCESS) {
             object.last_error = OlmErrorCode::OLM_CORRUPTED_PICKLE;
         }

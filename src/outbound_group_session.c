@@ -143,19 +143,20 @@ size_t olm_unpickle_outbound_group_session(
 
     pos = pickled;
     end = pos + raw_length;
+
     pos = _olm_unpickle_uint32(pos, end, &pickle_version);
+    FAIL_ON_CORRUPTED_PICKLE(pos, session);
+
     if (pickle_version != PICKLE_VERSION) {
         session->last_error = OLM_UNKNOWN_PICKLE_VERSION;
         return (size_t)-1;
     }
-    pos = megolm_unpickle(&(session->ratchet), pos, end);
-    pos = _olm_unpickle_ed25519_key_pair(pos, end, &(session->signing_key));
 
-    if (end != pos) {
-        /* We had the wrong number of bytes in the input. */
-        session->last_error = OLM_CORRUPTED_PICKLE;
-        return (size_t)-1;
-    }
+    pos = megolm_unpickle(&(session->ratchet), pos, end);
+    FAIL_ON_CORRUPTED_PICKLE(pos, session);
+
+    pos = _olm_unpickle_ed25519_key_pair(pos, end, &(session->signing_key));
+    FAIL_ON_CORRUPTED_PICKLE(pos, session);
 
     return pickled_length;
 }

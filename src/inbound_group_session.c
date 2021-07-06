@@ -246,14 +246,23 @@ size_t olm_unpickle_inbound_group_session(
 
     pos = pickled;
     end = pos + raw_length;
+
     pos = _olm_unpickle_uint32(pos, end, &pickle_version);
+    FAIL_ON_CORRUPTED_PICKLE(pos, session);
+
     if (pickle_version < 1 || pickle_version > PICKLE_VERSION) {
         session->last_error = OLM_UNKNOWN_PICKLE_VERSION;
         return (size_t)-1;
     }
+
     pos = megolm_unpickle(&session->initial_ratchet, pos, end);
+    FAIL_ON_CORRUPTED_PICKLE(pos, session);
+
     pos = megolm_unpickle(&session->latest_ratchet, pos, end);
+    FAIL_ON_CORRUPTED_PICKLE(pos, session);
+
     pos = _olm_unpickle_ed25519_public_key(pos, end, &session->signing_key);
+    FAIL_ON_CORRUPTED_PICKLE(pos, session);
 
     if (pickle_version == 1) {
         /* pickle v1 had no signing_key_verified field (all keyshares were
@@ -263,11 +272,7 @@ size_t olm_unpickle_inbound_group_session(
         pos = _olm_unpickle_bool(pos, end, &(session->signing_key_verified));
     }
 
-    if (end != pos) {
-        /* We had the wrong number of bytes in the input. */
-        session->last_error = OLM_CORRUPTED_PICKLE;
-        return (size_t)-1;
-    }
+    FAIL_ON_CORRUPTED_PICKLE(pos, session);
 
     return pickled_length;
 }

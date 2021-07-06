@@ -472,7 +472,7 @@ std::uint8_t const * olm::unpickle(
     Session & value
 ) {
     uint32_t pickle_version;
-    pos = olm::unpickle(pos, end, pickle_version);
+    pos = olm::unpickle(pos, end, pickle_version); UNPICKLE_OK(pos);
 
     bool includes_chain_index;
     switch (pickle_version) {
@@ -486,13 +486,14 @@ std::uint8_t const * olm::unpickle(
 
         default:
             value.last_error = OlmErrorCode::OLM_UNKNOWN_PICKLE_VERSION;
-            return end;
+            return nullptr;
     }
 
-    pos = olm::unpickle(pos, end, value.received_message);
-    pos = olm::unpickle(pos, end, value.alice_identity_key);
-    pos = olm::unpickle(pos, end, value.alice_base_key);
-    pos = olm::unpickle(pos, end, value.bob_one_time_key);
-    pos = olm::unpickle(pos, end, value.ratchet, includes_chain_index);
+    pos = olm::unpickle(pos, end, value.received_message); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.alice_identity_key); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.alice_base_key); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.bob_one_time_key); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.ratchet, includes_chain_index); UNPICKLE_OK(pos);
+
     return pos;
 }
