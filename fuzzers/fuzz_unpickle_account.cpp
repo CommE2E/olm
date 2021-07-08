@@ -11,4 +11,6 @@ int main(int argc, const char *argv[]) {
     unpickle(pickle_buffer, pickle_buffer + pickle_length, *account);
     free(pickle_buffer);
     delete account;
+
+    return EXIT_SUCCESS;
 }

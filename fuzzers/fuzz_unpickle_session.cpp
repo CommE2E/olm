@@ -11,4 +11,6 @@ int main(int argc, const char *argv[]) {
     unpickle(pickle_buffer, pickle_buffer + pickle_length, *session);
     free(pickle_buffer);
     delete session;
+
+    return EXIT_SUCCESS;
 }

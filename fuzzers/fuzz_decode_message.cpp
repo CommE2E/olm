@@ -11,4 +11,6 @@ int main(int argc, const char *argv[]) {
     decode_message(*reader, message_buffer, message_length, 8);
     free(message_buffer);
     delete reader;
+
+    return EXIT_SUCCESS;
 }

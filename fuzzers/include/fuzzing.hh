@@ -77,13 +77,12 @@ size_t check_error(
 ) {
     if (value == olm_error()) {
         const char * olm_message = f(object);
-        ssize_t ignored;
-        ignored = write(STDERR_FILENO, message, strlen(message));
-        ignored = write(STDERR_FILENO, ": ", 2);
-        ignored = write(STDERR_FILENO, olm_message, strlen(olm_message));
-        ignored = write(STDERR_FILENO, "\n", 1);
+        (void)write(STDERR_FILENO, message, strlen(message));
+        (void)write(STDERR_FILENO, ": ", 2);
+        (void)write(STDERR_FILENO, olm_message, strlen(olm_message));
+        (void)write(STDERR_FILENO, "\n", 1);
+
         exit(2);
-        return ignored;
     }
     return value;
 }

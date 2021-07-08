@@ -3,11 +3,10 @@
 #include "fuzzing.hh"
 
 int main(int argc, const char *argv[]) {
-    size_t ignored;
     if (argc <= 3) {
         const char * message = "Usage: decrypt: <session_key> <session_file>"
             " <message_type>\n";
-        ignored = write(STDERR_FILENO, message, strlen(message));
+        (void)write(STDERR_FILENO, message, strlen(message));
         exit(3);
     }
 
@@ -59,7 +58,12 @@ int main(int argc, const char *argv[]) {
         )
     );
 
-    ignored = write(STDOUT_FILENO, plaintext, length);
-    ignored = write(STDOUT_FILENO, "\n", 1);
-    return ignored;
+    (void)write(STDOUT_FILENO, plaintext, length);
+    (void)write(STDOUT_FILENO, "\n", 1);
+
+    free(session_buffer);
+    free(message_buffer);
+    free(tmp_buffer);
+
+    return EXIT_SUCCESS;
 }
