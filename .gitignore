@@ -9,6 +9,9 @@
 /python/dist
 /javascript/checksums.txt
 /javascript/checksums.txt.asc
+/compile_commands.json
+/.clang-format
+.ccls-cache/
 
 # Xcode
 build/
