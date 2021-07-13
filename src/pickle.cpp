@@ -30,7 +30,7 @@ std::uint8_t const * olm::unpickle(
     std::uint32_t & value
 ) {
     value = 0;
-    if (!pos || end <= pos + 4) return nullptr;
+    if (!pos || end < pos + 4) return nullptr;
     for (unsigned i = 4; i--;) { value <<= 8; value |= *(pos++); }
     return pos;
 }
