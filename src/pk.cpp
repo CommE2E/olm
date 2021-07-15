@@ -326,22 +326,32 @@ size_t olm_unpickle_pk_decryption(
         object.last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
-    std::uint8_t * const pos = reinterpret_cast<std::uint8_t *>(pickled);
+    std::uint8_t * const input = reinterpret_cast<std::uint8_t *>(pickled);
     std::size_t raw_length = _olm_enc_input(
         reinterpret_cast<std::uint8_t const *>(key), key_length,
-        pos, pickled_length, &object.last_error
+        input, pickled_length, &object.last_error
     );
     if (raw_length == std::size_t(-1)) {
         return std::size_t(-1);
     }
-    std::uint8_t * const end = pos + raw_length;
 
-    if (!unpickle(pos, end, object)) {
+    std::uint8_t const * pos = input;
+    std::uint8_t const * end = pos + raw_length;
+
+    pos = unpickle(pos, end, object);
+
+    if (!pos) {
+        /* Input was corrupted. */
         if (object.last_error == OlmErrorCode::OLM_SUCCESS) {
             object.last_error = OlmErrorCode::OLM_CORRUPTED_PICKLE;
         }
         return std::size_t(-1);
+    } else if (pos != end) {
+        /* Input was longer than expected. */
+        object.last_error = OlmErrorCode::OLM_CORRUPTED_PICKLE;
+        return std::size_t(-1);
     }
+
     if (pubkey != NULL) {
         olm::encode_base64(
             (const uint8_t *)object.key_pair.public_key.public_key,
@@ -349,6 +359,7 @@ size_t olm_unpickle_pk_decryption(
             (uint8_t *)pubkey
         );
     }
+
     return pickled_length;
 }
 

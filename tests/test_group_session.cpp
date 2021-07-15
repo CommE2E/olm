@@ -15,6 +15,7 @@
 #include "olm/inbound_group_session.h"
 #include "olm/outbound_group_session.h"
 #include "unittest.hh"
+#include "utils.hh"
 
 #include <vector>
 
@@ -50,8 +51,31 @@ int main() {
     assert_equals(pickle_length, res);
 
     assert_equals(pickle1.data(), pickle2.data(), pickle_length);
-}
 
+    /* Deliberately corrupt the pickled session by supplying a junk suffix and
+    * ensure this is caught as an error. */
+    const size_t junk_length = 1;
+    std::vector<std::uint8_t> junk_pickle(pickle_length + junk_length);
+
+    olm_pickle_outbound_group_session(
+        session, "secret_key", 10, junk_pickle.data(), pickle_length
+    );
+
+    const size_t junk_pickle_length = add_junk_suffix_to_pickle(
+        "secret_key", 10,
+        junk_pickle.data(),
+        pickle_length,
+        junk_length);
+
+    assert_equals(std::size_t(-1),
+        olm_unpickle_outbound_group_session(
+            session,
+            "secret_key", 10,
+            junk_pickle.data(), junk_pickle_length
+        ));
+    assert_equals(OLM_CORRUPTED_PICKLE,
+                  olm_outbound_group_session_last_error_code(session));
+}
 
 {
     TestCase test_case("Pickle inbound group session");
@@ -82,6 +106,30 @@ int main() {
     );
 
     assert_equals(pickle1.data(), pickle2.data(), pickle_length);
+
+    /* Deliberately corrupt the pickled session by supplying a junk suffix and
+    * ensure this is caught as an error. */
+    const size_t junk_length = 1;
+    std::vector<std::uint8_t> junk_pickle(pickle_length + junk_length);
+
+    olm_pickle_inbound_group_session(
+        session, "secret_key", 10, junk_pickle.data(), pickle_length
+    );
+
+    const size_t junk_pickle_length = add_junk_suffix_to_pickle(
+        "secret_key", 10,
+        junk_pickle.data(),
+        pickle_length,
+        junk_length);
+
+    assert_equals(std::size_t(-1),
+        olm_unpickle_inbound_group_session(
+            session,
+            "secret_key", 10,
+            junk_pickle.data(), junk_pickle_length
+        ));
+    assert_equals(OLM_CORRUPTED_PICKLE,
+                  olm_inbound_group_session_last_error_code(session));
 }
 
 {

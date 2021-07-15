@@ -1,8 +1,9 @@
-#include "olm/pk.h"
 #include "olm/crypto.h"
 #include "olm/olm.h"
+#include "olm/pk.h"
 
 #include "unittest.hh"
+#include "utils.hh"
 
 #include <iostream>
 #include <vector>
@@ -140,6 +141,34 @@ olm_unpickle_pk_decryption(
 );
 
 assert_equals(alice_public, pubkey.data(), olm_pk_key_length());
+
+/* Deliberately corrupt the pickled session by supplying a junk suffix and
+ * ensure this is caught as an error. */
+const size_t junk_length = 1;
+std::size_t pickle_length = olm_pickle_pk_decryption_length(decryption);
+std::vector<std::uint8_t> junk_pickle(pickle_length + junk_length);
+
+olm_pickle_pk_decryption(
+    decryption,
+    PICKLE_KEY, strlen((char *)PICKLE_KEY),
+    junk_pickle.data(), pickle_length
+);
+
+const size_t junk_pickle_length = add_junk_suffix_to_pickle(
+    PICKLE_KEY, strlen((char *)PICKLE_KEY),
+    junk_pickle.data(),
+    pickle_length,
+    junk_length);
+
+assert_equals(std::size_t(-1),
+    olm_unpickle_pk_decryption(
+        decryption,
+        PICKLE_KEY, strlen((char *)PICKLE_KEY),
+        junk_pickle.data(), junk_pickle_length,
+        pubkey.data(), pubkey.size()
+    ));
+assert_equals(OLM_CORRUPTED_PICKLE, olm_pk_decryption_last_error_code(decryption));
+/***/
 
 char *ciphertext = strdup("ntk49j/KozVFtSqJXhCejg");
 const char *mac = "zpzU6BkZcNI";

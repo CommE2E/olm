@@ -271,8 +271,13 @@ size_t olm_unpickle_inbound_group_session(
     } else {
         pos = _olm_unpickle_bool(pos, end, &(session->signing_key_verified));
     }
-
     FAIL_ON_CORRUPTED_PICKLE(pos, session);
+
+    if (pos != end) {
+        /* Input was longer than expected. */
+        session->last_error = OLM_CORRUPTED_PICKLE;
+        return (size_t)-1;
+    }
 
     return pickled_length;
 }
