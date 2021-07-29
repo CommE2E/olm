@@ -303,7 +303,7 @@ size_t olm_unpickle_account(
         return std::size_t(-1);
     } else if (pos != end) {
         /* Input was longer than expected. */
-        object.last_error = OlmErrorCode::OLM_CORRUPTED_PICKLE;
+        object.last_error = OlmErrorCode::OLM_PICKLE_EXTRA_DATA;
         return std::size_t(-1);
     }
 
@@ -338,7 +338,7 @@ size_t olm_unpickle_session(
         return std::size_t(-1);
     } else if (pos != end) {
         /* Input was longer than expected. */
-        object.last_error = OlmErrorCode::OLM_CORRUPTED_PICKLE;
+        object.last_error = OlmErrorCode::OLM_PICKLE_EXTRA_DATA;
         return std::size_t(-1);
     }
 

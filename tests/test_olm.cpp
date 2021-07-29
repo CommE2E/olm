@@ -83,7 +83,7 @@ const size_t junk_pickle_length = add_junk_suffix_to_pickle(
 assert_equals(std::size_t(-1),
     ::olm_unpickle_account(account, "secret_key", 10,
         junk_pickle.data(), junk_pickle_length));
-assert_equals(OLM_CORRUPTED_PICKLE, olm_account_last_error_code(account));
+assert_equals(OLM_PICKLE_EXTRA_DATA, olm_account_last_error_code(account));
 }
 
 
@@ -174,7 +174,7 @@ const size_t junk_pickle_length = add_junk_suffix_to_pickle(
 assert_equals(std::size_t(-1),
     ::olm_unpickle_session(session, "secret_key", 10,
         junk_pickle.data(), junk_pickle_length));
-assert_equals(OLM_CORRUPTED_PICKLE, olm_session_last_error_code(session));
+assert_equals(OLM_PICKLE_EXTRA_DATA, olm_session_last_error_code(session));
 }
 
 { /** Loopback test */

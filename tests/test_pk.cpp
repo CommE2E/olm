@@ -167,7 +167,7 @@ assert_equals(std::size_t(-1),
         junk_pickle.data(), junk_pickle_length,
         pubkey.data(), pubkey.size()
     ));
-assert_equals(OLM_CORRUPTED_PICKLE, olm_pk_decryption_last_error_code(decryption));
+assert_equals(OLM_PICKLE_EXTRA_DATA, olm_pk_decryption_last_error_code(decryption));
 /***/
 
 char *ciphertext = strdup("ntk49j/KozVFtSqJXhCejg");

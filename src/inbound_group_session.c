@@ -275,7 +275,7 @@ size_t olm_unpickle_inbound_group_session(
 
     if (pos != end) {
         /* Input was longer than expected. */
-        session->last_error = OLM_CORRUPTED_PICKLE;
+        session->last_error = OLM_PICKLE_EXTRA_DATA;
         return (size_t)-1;
     }
 

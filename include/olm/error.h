@@ -58,6 +58,12 @@ enum OlmErrorCode {
      */
     OLM_SAS_THEIR_KEY_NOT_SET = 16,
 
+    /**
+     * The pickled object was successfully decoded, but the unpickling still failed
+     * because it had some extraneous junk data at the end.
+     */
+    OLM_PICKLE_EXTRA_DATA = 17,
+
     /* remember to update the list of string constants in error.c when updating
      * this list. */
 };

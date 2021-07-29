@@ -73,7 +73,7 @@ int main() {
             "secret_key", 10,
             junk_pickle.data(), junk_pickle_length
         ));
-    assert_equals(OLM_CORRUPTED_PICKLE,
+    assert_equals(OLM_PICKLE_EXTRA_DATA,
                   olm_outbound_group_session_last_error_code(session));
 }
 
@@ -128,7 +128,7 @@ int main() {
             "secret_key", 10,
             junk_pickle.data(), junk_pickle_length
         ));
-    assert_equals(OLM_CORRUPTED_PICKLE,
+    assert_equals(OLM_PICKLE_EXTRA_DATA,
                   olm_inbound_group_session_last_error_code(session));
 }
 
