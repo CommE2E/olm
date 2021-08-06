@@ -504,7 +504,7 @@ size_t olm_create_outbound_session_random_length(
 
 size_t olm_create_outbound_session(
     OlmSession * session,
-    OlmAccount * account,
+    OlmAccount const * account,
     void const * their_identity_key, size_t their_identity_key_length,
     void const * their_one_time_key, size_t their_one_time_key_length,
     void * random, size_t random_length
