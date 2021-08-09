@@ -233,7 +233,7 @@ assert_not_equals(std::size_t(-1), ::olm_encrypt(
 
 
 std::vector<std::uint8_t> tmp_message_1(message_1);
-std::vector<std::uint8_t> b_session_buffer(::olm_account_size());
+std::vector<std::uint8_t> b_session_buffer(::olm_session_size());
 ::OlmSession *b_session = ::olm_session(b_session_buffer.data());
 ::olm_create_inbound_session(
     b_session, b_account, tmp_message_1.data(), message_1.size()
@@ -375,7 +375,7 @@ assert_not_equals(std::size_t(-1), ::olm_encrypt(
 ));
 
 std::vector<std::uint8_t> tmp_message_1(message_1);
-std::vector<std::uint8_t> b_session_buffer(::olm_account_size());
+std::vector<std::uint8_t> b_session_buffer(::olm_session_size());
 ::OlmSession *b_session = ::olm_session(b_session_buffer.data());
 ::olm_create_inbound_session(
     b_session, b_account, tmp_message_1.data(), message_1.size()
