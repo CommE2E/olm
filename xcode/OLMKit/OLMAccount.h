@@ -35,6 +35,9 @@
 /** Public parts of the unpublished one time keys for the account */
 - (NSDictionary*) oneTimeKeys;
 
+/** Public part of the unpublished fallback key for the account */
+- (NSDictionary*) fallbackKey;
+
 - (BOOL) removeOneTimeKeysForSession:(OLMSession*)session;
 
 /** Marks the current set of one time keys as being published. */
@@ -47,5 +50,8 @@
  * by this account exceeds -maxOneTimeKeys then the old keys are
  * discarded. */
 - (void) generateOneTimeKeys:(NSUInteger)numberOfKeys;
+
+/** Generates a fallback key. */
+- (void) generateFallbackKey;
 
 @end

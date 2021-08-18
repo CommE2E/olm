@@ -25,35 +25,38 @@ limitations under the License.
 
 @implementation OLMKitTests
 
-- (void)setUp {
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-}
-
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
-}
-
 - (void)testAliceAndBob {
-    NSError *error;
-
-    OLMAccount *alice = [[OLMAccount alloc] initNewAccount];
     OLMAccount *bob = [[OLMAccount alloc] initNewAccount];
     [bob generateOneTimeKeys:5];
-    NSDictionary *bobIdKeys = bob.identityKeys;
-    NSString *bobIdKey = bobIdKeys[@"curve25519"];
-    NSDictionary *bobOneTimeKeys = bob.oneTimeKeys;
-    NSParameterAssert(bobIdKey != nil);
-    NSParameterAssert(bobOneTimeKeys != nil);
-    __block NSString *bobOneTimeKey = nil;
-    NSDictionary *bobOtkCurve25519 = bobOneTimeKeys[@"curve25519"];
-    [bobOtkCurve25519 enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        bobOneTimeKey = obj;
-    }];
-    XCTAssert([bobOneTimeKey isKindOfClass:[NSString class]]);
     
-    OLMSession *aliceSession = [[OLMSession alloc] initOutboundSessionWithAccount:alice theirIdentityKey:bobIdKey theirOneTimeKey:bobOneTimeKey error:nil];
+    [self _testAliceAndBob:bob withBobKeys:bob.oneTimeKeys];
+}
+
+- (void)testAliceAndBobFallbackKey {
+    OLMAccount *bob = [[OLMAccount alloc] initNewAccount];
+    [bob generateFallbackKey];
+    
+    [self _testAliceAndBob:bob withBobKeys:bob.fallbackKey];
+}
+
+- (void)_testAliceAndBob:(OLMAccount *)bob withBobKeys:(NSDictionary *)bobKeys {
+    XCTAssertNotNil(bob);
+    XCTAssertNotNil(bobKeys);
+    
+    NSError *error;
+    
+    NSString *bobIdKey = bob.identityKeys[@"curve25519"];
+    XCTAssertNotNil(bobIdKey);
+    
+    __block NSString *bobKeyValue = nil;
+    [bobKeys[@"curve25519"] enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        bobKeyValue = obj;
+    }];
+    XCTAssert([bobKeyValue isKindOfClass:[NSString class]]);
+    
+    OLMAccount *alice = [[OLMAccount alloc] initNewAccount];
+    
+    OLMSession *aliceSession = [[OLMSession alloc] initOutboundSessionWithAccount:alice theirIdentityKey:bobIdKey theirOneTimeKey:bobKeyValue error:nil];
     NSString *message = @"Hello!";
     OLMMessage *aliceToBobMsg = [aliceSession encryptMessage:message error:&error];
     XCTAssertNil(error);
@@ -75,29 +78,43 @@ limitations under the License.
     XCTAssertTrue(success);
 }
 
-- (void) testBackAndForth {
-    OLMAccount *alice = [[OLMAccount alloc] initNewAccount];
+- (void)testBackAndForthWithOneTimeKeys {
     OLMAccount *bob = [[OLMAccount alloc] initNewAccount];
     [bob generateOneTimeKeys:1];
-    NSDictionary *bobIdKeys = bob.identityKeys;
-    NSString *bobIdKey = bobIdKeys[@"curve25519"];
-    NSDictionary *bobOneTimeKeys = bob.oneTimeKeys;
-    NSParameterAssert(bobIdKey != nil);
-    NSParameterAssert(bobOneTimeKeys != nil);
-    __block NSString *bobOneTimeKey = nil;
-    NSDictionary *bobOtkCurve25519 = bobOneTimeKeys[@"curve25519"];
-    [bobOtkCurve25519 enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        bobOneTimeKey = obj;
-    }];
-    XCTAssert([bobOneTimeKey isKindOfClass:[NSString class]]);
     
-    OLMSession *aliceSession = [[OLMSession alloc] initOutboundSessionWithAccount:alice theirIdentityKey:bobIdKey theirOneTimeKey:bobOneTimeKey error:nil];
+    [self _testBackAndForthWithBob:bob andBobKeys:bob.oneTimeKeys];
+}
+
+- (void)testBackAndForthWithFallbackKey {
+    OLMAccount *bob = [[OLMAccount alloc] initNewAccount];
+    [bob generateFallbackKey];
+    
+    [self _testBackAndForthWithBob:bob andBobKeys:bob.fallbackKey];
+}
+
+- (void)_testBackAndForthWithBob:(OLMAccount *)bob andBobKeys:(NSDictionary *)bobKeys {
+    XCTAssertNotNil(bob);
+    XCTAssertNotNil(bobKeys);
+    
+    NSString *bobIdKey = bob.identityKeys[@"curve25519"];
+    XCTAssertNotNil(bobIdKey);
+
+    __block NSString *bobKeyValue = nil;
+    [bobKeys[@"curve25519"] enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        bobKeyValue = obj;
+    }];
+    XCTAssert([bobKeyValue isKindOfClass:[NSString class]]);
+    
+    OLMAccount *alice = [[OLMAccount alloc] initNewAccount];
+    
+    OLMSession *aliceSession = [[OLMSession alloc] initOutboundSessionWithAccount:alice theirIdentityKey:bobIdKey theirOneTimeKey:bobKeyValue error:nil];
     NSString *message = @"Hello I'm Alice!";
     OLMMessage *aliceToBobMsg = [aliceSession encryptMessage:message error:nil];
     
     OLMSession *bobSession = [[OLMSession alloc] initInboundSessionWithAccount:bob oneTimeKeyMessage:aliceToBobMsg.ciphertext error:nil];
     NSString *plaintext = [bobSession decryptMessage:aliceToBobMsg error:nil];
     XCTAssertEqualObjects(message, plaintext);
+    
     BOOL success = [bob removeOneTimeKeysForSession:bobSession];
     XCTAssertTrue(success);
     
@@ -117,49 +134,68 @@ limitations under the License.
     XCTAssertEqualObjects(msg3, dMsg3);
 }
 
-- (void) testAccountSerialization {
+- (void)testAccountSerialization {
     OLMAccount *bob = [[OLMAccount alloc] initNewAccount];
     [bob generateOneTimeKeys:5];
+    [bob generateFallbackKey];
     NSDictionary *bobIdKeys = bob.identityKeys;
     NSDictionary *bobOneTimeKeys = bob.oneTimeKeys;
+    NSDictionary *bobFallbackKey = bob.fallbackKey;
     
-    NSData *bobData = [NSKeyedArchiver archivedDataWithRootObject:bob];
+    NSError *error;
+    NSData *bobData = [NSKeyedArchiver archivedDataWithRootObject:bob requiringSecureCoding:NO error:&error];
+    XCTAssertNil(error);
     
-    OLMAccount *bob2 = [NSKeyedUnarchiver unarchiveObjectWithData:bobData];
+    OLMAccount *bob2 = [NSKeyedUnarchiver unarchivedObjectOfClass:[OLMAccount class] fromData:bobData error:&error];
+    XCTAssertNil(error);
+    
     NSDictionary *bobIdKeys2 = bob2.identityKeys;
     NSDictionary *bobOneTimeKeys2 = bob2.oneTimeKeys;
+    NSDictionary *bobFallbackKey2 = bob2.fallbackKey;
     
     XCTAssertEqualObjects(bobIdKeys, bobIdKeys2);
     XCTAssertEqualObjects(bobOneTimeKeys, bobOneTimeKeys2);
+    XCTAssertEqualObjects(bobFallbackKey, bobFallbackKey2);
 }
 
-- (void) testSessionSerialization {
-    NSError *error;
-
-    OLMAccount *alice = [[OLMAccount alloc] initNewAccount];
+- (void)testSessionSerializationWithOneTimeKey {
     OLMAccount *bob = [[OLMAccount alloc] initNewAccount];
     [bob generateOneTimeKeys:1];
-    NSDictionary *bobIdKeys = bob.identityKeys;
-    NSString *bobIdKey = bobIdKeys[@"curve25519"];
-    NSDictionary *bobOneTimeKeys = bob.oneTimeKeys;
-    NSParameterAssert(bobIdKey != nil);
-    NSParameterAssert(bobOneTimeKeys != nil);
-    __block NSString *bobOneTimeKey = nil;
-    NSDictionary *bobOtkCurve25519 = bobOneTimeKeys[@"curve25519"];
-    [bobOtkCurve25519 enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        bobOneTimeKey = obj;
-    }];
-    XCTAssert([bobOneTimeKey isKindOfClass:[NSString class]]);
     
-    OLMSession *aliceSession = [[OLMSession alloc] initOutboundSessionWithAccount:alice theirIdentityKey:bobIdKey theirOneTimeKey:bobOneTimeKey error:nil];
+    [self _testSessionSerializationWithBob:bob bobKeys:bob.oneTimeKeys];
+}
+
+- (void)testSessionSerializationWithFallbackKey {
+    OLMAccount *bob = [[OLMAccount alloc] initNewAccount];
+    [bob generateFallbackKey];
+    
+    [self _testSessionSerializationWithBob:bob bobKeys:bob.fallbackKey];
+}
+
+- (void)_testSessionSerializationWithBob:(OLMAccount *)bob bobKeys:(NSDictionary *)bobKeys {
+    NSError *error;
+    
+    NSString *bobIdKey = bob.identityKeys[@"curve25519"];
+    XCTAssertNotNil(bobIdKey);
+    
+    __block NSString *bobKeyValue = nil;
+    [bobKeys[@"curve25519"] enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        bobKeyValue = obj;
+    }];
+    XCTAssert([bobKeyValue isKindOfClass:[NSString class]]);
+    
+    OLMAccount *alice = [[OLMAccount alloc] initNewAccount];
+    
+    OLMSession *aliceSession = [[OLMSession alloc] initOutboundSessionWithAccount:alice theirIdentityKey:bobIdKey theirOneTimeKey:bobKeyValue error:nil];
     NSString *message = @"Hello I'm Alice!";
+    
     OLMMessage *aliceToBobMsg = [aliceSession encryptMessage:message error:&error];
     XCTAssertNil(error);
-
     
     OLMSession *bobSession = [[OLMSession alloc] initInboundSessionWithAccount:bob oneTimeKeyMessage:aliceToBobMsg.ciphertext error:nil];
     NSString *plaintext = [bobSession decryptMessage:aliceToBobMsg error:nil];
     XCTAssertEqualObjects(message, plaintext);
+    
     BOOL success = [bob removeOneTimeKeysForSession:bobSession];
     XCTAssertTrue(success);
     
@@ -171,8 +207,11 @@ limitations under the License.
     OLMMessage *eMsg2 = [bobSession encryptMessage:msg2 error:nil];
     OLMMessage *eMsg3 = [bobSession encryptMessage:msg3 error:nil];
     
-    NSData *aliceData = [NSKeyedArchiver archivedDataWithRootObject:aliceSession];
-    OLMSession *alice2 = [NSKeyedUnarchiver unarchiveObjectWithData:aliceData];
+    NSData *aliceData = [NSKeyedArchiver archivedDataWithRootObject:aliceSession requiringSecureCoding:NO error:&error];
+    XCTAssertNil(error);
+    
+    OLMSession *alice2 = [NSKeyedUnarchiver unarchivedObjectOfClass:[OLMSession class] fromData:aliceData error:&error];
+    XCTAssertNil(error);
     
     NSString *dMsg1 = [alice2 decryptMessage:eMsg1 error:nil];
     NSString *dMsg2 = [alice2 decryptMessage:eMsg2 error:nil];
@@ -183,6 +222,7 @@ limitations under the License.
 }
 
 - (void)testEd25519Signing {
+    NSError *error;
 
     OLMUtility *olmUtility = [[OLMUtility alloc] init];
     OLMAccount *alice = [[OLMAccount alloc] initNewAccount];
@@ -191,13 +231,13 @@ limitations under the License.
                             @"key1": @"value1",
                             @"key2": @"value2"
                             };
-    NSData *message = [NSKeyedArchiver archivedDataWithRootObject:aJSON];
+    NSData *message = [NSKeyedArchiver archivedDataWithRootObject:aJSON requiringSecureCoding:NO error:&error];
+    XCTAssertNil(error);
+    
     NSString *signature = [alice signMessage:message];
-
 
     NSString *aliceEd25519Key = alice.identityKeys[@"ed25519"];
 
-    NSError *error;
     BOOL result = [olmUtility verifyEd25519Signature:signature key:aliceEd25519Key message:message error:&error];
     XCTAssert(result);
     XCTAssertNil(error);
