@@ -7,17 +7,32 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		183AFCF126CBEB9F006669D5 /* OLMKit_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 183AFCE826CBEB9F006669D5 /* OLMKit_macOS.framework */; };
+		183AFCFF26CBEBE3006669D5 /* OLMKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 3274F6121D9A698E005282E4 /* OLMKit.h */; };
+		183AFD0026CBEE18006669D5 /* OLMKitGroupTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A151301DABDD4300400192 /* OLMKitGroupTests.m */; };
+		183AFD0126CBEE18006669D5 /* OLMKitSASTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F143AE2236B4100077CF37 /* OLMKitSASTests.m */; };
+		183AFD0226CBEE18006669D5 /* OLMKitPkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3244277C2175EF700023EDF1 /* OLMKitPkTests.m */; };
+		183AFD0326CBEE18006669D5 /* OLMKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3274F6061D9A633A005282E4 /* OLMKitTests.m */; };
+		1AF86DDE52154B4E76820399 /* libPods-OLMKit-OLMKit-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A10FFB4D96C66B8259C39A93 /* libPods-OLMKit-OLMKit-iOS.a */; };
 		3244277D2175EF700023EDF1 /* OLMKitPkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3244277C2175EF700023EDF1 /* OLMKitPkTests.m */; };
-		3274F6021D9A633A005282E4 /* OLMKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3274F5F81D9A633A005282E4 /* OLMKit.framework */; };
+		3274F6021D9A633A005282E4 /* OLMKit-iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3274F5F81D9A633A005282E4 /* OLMKit-iOS.framework */; };
 		3274F6071D9A633A005282E4 /* OLMKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3274F6061D9A633A005282E4 /* OLMKitTests.m */; };
 		3274F6131D9A698E005282E4 /* OLMKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 3274F6121D9A698E005282E4 /* OLMKit.h */; };
 		32A151311DABDD4300400192 /* OLMKitGroupTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A151301DABDD4300400192 /* OLMKitGroupTests.m */; };
 		32F143AF2236B4100077CF37 /* OLMKitSASTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F143AE2236B4100077CF37 /* OLMKitSASTests.m */; };
-		7DBAD311AEA85CF6DB80DCFA /* libPods-OLMKitTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7123FABE917D0FB140E036B7 /* libPods-OLMKitTests.a */; };
-		D667051A0BA47E17CCC4E5D7 /* libPods-OLMKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2F22FE8F173AF845B882805 /* libPods-OLMKit.a */; };
+		BDA27196FB29EAA79285074A /* libPods-OLMKit-OLMKit-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AC05383D2BABF411387FF96 /* libPods-OLMKit-OLMKit-macOS.a */; };
+		D9181D11D2976466032EF643 /* libPods-OLMKitTests-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D7A67D68835E25111229BDD /* libPods-OLMKitTests-iOS.a */; };
+		E34A741F563122DE9C900E4D /* libPods-OLMKitTests-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E195FE8CD81A8E480FF30841 /* libPods-OLMKitTests-macOS.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		183AFCF226CBEB9F006669D5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3274F5EF1D9A633A005282E4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 183AFCE726CBEB9F006669D5;
+			remoteInfo = "OLMKit-macOS";
+		};
 		3274F6031D9A633A005282E4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 3274F5EF1D9A633A005282E4 /* Project object */;
@@ -28,29 +43,58 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0AC05383D2BABF411387FF96 /* libPods-OLMKit-OLMKit-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OLMKit-OLMKit-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		183AFCE826CBEB9F006669D5 /* OLMKit_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OLMKit_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		183AFCF026CBEB9F006669D5 /* OLMKitTests-macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "OLMKitTests-macOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1B226B371526F2782C9D6372 /* Pods-OLMKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OLMKit.release.xcconfig"; path = "Pods/Target Support Files/Pods-OLMKit/Pods-OLMKit.release.xcconfig"; sourceTree = "<group>"; };
+		1D7A67D68835E25111229BDD /* libPods-OLMKitTests-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OLMKitTests-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		20A93D01FDEC06DE97B441B6 /* Pods-OLMKit-OLMKit-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OLMKit-OLMKit-iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OLMKit-OLMKit-iOS/Pods-OLMKit-OLMKit-iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		23DAD9783A78E23844955CF4 /* Pods-OLMKit-OLMKit-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OLMKit-OLMKit-iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-OLMKit-OLMKit-iOS/Pods-OLMKit-OLMKit-iOS.release.xcconfig"; sourceTree = "<group>"; };
 		3244277C2175EF700023EDF1 /* OLMKitPkTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OLMKitPkTests.m; sourceTree = "<group>"; };
-		3274F5F81D9A633A005282E4 /* OLMKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OLMKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3274F5F81D9A633A005282E4 /* OLMKit-iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "OLMKit-iOS.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3274F5FC1D9A633A005282E4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		3274F6011D9A633A005282E4 /* OLMKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OLMKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3274F6011D9A633A005282E4 /* OLMKitTests-iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "OLMKitTests-iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3274F6061D9A633A005282E4 /* OLMKitTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OLMKitTests.m; sourceTree = "<group>"; };
 		3274F6081D9A633A005282E4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3274F6121D9A698E005282E4 /* OLMKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLMKit.h; sourceTree = "<group>"; };
 		32A151301DABDD4300400192 /* OLMKitGroupTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OLMKitGroupTests.m; sourceTree = "<group>"; };
 		32F143AE2236B4100077CF37 /* OLMKitSASTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OLMKitSASTests.m; sourceTree = "<group>"; };
-		7123FABE917D0FB140E036B7 /* libPods-OLMKitTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OLMKitTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		875BA7A520258EA15A31DD82 /* Pods-OLMKitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OLMKitTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OLMKitTests/Pods-OLMKitTests.debug.xcconfig"; sourceTree = "<group>"; };
+		A10FFB4D96C66B8259C39A93 /* libPods-OLMKit-OLMKit-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OLMKit-OLMKit-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B111A81E29C149B6E0AA35B9 /* Pods-OLMKitTests-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OLMKitTests-iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-OLMKitTests-iOS/Pods-OLMKitTests-iOS.release.xcconfig"; sourceTree = "<group>"; };
+		B1E07FBBBC5E4AF4ADB25A10 /* Pods-OLMKit-OLMKit-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OLMKit-OLMKit-macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-OLMKit-OLMKit-macOS/Pods-OLMKit-OLMKit-macOS.release.xcconfig"; sourceTree = "<group>"; };
+		B4D1A453FBDFD6DE154E7780 /* Pods-OLMKitTests-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OLMKitTests-iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OLMKitTests-iOS/Pods-OLMKitTests-iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		C8A6C8EFD03C0375723D481A /* Pods-OLMKitTests-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OLMKitTests-macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-OLMKitTests-macOS/Pods-OLMKitTests-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		D48E486DAE1F59F4F7EA8C25 /* Pods-OLMKitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OLMKitTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-OLMKitTests/Pods-OLMKitTests.release.xcconfig"; sourceTree = "<group>"; };
+		DA351C178A951A1B8FE462FC /* Pods-OLMKit-OLMKit-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OLMKit-OLMKit-macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OLMKit-OLMKit-macOS/Pods-OLMKit-OLMKit-macOS.debug.xcconfig"; sourceTree = "<group>"; };
+		E195FE8CD81A8E480FF30841 /* libPods-OLMKitTests-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OLMKitTests-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E50E6B16E3433A5EB3297DEE /* Pods-OLMKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OLMKit.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OLMKit/Pods-OLMKit.debug.xcconfig"; sourceTree = "<group>"; };
-		F2F22FE8F173AF845B882805 /* libPods-OLMKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OLMKit.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		FF1A7DACE28EBBD726832D33 /* Pods-OLMKitTests-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OLMKitTests-macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OLMKitTests-macOS/Pods-OLMKitTests-macOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		183AFCE526CBEB9F006669D5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BDA27196FB29EAA79285074A /* libPods-OLMKit-OLMKit-macOS.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		183AFCED26CBEB9F006669D5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				183AFCF126CBEB9F006669D5 /* OLMKit_macOS.framework in Frameworks */,
+				E34A741F563122DE9C900E4D /* libPods-OLMKitTests-macOS.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3274F5F41D9A633A005282E4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D667051A0BA47E17CCC4E5D7 /* libPods-OLMKit.a in Frameworks */,
+				1AF86DDE52154B4E76820399 /* libPods-OLMKit-OLMKit-iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -58,8 +102,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3274F6021D9A633A005282E4 /* OLMKit.framework in Frameworks */,
-				7DBAD311AEA85CF6DB80DCFA /* libPods-OLMKitTests.a in Frameworks */,
+				3274F6021D9A633A005282E4 /* OLMKit-iOS.framework in Frameworks */,
+				D9181D11D2976466032EF643 /* libPods-OLMKitTests-iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -73,6 +117,14 @@
 				1B226B371526F2782C9D6372 /* Pods-OLMKit.release.xcconfig */,
 				875BA7A520258EA15A31DD82 /* Pods-OLMKitTests.debug.xcconfig */,
 				D48E486DAE1F59F4F7EA8C25 /* Pods-OLMKitTests.release.xcconfig */,
+				20A93D01FDEC06DE97B441B6 /* Pods-OLMKit-OLMKit-iOS.debug.xcconfig */,
+				23DAD9783A78E23844955CF4 /* Pods-OLMKit-OLMKit-iOS.release.xcconfig */,
+				DA351C178A951A1B8FE462FC /* Pods-OLMKit-OLMKit-macOS.debug.xcconfig */,
+				B1E07FBBBC5E4AF4ADB25A10 /* Pods-OLMKit-OLMKit-macOS.release.xcconfig */,
+				B4D1A453FBDFD6DE154E7780 /* Pods-OLMKitTests-iOS.debug.xcconfig */,
+				B111A81E29C149B6E0AA35B9 /* Pods-OLMKitTests-iOS.release.xcconfig */,
+				FF1A7DACE28EBBD726832D33 /* Pods-OLMKitTests-macOS.debug.xcconfig */,
+				C8A6C8EFD03C0375723D481A /* Pods-OLMKitTests-macOS.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -91,8 +143,10 @@
 		3274F5F91D9A633A005282E4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3274F5F81D9A633A005282E4 /* OLMKit.framework */,
-				3274F6011D9A633A005282E4 /* OLMKitTests.xctest */,
+				3274F5F81D9A633A005282E4 /* OLMKit-iOS.framework */,
+				3274F6011D9A633A005282E4 /* OLMKitTests-iOS.xctest */,
+				183AFCE826CBEB9F006669D5 /* OLMKit_macOS.framework */,
+				183AFCF026CBEB9F006669D5 /* OLMKitTests-macOS.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -121,8 +175,10 @@
 		A5D2E6F079A29F7CC2A8D9FE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				F2F22FE8F173AF845B882805 /* libPods-OLMKit.a */,
-				7123FABE917D0FB140E036B7 /* libPods-OLMKitTests.a */,
+				A10FFB4D96C66B8259C39A93 /* libPods-OLMKit-OLMKit-iOS.a */,
+				0AC05383D2BABF411387FF96 /* libPods-OLMKit-OLMKit-macOS.a */,
+				1D7A67D68835E25111229BDD /* libPods-OLMKitTests-iOS.a */,
+				E195FE8CD81A8E480FF30841 /* libPods-OLMKitTests-macOS.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -130,6 +186,14 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		183AFCE326CBEB9F006669D5 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				183AFCFF26CBEBE3006669D5 /* OLMKit.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3274F5F51D9A633A005282E4 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -141,9 +205,47 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		3274F5F71D9A633A005282E4 /* OLMKit */ = {
+		183AFCE726CBEB9F006669D5 /* OLMKit-macOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3274F60C1D9A633B005282E4 /* Build configuration list for PBXNativeTarget "OLMKit" */;
+			buildConfigurationList = 183AFCF926CBEB9F006669D5 /* Build configuration list for PBXNativeTarget "OLMKit-macOS" */;
+			buildPhases = (
+				89B3FB295B9E54EC70E4816B /* [CP] Check Pods Manifest.lock */,
+				183AFCE326CBEB9F006669D5 /* Headers */,
+				183AFCE426CBEB9F006669D5 /* Sources */,
+				183AFCE526CBEB9F006669D5 /* Frameworks */,
+				183AFCE626CBEB9F006669D5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "OLMKit-macOS";
+			productName = "OLMKit-macOS";
+			productReference = 183AFCE826CBEB9F006669D5 /* OLMKit_macOS.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		183AFCEF26CBEB9F006669D5 /* OLMKitTests-macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 183AFCFC26CBEB9F006669D5 /* Build configuration list for PBXNativeTarget "OLMKitTests-macOS" */;
+			buildPhases = (
+				1E9F9BF6E2A16F01F3E9D3DB /* [CP] Check Pods Manifest.lock */,
+				183AFCEC26CBEB9F006669D5 /* Sources */,
+				183AFCED26CBEB9F006669D5 /* Frameworks */,
+				183AFCEE26CBEB9F006669D5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				183AFCF326CBEB9F006669D5 /* PBXTargetDependency */,
+			);
+			name = "OLMKitTests-macOS";
+			productName = "OLMKit-macOSTests";
+			productReference = 183AFCF026CBEB9F006669D5 /* OLMKitTests-macOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		3274F5F71D9A633A005282E4 /* OLMKit-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3274F60C1D9A633B005282E4 /* Build configuration list for PBXNativeTarget "OLMKit-iOS" */;
 			buildPhases = (
 				7FBCB292198F4156D9CA3B8D /* [CP] Check Pods Manifest.lock */,
 				3274F5F31D9A633A005282E4 /* Sources */,
@@ -155,14 +257,14 @@
 			);
 			dependencies = (
 			);
-			name = OLMKit;
+			name = "OLMKit-iOS";
 			productName = OLMKit;
-			productReference = 3274F5F81D9A633A005282E4 /* OLMKit.framework */;
+			productReference = 3274F5F81D9A633A005282E4 /* OLMKit-iOS.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		3274F6001D9A633A005282E4 /* OLMKitTests */ = {
+		3274F6001D9A633A005282E4 /* OLMKitTests-iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3274F60F1D9A633B005282E4 /* Build configuration list for PBXNativeTarget "OLMKitTests" */;
+			buildConfigurationList = 3274F60F1D9A633B005282E4 /* Build configuration list for PBXNativeTarget "OLMKitTests-iOS" */;
 			buildPhases = (
 				47E69E5BE6A019858DC41D4F /* [CP] Check Pods Manifest.lock */,
 				3274F5FD1D9A633A005282E4 /* Sources */,
@@ -174,9 +276,9 @@
 			dependencies = (
 				3274F6041D9A633A005282E4 /* PBXTargetDependency */,
 			);
-			name = OLMKitTests;
+			name = "OLMKitTests-iOS";
 			productName = OLMKitTests;
-			productReference = 3274F6011D9A633A005282E4 /* OLMKitTests.xctest */;
+			productReference = 3274F6011D9A633A005282E4 /* OLMKitTests-iOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -188,6 +290,14 @@
 				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = matrix.org;
 				TargetAttributes = {
+					183AFCE726CBEB9F006669D5 = {
+						CreatedOnToolsVersion = 12.5;
+						ProvisioningStyle = Automatic;
+					};
+					183AFCEF26CBEB9F006669D5 = {
+						CreatedOnToolsVersion = 12.5;
+						ProvisioningStyle = Automatic;
+					};
 					3274F5F71D9A633A005282E4 = {
 						CreatedOnToolsVersion = 8.0;
 						ProvisioningStyle = Automatic;
@@ -203,6 +313,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 3274F5EE1D9A633A005282E4;
@@ -210,13 +321,29 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				3274F5F71D9A633A005282E4 /* OLMKit */,
-				3274F6001D9A633A005282E4 /* OLMKitTests */,
+				3274F5F71D9A633A005282E4 /* OLMKit-iOS */,
+				3274F6001D9A633A005282E4 /* OLMKitTests-iOS */,
+				183AFCE726CBEB9F006669D5 /* OLMKit-macOS */,
+				183AFCEF26CBEB9F006669D5 /* OLMKitTests-macOS */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		183AFCE626CBEB9F006669D5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		183AFCEE26CBEB9F006669D5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3274F5F61D9A633A005282E4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -234,6 +361,28 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		1E9F9BF6E2A16F01F3E9D3DB /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-OLMKitTests-macOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		47E69E5BE6A019858DC41D4F /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -245,7 +394,7 @@
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-OLMKitTests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-OLMKitTests-iOS-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -263,7 +412,29 @@
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-OLMKit-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-OLMKit-OLMKit-iOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		89B3FB295B9E54EC70E4816B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-OLMKit-OLMKit-macOS-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -273,6 +444,24 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		183AFCE426CBEB9F006669D5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		183AFCEC26CBEB9F006669D5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				183AFD0026CBEE18006669D5 /* OLMKitGroupTests.m in Sources */,
+				183AFD0226CBEE18006669D5 /* OLMKitPkTests.m in Sources */,
+				183AFD0126CBEE18006669D5 /* OLMKitSASTests.m in Sources */,
+				183AFD0326CBEE18006669D5 /* OLMKitTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3274F5F31D9A633A005282E4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -294,14 +483,121 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		183AFCF326CBEB9F006669D5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 183AFCE726CBEB9F006669D5 /* OLMKit-macOS */;
+			targetProxy = 183AFCF226CBEB9F006669D5 /* PBXContainerItemProxy */;
+		};
 		3274F6041D9A633A005282E4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 3274F5F71D9A633A005282E4 /* OLMKit */;
+			target = 3274F5F71D9A633A005282E4 /* OLMKit-iOS */;
 			targetProxy = 3274F6031D9A633A005282E4 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		183AFCFA26CBEB9F006669D5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DA351C178A951A1B8FE462FC /* Pods-OLMKit-OLMKit-macOS.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "${inherited}";
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = OLMKit/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.matrix.OLMKit;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		183AFCFB26CBEB9F006669D5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B1E07FBBBC5E4AF4ADB25A10 /* Pods-OLMKit-OLMKit-macOS.release.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "${inherited}";
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = OLMKit/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.matrix.OLMKit;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		183AFCFD26CBEB9F006669D5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = FF1A7DACE28EBBD726832D33 /* Pods-OLMKitTests-macOS.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "${inherited}";
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = OLMKit/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.matrix.org.OLMKit-macOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		183AFCFE26CBEB9F006669D5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C8A6C8EFD03C0375723D481A /* Pods-OLMKitTests-macOS.release.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "${inherited}";
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = OLMKit/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.matrix.org.OLMKit-macOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 		3274F60A1D9A633B005282E4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -418,8 +714,9 @@
 		};
 		3274F60D1D9A633B005282E4 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E50E6B16E3433A5EB3297DEE /* Pods-OLMKit.debug.xcconfig */;
+			baseConfigurationReference = 20A93D01FDEC06DE97B441B6 /* Pods-OLMKit-OLMKit-iOS.debug.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "${inherited}";
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -436,8 +733,9 @@
 		};
 		3274F60E1D9A633B005282E4 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1B226B371526F2782C9D6372 /* Pods-OLMKit.release.xcconfig */;
+			baseConfigurationReference = 23DAD9783A78E23844955CF4 /* Pods-OLMKit-OLMKit-iOS.release.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "${inherited}";
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -454,8 +752,9 @@
 		};
 		3274F6101D9A633B005282E4 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 875BA7A520258EA15A31DD82 /* Pods-OLMKitTests.debug.xcconfig */;
+			baseConfigurationReference = B4D1A453FBDFD6DE154E7780 /* Pods-OLMKitTests-iOS.debug.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "${inherited}";
 				INFOPLIST_FILE = OLMKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.matrix.OLMKitTests;
@@ -465,8 +764,9 @@
 		};
 		3274F6111D9A633B005282E4 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D48E486DAE1F59F4F7EA8C25 /* Pods-OLMKitTests.release.xcconfig */;
+			baseConfigurationReference = B111A81E29C149B6E0AA35B9 /* Pods-OLMKitTests-iOS.release.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "${inherited}";
 				INFOPLIST_FILE = OLMKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.matrix.OLMKitTests;
@@ -477,6 +777,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		183AFCF926CBEB9F006669D5 /* Build configuration list for PBXNativeTarget "OLMKit-macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				183AFCFA26CBEB9F006669D5 /* Debug */,
+				183AFCFB26CBEB9F006669D5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		183AFCFC26CBEB9F006669D5 /* Build configuration list for PBXNativeTarget "OLMKitTests-macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				183AFCFD26CBEB9F006669D5 /* Debug */,
+				183AFCFE26CBEB9F006669D5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		3274F5F21D9A633A005282E4 /* Build configuration list for PBXProject "OLMKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -486,7 +804,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3274F60C1D9A633B005282E4 /* Build configuration list for PBXNativeTarget "OLMKit" */ = {
+		3274F60C1D9A633B005282E4 /* Build configuration list for PBXNativeTarget "OLMKit-iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3274F60D1D9A633B005282E4 /* Debug */,
@@ -495,7 +813,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3274F60F1D9A633B005282E4 /* Build configuration list for PBXNativeTarget "OLMKitTests" */ = {
+		3274F60F1D9A633B005282E4 /* Build configuration list for PBXNativeTarget "OLMKitTests-iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3274F6101D9A633B005282E4 /* Debug */,
