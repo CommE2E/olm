@@ -114,11 +114,11 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     /**
      * Return the identity keys (identity and fingerprint keys) in a dictionary.<br>
      * Public API for {@link #identityKeysJni()}.<br>
-     * Ex:<tt>
+     * Ex:<code>
      * {
      *  "curve25519":"Vam++zZPMqDQM6ANKpO/uAl5ViJSHxV9hd+b0/fwRAg",
      *  "ed25519":"+v8SOlOASFTMrX3MCKBM4iVnYoZ+JIjpNt1fi8Z9O2I"
-     * }</tt>
+     * }</code>
      * @return identity keys dictionary if operation succeeds, null otherwise
      * @exception OlmException the failure reason
      */
@@ -195,14 +195,14 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     /**
      * Return the "one time keys" in a dictionary.<br>
      * The number of "one time keys", is specified by {@link #generateOneTimeKeys(int)}<br>
-     * Ex:<tt>
+     * Ex:<code>
      * { "curve25519":
      *  {
      *      "AAAABQ":"qefVZd8qvjOpsFzoKSAdfUnJVkIreyxWFlipCHjSQQg",
      *      "AAAABA":"/X8szMU+p+lsTnr56wKjaLgjTMQQkCk8EIWEAilZtQ8",
      *      "AAAAAw":"qxNxxFHzevFntaaPdT0fhhO7tc7pco4+xB/5VRG81hA",
      *  }
-     * }</tt><br>
+     * }</code><br>
      * Public API for {@link #oneTimeKeysJni()}.<br>
      * Note: these keys are to be published on the server.
      * @return one time keys in string dictionary.
@@ -234,7 +234,7 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     /**
      * Get the public parts of the unpublished "one time keys" for the account.<br>
      * The returned data is a JSON-formatted object with the single property
-     * <tt>curve25519</tt>, which is itself an object mapping key id to
+     * <code>curve25519</code>, which is itself an object mapping key id to
      * base64-encoded Curve25519 key.<br>
      * @return byte array containing the one time keys or throw an exception if it fails
      */
@@ -442,4 +442,55 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
         deserialize(aSerializedData, aKey);
     }
 
+    /**
+     * Generates a new fallback key.
+     * @throws OlmException exception with a reason.
+     */
+    public void generateFallbackKey() throws OlmException {
+        try {
+            generateFallbackKeyJni();
+        } catch (Exception e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_GENERATE_FALLBACK_KEY, e.getMessage());
+        }
+    }
+
+    private native void generateFallbackKeyJni();
+
+    /**
+     * Return the "fallback key" in a dictionary.<br>
+     * Ex:<code>
+     * { "curve25519":
+     *  {
+     *      "AAAABQ":"qefVZd8qvjOpsFzoKSAdfUnJVkIreyxWFlipCHjSQQg"
+     *  }
+     * }</code><br>
+     * Public API for {@link #fallbackKeyJni()}.<br>
+     * Note: the key is to be published on the server.
+     * @return fallback key in string dictionary.
+     * @exception OlmException the failure reason
+     */
+    public Map<String, Map<String, String>> fallbackKey() throws OlmException {
+        JSONObject fallbackKeyJsonObj = null;
+        byte[] fallbackKeyBuffer;
+
+        try {
+            fallbackKeyBuffer = fallbackKeyJni();
+        } catch (Exception e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_FALLBACK_KEY, e.getMessage());
+        }
+
+        if( null != fallbackKeyBuffer) {
+            try {
+                fallbackKeyJsonObj = new JSONObject(new String(fallbackKeyBuffer, "UTF-8"));
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "## fallbackKey(): Exception - Msg=" + e.getMessage());
+            }
+        } else {
+            Log.e(LOG_TAG, "## fallbackKey(): Failure - identityKeysJni()=null");
+        }
+
+        return OlmUtility.toStringMapMap(fallbackKeyJsonObj);
+    }
+
+    private native byte[] fallbackKeyJni();
 }

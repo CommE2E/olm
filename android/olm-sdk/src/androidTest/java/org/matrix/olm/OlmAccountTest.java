@@ -488,4 +488,19 @@ public class OlmAccountTest {
             fail(e.getMessage());
         }
     }
+
+    @Test
+    public void test18GenerateFallbackKey() {
+        try {
+            OlmAccount account1 = new OlmAccount();
+            account1.generateFallbackKey();
+            Map<String, Map<String, String>> fallbackKeyMap = account1.fallbackKey();
+
+            assertNotNull(fallbackKeyMap);
+
+            assertEquals(1, fallbackKeyMap.size());
+        } catch (OlmException e) {
+            fail(e.getMessage());
+        }
+    }
 }

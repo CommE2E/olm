@@ -443,6 +443,131 @@ JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublishedJni)(JNIEnv *env, 
 }
 
 /**
+ * Generate "fallback key".
+ * An exception is thrown if the operation fails.
+ **/
+JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(generateFallbackKeyJni)(JNIEnv *env, jobject thiz)
+{
+    const char* errorMessage = NULL;
+    OlmAccount *accountPtr = getAccountInstanceId(env, thiz);
+
+    if (!accountPtr)
+    {
+        LOGE("## generateFallbackKeyJni(): failure - invalid Account ptr");
+        errorMessage = "invalid Account ptr";
+    }
+    else
+    {
+        // keys memory allocation
+        size_t randomLength = olm_account_generate_fallback_key_random_length(accountPtr);
+        LOGD("## generateFallbackKeyJni(): randomLength=%lu", static_cast<long unsigned int>(randomLength));
+
+        uint8_t *randomBufferPtr = NULL;
+
+        if ((0 != randomLength) && !setRandomInBuffer(env, &randomBufferPtr, randomLength))
+        {
+            LOGE("## generateFallbackKeyJni(): failure - random buffer init");
+            errorMessage = "random buffer init";
+        }
+        else
+        {
+            LOGD("## generateFallbackKeyJni(): accountPtr =%p", accountPtr);
+
+            // retrieve key pairs in keysBytesPtr
+            size_t result = olm_account_generate_fallback_key(accountPtr, (void*)randomBufferPtr, randomLength);
+
+            if (result == olm_error())
+            {
+                errorMessage = olm_account_last_error(accountPtr);
+                LOGE("## generateFallbackKeyJni(): failure - error generating fallback keys Msg=%s", errorMessage);
+            }
+            else
+            {
+                LOGD("## generateFallbackKeyJni(): success - result=%lu", static_cast<long unsigned int>(result));
+            }
+        }
+
+        if (randomBufferPtr)
+        {
+            memset(randomBufferPtr, 0, randomLength);
+            free(randomBufferPtr);
+        }
+    }
+
+    if (errorMessage)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+}
+
+/**
+ * Get "fallback key".<br>
+ * Return the public parts of the unpublished "fallback key" for the account
+ * @return a valid byte array if operation succeed, null otherwise
+ **/
+JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(fallbackKeyJni)(JNIEnv *env, jobject thiz)
+{
+    const char* errorMessage = NULL;
+    jbyteArray byteArrayRetValue = NULL;
+    OlmAccount* accountPtr = getAccountInstanceId(env, thiz);
+
+    LOGD("## fallbackKeyJni(): IN");
+
+    if (!accountPtr)
+    {
+        LOGE("## fallbackKeyJni(): failure - invalid Account ptr");
+        errorMessage = "invalid Account ptr";
+    }
+    else
+    {
+        // keys memory allocation
+        size_t keysLength = olm_account_fallback_key_length(accountPtr);
+        uint8_t *keysBytesPtr = (uint8_t *)malloc(keysLength*sizeof(uint8_t));
+
+        if (!keysBytesPtr)
+        {
+            LOGE("## fallbackKeyJni(): failure - fallback key OOM");
+            errorMessage = "fallback key OOM";
+        }
+        else
+        {
+            // retrieve key pairs in keysBytesPtr
+            size_t keysResult = olm_account_fallback_key(accountPtr, keysBytesPtr, keysLength);
+
+            if (keysResult == olm_error()) {
+                LOGE("## fallbackKeyJni(): failure - error getting fallback key Msg=%s",(const char *)olm_account_last_error(accountPtr));
+                errorMessage = (const char *)olm_account_last_error(accountPtr);
+            }
+            else
+            {
+                // allocate the byte array to be returned to java
+                byteArrayRetValue = env->NewByteArray(keysLength);
+
+                if (!byteArrayRetValue)
+                {
+                    LOGE("## fallbackKeyJni(): failure - return byte array OOM");
+                    errorMessage = "return byte array OOM";
+                }
+                else
+                {
+                    env->SetByteArrayRegion(byteArrayRetValue, 0/*offset*/, keysLength, (const jbyte*)keysBytesPtr);
+                    LOGD("## fallbackKeyJni(): success");
+                }
+            }
+
+            free(keysBytesPtr);
+        }
+    }
+
+    if (errorMessage)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
+    return byteArrayRetValue;
+}
+
+/**
  * Sign a message with the ed25519 key (fingerprint) for this account.<br>
  * The signed message is returned by the function.
  * @param aMessage message to sign
