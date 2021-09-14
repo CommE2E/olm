@@ -223,7 +223,7 @@ javascript/olm_prefix.js: javascript/olm_prefix.js.in Makefile common.mk
 # wasm file baked into the js, hence messing around outputting to olm.js
 # and then renaming it.
 $(JS_WASM_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS) $(JS_PREFIX) $(JS_SUFFIX)
-	EMCC_CLOSURE_ARGS="--externs $(JS_EXTERNS)" $(EMCC_LINK) \
+	EMCC_CLOSURE_ARGS="--externs $(CURDIR)/$(JS_EXTERNS)" $(EMCC_LINK) \
 	       $(EMCCFLAGS_WASM) \
                $(foreach f,$(JS_PRE),--pre-js $(f)) \
                $(foreach f,$(JS_POST),--post-js $(f)) \
@@ -234,7 +234,7 @@ $(JS_WASM_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS) $
                -o $@ $(JS_OBJECTS)
 
 $(JS_ASMJS_TARGET): $(JS_OBJECTS) $(JS_PRE) $(JS_POST) $(JS_EXPORTED_FUNCTIONS) $(JS_PREFIX) $(JS_SUFFIX)
-	EMCC_CLOSURE_ARGS="--externs $(JS_EXTERNS)" $(EMCC_LINK) \
+	EMCC_CLOSURE_ARGS="--externs $(CURDIR)/$(JS_EXTERNS)" $(EMCC_LINK) \
 	       $(EMCCFLAGS_ASMJS) \
                $(foreach f,$(JS_PRE),--pre-js $(f)) \
                $(foreach f,$(JS_POST),--post-js $(f)) \
