@@ -1,3 +1,14 @@
+Changes in `3.2.5 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.5>`_
+=========================================================================
+
+This release includes the following changes since 3.2.4:
+
+* Add functions for getting error codes rather than error strings.  Thanks to
+  Nicolas Werner for the suggestion.
+* Only export olm symbols.  Thanks to Mohammed Sadiq for the suggestion.
+* Improve error handling in unpickle functions.
+* Add support for fallback keys to the Objective-C and Android bindings.
+
 Changes in `3.2.4 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.4>`_
 =========================================================================
 
