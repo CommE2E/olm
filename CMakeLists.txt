@@ -92,6 +92,7 @@ install(TARGETS olm
 set_target_properties(olm PROPERTIES EXPORT_NAME Olm)
 install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/olm.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/olm_export.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/outbound_group_session.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/inbound_group_session.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/pk.h
