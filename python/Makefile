@@ -5,18 +5,18 @@ OLM_HEADERS = ../include/olm/olm.h ../include/olm/inbound_group_session.h \
 
 include/olm/olm.h: $(OLM_HEADERS)
 	mkdir -p include/olm
-	$(CPP) -I dummy -I ../include -o include/olm/olm.h ../include/olm/olm.h
+	$(CPP) -DOLM_STATIC_DEFINE -I dummy -I ../include -o include/olm/olm.h ../include/olm/olm.h
 # add memset to the header so that we can use it to clear buffers
 	echo 'void *memset(void *s, int c, size_t n);' >> include/olm/olm.h
 
 include/olm/pk.h: include/olm/olm.h ../include/olm/pk.h
-	$(CPP) -I dummy  -I ../include -o include/olm/pk.h ../include/olm/pk.h
+	$(CPP) -DOLM_STATIC_DEFINE -I dummy  -I ../include -o include/olm/pk.h ../include/olm/pk.h
 
 include/olm/sas.h: include/olm/olm.h ../include/olm/sas.h
-	$(CPP) -I dummy -I ../include -o include/olm/sas.h ../include/olm/sas.h
+	$(CPP) -DOLM_STATIC_DEFINE -I dummy -I ../include -o include/olm/sas.h ../include/olm/sas.h
 
 include/olm/error.h: include/olm/olm.h ../include/olm/error.h
-	$(CPP) -I dummy -I ../include -o include/olm/error.h ../include/olm/error.h
+	$(CPP) -DOLM_STATIC_DEFINE -I dummy -I ../include -o include/olm/error.h ../include/olm/error.h
 
 headers: include/olm/olm.h include/olm/pk.h include/olm/sas.h include/olm/error.h
 
