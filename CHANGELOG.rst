@@ -1,3 +1,11 @@
+Changes in `3.2.6 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.6>`_
+=========================================================================
+
+This release includes the following changes since 3.2.5:
+
+* Fix building on various platforms when using CMake.  Building from the
+  Makefile still assumes that it is using gcc.
+
 Changes in `3.2.5 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.5>`_
 =========================================================================
 
