@@ -20,6 +20,8 @@
 
 #include "olm/error.h"
 
+#include "olm/olm_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -27,38 +29,38 @@ extern "C" {
 typedef struct OlmOutboundGroupSession OlmOutboundGroupSession;
 
 /** get the size of an outbound group session, in bytes. */
-size_t olm_outbound_group_session_size(void);
+OLM_EXPORT size_t olm_outbound_group_session_size(void);
 
 /**
  * Initialise an outbound group session object using the supplied memory
  * The supplied memory should be at least olm_outbound_group_session_size()
  * bytes.
  */
-OlmOutboundGroupSession * olm_outbound_group_session(
+OLM_EXPORT OlmOutboundGroupSession * olm_outbound_group_session(
     void *memory
 );
 
 /**
  * A null terminated string describing the most recent error to happen to a
  * group session */
-const char *olm_outbound_group_session_last_error(
+OLM_EXPORT const char *olm_outbound_group_session_last_error(
     const OlmOutboundGroupSession *session
 );
 
 /**
  * An error code describing the most recent error to happen to a group
  * session */
-enum OlmErrorCode olm_outbound_group_session_last_error_code(
+OLM_EXPORT enum OlmErrorCode olm_outbound_group_session_last_error_code(
     const OlmOutboundGroupSession *session
 );
 
 /** Clears the memory used to back this group session */
-size_t olm_clear_outbound_group_session(
+OLM_EXPORT size_t olm_clear_outbound_group_session(
     OlmOutboundGroupSession *session
 );
 
 /** Returns the number of bytes needed to store an outbound group session */
-size_t olm_pickle_outbound_group_session_length(
+OLM_EXPORT size_t olm_pickle_outbound_group_session_length(
     const OlmOutboundGroupSession *session
 );
 
@@ -70,7 +72,7 @@ size_t olm_pickle_outbound_group_session_length(
  * is smaller than olm_pickle_outbound_group_session_length() then
  * olm_outbound_group_session_last_error() will be "OUTPUT_BUFFER_TOO_SMALL"
  */
-size_t olm_pickle_outbound_group_session(
+OLM_EXPORT size_t olm_pickle_outbound_group_session(
     OlmOutboundGroupSession *session,
     void const * key, size_t key_length,
     void * pickled, size_t pickled_length
@@ -86,7 +88,7 @@ size_t olm_pickle_outbound_group_session(
  * olm_outbound_group_session_last_error() will be "INVALID_BASE64". The input
  * pickled buffer is destroyed
  */
-size_t olm_unpickle_outbound_group_session(
+OLM_EXPORT size_t olm_unpickle_outbound_group_session(
     OlmOutboundGroupSession *session,
     void const * key, size_t key_length,
     void * pickled, size_t pickled_length
@@ -94,7 +96,7 @@ size_t olm_unpickle_outbound_group_session(
 
 
 /** The number of random bytes needed to create an outbound group session */
-size_t olm_init_outbound_group_session_random_length(
+OLM_EXPORT size_t olm_init_outbound_group_session_random_length(
     const OlmOutboundGroupSession *session
 );
 
@@ -103,7 +105,7 @@ size_t olm_init_outbound_group_session_random_length(
  * failure last_error will be set with an error code. The last_error will be
  * NOT_ENOUGH_RANDOM if the number of random bytes was too small.
  */
-size_t olm_init_outbound_group_session(
+OLM_EXPORT size_t olm_init_outbound_group_session(
     OlmOutboundGroupSession *session,
     uint8_t *random, size_t random_length
 );
@@ -111,7 +113,7 @@ size_t olm_init_outbound_group_session(
 /**
  * The number of bytes that will be created by encrypting a message
  */
-size_t olm_group_encrypt_message_length(
+OLM_EXPORT size_t olm_group_encrypt_message_length(
     OlmOutboundGroupSession *session,
     size_t plaintext_length
 );
@@ -122,7 +124,7 @@ size_t olm_group_encrypt_message_length(
  * error code. The last_error will be OUTPUT_BUFFER_TOO_SMALL if the output
  * buffer is too small.
  */
-size_t olm_group_encrypt(
+OLM_EXPORT size_t olm_group_encrypt(
     OlmOutboundGroupSession *session,
     uint8_t const * plaintext, size_t plaintext_length,
     uint8_t * message, size_t message_length
@@ -132,7 +134,7 @@ size_t olm_group_encrypt(
 /**
  * Get the number of bytes returned by olm_outbound_group_session_id()
  */
-size_t olm_outbound_group_session_id_length(
+OLM_EXPORT size_t olm_outbound_group_session_id_length(
     const OlmOutboundGroupSession *session
 );
 
@@ -144,7 +146,7 @@ size_t olm_outbound_group_session_id_length(
  * last_error will be OUTPUT_BUFFER_TOO_SMALL if the id buffer was too
  * small.
  */
-size_t olm_outbound_group_session_id(
+OLM_EXPORT size_t olm_outbound_group_session_id(
     OlmOutboundGroupSession *session,
     uint8_t * id, size_t id_length
 );
@@ -155,14 +157,14 @@ size_t olm_outbound_group_session_id(
  * Each message is sent with an increasing index; this returns the index for
  * the next message.
  */
-uint32_t olm_outbound_group_session_message_index(
+OLM_EXPORT uint32_t olm_outbound_group_session_message_index(
     OlmOutboundGroupSession *session
 );
 
 /**
  * Get the number of bytes returned by olm_outbound_group_session_key()
  */
-size_t olm_outbound_group_session_key_length(
+OLM_EXPORT size_t olm_outbound_group_session_key_length(
     const OlmOutboundGroupSession *session
 );
 
@@ -176,7 +178,7 @@ size_t olm_outbound_group_session_key_length(
  * failure. On failure last_error will be set with an error code. The
  * last_error will be OUTPUT_BUFFER_TOO_SMALL if the buffer was too small.
  */
-size_t olm_outbound_group_session_key(
+OLM_EXPORT size_t olm_outbound_group_session_key(
     OlmOutboundGroupSession *session,
     uint8_t * key, size_t key_length
 );

@@ -20,6 +20,8 @@
 
 #include "olm/error.h"
 
+#include "olm/olm_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -27,38 +29,38 @@ extern "C" {
 typedef struct OlmInboundGroupSession OlmInboundGroupSession;
 
 /** get the size of an inbound group session, in bytes. */
-size_t olm_inbound_group_session_size(void);
+OLM_EXPORT size_t olm_inbound_group_session_size(void);
 
 /**
  * Initialise an inbound group session object using the supplied memory
  * The supplied memory should be at least olm_inbound_group_session_size()
  * bytes.
  */
-OlmInboundGroupSession * olm_inbound_group_session(
+OLM_EXPORT OlmInboundGroupSession * olm_inbound_group_session(
     void *memory
 );
 
 /**
  * A null terminated string describing the most recent error to happen to a
  * group session */
-const char *olm_inbound_group_session_last_error(
+OLM_EXPORT const char *olm_inbound_group_session_last_error(
     const OlmInboundGroupSession *session
 );
 
 /**
  * An error code describing the most recent error to happen to a group
  * session */
-enum OlmErrorCode olm_inbound_group_session_last_error_code(
+OLM_EXPORT enum OlmErrorCode olm_inbound_group_session_last_error_code(
     const OlmInboundGroupSession *session
 );
 
 /** Clears the memory used to back this group session */
-size_t olm_clear_inbound_group_session(
+OLM_EXPORT size_t olm_clear_inbound_group_session(
     OlmInboundGroupSession *session
 );
 
 /** Returns the number of bytes needed to store an inbound group session */
-size_t olm_pickle_inbound_group_session_length(
+OLM_EXPORT size_t olm_pickle_inbound_group_session_length(
     const OlmInboundGroupSession *session
 );
 
@@ -70,7 +72,7 @@ size_t olm_pickle_inbound_group_session_length(
  * is smaller than olm_pickle_inbound_group_session_length() then
  * olm_inbound_group_session_last_error() will be "OUTPUT_BUFFER_TOO_SMALL"
  */
-size_t olm_pickle_inbound_group_session(
+OLM_EXPORT size_t olm_pickle_inbound_group_session(
     OlmInboundGroupSession *session,
     void const * key, size_t key_length,
     void * pickled, size_t pickled_length
@@ -86,7 +88,7 @@ size_t olm_pickle_inbound_group_session(
  * olm_inbound_group_session_last_error() will be "INVALID_BASE64". The input
  * pickled buffer is destroyed
  */
-size_t olm_unpickle_inbound_group_session(
+OLM_EXPORT size_t olm_unpickle_inbound_group_session(
     OlmInboundGroupSession *session,
     void const * key, size_t key_length,
     void * pickled, size_t pickled_length
@@ -103,7 +105,7 @@ size_t olm_unpickle_inbound_group_session(
  *  * OLM_INVALID_BASE64  if the session_key is not valid base64
  *  * OLM_BAD_SESSION_KEY if the session_key is invalid
  */
-size_t olm_init_inbound_group_session(
+OLM_EXPORT size_t olm_init_inbound_group_session(
     OlmInboundGroupSession *session,
     /* base64-encoded keys */
     uint8_t const * session_key, size_t session_key_length
@@ -118,7 +120,7 @@ size_t olm_init_inbound_group_session(
  *  * OLM_INVALID_BASE64  if the session_key is not valid base64
  *  * OLM_BAD_SESSION_KEY if the session_key is invalid
  */
-size_t olm_import_inbound_group_session(
+OLM_EXPORT size_t olm_import_inbound_group_session(
     OlmInboundGroupSession *session,
     /* base64-encoded keys; note that it will be overwritten with the base64-decoded
        data. */
@@ -135,7 +137,7 @@ size_t olm_import_inbound_group_session(
  *
  * Returns olm_error() on failure.
  */
-size_t olm_group_decrypt_max_plaintext_length(
+OLM_EXPORT size_t olm_group_decrypt_max_plaintext_length(
     OlmInboundGroupSession *session,
     uint8_t * message, size_t message_length
 );
@@ -159,7 +161,7 @@ size_t olm_group_decrypt_max_plaintext_length(
  *     message's index (ie, it was sent before the session key was shared with
  *     us)
  */
-size_t olm_group_decrypt(
+OLM_EXPORT size_t olm_group_decrypt(
     OlmInboundGroupSession *session,
 
     /* input; note that it will be overwritten with the base64-decoded
@@ -175,7 +177,7 @@ size_t olm_group_decrypt(
 /**
  * Get the number of bytes returned by olm_inbound_group_session_id()
  */
-size_t olm_inbound_group_session_id_length(
+OLM_EXPORT size_t olm_inbound_group_session_id_length(
     const OlmInboundGroupSession *session
 );
 
@@ -187,7 +189,7 @@ size_t olm_inbound_group_session_id_length(
  * last_error will be OUTPUT_BUFFER_TOO_SMALL if the id buffer was too
  * small.
  */
-size_t olm_inbound_group_session_id(
+OLM_EXPORT size_t olm_inbound_group_session_id(
     OlmInboundGroupSession *session,
     uint8_t * id, size_t id_length
 );
@@ -195,7 +197,7 @@ size_t olm_inbound_group_session_id(
 /**
  * Get the first message index we know how to decrypt.
  */
-uint32_t olm_inbound_group_session_first_known_index(
+OLM_EXPORT uint32_t olm_inbound_group_session_first_known_index(
     const OlmInboundGroupSession *session
 );
 
@@ -208,14 +210,14 @@ uint32_t olm_inbound_group_session_first_known_index(
  *
  * This is mainly intended for the unit tests, currently.
  */
-int olm_inbound_group_session_is_verified(
+OLM_EXPORT int olm_inbound_group_session_is_verified(
     const OlmInboundGroupSession *session
 );
 
 /**
  * Get the number of bytes returned by olm_export_inbound_group_session()
  */
-size_t olm_export_inbound_group_session_length(
+OLM_EXPORT size_t olm_export_inbound_group_session_length(
     const OlmInboundGroupSession *session
 );
 
@@ -231,7 +233,7 @@ size_t olm_export_inbound_group_session_length(
  *     given index (ie, it was sent before the session key was shared with
  *     us)
  */
-size_t olm_export_inbound_group_session(
+OLM_EXPORT size_t olm_export_inbound_group_session(
     OlmInboundGroupSession *session,
     uint8_t * key, size_t key_length, uint32_t message_index
 );

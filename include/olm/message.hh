@@ -27,13 +27,16 @@
 #include <cstddef>
 #include <cstdint>
 
+// Note: exports in this file are only for unit tests.  Nobody else should be
+// using this externally
+#include "olm/olm_export.h"
 
 namespace olm {
 
 /**
  * The length of the buffer needed to hold a message.
  */
-std::size_t encode_message_length(
+OLM_EXPORT std::size_t encode_message_length(
     std::uint32_t counter,
     std::size_t ratchet_key_length,
     std::size_t ciphertext_length,
@@ -61,7 +64,7 @@ struct MessageReader {
  * Writes the message headers into the output buffer.
  * Populates the writer struct with pointers into the output buffer.
  */
-void encode_message(
+OLM_EXPORT void encode_message(
     MessageWriter & writer,
     std::uint8_t version,
     std::uint32_t counter,
@@ -75,7 +78,7 @@ void encode_message(
  * Reads the message headers from the input buffer.
  * Populates the reader struct with pointers into the input buffer.
  */
-void decode_message(
+OLM_EXPORT void decode_message(
     MessageReader & reader,
     std::uint8_t const * input, std::size_t input_length,
     std::size_t mac_length

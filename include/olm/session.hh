@@ -17,6 +17,10 @@
 
 #include "olm/ratchet.hh"
 
+// Note: exports in this file are only for unit tests.  Nobody else should be
+// using this externally
+#include "olm/olm_export.h"
+
 namespace olm {
 
 struct Account;
@@ -26,7 +30,7 @@ enum struct MessageType {
     MESSAGE = 1,
 };
 
-struct Session {
+struct OLM_EXPORT Session {
 
     Session();
 
@@ -153,7 +157,7 @@ std::uint8_t * pickle(
 );
 
 
-std::uint8_t const * unpickle(
+OLM_EXPORT std::uint8_t const * unpickle(
     std::uint8_t const * pos, std::uint8_t const * end,
     Session & value
 );

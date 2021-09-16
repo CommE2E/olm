@@ -21,6 +21,9 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+
 add_library(olm
     src/account.cpp
     src/base64.cpp
@@ -49,8 +52,9 @@ add_library(olm
 add_library(Olm::Olm ALIAS olm)
 
 # restrict the exported symbols
-set(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libolm.version)
-set_target_properties(olm PROPERTIES LINK_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/libolm.version)
+include(GenerateExportHeader)
+generate_export_header(olm
+  EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/include/olm/olm_export.h)
 
 target_include_directories(olm
     PUBLIC

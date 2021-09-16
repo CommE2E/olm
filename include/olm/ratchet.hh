@@ -19,6 +19,10 @@
 #include "olm/list.hh"
 #include "olm/error.h"
 
+// Note: exports in this file are only for unit tests.  Nobody else should be
+// using this externally
+#include "olm/olm_export.h"
+
 struct _olm_cipher;
 
 namespace olm {
@@ -72,7 +76,7 @@ struct KdfInfo {
 };
 
 
-struct Ratchet {
+struct OLM_EXPORT Ratchet {
 
     Ratchet(
         KdfInfo const & kdf_info,

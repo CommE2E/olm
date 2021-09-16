@@ -19,6 +19,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+// Note: exports in this file are only for unit tests.  Nobody else should be
+// using this externally
+#include "olm/olm_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -111,7 +115,7 @@ struct _olm_cipher_aes_sha_256 {
     size_t kdf_info_length;
 };
 
-extern const struct _olm_cipher_ops _olm_cipher_aes_sha_256_ops;
+OLM_EXPORT extern const struct _olm_cipher_ops _olm_cipher_aes_sha_256_ops;
 
 /**
  * get an initializer for an instance of struct _olm_cipher_aes_sha_256.
