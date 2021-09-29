@@ -10,7 +10,7 @@ variables:
 
 before_script:
   - export GRADLE_USER_HOME=$(pwd)/.gradle
-  - export ANDROID_HOME=${ANDORID_SDK_HOME}
+  - export ANDROID_HOME=${ANDROID_SDK_HOME}
   - echo "sdk.dir=${ANDROID_SDK_HOME}" > ./android/local.properties
   - echo "ndk.dir=${ANDROID_NDK_HOME}" >> ./android/local.properties
   - cp -R $ANDROID_SDK_ROOT/licenses ./android/.
