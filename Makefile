@@ -34,7 +34,7 @@ JS_EXPORTED_FUNCTIONS := javascript/exported_functions.json
 JS_EXPORTED_RUNTIME_METHODS := [ALLOC_STACK]
 JS_EXTERNS := javascript/externs.js
 
-PUBLIC_HEADERS := include/olm/olm.h include/olm/outbound_group_session.h include/olm/inbound_group_session.h include/olm/pk.h include/olm/sas.h include/olm/error.h
+PUBLIC_HEADERS := include/olm/olm.h include/olm/outbound_group_session.h include/olm/inbound_group_session.h include/olm/pk.h include/olm/sas.h include/olm/error.h include/olm/olm_export.h
 
 SOURCES := $(wildcard src/*.cpp) $(wildcard src/*.c) \
     lib/crypto-algorithms/sha256.c \
