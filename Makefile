@@ -186,6 +186,12 @@ lib: $(RELEASE_TARGET)
 .PHONY: lib
 
 $(RELEASE_TARGET): $(RELEASE_OBJECTS)
+	@echo
+	@echo '****************************************************************************'
+	@echo '* WARNING: Building olm with make is deprecated. Please use cmake instead. *'
+	@echo '****************************************************************************'
+	@echo
+
 	$(CXX) $(LDFLAGS) --shared -fPIC \
             $(OLM_LDFLAGS) \
             $(OUTPUT_OPTION) $(RELEASE_OBJECTS)

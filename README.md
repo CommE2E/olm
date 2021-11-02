@@ -11,35 +11,37 @@ ratchet, as specified in [docs/megolm.md](docs/megolm.md).
 
 ## Building
 
-To build olm as a shared library run either:
+To build olm as a shared library run:
 
 ```bash
 cmake . -Bbuild
 cmake --build build
 ```
 
-or:
-
-```bash
-make
-```
-
-Using cmake is the preferred method for building the shared library; the
-Makefile may be removed in the future.
-
-To run the tests when using cmake, run:
+To run the tests, run:
 
 ```bash
 cd build/tests
 ctest .
 ```
-To run the tests when using make, run:
+
+To build olm as a static library (which still needs libstdc++ dynamically) run:
 
 ```bash
-make test
+cmake . -Bbuild -DBUILD_SHARED_LIBS=NO
+cmake --build build
 ```
 
-To build the JavaScript bindings, install emscripten from http://kripken.github.io/emscripten-site/ and then run:
+The library can also be used as a dependency with CMake using:
+
+```cmake
+find_package(Olm::Olm REQUIRED)
+target_link_libraries(my_exe Olm::Olm)
+```
+
+### Bindings
+
+To build the JavaScript bindings, install emscripten from https://emscripten.org/ and then run:
 
 ```bash
 make js
@@ -74,25 +76,29 @@ make
 to make both the Python 2 and Python 3 bindings.  To make only one version, use
 ``make olm-python2`` or ``make olm-python3`` instead of just ``make``.
 
-To build olm as a static library (which still needs libstdc++ dynamically) run
-either:
+### Using make instead of cmake
+
+**WARNING:** Using cmake is the preferred method for building the olm library;
+the Makefile may be removed in the future or have functionality removed.  In
+addition, the Makefile may make certain assumptions about your system and is
+not as well tested.
+
+To build olm as a dynamic library, run:
 
 ```bash
-cmake . -Bbuild -DBUILD_SHARED_LIBS=NO
-cmake --build build
+make
 ```
 
-or
+To run the tests, run:
+
+```bash
+make test
+```
+
+To build olm as a static library, run:
 
 ```bash
 make static
-```
-
-The library can also be used as a dependency with CMake using:
-
-```cmake
-find_package(Olm::Olm REQUIRED)
-target_link_libraries(my_exe Olm::Olm)
 ```
 
 ## Bindings
