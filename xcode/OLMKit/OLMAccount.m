@@ -23,7 +23,7 @@
 #import "OLMUtility.h"
 #import "OLMKit.h"
 
-@import Security;
+#import <Security/Security.h>
 
 @implementation OLMAccount
 
