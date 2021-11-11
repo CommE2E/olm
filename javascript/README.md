@@ -5,6 +5,11 @@ Note: before using any of the olm functions, you must call `Olm.init()`, and
 wait for the promise to resolve, otherwise you will get errors like:
 `Uncaught TypeError: Olm.Account is not a constructor`
 
+If you get errors about failure to compile the wasm file, it is likely that Olm
+is not locating the wasm file properly.  You can tell Olm where the wasm file
+is by passing a `locateFile` parameter to `Olm.init()`, for example:
+`Olm.init({locateFile: () => pathToWasmFile})`.
+
 Example:
 
     var alice = new Olm.Account();
