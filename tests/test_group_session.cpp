@@ -55,7 +55,7 @@ int main() {
     /* Deliberately corrupt the pickled session by supplying a junk suffix and
     * ensure this is caught as an error. */
     const size_t junk_length = 1;
-    std::vector<std::uint8_t> junk_pickle(pickle_length + junk_length);
+    std::vector<std::uint8_t> junk_pickle(pickle_length + _olm_enc_output_length(junk_length));
 
     olm_pickle_outbound_group_session(
         session, "secret_key", 10, junk_pickle.data(), pickle_length
@@ -110,7 +110,7 @@ int main() {
     /* Deliberately corrupt the pickled session by supplying a junk suffix and
     * ensure this is caught as an error. */
     const size_t junk_length = 1;
-    std::vector<std::uint8_t> junk_pickle(pickle_length + junk_length);
+    std::vector<std::uint8_t> junk_pickle(pickle_length + _olm_enc_output_length(junk_length));
 
     olm_pickle_inbound_group_session(
         session, "secret_key", 10, junk_pickle.data(), pickle_length

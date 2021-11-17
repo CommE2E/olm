@@ -71,7 +71,7 @@ assert_equals(pickle1.data(), pickle2.data(), pickle_length);
 /* Deliberately corrupt the pickled account by supplying a junk suffix and
  * ensure this is caught as an error. */
 const size_t junk_length = 1;
-std::vector<std::uint8_t> junk_pickle(pickle_length + junk_length);
+std::vector<std::uint8_t> junk_pickle(pickle_length + _olm_enc_output_length(junk_length));
 
 res = ::olm_pickle_account(
     account, "secret_key", 10, junk_pickle.data(), pickle_length);
@@ -162,7 +162,7 @@ assert_equals(pickle1.data(), pickle2.data(), pickle_length);
 /* Deliberately corrupt the pickled session by supplying a junk suffix and
  * ensure this is caught as an error. */
 const size_t junk_length = 1;
-std::vector<std::uint8_t> junk_pickle(pickle_length + junk_length);
+std::vector<std::uint8_t> junk_pickle(pickle_length + _olm_enc_output_length(junk_length));
 
 res = ::olm_pickle_session(
     session, "secret_key", 10, junk_pickle.data(), pickle_length);

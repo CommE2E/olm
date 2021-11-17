@@ -146,7 +146,7 @@ assert_equals(alice_public, pubkey.data(), olm_pk_key_length());
  * ensure this is caught as an error. */
 const size_t junk_length = 1;
 std::size_t pickle_length = olm_pickle_pk_decryption_length(decryption);
-std::vector<std::uint8_t> junk_pickle(pickle_length + junk_length);
+std::vector<std::uint8_t> junk_pickle(pickle_length + _olm_enc_output_length(junk_length));
 
 olm_pickle_pk_decryption(
     decryption,
