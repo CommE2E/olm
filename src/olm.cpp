@@ -495,6 +495,16 @@ size_t olm_account_fallback_key(
 }
 
 
+size_t olm_account_unpublished_fallback_key(
+    OlmAccount * account,
+    void * fallback_key_json, size_t fallback_key_json_length
+) {
+    return from_c(account)->get_unpublished_fallback_key_json(
+        from_c(fallback_key_json), fallback_key_json_length
+    );
+}
+
+
 size_t olm_create_outbound_session_random_length(
     OlmSession const * session
 ) {

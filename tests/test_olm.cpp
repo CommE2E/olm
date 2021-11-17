@@ -432,4 +432,37 @@ for (unsigned i = 0; i < 8; ++i) {
 }
 }
 
+{
+    TestCase test_case("Old account (v3) unpickle test");
+
+    std::uint8_t pickle[] =
+        "0mSqVn3duHffbhaTbFgW+4JPlcRoqT7z0x4mQ72N+g+eSAk5sgcWSoDzKpMazgcB"
+        "46ItEpChthVHTGRA6PD3dly0dUs4ji7VtWTa+1tUv1UbxP92uYf1Ae3fomX0yAoH"
+        "OjSrz1+RmuXr+At8jsmsf260sKvhB6LnI3qYsrw6AAtpgk5d5xZd66sLxvvYUuai"
+        "+SmmcmT0bHosLTuDiiB9amBvPKkUKtKZmaEAl5ULrgnJygp1/FnwzVfSrw6PBSX6"
+        "ZaUEZHZGX1iI6/WjbHqlTQeOQjtaSsPaL5XXpteS9dFsuaANAj+8ks7Ut2Hwg/JP"
+        "Ih/ERYBwiMh9Mt3zSAG0NkvgUkcdipKxoSNZ6t+TkqZrN6jG6VCbx+4YpJO24iJb"
+        "ShZy8n79aePIgIsxX94ycsTq1ic38sCRSkWGVbCSRkPloHW7ZssLHA";
+
+    std::uint8_t expected_fallback[] =
+        "{\"curve25519\":{\"AAAAAQ\":\"dr98y6VOWt6lJaQgFVZeWY2ky76mga9MEMbdItJTdng\"}}";
+    std::uint8_t expected_unpublished_fallback[] =
+        "{\"curve25519\":{}}";
+
+    std::vector<std::uint8_t> account_buffer(::olm_account_size());
+    ::OlmAccount *account = ::olm_account(account_buffer.data());
+    assert_not_equals(
+        std::size_t(-1),
+        ::olm_unpickle_account(
+            account, "", 0, pickle, sizeof(pickle)-1
+        )
+    );
+
+    std::vector<std::uint8_t> fallback(::olm_account_fallback_key_length(account));
+    size_t len = ::olm_account_fallback_key(account, fallback.data(), fallback.size());
+    assert_equals(expected_fallback, fallback.data(), len);
+    len = ::olm_account_unpublished_fallback_key(account, fallback.data(), fallback.size());
+    assert_equals(expected_unpublished_fallback, fallback.data(), len);
+}
+
 }

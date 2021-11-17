@@ -37,6 +37,23 @@ std::uint8_t const * olm::unpickle(
 
 std::uint8_t * olm::pickle(
     std::uint8_t * pos,
+    std::uint8_t value
+) {
+    *(pos++) = value;
+    return pos;
+}
+
+std::uint8_t const * olm::unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    std::uint8_t & value
+) {
+    if (!pos || pos == end) return nullptr;
+    value = *(pos++);
+    return pos;
+}
+
+std::uint8_t * olm::pickle(
+    std::uint8_t * pos,
     bool value
 ) {
     *(pos++) = value ? 1 : 0;
@@ -220,6 +237,17 @@ uint8_t * _olm_pickle_uint32(uint8_t * pos, uint32_t value) {
 uint8_t const * _olm_unpickle_uint32(
     uint8_t const * pos, uint8_t const * end,
     uint32_t *value
+) {
+    return olm::unpickle(pos, end, *value);
+}
+
+uint8_t * _olm_pickle_uint8(uint8_t * pos, uint8_t value) {
+    return olm::pickle(pos, value);
+}
+
+uint8_t const * _olm_unpickle_uint8(
+    uint8_t const * pos, uint8_t const * end,
+    uint8_t *value
 ) {
     return olm::unpickle(pos, end, *value);
 }

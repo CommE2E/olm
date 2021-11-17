@@ -43,6 +43,7 @@ struct Account {
     Account();
     IdentityKeys identity_keys;
     List<OneTimeKey, MAX_ONE_TIME_KEYS> one_time_keys;
+    std::uint8_t num_fallback_keys;
     OneTimeKey current_fallback_key;
     OneTimeKey prev_fallback_key;
     std::uint32_t next_one_time_key_id;
@@ -141,6 +142,11 @@ struct Account {
     /** Number of bytes needed to output the one time keys for this account */
     std::size_t get_fallback_key_json_length() const;
 
+    /** Deprecated: use get_unpublished_fallback_key_json instead */
+    std::size_t get_fallback_key_json(
+        std::uint8_t * fallback_json, std::size_t fallback_json_length
+    );
+
     /** Output the fallback key as JSON:
      *
      *  {"curve25519":
@@ -150,10 +156,12 @@ struct Account {
      *  ]
      *  }
      *
+     * if there is a fallback key and it has not been published yet.
+     *
      * Returns the size of the JSON written or std::size_t(-1) on error.
      * If the buffer is too small last_error will be OUTPUT_BUFFER_TOO_SMALL.
      */
-    std::size_t get_fallback_key_json(
+    std::size_t get_unpublished_fallback_key_json(
         std::uint8_t * fallback_json, std::size_t fallback_json_length
     );
 

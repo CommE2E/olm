@@ -47,6 +47,23 @@ std::uint8_t const * unpickle(
 
 
 inline std::size_t pickle_length(
+    const std::uint8_t & value
+) {
+    return 1;
+}
+
+std::uint8_t * pickle(
+    std::uint8_t * pos,
+    std::uint8_t value
+);
+
+std::uint8_t const * unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    std::uint8_t & value
+);
+
+
+inline std::size_t pickle_length(
     const bool & value
 ) {
     return 1;

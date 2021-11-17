@@ -291,7 +291,15 @@ OLM_EXPORT size_t olm_account_fallback_key_length(
     OlmAccount const * account
 );
 
+/** Deprecated: use olm_account_unpublished_fallback_key instead */
 OLM_EXPORT size_t olm_account_fallback_key(
+    OlmAccount * account,
+    void * fallback_key, size_t fallback_key_size
+);
+
+/** Returns the fallback key (if present, and if unpublished) into the
+ * fallback_key buffer */
+OLM_EXPORT size_t olm_account_unpublished_fallback_key(
     OlmAccount * account,
     void * fallback_key, size_t fallback_key_size
 );

@@ -19,13 +19,9 @@
 #include "olm/memory.hh"
 
 olm::Account::Account(
-) : next_one_time_key_id(0),
+) : num_fallback_keys(0),
+    next_one_time_key_id(0),
     last_error(OlmErrorCode::OLM_SUCCESS) {
-    // since we don't need to keep track of whether the fallback keys are
-    // published, use the published flag as in indication for whether the keys
-    // were generated
-    current_fallback_key.published = false;
-    prev_fallback_key.published = false;
 }
 
 
@@ -37,14 +33,14 @@ olm::OneTimeKey const * olm::Account::lookup_key(
             return &key;
         }
     }
-    if (current_fallback_key.published
+    if (num_fallback_keys >= 1
             && olm::array_equal(
                 current_fallback_key.key.public_key.public_key, public_key.public_key
             )
     ) {
         return &current_fallback_key;
     }
-    if (prev_fallback_key.published
+    if (num_fallback_keys >= 2
             && olm::array_equal(
                 prev_fallback_key.key.public_key.public_key, public_key.public_key
             )
@@ -67,14 +63,14 @@ std::size_t olm::Account::remove_key(
     }
     // check if the key is a fallback key, to avoid returning an error, but
     // don't actually remove it
-    if (current_fallback_key.published
+    if (num_fallback_keys >= 1
             && olm::array_equal(
                 current_fallback_key.key.public_key.public_key, public_key.public_key
             )
     ) {
         return current_fallback_key.id;
     }
-    if (prev_fallback_key.published
+    if (num_fallback_keys >= 2
             && olm::array_equal(
                 prev_fallback_key.key.public_key.public_key, public_key.public_key
             )
@@ -262,6 +258,7 @@ std::size_t olm::Account::mark_keys_as_published(
             count++;
         }
     }
+    current_fallback_key.published = true;
     return count;
 }
 
@@ -306,9 +303,12 @@ std::size_t olm::Account::generate_fallback_key(
         last_error = OlmErrorCode::OLM_NOT_ENOUGH_RANDOM;
         return std::size_t(-1);
     }
+    if (num_fallback_keys < 2) {
+        num_fallback_keys++;
+    }
     prev_fallback_key = current_fallback_key;
     current_fallback_key.id = ++next_one_time_key_id;
-    current_fallback_key.published = true;
+    current_fallback_key.published = false;
     _olm_crypto_curve25519_generate_key(random, &current_fallback_key.key);
     return 1;
 }
@@ -317,8 +317,8 @@ std::size_t olm::Account::generate_fallback_key(
 std::size_t olm::Account::get_fallback_key_json_length(
 ) const {
     std::size_t length = 4 + sizeof(KEY_JSON_CURVE25519) - 1; /* {"curve25519":{}} */
-    const OneTimeKey & key = current_fallback_key;
-    if (key.published) {
+    if (num_fallback_keys >= 1) {
+        const OneTimeKey & key = current_fallback_key;
         length += 1; /* " */
         length += olm::encode_base64_length(_olm_pickle_uint32_length(key.id));
         length += 3; /* ":" */
@@ -340,7 +340,35 @@ std::size_t olm::Account::get_fallback_key_json(
     pos = write_string(pos, KEY_JSON_CURVE25519);
     *(pos++) = '{';
     OneTimeKey & key = current_fallback_key;
-    if (key.published) {
+    if (num_fallback_keys >= 1) {
+        *(pos++) = '\"';
+        std::uint8_t key_id[_olm_pickle_uint32_length(key.id)];
+        _olm_pickle_uint32(key_id, key.id);
+        pos = olm::encode_base64(key_id, sizeof(key_id), pos);
+        *(pos++) = '\"'; *(pos++) = ':'; *(pos++) = '\"';
+        pos = olm::encode_base64(
+            key.key.public_key.public_key, sizeof(key.key.public_key.public_key), pos
+        );
+        *(pos++) = '\"';
+    }
+    *(pos++) = '}';
+    *(pos++) = '}';
+    return pos - fallback_json;
+}
+
+std::size_t olm::Account::get_unpublished_fallback_key_json(
+    std::uint8_t * fallback_json, std::size_t fallback_json_length
+) {
+    std::uint8_t * pos = fallback_json;
+    if (fallback_json_length < get_fallback_key_json_length()) {
+        last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
+        return std::size_t(-1);
+    }
+    *(pos++) = '{';
+    pos = write_string(pos, KEY_JSON_CURVE25519);
+    *(pos++) = '{';
+    OneTimeKey & key = current_fallback_key;
+    if (num_fallback_keys >= 1 && !key.published) {
         *(pos++) = '\"';
         std::uint8_t key_id[_olm_pickle_uint32_length(key.id)];
         _olm_pickle_uint32(key_id, key.id);
@@ -426,7 +454,8 @@ namespace {
 // pickle version 1 used only 32 bytes for the ed25519 private key.
 // Any keys thus used should be considered compromised.
 // pickle version 2 does not have fallback keys.
-static const std::uint32_t ACCOUNT_PICKLE_VERSION = 3;
+// pickle version 3 does not store whether the current fallback key is published.
+static const std::uint32_t ACCOUNT_PICKLE_VERSION = 4;
 }
 
 
@@ -437,8 +466,13 @@ std::size_t olm::pickle_length(
     length += olm::pickle_length(ACCOUNT_PICKLE_VERSION);
     length += olm::pickle_length(value.identity_keys);
     length += olm::pickle_length(value.one_time_keys);
-    length += olm::pickle_length(value.current_fallback_key);
-    length += olm::pickle_length(value.prev_fallback_key);
+    length += olm::pickle_length(value.num_fallback_keys);
+    if (value.num_fallback_keys >= 1) {
+        length += olm::pickle_length(value.current_fallback_key);
+        if (value.num_fallback_keys >= 2) {
+            length += olm::pickle_length(value.prev_fallback_key);
+        }
+    }
     length += olm::pickle_length(value.next_one_time_key_id);
     return length;
 }
@@ -451,8 +485,13 @@ std::uint8_t * olm::pickle(
     pos = olm::pickle(pos, ACCOUNT_PICKLE_VERSION);
     pos = olm::pickle(pos, value.identity_keys);
     pos = olm::pickle(pos, value.one_time_keys);
-    pos = olm::pickle(pos, value.current_fallback_key);
-    pos = olm::pickle(pos, value.prev_fallback_key);
+    pos = olm::pickle(pos, value.num_fallback_keys);
+    if (value.num_fallback_keys >= 1) {
+        pos = olm::pickle(pos, value.current_fallback_key);
+        if (value.num_fallback_keys >= 2) {
+            pos = olm::pickle(pos, value.prev_fallback_key);
+        }
+    }
     pos = olm::pickle(pos, value.next_one_time_key_id);
     return pos;
 }
@@ -468,6 +507,7 @@ std::uint8_t const * olm::unpickle(
 
     switch (pickle_version) {
         case ACCOUNT_PICKLE_VERSION:
+        case 3:
         case 2:
             break;
         case 1:
@@ -481,13 +521,35 @@ std::uint8_t const * olm::unpickle(
     pos = olm::unpickle(pos, end, value.identity_keys); UNPICKLE_OK(pos);
     pos = olm::unpickle(pos, end, value.one_time_keys); UNPICKLE_OK(pos);
 
-    if (pickle_version == 2) {
+    if (pickle_version <= 2) {
         // version 2 did not have fallback keys
-        value.current_fallback_key.published = false;
-        value.prev_fallback_key.published = false;
-    } else {
+        value.num_fallback_keys = 0;
+    } else if (pickle_version == 3) {
+        // version 3 used the published flag to indicate how many fallback keys
+        // were present (we'll have to assume that the keys were published)
         pos = olm::unpickle(pos, end, value.current_fallback_key); UNPICKLE_OK(pos);
         pos = olm::unpickle(pos, end, value.prev_fallback_key); UNPICKLE_OK(pos);
+        if (value.current_fallback_key.published) {
+            if (value.prev_fallback_key.published) {
+                value.num_fallback_keys = 2;
+            } else {
+                value.num_fallback_keys = 1;
+            }
+        } else  {
+            value.num_fallback_keys = 0;
+        }
+    } else {
+        pos = olm::unpickle(pos, end, value.num_fallback_keys); UNPICKLE_OK(pos);
+        if (value.num_fallback_keys >= 1) {
+            pos = olm::unpickle(pos, end, value.current_fallback_key); UNPICKLE_OK(pos);
+            if (value.num_fallback_keys >= 2) {
+                pos = olm::unpickle(pos, end, value.prev_fallback_key); UNPICKLE_OK(pos);
+                if (value.num_fallback_keys >= 3) {
+                    value.last_error = OlmErrorCode::OLM_CORRUPTED_PICKLE;
+                    return nullptr;
+                }
+            }
+        }
     }
 
     pos = olm::unpickle(pos, end, value.next_one_time_key_id); UNPICKLE_OK(pos);
