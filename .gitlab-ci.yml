@@ -28,6 +28,9 @@ test:lib:
     - microdnf --assumeyes --nodocs install cmake
     - pushd build/tests
     - ctest .
+  artifacts:
+    paths:
+      - build/tests/Testing/Temporary/
 
 trigger:android:
   stage: trigger
