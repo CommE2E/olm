@@ -269,3 +269,47 @@ class Account(object):
         """
         self._check_error(lib.olm_remove_one_time_keys(self._account,
                                                        session._session))
+
+    def generate_fallback_key(self):
+        # type: () -> None
+        """Generate a new fallback key
+
+        This will overwrite the existing fallback key, make sure that you upload
+        the fallback key before rotating again. Internally there are two slots
+        for the private part of the fallback key. Rotating without uploading
+        means that we'll remove a fallback key that may be still used on the
+        server side but has been removed on our side.
+
+        When we receive pre-key messages that use such a removed fallback key we
+        won't be able to create a new Olm session.
+        """
+        random_length = lib.olm_account_generate_fallback_key_random_length(
+            self._account
+        )
+        random = URANDOM(random_length)
+
+        self._check_error(
+            lib.olm_account_generate_fallback_key(
+                self._account, ffi.from_buffer(random), random_length
+            )
+        )
+
+    @property
+    def fallback_key(self):
+        """The public part of the current fallback for this account.
+
+        The fallback key can be uploaded alongside of the one-time keys. It can
+        be used instead of a one-time key to establish a new Olm Session. The
+        fallback key comes into play if all one-time keys have been used up due
+        to the client being offline and not replenishing the pool of one-time
+        keys.
+        """
+        out_length = lib.olm_account_fallback_key_length(self._account)
+        out_buffer = ffi.new("char[]", out_length)
+
+        ret = lib.olm_account_unpublished_fallback_key(self._account, out_buffer, out_length)
+        self._check_error(ret)
+
+        fallback_key = ffi.unpack(out_buffer, ret)
+
+        return json.loads(fallback_key)
