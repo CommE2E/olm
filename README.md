@@ -219,9 +219,13 @@ about it at
 https://www.nccgroup.com/globalassets/our-research/us/public-reports/2016/november/ncc_group_olm_cryptogrpahic_review_2016_11_01.pdf
 and https://matrix.org/blog/2016/11/21/matrixs-olm-end-to-end-encryption-security-assessment-released-and-implemented-cross-platform-on-riot-at-last/
 
+## Security issues
+
+If you think you found a security issue in libolm, any of its bindings or the Olm/Megolm protocols, please follow our [Security Disclosure Policy](https://matrix.org/security-disclosure-policy/) to report.
+
 ## Bug reports
 
-Please file bug reports at https://github.com/matrix-org/olm/issues
+For non-sensitive bugs, please file bug reports at https://github.com/matrix-org/olm/issues.
 
 ## What's an olm?
 
