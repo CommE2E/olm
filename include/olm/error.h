@@ -15,6 +15,8 @@
 #ifndef OLM_ERROR_H_
 #define OLM_ERROR_H_
 
+#include "olm/olm_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -69,7 +71,7 @@ enum OlmErrorCode {
 };
 
 /** get a string representation of the given error code. */
-const char * _olm_error_to_string(enum OlmErrorCode error);
+OLM_EXPORT const char * _olm_error_to_string(enum OlmErrorCode error);
 
 #ifdef __cplusplus
 } // extern "C"
