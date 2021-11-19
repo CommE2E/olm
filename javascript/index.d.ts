@@ -29,6 +29,7 @@ declare class Account {
     remove_one_time_keys(session: Session);
     generate_fallback_key();
     fallback_key(): string;
+    unpublished_fallback_key(): string;
     pickle(key: string | Uint8Array): string;
     unpickle(key: string | Uint8Array, pickle: string);
 }
