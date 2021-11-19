@@ -23,6 +23,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+// Note: exports in this file are only for unit tests.  Nobody else should be
+// using this externally
+#include "olm/olm_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -59,25 +63,25 @@ extern const struct _olm_cipher *megolm_cipher;
  * initialize the megolm ratchet. random_data should be at least
  * MEGOLM_RATCHET_LENGTH bytes of randomness.
  */
-void megolm_init(Megolm *megolm, uint8_t const *random_data, uint32_t counter);
+OLM_EXPORT void megolm_init(Megolm *megolm, uint8_t const *random_data, uint32_t counter);
 
 /** Returns the number of bytes needed to store a megolm */
-size_t megolm_pickle_length(const Megolm *megolm);
+OLM_EXPORT size_t megolm_pickle_length(const Megolm *megolm);
 
 /**
  * Pickle the megolm. Returns a pointer to the next free space in the buffer.
  */
-uint8_t * megolm_pickle(const Megolm *megolm, uint8_t *pos);
+OLM_EXPORT uint8_t * megolm_pickle(const Megolm *megolm, uint8_t *pos);
 
 /**
  * Unpickle the megolm. Returns a pointer to the next item in the buffer.
  */
-const uint8_t * megolm_unpickle(Megolm *megolm, const uint8_t *pos,
+OLM_EXPORT const uint8_t * megolm_unpickle(Megolm *megolm, const uint8_t *pos,
                                 const uint8_t *end);
 
 
 /** advance the ratchet by one step */
-void megolm_advance(Megolm *megolm);
+OLM_EXPORT void megolm_advance(Megolm *megolm);
 
 /**
  * get the key data in the ratchet. The returned data is
@@ -86,7 +90,7 @@ void megolm_advance(Megolm *megolm);
 #define megolm_get_data(megolm) ((const uint8_t *)((megolm)->data))
 
 /** advance the ratchet to a given count */
-void megolm_advance_to(Megolm *megolm, uint32_t advance_to);
+OLM_EXPORT void megolm_advance_to(Megolm *megolm, uint32_t advance_to);
 
 #ifdef __cplusplus
 } // extern "C"
