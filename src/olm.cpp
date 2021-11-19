@@ -495,6 +495,13 @@ size_t olm_account_fallback_key(
 }
 
 
+size_t olm_account_unpublished_fallback_key_length(
+    OlmAccount const * account
+) {
+    return from_c(account)->get_unpublished_fallback_key_json_length();
+}
+
+
 size_t olm_account_unpublished_fallback_key(
     OlmAccount * account,
     void * fallback_key_json, size_t fallback_key_json_length

@@ -139,13 +139,17 @@ struct Account {
         std::uint8_t const * random, std::size_t random_length
     );
 
-    /** Number of bytes needed to output the one time keys for this account */
+    /** Number of bytes needed to output the fallback keys for this account */
     std::size_t get_fallback_key_json_length() const;
 
     /** Deprecated: use get_unpublished_fallback_key_json instead */
     std::size_t get_fallback_key_json(
         std::uint8_t * fallback_json, std::size_t fallback_json_length
     );
+
+    /** Number of bytes needed to output the unpublished fallback keys for this
+     * account */
+    std::size_t get_unpublished_fallback_key_json_length() const;
 
     /** Output the fallback key as JSON:
      *

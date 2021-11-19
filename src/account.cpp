@@ -356,11 +356,25 @@ std::size_t olm::Account::get_fallback_key_json(
     return pos - fallback_json;
 }
 
+std::size_t olm::Account::get_unpublished_fallback_key_json_length(
+) const {
+    std::size_t length = 4 + sizeof(KEY_JSON_CURVE25519) - 1; /* {"curve25519":{}} */
+    const OneTimeKey & key = current_fallback_key;
+    if (num_fallback_keys >= 1 && !key.published) {
+        length += 1; /* " */
+        length += olm::encode_base64_length(_olm_pickle_uint32_length(key.id));
+        length += 3; /* ":" */
+        length += olm::encode_base64_length(sizeof(key.key.public_key));
+        length += 1; /* " */
+    }
+    return length;
+}
+
 std::size_t olm::Account::get_unpublished_fallback_key_json(
     std::uint8_t * fallback_json, std::size_t fallback_json_length
 ) {
     std::uint8_t * pos = fallback_json;
-    if (fallback_json_length < get_fallback_key_json_length()) {
+    if (fallback_json_length < get_unpublished_fallback_key_json_length()) {
         last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
