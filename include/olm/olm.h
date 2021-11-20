@@ -310,6 +310,15 @@ OLM_EXPORT size_t olm_account_unpublished_fallback_key(
     void * fallback_key, size_t fallback_key_size
 );
 
+/** Forget about the old fallback key.  This should be called once you are
+ * reasonably certain that you will not receive any more messages that use
+ * the old fallback key (e.g. 5 minutes after the new fallback key has been
+ * published).
+ */
+OLM_EXPORT void olm_account_forget_old_fallback_key(
+    OlmAccount * account
+);
+
 
 /** The number of random bytes needed to create an outbound session */
 OLM_EXPORT size_t olm_create_outbound_session_random_length(

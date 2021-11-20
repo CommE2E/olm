@@ -512,6 +512,13 @@ size_t olm_account_unpublished_fallback_key(
 }
 
 
+void olm_account_forget_old_fallback_key(
+    OlmAccount * account
+) {
+    return from_c(account)->forget_old_fallback_key();
+}
+
+
 size_t olm_create_outbound_session_random_length(
     OlmSession const * session
 ) {

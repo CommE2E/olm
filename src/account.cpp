@@ -398,6 +398,13 @@ std::size_t olm::Account::get_unpublished_fallback_key_json(
     return pos - fallback_json;
 }
 
+void olm::Account::forget_old_fallback_key(
+) {
+    if (num_fallback_keys >= 2) {
+        num_fallback_keys = 1;
+    }
+}
+
 namespace olm {
 
 static std::size_t pickle_length(

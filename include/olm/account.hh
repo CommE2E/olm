@@ -169,6 +169,9 @@ struct Account {
         std::uint8_t * fallback_json, std::size_t fallback_json_length
     );
 
+    /** Forget about the old fallback key */
+    void forget_old_fallback_key();
+
     /** Lookup a one time key with the given public key */
     OneTimeKey const * lookup_key(
         _olm_curve25519_public_key const & public_key
