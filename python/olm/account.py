@@ -304,12 +304,12 @@ class Account(object):
         to the client being offline and not replenishing the pool of one-time
         keys.
         """
-        out_length = lib.olm_account_fallback_key_length(self._account)
+        out_length = lib.olm_account_unpublished_fallback_key_length(self._account)
         out_buffer = ffi.new("char[]", out_length)
 
         ret = lib.olm_account_unpublished_fallback_key(self._account, out_buffer, out_length)
         self._check_error(ret)
 
-        fallback_key = ffi.unpack(out_buffer, ret)
+        fallback_key = ffi.unpack(out_buffer, out_length)
 
         return json.loads(fallback_key)
