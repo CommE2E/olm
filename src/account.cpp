@@ -402,6 +402,7 @@ void olm::Account::forget_old_fallback_key(
 ) {
     if (num_fallback_keys >= 2) {
         num_fallback_keys = 1;
+        olm::unset(&prev_fallback_key, sizeof(prev_fallback_key));
     }
 }
 
