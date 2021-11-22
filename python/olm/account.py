@@ -294,6 +294,15 @@ class Account(object):
             )
         )
 
+    def forget_old_fallback_key(self):
+        """Forget about the old fallback key.
+
+        This should be called once you are reasonably certain that you will not
+        receive any more messages that use the old fallback key (e.g. 5 minutes
+        after the new fallback key has been published).
+        """
+        lib.olm_account_forget_old_fallback_key(self._account)
+
     @property
     def fallback_key(self):
         """The public part of the current fallback for this account.
