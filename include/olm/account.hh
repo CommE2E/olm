@@ -107,8 +107,10 @@ struct Account {
         std::uint8_t * one_time_json, std::size_t one_time_json_length
     );
 
-    /** Mark the current list of one_time_keys as being published. They
-     * will no longer be returned by get_one_time_keys_json_length(). */
+    /** Mark the current list of one_time_keys and the current fallback key as
+     * being published. The current one time keys will no longer be returned by
+     * get_one_time_keys_json() and the current fallback key will no longer be
+     * returned by get_unpublished_fallback_key_json(). */
     std::size_t mark_keys_as_published();
 
     /** The largest number of one time keys this account can store. */

@@ -245,7 +245,13 @@ OLM_EXPORT size_t olm_account_one_time_keys(
     void * one_time_keys, size_t one_time_keys_length
 );
 
-/** Marks the current set of one time keys as being published. */
+/** Marks the current set of one time keys and fallback key as being published
+ * Once marked as published, the one time keys will no longer be returned by
+ * olm_account_one_time_keys(), and the fallback key will no longer be returned
+ * by olm_account_unpublished_fallback_key().
+ *
+ * Returns the number of one-time keys that were marked as published.  Note that
+ * this count does not include the fallback key. */
 OLM_EXPORT size_t olm_account_mark_keys_as_published(
     OlmAccount * account
 );
