@@ -438,7 +438,7 @@ TestCase test_case("Fallback key test");
 MockRandom mock_random_a('A', 0x00);
 MockRandom mock_random_b('B', 0x80);
 
-// create a and b acconuts
+// create a and b accounts
 std::vector<std::uint8_t> a_account_buffer(::olm_account_size());
 ::OlmAccount *a_account = ::olm_account(a_account_buffer.data());
 std::vector<std::uint8_t> a_random(::olm_create_account_random_length(a_account));
