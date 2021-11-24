@@ -2,6 +2,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 android {
     compileSdkVersion 30
@@ -15,6 +16,8 @@ android {
         // "pm clear" command after each test invocation. This command ensures
         // that the app's state is completely cleared between tests.
         testInstrumentationRunnerArguments clearPackageData: 'true'
+
+        buildConfigField "String", "OLM_VERSION", "\"${project.getProperties().getOrDefault("VERSION_NAME", "0.0.0")}\""
     }
     buildTypes {
         debug {
@@ -72,6 +75,27 @@ android {
                 compileTask.dependsOn ndkBuildNativeRelease
             }
             compileTask.dependsOn buildJavaDoc
+    }
+
+    task androidJavadocs(type: Javadoc) {
+        source = android.sourceSets.main.java.srcDirs
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+        android.libraryVariants.all { variant ->
+            if (variant.name == 'release') {
+                owner.classpath += variant.javaCompileProvider.get().classpath
+            }
+        }
+        exclude '**/R.html', '**/R.*.html', '**/index.html'
+    }
+
+    task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+        archiveClassifier.set('javadoc')
+        from androidJavadocs.destinationDir
+    }
+
+    task androidSourcesJar(type: Jar) {
+        archiveClassifier.set('sources')
+        from android.sourceSets.main.java.srcDirs
     }
 
     clean.dependsOn cleanNative
@@ -135,7 +159,29 @@ project.afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
+                artifact androidJavadocsJar
+                artifact androidSourcesJar
+                groupId = project.getProperties().getOrDefault("GROUP", "org.matrix.android")
+                artifactId = project.getProperties().getOrDefault("ARTIFACT_ID", "olm")
+                version = project.getProperties().getOrDefault("VERSION_NAME", "0.0.0")
             }
         }
+        repositories {
+            maven {
+                url "https://gitlab.matrix.org/api/v4/projects/27/packages/maven"
+                credentials(HttpHeaderCredentials) {
+                    name = System.getenv("REPO_TOKEN_TYPE")
+                    value = System.getenv("REPO_TOKEN")
+                }
+                authentication {
+                    header(HttpHeaderAuthentication)
+                }
+            }
+        }
+    }
+
+    signing {
+        useGpgCmd()
+        sign publishing.publications.release
     }
 }

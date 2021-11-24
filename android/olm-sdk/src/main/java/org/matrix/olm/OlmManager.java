@@ -46,7 +46,7 @@ public class OlmManager {
      * @return the library version
      */
     public String getVersion() {
-        return "3.2.6";
+        return BuildConfig.OLM_VERSION;
     }
 
     /**
