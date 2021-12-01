@@ -30,6 +30,7 @@ declare class Account {
     generate_fallback_key();
     fallback_key(): string;
     unpublished_fallback_key(): string;
+    forget_old_fallback(): void;
     pickle(key: string | Uint8Array): string;
     unpickle(key: string | Uint8Array, pickle: string);
 }
