@@ -183,7 +183,7 @@ Account.prototype['unpublished_fallback_key'] = restore_stack(function() {
     return UTF8ToString(keys, keys_length);
 });
 
-Account.prototype['forget_old_fallback'] = restore_stack(function() {
+Account.prototype['forget_old_fallback_key'] = restore_stack(function() {
     account_method(Module['_olm_account_forget_old_fallback_key'])(
         this.ptr
     );
