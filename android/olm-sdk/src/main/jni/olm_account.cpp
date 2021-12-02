@@ -521,7 +521,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(fallbackKeyJni)(JNIEnv *env, jobject t
     else
     {
         // keys memory allocation
-        size_t keysLength = olm_account_fallback_key_length(accountPtr);
+        size_t keysLength = olm_account_unpublished_fallback_key_length(accountPtr);
         uint8_t *keysBytesPtr = (uint8_t *)malloc(keysLength*sizeof(uint8_t));
 
         if (!keysBytesPtr)
@@ -532,7 +532,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(fallbackKeyJni)(JNIEnv *env, jobject t
         else
         {
             // retrieve key pairs in keysBytesPtr
-            size_t keysResult = olm_account_fallback_key(accountPtr, keysBytesPtr, keysLength);
+            size_t keysResult = olm_account_unpublished_fallback_key(accountPtr, keysBytesPtr, keysLength);
 
             if (keysResult == olm_error()) {
                 LOGE("## fallbackKeyJni(): failure - error getting fallback key Msg=%s",(const char *)olm_account_last_error(accountPtr));
@@ -565,6 +565,29 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(fallbackKeyJni)(JNIEnv *env, jobject t
     }
 
     return byteArrayRetValue;
+}
+
+
+/**
+ * Forget about the old fallback key.
+ *
+ * This should be called once you are reasonably certain that you will not
+ * receive any more messages that use the old fallback key (e.g. 5 minutes
+ * after the new fallback key has been published).
+ **/
+JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(forgetFallbackKeyJni)(JNIEnv *env, jobject thiz)
+{
+    OlmAccount *accountPtr = getAccountInstanceId(env, thiz);
+
+    if (!accountPtr)
+    {
+        LOGE("## forgetFallbackKeyJni(): failure - invalid Account ptr");
+        errorMessage = "invalid Account ptr";
+    }
+    else
+    {
+       olm_account_forget_old_fallback_key(accountPtr)
+    }
 }
 
 /**

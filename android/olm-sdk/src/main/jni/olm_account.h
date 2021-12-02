@@ -45,6 +45,7 @@ JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(markOneTimeKeysAsPublishedJni)(JNIEnv *env, 
 // fallback keys
 JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(generateFallbackKeyJni)(JNIEnv *env, jobject thiz);
 JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(fallbackKeyJni)(JNIEnv *env, jobject thiz);
+JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(forgetFallbackKeyJni)(JNIEnv *env, jobject thiz);
 
 // signing
 JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject thiz, jbyteArray aMessage);

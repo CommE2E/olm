@@ -37,6 +37,7 @@ public class OlmException extends IOException {
     public static final int EXCEPTION_CODE_ACCOUNT_SIGN_MESSAGE = 107;
     public static final int EXCEPTION_CODE_ACCOUNT_GENERATE_FALLBACK_KEY = 108;
     public static final int EXCEPTION_CODE_ACCOUNT_FALLBACK_KEY = 109;
+    public static final int EXCEPTION_CODE_ACCOUNT_FORGET_FALLBACK_KEY = 110;
 
     public static final int EXCEPTION_CODE_CREATE_INBOUND_GROUP_SESSION = 200;
     public static final int EXCEPTION_CODE_INIT_INBOUND_GROUP_SESSION = 201;

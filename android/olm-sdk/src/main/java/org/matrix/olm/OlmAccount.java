@@ -493,4 +493,22 @@ public class OlmAccount extends CommonSerializeUtils implements Serializable {
     }
 
     private native byte[] fallbackKeyJni();
+
+
+    /**
+     * Forget about the old fallback key.
+     *
+     * This should be called once you are reasonably certain that you will not
+     * receive any more messages that use the old fallback key (e.g. 5 minutes
+     * after the new fallback key has been published).
+     **/
+    public void forgetFallbackKey() throws OlmException {
+        try {
+            forgetFallbackKeyJni();
+        } catch (Exception e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_ACCOUNT_FORGET_FALLBACK_KEY, e.getMessage());
+        }
+    }
+
+    private native void forgetFallbackKeyJni();
 }
