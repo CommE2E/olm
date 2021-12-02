@@ -577,6 +577,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(fallbackKeyJni)(JNIEnv *env, jobject t
  **/
 JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(forgetFallbackKeyJni)(JNIEnv *env, jobject thiz)
 {
+    const char* errorMessage = NULL;
     OlmAccount *accountPtr = getAccountInstanceId(env, thiz);
 
     if (!accountPtr)
@@ -586,8 +587,14 @@ JNIEXPORT void OLM_ACCOUNT_FUNC_DEF(forgetFallbackKeyJni)(JNIEnv *env, jobject t
     }
     else
     {
-       olm_account_forget_old_fallback_key(accountPtr)
+       olm_account_forget_old_fallback_key(accountPtr);
     }
+
+    if (errorMessage)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
 }
 
 /**
@@ -643,7 +650,7 @@ JNIEXPORT jbyteArray OLM_ACCOUNT_FUNC_DEF(signMessageJni)(JNIEnv *env, jobject t
             else
             {
                 LOGD("## signMessageJni(): success - retCode=%lu signatureLength=%lu", static_cast<long unsigned int>(resultSign), static_cast<long unsigned int>(signatureLength));
-     	
+
                 signedMsgRetValueBuffer = env->NewByteArray(signatureLength);
                 env->SetByteArrayRegion(signedMsgRetValueBuffer, 0 , signatureLength, (jbyte*)signedMsgPtr);
             }
