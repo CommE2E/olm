@@ -1,3 +1,13 @@
+Changes in `3.2.7 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.7>`_
+=========================================================================
+
+This release includes the following changes since 3.2.6:
+
+* Fix installation with the Makefile.
+* Fix exporting again, so we only export olm symbols.
+* Fix WASM build.  Thanks to Benjamin Kampmann.
+* Add more functions for fallback keys.
+
 Changes in `3.2.6 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.6>`_
 =========================================================================
 
