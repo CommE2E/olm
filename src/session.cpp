@@ -398,39 +398,71 @@ std::size_t olm::Session::decrypt(
     return result;
 }
 
+// make the description end with "..." instead of stopping abruptly with no
+// warning
+void elide_description(char *end) {
+    end[-3] = '.';
+    end[-2] = '.';
+    end[-1] = '.';
+    end[0] = '\0';
+}
+
 void olm::Session::describe(char *describe_buffer, size_t buflen) {
-    if (buflen == 0) return;
+    // how much of the buffer is remaining (this is an int rather than a size_t
+    // because it will get compared to the return value from snprintf)
+    int remaining = buflen;
+    // do nothing if we have a zero-length buffer, or if buflen > INT_MAX,
+    // resulting in an overflow
+    if (remaining <= 0) return;
 
     describe_buffer[0] = '\0';
-    char *buf_pos = describe_buffer;
+    // we need at least 23 characters to get any sort of meaningful
+    // information, so bail if we don't have that.  (But more importantly, we
+    // need it to be at least 4 so that elide_description doesn't go out of
+    // bounds.)
+    if (remaining < 23) return;
 
     int size;
 
+    // check that snprintf didn't return an error or reach the end of the buffer
+#define CHECK_SIZE_AND_ADVANCE                                          \
+    if (size > remaining) {                                             \
+        return elide_description(describe_buffer + remaining - 1);      \
+    } else if (size > 0) {                                              \
+        describe_buffer += size;                                        \
+        remaining -= size;                                              \
+    } else {                                                            \
+        return;                                                         \
+    }
+
     size = snprintf(
-        buf_pos, buflen - (buf_pos - describe_buffer),
+        describe_buffer, remaining,
         "sender chain index: %d ", ratchet.sender_chain[0].chain_key.index
     );
-    if (size > 0) buf_pos += size;
+    CHECK_SIZE_AND_ADVANCE;
 
-    size = snprintf(buf_pos, buflen - (buf_pos - describe_buffer), "receiver chain indices:");
-    if (size > 0) buf_pos += size;
+    size = snprintf(describe_buffer, remaining, "receiver chain indices:");
+    CHECK_SIZE_AND_ADVANCE;
+
     for (size_t i = 0; i < ratchet.receiver_chains.size(); ++i) {
         size = snprintf(
-            buf_pos, buflen - (buf_pos - describe_buffer),
+            describe_buffer, remaining,
             " %d", ratchet.receiver_chains[i].chain_key.index
         );
-        if (size > 0) buf_pos += size;
+        CHECK_SIZE_AND_ADVANCE;
     }
 
-    size = snprintf(buf_pos, buflen - (buf_pos - describe_buffer), " skipped message keys:");
-    if (size >= 0) buf_pos += size;
+    size = snprintf(describe_buffer, remaining, " skipped message keys:");
+    CHECK_SIZE_AND_ADVANCE;
+
     for (size_t i = 0; i < ratchet.skipped_message_keys.size(); ++i) {
         size = snprintf(
-            buf_pos, buflen - (buf_pos - describe_buffer),
+            describe_buffer, remaining,
             " %d", ratchet.skipped_message_keys[i].message_key.index
         );
-        if (size > 0) buf_pos += size;
+        CHECK_SIZE_AND_ADVANCE;
     }
+#undef CHECK_SIZE_AND_ADVANCE
 }
 
 namespace {

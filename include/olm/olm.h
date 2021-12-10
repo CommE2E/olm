@@ -387,7 +387,10 @@ OLM_EXPORT int olm_session_has_received_message(
 
 /**
  * Write a null-terminated string describing the internal state of an olm
- * session to the buffer provided for debugging and logging purposes.
+ * session to the buffer provided for debugging and logging purposes. If the
+ * buffer is not large enough to hold the entire string, it will be truncated
+ * and will end with "...".  A buffer length of 600 will be enough to hold any
+ * output.
  */
 OLM_EXPORT void olm_session_describe(OlmSession * session, char *buf, size_t buflen);
 
