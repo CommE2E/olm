@@ -73,9 +73,14 @@ Account.prototype['create'] = restore_stack(function() {
         Module['_olm_create_account_random_length']
     )(this.ptr);
     var random = random_stack(random_length);
-    account_method(Module['_olm_create_account'])(
-        this.ptr, random, random_length
-    );
+    try {
+        account_method(Module['_olm_create_account'])(
+            this.ptr, random, random_length
+        );
+    } finally {
+        // clear the random buffer
+        bzero(random, random_length);
+    }
 });
 
 Account.prototype['identity_keys'] = restore_stack(function() {
@@ -140,9 +145,14 @@ Account.prototype['generate_one_time_keys'] = restore_stack(function(
         Module['_olm_account_generate_one_time_keys_random_length']
     )(this.ptr, number_of_keys);
     var random = random_stack(random_length);
-    account_method(Module['_olm_account_generate_one_time_keys'])(
-        this.ptr, number_of_keys, random, random_length
-    );
+    try {
+        account_method(Module['_olm_account_generate_one_time_keys'])(
+            this.ptr, number_of_keys, random, random_length
+        );
+    } finally {
+        // clear the random buffer
+        bzero(random, random_length);
+    }
 });
 
 Account.prototype['remove_one_time_keys'] = restore_stack(function(session) {
@@ -156,9 +166,14 @@ Account.prototype['generate_fallback_key'] = restore_stack(function() {
         Module['_olm_account_generate_fallback_key_random_length']
     )(this.ptr);
     var random = random_stack(random_length);
-    account_method(Module['_olm_account_generate_fallback_key'])(
-        this.ptr, random, random_length
-    );
+    try {
+        account_method(Module['_olm_account_generate_fallback_key'])(
+            this.ptr, random, random_length
+        );
+    } finally {
+        // clear the random buffer
+        bzero(random, random_length);
+    }
 });
 
 Account.prototype['fallback_key'] = restore_stack(function() {

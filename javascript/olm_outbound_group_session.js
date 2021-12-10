@@ -67,9 +67,14 @@ OutboundGroupSession.prototype['create'] = restore_stack(function() {
         Module['_olm_init_outbound_group_session_random_length']
     )(this.ptr);
     var random = random_stack(random_length);
-    outbound_group_session_method(Module['_olm_init_outbound_group_session'])(
-        this.ptr, random, random_length
-    );
+    try {
+        outbound_group_session_method(Module['_olm_init_outbound_group_session'])(
+            this.ptr, random, random_length
+        );
+    } finally {
+        // clear the random buffer
+        bzero(random, random_length);
+    }
 });
 
 OutboundGroupSession.prototype['encrypt'] = function(plaintext) {
