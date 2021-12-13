@@ -116,7 +116,7 @@ repository, some bindings are (in alphabetical order):
   library for Matrix, including Olm methods
 - [maunium.net/go/mautrix/crypto/olm](https://github.com/tulir/mautrix-go/tree/master/crypto/olm)
   (Apache-2.0) fork of Dhole/go-olm
-- [nim-olm](https://gitea.com/BarrOff/nim-olm) (MIT) Nim bindings
+- [nim-olm](https://codeberg.org/BarrOff/nim-olm) (MIT) Nim bindings
 - [olm-sys](https://gitlab.gnome.org/BrainBlasted/olm-sys) (Apache-2.0) Rust
   bindings
 
