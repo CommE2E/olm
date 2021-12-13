@@ -3,7 +3,7 @@ Pod::Spec.new do |s|
   # The libolm version
   MAJOR = 3
   MINOR = 2
-  PATCH = 7
+  PATCH = 8
 
   s.name         = "OLMKit"
   s.version      = "#{MAJOR}.#{MINOR}.#{PATCH}"

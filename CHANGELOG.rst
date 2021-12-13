@@ -1,3 +1,11 @@
+Changes in `3.2.8 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.8>`_
+=========================================================================
+
+This release includes the following changes since 3.2.7:
+
+* Improve handling of olm_session_describe when the buffer is too small.
+* Ensure random arrays are blanked in JavaScript bindings.
+
 Changes in `3.2.7 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.7>`_
 =========================================================================
 
