@@ -179,6 +179,33 @@
     return keyDictionary;
 }
 
+- (NSDictionary *) unpublishedFallbackKey {
+    size_t fallbackKeyLength = olm_account_unpublished_fallback_key_length(_account);
+    uint8_t *fallbackKeyBytes = malloc(fallbackKeyLength);
+    if (!fallbackKeyBytes) {
+        return nil;
+    }
+    
+    size_t result = olm_account_unpublished_fallback_key(_account, fallbackKeyBytes, fallbackKeyLength);
+    if (result == olm_error()) {
+        const char *error = olm_account_last_error(_account);
+        NSLog(@"error getting unpublished fallback key: %s", error);
+        free(fallbackKeyBytes);
+        return nil;
+    }
+    NSData *fallbackKeyData = [NSData dataWithBytesNoCopy:fallbackKeyBytes length:fallbackKeyLength freeWhenDone:YES];
+    NSError *error = nil;
+    NSDictionary *keyDictionary = [NSJSONSerialization JSONObjectWithData:fallbackKeyData options:0 error:&error];
+    if (error) {
+        NSLog(@"Could not decode JSON for unpublished fallback: %@", error.localizedDescription);
+    }
+    return keyDictionary;
+}
+
+- (void) forgetFallbackKey {
+    olm_account_forget_old_fallback_key(self.account);
+}
+
 - (void) generateFallbackKey {
     size_t randomLength = olm_account_generate_fallback_key_random_length(_account);
     NSMutableData *random = [OLMUtility randomBytesOfLength:randomLength];

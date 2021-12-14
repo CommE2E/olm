@@ -35,13 +35,26 @@
 /** Public parts of the unpublished one time keys for the account */
 - (NSDictionary*) oneTimeKeys;
 
-/** Public part of the unpublished fallback key for the account */
+/**
+ * Deprecated use unPublishedFallbackKey
+ */
 - (NSDictionary*) fallbackKey;
+
+/**
+ Public part of the unpublished fallback key for the account, if present and unublished.
+ */
+- (NSDictionary*) unpublishedFallbackKey;
 
 - (BOOL) removeOneTimeKeysForSession:(OLMSession*)session;
 
 /** Marks the current set of one time keys as being published. */
 - (void) markOneTimeKeysAsPublished;
+
+/** Forget about the old fallback key.
+ * This should be called once you are reasonably certain that you will not
+ * receive any more messages that use the old fallback key
+ */
+- (void) forgetFallbackKey;
 
 /** The largest number of one time keys this account can store. */
 - (NSUInteger) maxOneTimeKeys;

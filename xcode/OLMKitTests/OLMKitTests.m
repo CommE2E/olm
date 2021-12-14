@@ -36,7 +36,34 @@ limitations under the License.
     OLMAccount *bob = [[OLMAccount alloc] initNewAccount];
     [bob generateFallbackKey];
     
-    [self _testAliceAndBob:bob withBobKeys:bob.fallbackKey];
+    [self _testAliceAndBob:bob withBobKeys:bob.unpublishedFallbackKey];
+
+}
+
+- (void)testMarkAsPublishedFallbackKey {
+    OLMAccount *bob = [[OLMAccount alloc] initNewAccount];
+    [bob generateFallbackKey];
+    
+    
+    NSDictionary *unpublished = bob.unpublishedFallbackKey;
+    __block NSString *bobKeyValue = nil;
+    [unpublished[@"curve25519"] enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        bobKeyValue = obj;
+    }];
+    
+    
+    XCTAssertNotNil(bobKeyValue);
+    
+    [bob markOneTimeKeysAsPublished];
+    
+    NSDictionary *unpublishedAfter = bob.unpublishedFallbackKey;
+    
+    __block NSString *bobKeyValueAfter = nil;
+    [unpublishedAfter[@"curve25519"] enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        bobKeyValueAfter = obj;
+    }];
+    
+    XCTAssertNil(bobKeyValueAfter);
 }
 
 - (void)_testAliceAndBob:(OLMAccount *)bob withBobKeys:(NSDictionary *)bobKeys {
@@ -89,7 +116,7 @@ limitations under the License.
     OLMAccount *bob = [[OLMAccount alloc] initNewAccount];
     [bob generateFallbackKey];
     
-    [self _testBackAndForthWithBob:bob andBobKeys:bob.fallbackKey];
+    [self _testBackAndForthWithBob:bob andBobKeys:bob.unpublishedFallbackKey];
 }
 
 - (void)_testBackAndForthWithBob:(OLMAccount *)bob andBobKeys:(NSDictionary *)bobKeys {
@@ -140,7 +167,7 @@ limitations under the License.
     [bob generateFallbackKey];
     NSDictionary *bobIdKeys = bob.identityKeys;
     NSDictionary *bobOneTimeKeys = bob.oneTimeKeys;
-    NSDictionary *bobFallbackKey = bob.fallbackKey;
+    NSDictionary *bobFallbackKey = bob.unpublishedFallbackKey;
     
     NSError *error;
     NSData *bobData = [NSKeyedArchiver archivedDataWithRootObject:bob requiringSecureCoding:NO error:&error];
@@ -151,7 +178,7 @@ limitations under the License.
     
     NSDictionary *bobIdKeys2 = bob2.identityKeys;
     NSDictionary *bobOneTimeKeys2 = bob2.oneTimeKeys;
-    NSDictionary *bobFallbackKey2 = bob2.fallbackKey;
+    NSDictionary *bobFallbackKey2 = bob2.unpublishedFallbackKey;
     
     XCTAssertEqualObjects(bobIdKeys, bobIdKeys2);
     XCTAssertEqualObjects(bobOneTimeKeys, bobOneTimeKeys2);
@@ -169,7 +196,7 @@ limitations under the License.
     OLMAccount *bob = [[OLMAccount alloc] initNewAccount];
     [bob generateFallbackKey];
     
-    [self _testSessionSerializationWithBob:bob bobKeys:bob.fallbackKey];
+    [self _testSessionSerializationWithBob:bob bobKeys:bob.unpublishedFallbackKey];
 }
 
 - (void)_testSessionSerializationWithBob:(OLMAccount *)bob bobKeys:(NSDictionary *)bobKeys {
