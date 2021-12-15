@@ -46,11 +46,7 @@ limitations under the License.
     
     
     NSDictionary *unpublished = bob.unpublishedFallbackKey;
-    __block NSString *bobKeyValue = nil;
-    [unpublished[@"curve25519"] enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        bobKeyValue = obj;
-    }];
-    
+    __block NSString *bobKeyValue = ((NSDictionary *) unpublished[@"curve25519"]).allValues.lastObject;
     
     XCTAssertNotNil(bobKeyValue);
     
@@ -58,10 +54,7 @@ limitations under the License.
     
     NSDictionary *unpublishedAfter = bob.unpublishedFallbackKey;
     
-    __block NSString *bobKeyValueAfter = nil;
-    [unpublishedAfter[@"curve25519"] enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        bobKeyValueAfter = obj;
-    }];
+    __block NSString *bobKeyValueAfter = ((NSDictionary *) unpublishedAfter[@"curve25519"]).allValues.lastObject;
     
     XCTAssertNil(bobKeyValueAfter);
 }
