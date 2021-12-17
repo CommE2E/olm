@@ -391,6 +391,24 @@ class Session(object):
 
         return bool(ret)
 
+    def describe(self, buffer_length=600):
+        # type: (int) -> str
+        """
+        Generate a string describing the internal state of an olm session
+        for debugging and logging purposes.
+
+        Args:
+            buffer_length(int): The size of buffer for the string.
+                If the buffer is not large enough to hold the entire string, it
+                will be truncated and will end with "...".  A buffer length of
+                600 will be enough to hold any output.
+        """
+        describe_buffer = ffi.new("char[]", buffer_length)
+        lib.olm_session_describe(
+            self._session, describe_buffer, buffer_length
+        )
+        return bytes_to_native_str(ffi.string(describe_buffer))
+
 
 class InboundSession(Session):
     """Inbound Olm session for p2p encrypted communication.
