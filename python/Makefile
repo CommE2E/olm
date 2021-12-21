@@ -27,7 +27,7 @@ install-python3: olm-python3
 
 test: olm-python3
 	rm -rf install-temp
-	mkdir -p install-temp/2 install-temp/3
+	mkdir -p install-temp/3
 	PYTHONPATH=install-temp/3 python3 setup.py install --skip-build --install-lib install-temp/3 --install-script install-temp/bin
 	PYTHONPATH=install-temp/3 python3 -m pytest
 	PYTHONPATH=install-temp/3 python3 -m pytest --flake8 --benchmark-disable

@@ -9,9 +9,12 @@
 /python/dist
 /javascript/checksums.txt
 /javascript/checksums.txt.asc
+/javascript/olm_prefix.js
 /compile_commands.json
 /.clang-format
 .ccls-cache/
+/python/.eggs
+/python/install-temp
 
 # Xcode
 build/
