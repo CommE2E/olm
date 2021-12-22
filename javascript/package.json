@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "build": "make -C .. js",
-    "test": "jasmine-node test --verbose --junitreport --captureExceptions"
+    "test": "jasmine --config=test/jasmine.json"
   },
   "repository": {
     "type": "git",
@@ -30,7 +30,7 @@
   },
   "homepage": "https://gitlab.matrix.org/matrix-org/olm",
   "devDependencies": {
-    "jasmine-node": "^1.14.5"
+    "jasmine": "^3.0.0"
   },
   "publishConfig": {
     "@matrix-org:registry":"https://gitlab.matrix.org/api/v4/projects/27/packages/npm/"

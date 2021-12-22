@@ -19,7 +19,7 @@ var Olm = require('../olm');
 describe("sas", function() {
     var alice, bob;
 
-    beforeEach(async function(done) {
+    beforeEach(function(done) {
         Olm.init().then(function() {
             alice = new Olm.SAS();
             bob = new Olm.SAS();
