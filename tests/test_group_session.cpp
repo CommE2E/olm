@@ -14,15 +14,12 @@
  */
 #include "olm/inbound_group_session.h"
 #include "olm/outbound_group_session.h"
-#include "unittest.hh"
+#include "testing.hh"
 #include "utils.hh"
 
 #include <vector>
 
-int main() {
-
-{
-    TestCase test_case("Pickle outbound group session");
+TEST_CASE("Pickle outbound group session") {
 
     size_t size = olm_outbound_group_session_size();
     std::vector<uint8_t> memory(size);
@@ -33,7 +30,7 @@ int main() {
     size_t res = olm_pickle_outbound_group_session(
         session, "secret_key", 10, pickle1.data(), pickle_length
     );
-    assert_equals(pickle_length, res);
+    CHECK_EQ(pickle_length, res);
 
     std::vector<uint8_t> pickle2(pickle1);
 
@@ -42,15 +39,15 @@ int main() {
     res = olm_unpickle_outbound_group_session(
         session2, "secret_key", 10, pickle2.data(), pickle_length
     );
-    assert_not_equals((size_t)-1, res);
-    assert_equals(pickle_length,
+    CHECK_NE((size_t)-1, res);
+    CHECK_EQ(pickle_length,
                   olm_pickle_outbound_group_session_length(session2));
     res = olm_pickle_outbound_group_session(
         session2, "secret_key", 10, pickle2.data(), pickle_length
     );
-    assert_equals(pickle_length, res);
+    CHECK_EQ(pickle_length, res);
 
-    assert_equals(pickle1.data(), pickle2.data(), pickle_length);
+    CHECK_EQ_SIZE(pickle1.data(), pickle2.data(), pickle_length);
 
     /* Deliberately corrupt the pickled session by supplying a junk suffix and
     * ensure this is caught as an error. */
@@ -67,18 +64,17 @@ int main() {
         pickle_length,
         junk_length);
 
-    assert_equals(std::size_t(-1),
+    CHECK_EQ(std::size_t(-1),
         olm_unpickle_outbound_group_session(
             session,
             "secret_key", 10,
             junk_pickle.data(), junk_pickle_length
         ));
-    assert_equals(OLM_PICKLE_EXTRA_DATA,
+    CHECK_EQ(OLM_PICKLE_EXTRA_DATA,
                   olm_outbound_group_session_last_error_code(session));
 }
 
-{
-    TestCase test_case("Pickle inbound group session");
+TEST_CASE("Pickle inbound group session") {
 
     size_t size = olm_inbound_group_session_size();
     std::vector<uint8_t> memory(size);
@@ -89,7 +85,7 @@ int main() {
     size_t res = olm_pickle_inbound_group_session(
         session, "secret_key", 10, pickle1.data(), pickle_length
     );
-    assert_equals(pickle_length, res);
+    CHECK_EQ(pickle_length, res);
 
     std::vector<uint8_t> pickle2(pickle1);
 
@@ -98,14 +94,14 @@ int main() {
     res = olm_unpickle_inbound_group_session(
         session2, "secret_key", 10, pickle2.data(), pickle_length
     );
-    assert_not_equals((size_t)-1, res);
-    assert_equals(pickle_length,
+    CHECK_NE((size_t)-1, res);
+    CHECK_EQ(pickle_length,
                   olm_pickle_inbound_group_session_length(session2));
     res = olm_pickle_inbound_group_session(
         session2, "secret_key", 10, pickle2.data(), pickle_length
     );
 
-    assert_equals(pickle1.data(), pickle2.data(), pickle_length);
+    CHECK_EQ_SIZE(pickle1.data(), pickle2.data(), pickle_length);
 
     /* Deliberately corrupt the pickled session by supplying a junk suffix and
     * ensure this is caught as an error. */
@@ -122,18 +118,17 @@ int main() {
         pickle_length,
         junk_length);
 
-    assert_equals(std::size_t(-1),
+    CHECK_EQ(std::size_t(-1),
         olm_unpickle_inbound_group_session(
             session,
             "secret_key", 10,
             junk_pickle.data(), junk_pickle_length
         ));
-    assert_equals(OLM_PICKLE_EXTRA_DATA,
+    CHECK_EQ(OLM_PICKLE_EXTRA_DATA,
                   olm_inbound_group_session_last_error_code(session));
 }
 
-{
-    TestCase test_case("Group message send/receive");
+TEST_CASE("Group message send/receive") {
 
     uint8_t random_bytes[] =
         "0123456789ABDEF0123456789ABCDEF"
@@ -149,14 +144,14 @@ int main() {
     std::vector<uint8_t> memory(size);
     OlmOutboundGroupSession *session = olm_outbound_group_session(memory.data());
 
-    assert_equals((size_t)160,
+    CHECK_EQ((size_t)160,
                   olm_init_outbound_group_session_random_length(session));
 
     size_t res = olm_init_outbound_group_session(
         session, random_bytes, sizeof(random_bytes));
-    assert_equals((size_t)0, res);
+    CHECK_EQ((size_t)0, res);
 
-    assert_equals(0U, olm_outbound_group_session_message_index(session));
+    CHECK_EQ(0U, olm_outbound_group_session_message_index(session));
     size_t session_key_len = olm_outbound_group_session_key_length(session);
     std::vector<uint8_t> session_key(session_key_len);
     olm_outbound_group_session_key(session, session_key.data(), session_key_len);
@@ -171,8 +166,8 @@ int main() {
     std::vector<uint8_t> msg(msglen);
     res = olm_group_encrypt(session, plaintext, plaintext_length,
                             msg.data(), msglen);
-    assert_equals(msglen, res);
-    assert_equals(1U, olm_outbound_group_session_message_index(session));
+    CHECK_EQ(msglen, res);
+    CHECK_EQ(1U, olm_outbound_group_session_message_index(session));
 
     /* build the inbound session */
     size = olm_inbound_group_session_size();
@@ -180,18 +175,18 @@ int main() {
     OlmInboundGroupSession *inbound_session =
         olm_inbound_group_session(inbound_session_memory.data());
 
-    assert_equals(0, olm_inbound_group_session_is_verified(inbound_session));
+    CHECK_EQ(0, olm_inbound_group_session_is_verified(inbound_session));
 
     res = olm_init_inbound_group_session(
         inbound_session, session_key.data(), session_key_len);
-    assert_equals((size_t)0, res);
-    assert_equals(1, olm_inbound_group_session_is_verified(inbound_session));
+    CHECK_EQ((size_t)0, res);
+    CHECK_EQ(1, olm_inbound_group_session_is_verified(inbound_session));
 
     /* Check the session ids */
 
     size_t out_session_id_len = olm_outbound_group_session_id_length(session);
     std::vector<uint8_t> out_session_id(out_session_id_len);
-    assert_equals(out_session_id_len, olm_outbound_group_session_id(
+    CHECK_EQ(out_session_id_len, olm_outbound_group_session_id(
         session, out_session_id.data(), out_session_id_len
     ));
 
@@ -199,12 +194,12 @@ int main() {
         inbound_session
     );
     std::vector<uint8_t> in_session_id(in_session_id_len);
-    assert_equals(in_session_id_len, olm_inbound_group_session_id(
+    CHECK_EQ(in_session_id_len, olm_inbound_group_session_id(
         inbound_session, in_session_id.data(), in_session_id_len
     ));
 
-    assert_equals(in_session_id_len, out_session_id_len);
-    assert_equals(out_session_id.data(), in_session_id.data(), in_session_id_len);
+    CHECK_EQ(in_session_id_len, out_session_id_len);
+    CHECK_EQ_SIZE(out_session_id.data(), in_session_id.data(), in_session_id_len);
 
     /* decode the message */
 
@@ -216,13 +211,12 @@ int main() {
     uint32_t message_index;
     res = olm_group_decrypt(inbound_session, msg.data(), msglen,
                             plaintext_buf.data(), size, &message_index);
-    assert_equals(plaintext_length, res);
-    assert_equals(plaintext, plaintext_buf.data(), res);
-    assert_equals(message_index, uint32_t(0));
+    CHECK_EQ(plaintext_length, res);
+    CHECK_EQ_SIZE(plaintext, plaintext_buf.data(), res);
+    CHECK_EQ(message_index, uint32_t(0));
 }
 
-{
-    TestCase test_case("Inbound group session export/import");
+TEST_CASE("Inbound group session export/import") {
 
     uint8_t session_key[] =
         "AgAAAAAwMTIzNDU2Nzg5QUJERUYwMTIzNDU2Nzg5QUJDREVGMDEyMzQ1Njc4OUFCREVGM"
@@ -241,13 +235,13 @@ int main() {
     std::vector<uint8_t> session_memory1(size);
     OlmInboundGroupSession *session1 =
         olm_inbound_group_session(session_memory1.data());
-    assert_equals(0, olm_inbound_group_session_is_verified(session1));
+    CHECK_EQ(0, olm_inbound_group_session_is_verified(session1));
 
     std::size_t res = olm_init_inbound_group_session(
         session1, session_key, sizeof(session_key)-1
     );
-    assert_equals((size_t)0, res);
-    assert_equals(1, olm_inbound_group_session_is_verified(session1));
+    CHECK_EQ((size_t)0, res);
+    CHECK_EQ(1, olm_inbound_group_session_is_verified(session1));
 
     /* olm_group_decrypt_max_plaintext_length destroys the input so we have to
        copy it. */
@@ -260,9 +254,9 @@ int main() {
     res = olm_group_decrypt(
         session1, msgcopy.data(), msglen, plaintext_buf.data(), size, &message_index
     );
-    assert_equals((std::size_t)7, res);
-    assert_equals((const uint8_t *)"Message", plaintext_buf.data(), res);
-    assert_equals(uint32_t(0), message_index);
+    CHECK_EQ((std::size_t)7, res);
+    CHECK_EQ_SIZE((const uint8_t *)"Message", (const uint8_t*)plaintext_buf.data(), res);
+    CHECK_EQ(uint32_t(0), message_index);
 
     /* export the keys */
     size = olm_export_inbound_group_session_length(session1);
@@ -270,7 +264,7 @@ int main() {
     res = olm_export_inbound_group_session(
         session1, export_memory.data(), size, 0
     );
-    assert_equals(size, res);
+    CHECK_EQ(size, res);
 
     /* free the old session to check there is no shared data */
     olm_clear_inbound_group_session(session1);
@@ -283,8 +277,8 @@ int main() {
     res = olm_import_inbound_group_session(
         session2, export_memory.data(), export_memory.size()
     );
-    assert_equals((size_t)0, res);
-    assert_equals(0, olm_inbound_group_session_is_verified(session2));
+    CHECK_EQ((size_t)0, res);
+    CHECK_EQ(0, olm_inbound_group_session_is_verified(session2));
 
     /* decrypt the message with the new session */
     memcpy(msgcopy.data(), message, msglen);
@@ -294,14 +288,13 @@ int main() {
     res = olm_group_decrypt(
         session2, msgcopy.data(), msglen, plaintext_buf2.data(), size, &message_index
     );
-    assert_equals((std::size_t)7, res);
-    assert_equals((const uint8_t *)"Message", plaintext_buf2.data(), res);
-    assert_equals(uint32_t(0), message_index);
-    assert_equals(1, olm_inbound_group_session_is_verified(session2));
+    CHECK_EQ((std::size_t)7, res);
+    CHECK_EQ_SIZE((const uint8_t *)"Message", (const uint8_t *)plaintext_buf2.data(), res);
+    CHECK_EQ(uint32_t(0), message_index);
+    CHECK_EQ(1, olm_inbound_group_session_is_verified(session2));
 }
 
-{
-    TestCase test_case("Invalid signature group message");
+TEST_CASE("Invalid signature group message") {
 
     uint8_t plaintext[] = "Message";
     size_t plaintext_length = sizeof(plaintext) - 1;
@@ -327,7 +320,7 @@ int main() {
     size_t res = olm_init_inbound_group_session(
         inbound_session, session_key, sizeof(session_key)-1
     );
-    assert_equals((size_t)0, res);
+    CHECK_EQ((size_t)0, res);
 
     /* decode the message */
 
@@ -345,14 +338,14 @@ int main() {
     res = olm_group_decrypt(
         inbound_session, msgcopy.data(), msglen, plaintext_buf.data(), size, &message_index
     );
-    assert_equals(message_index, uint32_t(0));
-    assert_equals(plaintext_length, res);
-    assert_equals(plaintext, plaintext_buf.data(), res);
+    CHECK_EQ(message_index, uint32_t(0));
+    CHECK_EQ(plaintext_length, res);
+    CHECK_EQ_SIZE(plaintext, plaintext_buf.data(), res);
 
     /* now twiddle the signature */
     message[msglen-1] = 'E';
     memcpy(msgcopy.data(), message, msglen);
-    assert_equals(
+    CHECK_EQ(
         size,
         olm_group_decrypt_max_plaintext_length(
             inbound_session, msgcopy.data(), msglen
@@ -364,12 +357,9 @@ int main() {
         inbound_session, msgcopy.data(), msglen,
         plaintext_buf.data(), size, &message_index
     );
-    assert_equals((size_t)-1, res);
-    assert_equals(
+    CHECK_EQ((size_t)-1, res);
+    CHECK_EQ(
         std::string("BAD_SIGNATURE"),
         std::string(olm_inbound_group_session_last_error(inbound_session))
     );
-}
-
-
 }

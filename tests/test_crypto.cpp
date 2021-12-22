@@ -14,14 +14,12 @@
  */
 #include "olm/crypto.h"
 
-#include "unittest.hh"
-
-int main() {
+#include "testing.hh"
 
 
-{ /* Curve25529 Test Case 1 */
+/* Curve25529 Test Case 1 */
 
-TestCase test_case("Curve25529 Test Case 1");
+TEST_CASE("Curve25529 Test Case 1") {
 
 std::uint8_t alice_private[32] = {
     0x77, 0x07, 0x6D, 0x0A, 0x73, 0x18, 0xA5, 0x7D,
@@ -61,30 +59,29 @@ std::uint8_t expected_agreement[32] = {
 _olm_curve25519_key_pair alice_pair;
 _olm_crypto_curve25519_generate_key(alice_private, &alice_pair);
 
-assert_equals(alice_private, alice_pair.private_key.private_key, 32);
-assert_equals(alice_public, alice_pair.public_key.public_key, 32);
+CHECK_EQ_SIZE(alice_private, alice_pair.private_key.private_key, 32);
+CHECK_EQ_SIZE(alice_public, alice_pair.public_key.public_key, 32);
 
 _olm_curve25519_key_pair bob_pair;
 _olm_crypto_curve25519_generate_key(bob_private, &bob_pair);
 
-assert_equals(bob_private, bob_pair.private_key.private_key, 32);
-assert_equals(bob_public, bob_pair.public_key.public_key, 32);
+CHECK_EQ_SIZE(bob_private, bob_pair.private_key.private_key, 32);
+CHECK_EQ_SIZE(bob_public, bob_pair.public_key.public_key, 32);
 
 std::uint8_t actual_agreement[CURVE25519_SHARED_SECRET_LENGTH] = {};
 
 _olm_crypto_curve25519_shared_secret(&alice_pair, &bob_pair.public_key, actual_agreement);
 
-assert_equals(expected_agreement, actual_agreement, 32);
+CHECK_EQ_SIZE(expected_agreement, actual_agreement, 32);
 
 _olm_crypto_curve25519_shared_secret(&bob_pair, &alice_pair.public_key, actual_agreement);
 
-assert_equals(expected_agreement, actual_agreement, 32);
+CHECK_EQ_SIZE(expected_agreement, actual_agreement, 32);
 
 } /* Curve25529 Test Case 1 */
 
 
-{
-TestCase test_case("Ed25519 Signature Test Case 1");
+TEST_CASE("Ed25519 Signature Test Case 1") {
 std::uint8_t private_key[33] = "This key is a string of 32 bytes";
 
 std::uint8_t message[] = "Hello, World";
@@ -101,19 +98,19 @@ _olm_crypto_ed25519_sign(
 bool result = _olm_crypto_ed25519_verify(
     &key_pair.public_key, message, message_length, signature
 );
-assert_equals(true, result);
+CHECK(result);
 
 message[0] = 'n';
 result = _olm_crypto_ed25519_verify(
     &key_pair.public_key, message, message_length, signature
 );
-assert_equals(false, result);
+CHECK(!result);
 }
 
 
-{ /* AES Test Case 1 */
+/* AES Test Case 1 */
 
-TestCase test_case("AES Test Case 1");
+TEST_CASE("AES Test Case 1") {
 
 _olm_aes256_key key = {};
 _olm_aes256_iv iv = {};
@@ -127,24 +124,24 @@ std::uint8_t expected[32] = {
 };
 
 std::size_t length = _olm_crypto_aes_encrypt_cbc_length(sizeof(input));
-assert_equals(std::size_t(32), length);
+CHECK_EQ(std::size_t(32), length);
 
 
 std::uint8_t actual[32] = {};
 
 _olm_crypto_aes_encrypt_cbc(&key, &iv, input, sizeof(input), actual);
-assert_equals(expected, actual, 32);
+CHECK_EQ_SIZE(expected, actual, 32);
 
 length = _olm_crypto_aes_decrypt_cbc(&key, &iv, expected, sizeof(expected), actual);
-assert_equals(std::size_t(16), length);
-assert_equals(input, actual, length);
+CHECK_EQ(std::size_t(16), length);
+CHECK_EQ_SIZE(input, actual, length);
 
 } /* AES Test Case 1 */
 
 
-{ /* SHA 256 Test Case 1 */
+/* SHA 256 Test Case 1 */
 
-TestCase test_case("SHA 256 Test Case 1");
+TEST_CASE("SHA 256 Test Case 1") {
 
 // we want to take the hash of the empty string, but MSVC doesn't like
 // allocating 0 bytes, so allocate one item, but pass a length of zero to
@@ -162,13 +159,13 @@ std::uint8_t actual[32];
 
 _olm_crypto_sha256(input, 0, actual);
 
-assert_equals(expected, actual, 32);
+CHECK_EQ_SIZE(expected, actual, 32);
 
 } /* SHA 256 Test Case 1 */
 
-{ /* HMAC Test Case 1 */
+/* HMAC Test Case 1 */
 
-TestCase test_case("HMAC Test Case 1");
+TEST_CASE("HMAC Test Case 1") {
 
 // we want to take the hash of the empty string, but MSVC doesn't like
 // allocating 0 bytes, so allocate one item, but pass a length of zero to
@@ -186,13 +183,13 @@ std::uint8_t actual[32];
 
 _olm_crypto_hmac_sha256(input, 0, input, 0, actual);
 
-assert_equals(expected, actual, 32);
+CHECK_EQ_SIZE(expected, actual, 32);
 
 } /* HMAC Test Case 1 */
 
-{ /* HDKF Test Case 1 */
+/* HDKF Test Case 1 */
 
-TestCase test_case("HDKF Test Case 1");
+TEST_CASE("HDKF Test Case 1") {
 
 std::uint8_t input[22] = {
     0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
@@ -225,7 +222,7 @@ _olm_crypto_hmac_sha256(
     hmac_actual_output
 );
 
-assert_equals(hmac_expected_output, hmac_actual_output, 32);
+CHECK_EQ_SIZE(hmac_expected_output, hmac_actual_output, 32);
 
 std::uint8_t hkdf_expected_output[42] = {
     0x3c, 0xb2, 0x5f, 0x25, 0xfa, 0xac, 0xd5, 0x7a,
@@ -245,8 +242,7 @@ _olm_crypto_hkdf_sha256(
     hkdf_actual_output, sizeof(hkdf_actual_output)
 );
 
-assert_equals(hkdf_expected_output, hkdf_actual_output, 42);
+CHECK_EQ_SIZE(hkdf_expected_output, hkdf_actual_output, 42);
 
 } /* HDKF Test Case 1 */
 
-}

@@ -1,5 +1,5 @@
 #include "olm/olm.h"
-#include "unittest.hh"
+#include "testing.hh"
 
 #include <vector>
 
@@ -44,7 +44,7 @@ void decrypt_case(int message_type, const test_case * test_case) {
 
     std::vector<std::uint8_t> pickled(strlen(session_data));
     ::memcpy(pickled.data(), session_data, pickled.size());
-    assert_not_equals(
+    CHECK_NE(
         ::olm_error(),
         ::olm_unpickle_session(session, "", 0, pickled.data(), pickled.size())
     );
@@ -58,8 +58,8 @@ void decrypt_case(int message_type, const test_case * test_case) {
     );
 
     if (test_case->expected_error) {
-        assert_equals(::olm_error(), max_length);
-        assert_equals(
+        CHECK_EQ(::olm_error(), max_length);
+        CHECK_EQ(
             std::string(test_case->expected_error),
             std::string(::olm_session_last_error(session))
         );
@@ -67,7 +67,7 @@ void decrypt_case(int message_type, const test_case * test_case) {
         return;
     }
 
-    assert_not_equals(::olm_error(), max_length);
+    CHECK_NE(::olm_error(), max_length);
 
     std::vector<uint8_t> plaintext(max_length);
     decode_hex(test_case->msghex, message, message_length);
@@ -80,13 +80,11 @@ void decrypt_case(int message_type, const test_case * test_case) {
 }
 
 
-int main() {
-{
-TestCase my_test("Olm decrypt test");
+TEST_CASE("Olm decrypt test") {
 
-for (unsigned int i = 0; i < sizeof(test_cases)/ sizeof(test_cases[0]); ++i) {
-    decrypt_case(0, &test_cases[i]);
+for (const auto& test_case : test_cases) {
+    CAPTURE(test_case.msghex);
+    decrypt_case(0, &test_case);
 }
 
-}
 }

@@ -2,17 +2,16 @@
 #include "olm/crypto.h"
 #include "olm/olm.h"
 
-#include "unittest.hh"
+#include "testing.hh"
 
 #include <iostream>
 #include <vector>
 
-int main() {
 
 
-{ /* Generate bytes */
+/* Generate bytes */
 
-TestCase test_case("SAS generate bytes");
+TEST_CASE("SAS generate bytes") {
 
 std::uint8_t alice_private[32] = {
     0x77, 0x07, 0x6D, 0x0A, 0x73, 0x18, 0xA5, 0x7D,
@@ -43,13 +42,13 @@ std::vector<std::uint8_t> pubkey(::olm_sas_pubkey_length(alice_sas));
 
 olm_sas_get_pubkey(alice_sas, pubkey.data(), pubkey.size());
 
-assert_equals(alice_public, pubkey.data(), olm_sas_pubkey_length(alice_sas));
+CHECK_EQ_SIZE(alice_public, (const uint8_t*)pubkey.data(), olm_sas_pubkey_length(alice_sas));
 
 olm_sas_set_their_key(bob_sas, pubkey.data(), olm_sas_pubkey_length(bob_sas));
 
 olm_sas_get_pubkey(bob_sas, pubkey.data(), pubkey.size());
 
-assert_equals(bob_public, pubkey.data(), olm_sas_pubkey_length(bob_sas));
+CHECK_EQ_SIZE(bob_public, (const uint8_t*)pubkey.data(), olm_sas_pubkey_length(bob_sas));
 
 olm_sas_set_their_key(alice_sas, pubkey.data(), olm_sas_pubkey_length(alice_sas));
 
@@ -59,13 +58,13 @@ std::uint8_t bob_bytes[6];
 olm_sas_generate_bytes(alice_sas, "SAS", 3, alice_bytes, 6);
 olm_sas_generate_bytes(bob_sas, "SAS", 3, bob_bytes, 6);
 
-assert_equals(alice_bytes, bob_bytes, 6);
+CHECK_EQ_SIZE(alice_bytes, bob_bytes, 6);
 
 }
 
-{ /* Calculate MAC */
+/* Calculate MAC */
 
-TestCase test_case("SAS calculate MAC");
+TEST_CASE("SAS calculate MAC") {
 
 std::uint8_t alice_private[32] = {
     0x77, 0x07, 0x6D, 0x0A, 0x73, 0x18, 0xA5, 0x7D,
@@ -96,13 +95,13 @@ std::vector<std::uint8_t> pubkey(::olm_sas_pubkey_length(alice_sas));
 
 olm_sas_get_pubkey(alice_sas, pubkey.data(), pubkey.size());
 
-assert_equals(alice_public, pubkey.data(), olm_sas_pubkey_length(alice_sas));
+CHECK_EQ_SIZE(alice_public, (const uint8_t*)pubkey.data(), olm_sas_pubkey_length(alice_sas));
 
 olm_sas_set_their_key(bob_sas, pubkey.data(), olm_sas_pubkey_length(bob_sas));
 
 olm_sas_get_pubkey(bob_sas, pubkey.data(), pubkey.size());
 
-assert_equals(bob_public, pubkey.data(), olm_sas_pubkey_length(bob_sas));
+CHECK_EQ_SIZE(bob_public, (const uint8_t*)pubkey.data(), olm_sas_pubkey_length(bob_sas));
 
 olm_sas_set_their_key(alice_sas, pubkey.data(), olm_sas_pubkey_length(alice_sas));
 
@@ -112,7 +111,6 @@ std::vector<std::uint8_t> bob_mac(olm_sas_mac_length(bob_sas));
 olm_sas_calculate_mac(alice_sas, (void *) "Hello world!", 12, "MAC", 3, alice_mac.data(), olm_sas_mac_length(alice_sas));
 olm_sas_calculate_mac(bob_sas, (void *) "Hello world!", 12, "MAC", 3, bob_mac.data(), olm_sas_mac_length(bob_sas));
 
-assert_equals(alice_mac.data(), bob_mac.data(), olm_sas_mac_length(alice_sas));
+CHECK_EQ_SIZE(alice_mac.data(), bob_mac.data(), olm_sas_mac_length(alice_sas));
 
-}
 }

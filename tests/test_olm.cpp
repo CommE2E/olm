@@ -1,6 +1,6 @@
 #include "olm/olm.h"
 
-#include "unittest.hh"
+#include "testing.hh"
 #include "utils.hh"
 
 #include <cstddef>
@@ -31,11 +31,10 @@ struct MockRandom {
     std::uint8_t current;
 };
 
-int main() {
 
-{ /** Pickle account test */
+ /** Pickle account test */
 
-TestCase test_case("Pickle account test");
+TEST_CASE("Pickle account test") {
 MockRandom mock_random('P');
 
 
@@ -53,20 +52,20 @@ mock_random(ot_random.data(), ot_random.size());
 std::size_t pickle_length = ::olm_pickle_account_length(account);
 std::vector<std::uint8_t> pickle1(pickle_length);
 std::size_t res = ::olm_pickle_account(account, "secret_key", 10, pickle1.data(), pickle_length);
-assert_equals(pickle_length, res);
+CHECK_EQ(pickle_length, res);
 
 std::vector<std::uint8_t> pickle2(pickle1);
 
 std::vector<std::uint8_t> account_buffer2(::olm_account_size());
 ::OlmAccount *account2 = ::olm_account(account_buffer2.data());
-assert_not_equals(std::size_t(-1), ::olm_unpickle_account(
+CHECK_NE(std::size_t(-1), ::olm_unpickle_account(
     account2, "secret_key", 10, pickle2.data(), pickle_length
 ));
-assert_equals(pickle_length, ::olm_pickle_account_length(account2));
+CHECK_EQ(pickle_length, ::olm_pickle_account_length(account2));
 res = ::olm_pickle_account(account2, "secret_key", 10, pickle2.data(), pickle_length);
-assert_equals(pickle_length, res);
+CHECK_EQ(pickle_length, res);
 
-assert_equals(pickle1.data(), pickle2.data(), pickle_length);
+CHECK_EQ_SIZE(pickle1.data(), pickle2.data(), pickle_length);
 
 /* Deliberately corrupt the pickled account by supplying a junk suffix and
  * ensure this is caught as an error. */
@@ -75,20 +74,19 @@ std::vector<std::uint8_t> junk_pickle(pickle_length + _olm_enc_output_length(jun
 
 res = ::olm_pickle_account(
     account, "secret_key", 10, junk_pickle.data(), pickle_length);
-assert_equals(pickle_length, res);
+CHECK_EQ(pickle_length, res);
 
 const size_t junk_pickle_length = add_junk_suffix_to_pickle(
     "secret_key", 10, junk_pickle.data(), pickle_length, junk_length);
 
-assert_equals(std::size_t(-1),
+CHECK_EQ(std::size_t(-1),
     ::olm_unpickle_account(account, "secret_key", 10,
         junk_pickle.data(), junk_pickle_length));
-assert_equals(OLM_PICKLE_EXTRA_DATA, olm_account_last_error_code(account));
+CHECK_EQ(OLM_PICKLE_EXTRA_DATA, olm_account_last_error_code(account));
 }
 
 
-{
-    TestCase test_case("Old account unpickle test");
+    TEST_CASE("Old account unpickle test") {
 
     // this uses the old pickle format, which did not use enough space
     // for the Ed25519 key. We should reject it.
@@ -100,22 +98,22 @@ assert_equals(OLM_PICKLE_EXTRA_DATA, olm_account_last_error_code(account));
 
     std::vector<std::uint8_t> account_buffer(::olm_account_size());
     ::OlmAccount *account = ::olm_account(account_buffer.data());
-    assert_equals(
+    CHECK_EQ(
         std::size_t(-1),
         ::olm_unpickle_account(
             account, "", 0, pickle, sizeof(pickle)-1
         )
     );
-    assert_equals(
+    CHECK_EQ(
         std::string("BAD_LEGACY_ACCOUNT_PICKLE"),
         std::string(::olm_account_last_error(account))
     );
 }
 
 
-{ /** Pickle session test */
+/** Pickle session test */
 
-TestCase test_case("Pickle session test");
+TEST_CASE("Pickle session test") {
 MockRandom mock_random('P');
 
 std::vector<std::uint8_t> account_buffer(::olm_account_size());
@@ -144,20 +142,20 @@ mock_random(random2.data(), random2.size());
 std::size_t pickle_length = ::olm_pickle_session_length(session);
 std::vector<std::uint8_t> pickle1(pickle_length);
 std::size_t res = ::olm_pickle_session(session, "secret_key", 10, pickle1.data(), pickle_length);
-assert_equals(pickle_length, res);
+CHECK_EQ(pickle_length, res);
 
 std::vector<std::uint8_t> pickle2(pickle1);
 
 std::vector<std::uint8_t> session_buffer2(::olm_session_size());
 ::OlmSession *session2 = ::olm_session(session_buffer2.data());
-assert_not_equals(std::size_t(-1), ::olm_unpickle_session(
+CHECK_NE(std::size_t(-1), ::olm_unpickle_session(
     session2, "secret_key", 10, pickle2.data(), pickle_length
 ));
-assert_equals(pickle_length, ::olm_pickle_session_length(session2));
+CHECK_EQ(pickle_length, ::olm_pickle_session_length(session2));
 res = ::olm_pickle_session(session2, "secret_key", 10, pickle2.data(), pickle_length);
-assert_equals(pickle_length, res);
+CHECK_EQ(pickle_length, res);
 
-assert_equals(pickle1.data(), pickle2.data(), pickle_length);
+CHECK_EQ_SIZE(pickle1.data(), pickle2.data(), pickle_length);
 
 /* Deliberately corrupt the pickled session by supplying a junk suffix and
  * ensure this is caught as an error. */
@@ -166,20 +164,20 @@ std::vector<std::uint8_t> junk_pickle(pickle_length + _olm_enc_output_length(jun
 
 res = ::olm_pickle_session(
     session, "secret_key", 10, junk_pickle.data(), pickle_length);
-assert_equals(pickle_length, res);
+CHECK_EQ(pickle_length, res);
 
 const size_t junk_pickle_length = add_junk_suffix_to_pickle(
     "secret_key", 10, junk_pickle.data(), pickle_length, junk_length);
 
-assert_equals(std::size_t(-1),
+CHECK_EQ(std::size_t(-1),
     ::olm_unpickle_session(session, "secret_key", 10,
         junk_pickle.data(), junk_pickle_length));
-assert_equals(OLM_PICKLE_EXTRA_DATA, olm_session_last_error_code(session));
+CHECK_EQ(OLM_PICKLE_EXTRA_DATA, olm_session_last_error_code(session));
 }
 
-{ /** Loopback test */
+/** Loopback test */
 
-TestCase test_case("Loopback test");
+TEST_CASE("Loopback test") {
 MockRandom mock_random_a('A', 0x00);
 MockRandom mock_random_b('B', 0x80);
 
@@ -212,7 +210,7 @@ std::vector<std::uint8_t> a_session_buffer(::olm_session_size());
 ::OlmSession *a_session = ::olm_session(a_session_buffer.data());
 std::vector<std::uint8_t> a_rand(::olm_create_outbound_session_random_length(a_session));
 mock_random_a(a_rand.data(), a_rand.size());
-assert_not_equals(std::size_t(-1), ::olm_create_outbound_session(
+CHECK_NE(std::size_t(-1), ::olm_create_outbound_session(
     a_session, a_account,
     b_id_keys.data() + 15, 43, // B's curve25519 identity key
     b_ot_keys.data() + 25, 43, // B's curve25519 one time key
@@ -223,8 +221,8 @@ std::uint8_t plaintext[] = "Hello, World";
 std::vector<std::uint8_t> message_1(::olm_encrypt_message_length(a_session, 12));
 std::vector<std::uint8_t> a_message_random(::olm_encrypt_random_length(a_session));
 mock_random_a(a_message_random.data(), a_message_random.size());
-assert_equals(std::size_t(0), ::olm_encrypt_message_type(a_session));
-assert_not_equals(std::size_t(-1), ::olm_encrypt(
+CHECK_EQ(std::size_t(0), ::olm_encrypt_message_type(a_session));
+CHECK_NE(std::size_t(-1), ::olm_encrypt(
     a_session,
     plaintext, 12,
     a_message_random.data(), a_message_random.size(),
@@ -241,7 +239,7 @@ std::vector<std::uint8_t> b_session_buffer(::olm_session_size());
 
 // Check that the inbound session matches the message it was created from.
 std::memcpy(tmp_message_1.data(), message_1.data(), message_1.size());
-assert_equals(std::size_t(1), ::olm_matches_inbound_session(
+CHECK_EQ(std::size_t(1), ::olm_matches_inbound_session(
     b_session,
     tmp_message_1.data(), message_1.size()
 ));
@@ -249,7 +247,7 @@ assert_equals(std::size_t(1), ::olm_matches_inbound_session(
 // Check that the inbound session matches the key this message is supposed
 // to be from.
 std::memcpy(tmp_message_1.data(), message_1.data(), message_1.size());
-assert_equals(std::size_t(1), ::olm_matches_inbound_session_from(
+CHECK_EQ(std::size_t(1), ::olm_matches_inbound_session_from(
     b_session,
     a_id_keys.data() + 15, 43, // A's curve125519 identity key.
     tmp_message_1.data(), message_1.size()
@@ -257,7 +255,7 @@ assert_equals(std::size_t(1), ::olm_matches_inbound_session_from(
 
 // Check that the inbound session isn't from a different user.
 std::memcpy(tmp_message_1.data(), message_1.data(), message_1.size());
-assert_equals(std::size_t(0), ::olm_matches_inbound_session_from(
+CHECK_EQ(std::size_t(0), ::olm_matches_inbound_session_from(
     b_session,
     b_id_keys.data() + 15, 43, // B's curve25519 identity key.
     tmp_message_1.data(), message_1.size()
@@ -269,19 +267,19 @@ std::vector<std::uint8_t> plaintext_1(::olm_decrypt_max_plaintext_length(
     b_session, 0, tmp_message_1.data(), message_1.size()
 ));
 std::memcpy(tmp_message_1.data(), message_1.data(), message_1.size());
-assert_equals(std::size_t(12), ::olm_decrypt(
+CHECK_EQ(std::size_t(12), ::olm_decrypt(
     b_session, 0,
     tmp_message_1.data(), message_1.size(),
     plaintext_1.data(), plaintext_1.size()
 ));
 
-assert_equals(plaintext, plaintext_1.data(), 12);
+CHECK_EQ_SIZE(plaintext, plaintext_1.data(), 12);
 
 std::vector<std::uint8_t> message_2(::olm_encrypt_message_length(b_session, 12));
 std::vector<std::uint8_t> b_message_random(::olm_encrypt_random_length(b_session));
 mock_random_b(b_message_random.data(), b_message_random.size());
-assert_equals(std::size_t(1), ::olm_encrypt_message_type(b_session));
-assert_not_equals(std::size_t(-1), ::olm_encrypt(
+CHECK_EQ(std::size_t(1), ::olm_encrypt_message_type(b_session));
+CHECK_NE(std::size_t(-1), ::olm_encrypt(
     b_session,
     plaintext, 12,
     b_message_random.data(), b_message_random.size(),
@@ -293,39 +291,39 @@ std::vector<std::uint8_t> plaintext_2(::olm_decrypt_max_plaintext_length(
     a_session, 1, tmp_message_2.data(), message_2.size()
 ));
 std::memcpy(tmp_message_2.data(), message_2.data(), message_2.size());
-assert_equals(std::size_t(12), ::olm_decrypt(
+CHECK_EQ(std::size_t(12), ::olm_decrypt(
     a_session, 1,
     tmp_message_2.data(), message_2.size(),
     plaintext_2.data(), plaintext_2.size()
 ));
 
-assert_equals(plaintext, plaintext_2.data(), 12);
+CHECK_EQ_SIZE(plaintext, plaintext_2.data(), 12);
 
 std::memcpy(tmp_message_2.data(), message_2.data(), message_2.size());
-assert_equals(std::size_t(-1), ::olm_decrypt(
+CHECK_EQ(std::size_t(-1), ::olm_decrypt(
     a_session, 1,
     tmp_message_2.data(), message_2.size(),
     plaintext_2.data(), plaintext_2.size()
 ));
 
 std::vector<std::uint8_t> a_session_id(::olm_session_id_length(a_session));
-assert_not_equals(std::size_t(-1), ::olm_session_id(
+CHECK_NE(std::size_t(-1), ::olm_session_id(
     a_session, a_session_id.data(), a_session_id.size()
 ));
 
 std::vector<std::uint8_t> b_session_id(::olm_session_id_length(b_session));
-assert_not_equals(std::size_t(-1), ::olm_session_id(
+CHECK_NE(std::size_t(-1), ::olm_session_id(
     b_session, b_session_id.data(), b_session_id.size()
 ));
 
-assert_equals(a_session_id.size(), b_session_id.size());
-assert_equals(a_session_id.data(), b_session_id.data(), b_session_id.size());
+CHECK_EQ(a_session_id.size(), b_session_id.size());
+CHECK_EQ_SIZE(a_session_id.data(), b_session_id.data(), b_session_id.size());
 
 }
 
-{ /** More messages test */
+/** More messages test */
 
-TestCase test_case("More messages test");
+TEST_CASE("More messages test") {
 MockRandom mock_random_a('A', 0x00);
 MockRandom mock_random_b('B', 0x80);
 
@@ -355,7 +353,7 @@ std::vector<std::uint8_t> a_session_buffer(::olm_session_size());
 ::OlmSession *a_session = ::olm_session(a_session_buffer.data());
 std::vector<std::uint8_t> a_rand(::olm_create_outbound_session_random_length(a_session));
 mock_random_a(a_rand.data(), a_rand.size());
-assert_not_equals(std::size_t(-1), ::olm_create_outbound_session(
+CHECK_NE(std::size_t(-1), ::olm_create_outbound_session(
     a_session, a_account,
     b_id_keys.data() + 15, 43,
     b_ot_keys.data() + 25, 43,
@@ -366,8 +364,8 @@ std::uint8_t plaintext[] = "Hello, World";
 std::vector<std::uint8_t> message_1(::olm_encrypt_message_length(a_session, 12));
 std::vector<std::uint8_t> a_message_random(::olm_encrypt_random_length(a_session));
 mock_random_a(a_message_random.data(), a_message_random.size());
-assert_equals(std::size_t(0), ::olm_encrypt_message_type(a_session));
-assert_not_equals(std::size_t(-1), ::olm_encrypt(
+CHECK_EQ(std::size_t(0), ::olm_encrypt_message_type(a_session));
+CHECK_NE(std::size_t(-1), ::olm_encrypt(
     a_session,
     plaintext, 12,
     a_message_random.data(), a_message_random.size(),
@@ -386,7 +384,7 @@ std::vector<std::uint8_t> plaintext_1(::olm_decrypt_max_plaintext_length(
     b_session, 0, tmp_message_1.data(), message_1.size()
 ));
 std::memcpy(tmp_message_1.data(), message_1.data(), message_1.size());
-assert_equals(std::size_t(12), ::olm_decrypt(
+CHECK_EQ(std::size_t(12), ::olm_decrypt(
     b_session, 0,
     tmp_message_1.data(), message_1.size(),
     plaintext_1.data(), plaintext_1.size()
@@ -398,7 +396,7 @@ for (unsigned i = 0; i < 8; ++i) {
     std::vector<std::uint8_t> rnd_a(::olm_encrypt_random_length(a_session));
     mock_random_a(rnd_a.data(), rnd_a.size());
     std::size_t type_a = ::olm_encrypt_message_type(a_session);
-    assert_not_equals(std::size_t(-1), ::olm_encrypt(
+    CHECK_NE(std::size_t(-1), ::olm_encrypt(
         a_session, plaintext, 12, rnd_a.data(), rnd_a.size(), msg_a.data(), msg_a.size()
     ));
 
@@ -407,7 +405,7 @@ for (unsigned i = 0; i < 8; ++i) {
         b_session, type_a, tmp_a.data(), tmp_a.size()
     ));
     std::memcpy(tmp_a.data(), msg_a.data(), sizeof(msg_a));
-    assert_equals(std::size_t(12), ::olm_decrypt(
+    CHECK_EQ(std::size_t(12), ::olm_decrypt(
         b_session, type_a, msg_a.data(), msg_a.size(), out_a.data(), out_a.size()
     ));
     }
@@ -416,7 +414,7 @@ for (unsigned i = 0; i < 8; ++i) {
     std::vector<std::uint8_t> rnd_b(::olm_encrypt_random_length(b_session));
     mock_random_b(rnd_b.data(), rnd_b.size());
     std::size_t type_b = ::olm_encrypt_message_type(b_session);
-    assert_not_equals(std::size_t(-1), ::olm_encrypt(
+    CHECK_NE(std::size_t(-1), ::olm_encrypt(
         b_session, plaintext, 12, rnd_b.data(), rnd_b.size(), msg_b.data(), msg_b.size()
     ));
 
@@ -425,16 +423,14 @@ for (unsigned i = 0; i < 8; ++i) {
         a_session, type_b, tmp_b.data(), tmp_b.size()
     ));
     std::memcpy(tmp_b.data(), msg_b.data(), msg_b.size());
-    assert_equals(std::size_t(12), ::olm_decrypt(
+    CHECK_EQ(std::size_t(12), ::olm_decrypt(
         a_session, type_b, msg_b.data(), msg_b.size(), out_b.data(), out_b.size()
     ));
     }
 }
 }
 
-{ /** Fallback key test */
-
-TestCase test_case("Fallback key test");
+TEST_CASE("Fallback key test") {
 MockRandom mock_random_a('A', 0x00);
 MockRandom mock_random_b('B', 0x80);
 
@@ -471,7 +467,7 @@ std::vector<std::uint8_t> a_session1_buffer(::olm_session_size());
 ::OlmSession *a_session1 = ::olm_session(a_session1_buffer.data());
 std::vector<std::uint8_t> a_rand(::olm_create_outbound_session_random_length(a_session1));
 mock_random_a(a_rand.data(), a_rand.size());
-assert_not_equals(std::size_t(-1), ::olm_create_outbound_session(
+CHECK_NE(std::size_t(-1), ::olm_create_outbound_session(
     a_session1, a_account,
     b_id_keys.data() + 15, 43, // B's curve25519 identity key
     b_fb_key.data() + 25, 43, // B's curve25519 one time key
@@ -482,8 +478,8 @@ std::uint8_t plaintext[] = "Hello, World";
 std::vector<std::uint8_t> message_1(::olm_encrypt_message_length(a_session1, 12));
 std::vector<std::uint8_t> a_message_random(::olm_encrypt_random_length(a_session1));
 mock_random_a(a_message_random.data(), a_message_random.size());
-assert_equals(std::size_t(0), ::olm_encrypt_message_type(a_session1));
-assert_not_equals(std::size_t(-1), ::olm_encrypt(
+CHECK_EQ(std::size_t(0), ::olm_encrypt_message_type(a_session1));
+CHECK_NE(std::size_t(-1), ::olm_encrypt(
     a_session1,
     plaintext, 12,
     a_message_random.data(), a_message_random.size(),
@@ -500,7 +496,7 @@ std::vector<std::uint8_t> b_session1_buffer(::olm_session_size());
 
 // Check that the inbound session matches the message it was created from.
 std::memcpy(tmp_message_1.data(), message_1.data(), message_1.size());
-assert_equals(std::size_t(1), ::olm_matches_inbound_session(
+CHECK_EQ(std::size_t(1), ::olm_matches_inbound_session(
     b_session1,
     tmp_message_1.data(), message_1.size()
 ));
@@ -508,7 +504,7 @@ assert_equals(std::size_t(1), ::olm_matches_inbound_session(
 // Check that the inbound session matches the key this message is supposed
 // to be from.
 std::memcpy(tmp_message_1.data(), message_1.data(), message_1.size());
-assert_equals(std::size_t(1), ::olm_matches_inbound_session_from(
+CHECK_EQ(std::size_t(1), ::olm_matches_inbound_session_from(
     b_session1,
     a_id_keys.data() + 15, 43, // A's curve125519 identity key.
     tmp_message_1.data(), message_1.size()
@@ -516,7 +512,7 @@ assert_equals(std::size_t(1), ::olm_matches_inbound_session_from(
 
 // Check that the inbound session isn't from a different user.
 std::memcpy(tmp_message_1.data(), message_1.data(), message_1.size());
-assert_equals(std::size_t(0), ::olm_matches_inbound_session_from(
+CHECK_EQ(std::size_t(0), ::olm_matches_inbound_session_from(
     b_session1,
     b_id_keys.data() + 15, 43, // B's curve25519 identity key.
     tmp_message_1.data(), message_1.size()
@@ -528,13 +524,13 @@ std::vector<std::uint8_t> plaintext_1(::olm_decrypt_max_plaintext_length(
     b_session1, 0, tmp_message_1.data(), message_1.size()
 ));
 std::memcpy(tmp_message_1.data(), message_1.data(), message_1.size());
-assert_equals(std::size_t(12), ::olm_decrypt(
+CHECK_EQ(std::size_t(12), ::olm_decrypt(
     b_session1, 0,
     tmp_message_1.data(), message_1.size(),
     plaintext_1.data(), plaintext_1.size()
 ));
 
-assert_equals(plaintext, plaintext_1.data(), 12);
+CHECK_EQ_SIZE(plaintext, plaintext_1.data(), 12);
 
 // create a new fallback key for B (the old fallback should still be usable)
 mock_random_b(f_random.data(), f_random.size());
@@ -545,7 +541,7 @@ mock_random_b(f_random.data(), f_random.size());
 std::vector<std::uint8_t> a_session2_buffer(::olm_session_size());
 ::OlmSession *a_session2 = ::olm_session(a_session2_buffer.data());
 mock_random_a(a_rand.data(), a_rand.size());
-assert_not_equals(std::size_t(-1), ::olm_create_outbound_session(
+CHECK_NE(std::size_t(-1), ::olm_create_outbound_session(
     a_session2, a_account,
     b_id_keys.data() + 15, 43, // B's curve25519 identity key
     b_fb_key.data() + 25, 43, // B's curve25519 one time key
@@ -553,8 +549,8 @@ assert_not_equals(std::size_t(-1), ::olm_create_outbound_session(
 ));
 std::vector<std::uint8_t> message_2(::olm_encrypt_message_length(a_session2, 12));
 mock_random_a(a_message_random.data(), a_message_random.size());
-assert_equals(std::size_t(0), ::olm_encrypt_message_type(a_session2));
-assert_not_equals(std::size_t(-1), ::olm_encrypt(
+CHECK_EQ(std::size_t(0), ::olm_encrypt_message_type(a_session2));
+CHECK_NE(std::size_t(-1), ::olm_encrypt(
     a_session2,
     plaintext, 12,
     a_message_random.data(), a_message_random.size(),
@@ -565,13 +561,13 @@ assert_not_equals(std::size_t(-1), ::olm_encrypt(
 std::vector<std::uint8_t> tmp_message_2(message_2);
 std::vector<std::uint8_t> b_session2_buffer(::olm_session_size());
 ::OlmSession *b_session2 = ::olm_session(b_session2_buffer.data());
-assert_not_equals(std::size_t(-1), ::olm_create_inbound_session(
+CHECK_NE(std::size_t(-1), ::olm_create_inbound_session(
     b_session2, b_account, tmp_message_2.data(), message_2.size()
 ));
 
 // Check that the inbound session matches the message it was created from.
 std::memcpy(tmp_message_2.data(), message_2.data(), message_2.size());
-assert_equals(std::size_t(1), ::olm_matches_inbound_session(
+CHECK_EQ(std::size_t(1), ::olm_matches_inbound_session(
     b_session2,
     tmp_message_2.data(), message_2.size()
 ));
@@ -579,7 +575,7 @@ assert_equals(std::size_t(1), ::olm_matches_inbound_session(
 // Check that the inbound session matches the key this message is supposed
 // to be from.
 std::memcpy(tmp_message_2.data(), message_2.data(), message_2.size());
-assert_equals(std::size_t(1), ::olm_matches_inbound_session_from(
+CHECK_EQ(std::size_t(1), ::olm_matches_inbound_session_from(
     b_session2,
     a_id_keys.data() + 15, 43, // A's curve125519 identity key.
     tmp_message_2.data(), message_2.size()
@@ -587,7 +583,7 @@ assert_equals(std::size_t(1), ::olm_matches_inbound_session_from(
 
 // Check that the inbound session isn't from a different user.
 std::memcpy(tmp_message_2.data(), message_2.data(), message_2.size());
-assert_equals(std::size_t(0), ::olm_matches_inbound_session_from(
+CHECK_EQ(std::size_t(0), ::olm_matches_inbound_session_from(
     b_session2,
     b_id_keys.data() + 15, 43, // B's curve25519 identity key.
     tmp_message_2.data(), message_2.size()
@@ -599,13 +595,13 @@ std::vector<std::uint8_t> plaintext_2(::olm_decrypt_max_plaintext_length(
     b_session2, 0, tmp_message_2.data(), message_2.size()
 ));
 std::memcpy(tmp_message_2.data(), message_2.data(), message_2.size());
-assert_equals(std::size_t(12), ::olm_decrypt(
+CHECK_EQ(std::size_t(12), ::olm_decrypt(
     b_session2, 0,
     tmp_message_2.data(), message_2.size(),
     plaintext_2.data(), plaintext_2.size()
 ));
 
-assert_equals(plaintext, plaintext_2.data(), 12);
+CHECK_EQ_SIZE(plaintext, plaintext_2.data(), 12);
 
 // forget the old fallback key -- creating a new session should fail
 ::olm_account_forget_old_fallback_key(b_account);
@@ -613,7 +609,7 @@ assert_equals(plaintext, plaintext_2.data(), 12);
 std::vector<std::uint8_t> a_session3_buffer(::olm_session_size());
 ::OlmSession *a_session3 = ::olm_session(a_session3_buffer.data());
 mock_random_a(a_rand.data(), a_rand.size());
-assert_not_equals(std::size_t(-1), ::olm_create_outbound_session(
+CHECK_NE(std::size_t(-1), ::olm_create_outbound_session(
     a_session3, a_account,
     b_id_keys.data() + 15, 43, // B's curve25519 identity key
     b_fb_key.data() + 25, 43, // B's curve25519 one time key
@@ -622,8 +618,8 @@ assert_not_equals(std::size_t(-1), ::olm_create_outbound_session(
 
 std::vector<std::uint8_t> message_3(::olm_encrypt_message_length(a_session3, 12));
 mock_random_a(a_message_random.data(), a_message_random.size());
-assert_equals(std::size_t(0), ::olm_encrypt_message_type(a_session3));
-assert_not_equals(std::size_t(-1), ::olm_encrypt(
+CHECK_EQ(std::size_t(0), ::olm_encrypt_message_type(a_session3));
+CHECK_NE(std::size_t(-1), ::olm_encrypt(
     a_session3,
     plaintext, 12,
     a_message_random.data(), a_message_random.size(),
@@ -634,18 +630,16 @@ assert_not_equals(std::size_t(-1), ::olm_encrypt(
 std::vector<std::uint8_t> tmp_message_3(message_3);
 std::vector<std::uint8_t> b_session3_buffer(::olm_session_size());
 ::OlmSession *b_session3 = ::olm_session(b_session3_buffer.data());
-assert_equals(std::size_t(-1), ::olm_create_inbound_session(
+CHECK_EQ(std::size_t(-1), ::olm_create_inbound_session(
     b_session3, b_account, tmp_message_3.data(), message_3.size()
 ));
-assert_equals(
+CHECK_EQ(
     std::string("BAD_MESSAGE_KEY_ID"),
     std::string(::olm_session_last_error(b_session3))
 );
 }
 
-{
-    TestCase test_case("Old account (v3) unpickle test");
-
+TEST_CASE("Old account (v3) unpickle test") {
     std::uint8_t pickle[] =
         "0mSqVn3duHffbhaTbFgW+4JPlcRoqT7z0x4mQ72N+g+eSAk5sgcWSoDzKpMazgcB"
         "46ItEpChthVHTGRA6PD3dly0dUs4ji7VtWTa+1tUv1UbxP92uYf1Ae3fomX0yAoH"
@@ -662,7 +656,7 @@ assert_equals(
 
     std::vector<std::uint8_t> account_buffer(::olm_account_size());
     ::OlmAccount *account = ::olm_account(account_buffer.data());
-    assert_not_equals(
+    CHECK_NE(
         std::size_t(-1),
         ::olm_unpickle_account(
             account, "", 0, pickle, sizeof(pickle)-1
@@ -671,9 +665,7 @@ assert_equals(
 
     std::vector<std::uint8_t> fallback(::olm_account_fallback_key_length(account));
     size_t len = ::olm_account_fallback_key(account, fallback.data(), fallback.size());
-    assert_equals(expected_fallback, fallback.data(), len);
+    CHECK_EQ_SIZE(expected_fallback, fallback.data(), len);
     len = ::olm_account_unpublished_fallback_key(account, fallback.data(), fallback.size());
-    assert_equals(expected_unpublished_fallback, fallback.data(), len);
-}
-
+    CHECK_EQ_SIZE(expected_unpublished_fallback, fallback.data(), len);
 }

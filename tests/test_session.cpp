@@ -1,10 +1,10 @@
 #include "olm/session.hh"
 #include "olm/pickle_encoding.h"
 
-#include "unittest.hh"
+#include "testing.hh"
 
 /* decode into a buffer, which is returned */
-std::uint8_t *decode_hex(
+const std::uint8_t *decode_hex(
     const char * input
 ) {
     static std::uint8_t buf[256];
@@ -21,64 +21,61 @@ std::uint8_t *decode_hex(
 }
 
 void check_session(const olm::Session &session) {
-    assert_equals(
+    CHECK_EQ_SIZE(
         decode_hex("49d640dc96b80176694af69fc4b8ca9fac49aecbd697d01fd8bee1ed2693b6c9"),
         session.ratchet.root_key, 32
     );
 
-    assert_equals(
+    CHECK_EQ(
         std::size_t(1),
         session.ratchet.sender_chain.size()
     );
 
-    assert_equals(
+    CHECK_EQ_SIZE(
         decode_hex("f77a03eaa9b301fa7d2a5aa6b50286906de12cc96044f526dbbcb12839ad7003"),
         session.ratchet.sender_chain[0].ratchet_key.public_key.public_key, 32
     );
 
-    assert_equals(
+    CHECK_EQ_SIZE(
         decode_hex("d945c6ed4c7c277117adf11fb133a7936d287afe97c0b3ac989644b4490d4f31"),
         session.ratchet.sender_chain[0].ratchet_key.private_key.private_key, 32
     );
 
-    assert_equals(
+    CHECK_EQ(
         std::uint32_t(0),
         session.ratchet.sender_chain[0].chain_key.index
     );
 
-    assert_equals(
+    CHECK_EQ(
         std::size_t(0),
         session.ratchet.receiver_chains.size()
     );
 
-    assert_equals(
+    CHECK_EQ(
         std::size_t(0),
         session.ratchet.skipped_message_keys.size()
     );
 
-    assert_equals(OLM_SUCCESS, session.last_error);
-    assert_equals(false, session.received_message);
+    CHECK_EQ(OLM_SUCCESS, session.last_error);
+    CHECK_EQ(false, session.received_message);
 
-    assert_equals(
+    CHECK_EQ_SIZE(
         decode_hex("7326b58623a3f7bd8da11a1bab51f432c02a7430241b326e9fc8916a21eb257e"),
         session.alice_identity_key.public_key, 32
     );
 
-    assert_equals(
+    CHECK_EQ_SIZE(
         decode_hex("0ab4b30bde20bd374ceccc72861660f0fd046f7516900796c3e5de41c598316c"),
         session.alice_base_key.public_key, 32
     );
 
-    assert_equals(
+    CHECK_EQ_SIZE(
         decode_hex("585dba930b10d90d81702c715f4085d07c42b0cd2d676010bb6086c86c4cc618"),
         session.bob_one_time_key.public_key, 32
     );
 }
 
-int main() {
-
-{
-    TestCase test_case("V1 session pickle");
+TEST_CASE("V1 session pickle") {
 
     const uint8_t *PICKLE_KEY=(uint8_t *)"secret_key";
     uint8_t pickled[] =
@@ -95,7 +92,7 @@ int main() {
 
     olm::Session session;
     const uint8_t *unpickle_res = olm::unpickle(pickled, pickled+sizeof(pickled), session);
-    assert_equals(
+    CHECK_EQ(
         pickle_len, (size_t)(unpickle_res - pickled)
     );
 
@@ -112,8 +109,7 @@ int main() {
 #endif
 }
 
-{
-    TestCase test_case("V2 session pickle");
+TEST_CASE("V2 session pickle") {
 
     const uint8_t *PICKLE_KEY=(uint8_t *)"secret_key";
     uint8_t pickled[] =
@@ -131,14 +127,9 @@ int main() {
 
     olm::Session session;
     const uint8_t *unpickle_res = olm::unpickle(pickled, pickled+sizeof(pickled), session);
-    assert_equals(
+    CHECK_EQ(
         pickle_len, (size_t)(unpickle_res - pickled)
     );
 
     check_session(session);
-}
-
-
-
-return 0;
 }

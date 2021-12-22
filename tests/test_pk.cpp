@@ -2,18 +2,16 @@
 #include "olm/olm.h"
 #include "olm/pk.h"
 
-#include "unittest.hh"
+#include "testing.hh"
 #include "utils.hh"
 
 #include <iostream>
 #include <vector>
 
-int main() {
 
+/* Encryption Test Case 1 */
 
-{ /* Encryption Test Case 1 */
-
-TestCase test_case("Public Key Encryption/Decryption Test Case 1");
+TEST_CASE("Public Key Encryption/Decryption Test Case 1") {
 
 std::vector<std::uint8_t> decryption_buffer(olm_pk_decryption_size());
 OlmPkDecryption *decryption = olm_pk_decryption(decryption_buffer.data());
@@ -44,11 +42,11 @@ olm_pk_key_from_private(
     alice_private, sizeof(alice_private)
 );
 
-assert_equals(alice_public, pubkey.data(), olm_pk_key_length());
+CHECK_EQ_SIZE(alice_public, (const std::uint8_t*)pubkey.data(), olm_pk_key_length());
 
 uint8_t *alice_private_back_out = (uint8_t *)malloc(olm_pk_private_key_length());
 olm_pk_get_private_key(decryption, alice_private_back_out, olm_pk_private_key_length());
-assert_equals(alice_private, alice_private_back_out, olm_pk_private_key_length());
+CHECK_EQ_SIZE(alice_private, alice_private_back_out, olm_pk_private_key_length());
 free(alice_private_back_out);
 
 std::vector<std::uint8_t> encryption_buffer(olm_pk_encryption_size());
@@ -74,7 +72,7 @@ olm_pk_encrypt(
     bob_private, sizeof(bob_private)
 );
 
-assert_equals(bob_public, ephemeral_key.data(), olm_pk_key_length());
+CHECK_EQ_SIZE(bob_public, (const std::uint8_t*)ephemeral_key.data(), olm_pk_key_length());
 
 size_t max_plaintext_length = olm_pk_max_plaintext_length(decryption, ciphertext_length);
 std::uint8_t *plaintext_buffer = (std::uint8_t *) malloc(max_plaintext_length);
@@ -87,16 +85,16 @@ olm_pk_decrypt(
     plaintext_buffer, max_plaintext_length
 );
 
-assert_equals(plaintext, plaintext_buffer, plaintext_length);
+CHECK_EQ_SIZE(plaintext, (const std::uint8_t*)plaintext_buffer, plaintext_length);
 
 free(ciphertext_buffer);
 free(plaintext_buffer);
 
 }
 
-{ /* Encryption Test Case 1 */
+/* Encryption Test Case 1 */
 
-TestCase test_case("Public Key Decryption pickling");
+TEST_CASE("Public Key Decryption pickling") {
 
 std::vector<std::uint8_t> decryption_buffer(olm_pk_decryption_size());
 OlmPkDecryption *decryption = olm_pk_decryption(decryption_buffer.data());
@@ -127,7 +125,7 @@ olm_pickle_pk_decryption(
     PICKLE_KEY, strlen((char *)PICKLE_KEY),
     pickle_buffer.data(), pickle_buffer.size()
 );
-assert_equals(expected_pickle, pickle_buffer.data(), olm_pickle_pk_decryption_length(decryption));
+CHECK_EQ_SIZE(expected_pickle, (const std::uint8_t*)pickle_buffer.data(), olm_pickle_pk_decryption_length(decryption));
 
 olm_clear_pk_decryption(decryption);
 
@@ -140,7 +138,7 @@ olm_unpickle_pk_decryption(
     pubkey.data(), pubkey.size()
 );
 
-assert_equals(alice_public, pubkey.data(), olm_pk_key_length());
+CHECK_EQ_SIZE(alice_public, (const std::uint8_t*)pubkey.data(), olm_pk_key_length());
 
 /* Deliberately corrupt the pickled session by supplying a junk suffix and
  * ensure this is caught as an error. */
@@ -160,14 +158,14 @@ const size_t junk_pickle_length = add_junk_suffix_to_pickle(
     pickle_length,
     junk_length);
 
-assert_equals(std::size_t(-1),
+CHECK_EQ(std::size_t(-1),
     olm_unpickle_pk_decryption(
         decryption,
         PICKLE_KEY, strlen((char *)PICKLE_KEY),
         junk_pickle.data(), junk_pickle_length,
         pubkey.data(), pubkey.size()
     ));
-assert_equals(OLM_PICKLE_EXTRA_DATA, olm_pk_decryption_last_error_code(decryption));
+CHECK_EQ(OLM_PICKLE_EXTRA_DATA, olm_pk_decryption_last_error_code(decryption));
 /***/
 
 char *ciphertext = strdup("ntk49j/KozVFtSqJXhCejg");
@@ -187,16 +185,16 @@ olm_pk_decrypt(
 
 const std::uint8_t *plaintext = (std::uint8_t *) "This is a test";
 
-assert_equals(plaintext, plaintext_buffer, strlen((const char *)plaintext));
+CHECK_EQ_SIZE(plaintext, (const std::uint8_t*)plaintext_buffer, strlen((const char *)plaintext));
 
 free(ciphertext);
 free(plaintext_buffer);
 
 }
 
-{ /* Signing Test Case 1 */
+/* Signing Test Case 1 */
 
-TestCase test_case("Public Key Signing");
+TEST_CASE("Public Key Signing") {
 
 std::vector<std::uint8_t> signing_buffer(olm_pk_signing_size());
 OlmPkSigning *signing = olm_pk_signing(signing_buffer.data());
@@ -240,7 +238,7 @@ result = ::olm_ed25519_verify(
     sig_buffer, olm_pk_signature_length()
 );
 
-assert_equals((size_t)0, result);
+CHECK_EQ((size_t)0, result);
 
 sig_buffer[5] = 'm';
 
@@ -251,7 +249,7 @@ result = ::olm_ed25519_verify(
     sig_buffer, olm_pk_signature_length()
 );
 
-assert_equals((size_t)-1, result);
+CHECK_EQ((size_t)-1, result);
 
 olm_clear_utility(utility);
 free(utility_buffer);
@@ -261,5 +259,4 @@ free(sig_buffer);
 
 olm_clear_pk_signing(signing);
 
-}
 }

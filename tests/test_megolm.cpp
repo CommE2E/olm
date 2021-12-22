@@ -15,10 +15,8 @@
 #include "olm/megolm.h"
 #include "olm/memory.hh"
 
-#include "unittest.hh"
+#include "testing.hh"
 
-
-int main() {
 
 std::uint8_t random_bytes[] =
     "0123456789ABCDEF0123456789ABCDEF"
@@ -26,8 +24,7 @@ std::uint8_t random_bytes[] =
     "0123456789ABCDEF0123456789ABCDEF"
     "0123456789ABCDEF0123456789ABCDEF";
 
-{
-    TestCase test_case("Megolm::advance");
+TEST_CASE("Megolm::advance") {
 
     Megolm mr;
 
@@ -44,14 +41,14 @@ std::uint8_t random_bytes[] =
         0xba, 0x9c, 0xd9, 0x55, 0x74, 0x1d, 0x1c, 0x16, 0x23, 0x23, 0xec, 0x82, 0x5e, 0x7c, 0x5c, 0xe8,
         0x89, 0xbb, 0xb4, 0x23, 0xa1, 0x8f, 0x23, 0x82, 0x8f, 0xb2, 0x09, 0x0d, 0x6e, 0x2a, 0xf8, 0x6a
     };
-    assert_equals(1U, mr.counter);
-    assert_equals(expected1, megolm_get_data(&mr), MEGOLM_RATCHET_LENGTH);
+    CHECK_EQ(1U, mr.counter);
+    CHECK_EQ_SIZE(expected1, megolm_get_data(&mr), MEGOLM_RATCHET_LENGTH);
 
     // repeat with complex advance
     megolm_init(&mr, random_bytes, 0);
     megolm_advance_to(&mr, 1);
-    assert_equals(1U, mr.counter);
-    assert_equals(expected1, megolm_get_data(&mr), MEGOLM_RATCHET_LENGTH);
+    CHECK_EQ(1U, mr.counter);
+    CHECK_EQ_SIZE(expected1, megolm_get_data(&mr), MEGOLM_RATCHET_LENGTH);
 
     megolm_advance_to(&mr, 0x1000000);
     const std::uint8_t expected2[] = {
@@ -64,8 +61,8 @@ std::uint8_t random_bytes[] =
         0xba, 0x9c, 0xd9, 0x55, 0x74, 0x1d, 0x1c, 0x16, 0x23, 0x23, 0xec, 0x82, 0x5e, 0x7c, 0x5c, 0xe8,
         0x89, 0xbb, 0xb4, 0x23, 0xa1, 0x8f, 0x23, 0x82, 0x8f, 0xb2, 0x09, 0x0d, 0x6e, 0x2a, 0xf8, 0x6a,
     };
-    assert_equals(0x1000000U, mr.counter);
-    assert_equals(expected2, megolm_get_data(&mr), MEGOLM_RATCHET_LENGTH);
+    CHECK_EQ(0x1000000U, mr.counter);
+    CHECK_EQ_SIZE(expected2, megolm_get_data(&mr), MEGOLM_RATCHET_LENGTH);
 
     megolm_advance_to(&mr, 0x1041506);
     const std::uint8_t expected3[] = {
@@ -78,57 +75,52 @@ std::uint8_t random_bytes[] =
         0x95, 0x6c, 0xbf, 0x80, 0x7e, 0x65, 0x12, 0x6a, 0x49, 0x55, 0x8d, 0x45, 0xc8, 0x4a, 0x2e, 0x4c,
         0xd5, 0x6f, 0x03, 0xe2, 0x44, 0x16, 0xb9, 0x8e, 0x1c, 0xfd, 0x97, 0xc2, 0x06, 0xaa, 0x90, 0x7a
     };
-    assert_equals(0x1041506U, mr.counter);
-    assert_equals(expected3, megolm_get_data(&mr), MEGOLM_RATCHET_LENGTH);
+    CHECK_EQ(0x1041506U, mr.counter);
+    CHECK_EQ_SIZE(expected3, megolm_get_data(&mr), MEGOLM_RATCHET_LENGTH);
 }
 
-{
-    TestCase test_case("Megolm::advance wraparound");
+TEST_CASE("Megolm::advance wraparound") {
 
     Megolm mr1, mr2;
 
     megolm_init(&mr1, random_bytes, 0xffffffffUL);
     megolm_advance_to(&mr1, 0x1000000);
-    assert_equals(0x1000000U, mr1.counter);
+    CHECK_EQ(0x1000000U, mr1.counter);
 
     megolm_init(&mr2, random_bytes, 0);
     megolm_advance_to(&mr2, 0x2000000);
-    assert_equals(0x2000000U, mr2.counter);
+    CHECK_EQ(0x2000000U, mr2.counter);
 
-    assert_equals(megolm_get_data(&mr2), megolm_get_data(&mr1), MEGOLM_RATCHET_LENGTH);
+    CHECK_EQ_SIZE(megolm_get_data(&mr2), megolm_get_data(&mr1), MEGOLM_RATCHET_LENGTH);
 }
 
-{
-    TestCase test_case("Megolm::advance overflow by one");
+TEST_CASE("Megolm::advance overflow by one") {
 
     Megolm mr1, mr2;
 
     megolm_init(&mr1, random_bytes, 0xffffffffUL);
     megolm_advance_to(&mr1, 0x0);
-    assert_equals(0x0U, mr1.counter);
+    CHECK_EQ(0x0U, mr1.counter);
 
     megolm_init(&mr2, random_bytes, 0xffffffffUL);
     megolm_advance(&mr2);
-    assert_equals(0x0U, mr2.counter);
+    CHECK_EQ(0x0U, mr2.counter);
 
-    assert_equals(megolm_get_data(&mr2), megolm_get_data(&mr1), MEGOLM_RATCHET_LENGTH);
+    CHECK_EQ_SIZE(megolm_get_data(&mr2), megolm_get_data(&mr1), MEGOLM_RATCHET_LENGTH);
 }
 
-{
-    TestCase test_case("Megolm::advance overflow");
+TEST_CASE("Megolm::advance overflow") {
 
     Megolm mr1, mr2;
 
     megolm_init(&mr1, random_bytes, 0x1UL);
     megolm_advance_to(&mr1, 0x80000000UL);
     megolm_advance_to(&mr1, 0x0);
-    assert_equals(0x0U, mr1.counter);
+    CHECK_EQ(0x0U, mr1.counter);
 
     megolm_init(&mr2, random_bytes, 0x1UL);
     megolm_advance_to(&mr2, 0x0UL);
-    assert_equals(0x0U, mr2.counter);
+    CHECK_EQ(0x0U, mr2.counter);
 
-    assert_equals(megolm_get_data(&mr2), megolm_get_data(&mr1), MEGOLM_RATCHET_LENGTH);
-}
-
+    CHECK_EQ_SIZE(megolm_get_data(&mr2), megolm_get_data(&mr1), MEGOLM_RATCHET_LENGTH);
 }

@@ -1,5 +1,5 @@
 #include "olm/olm.h"
-#include "unittest.hh"
+#include "testing.hh"
 
 #include <cstddef>
 #include <cstdint>
@@ -31,16 +31,15 @@ struct MockRandom {
 
 std::uint8_t * check_malloc(std::size_t size) {
     if (size == std::size_t(-1)) {
-        assert_not_equals(std::size_t(-1), size);
+        CHECK_NE(std::size_t(-1), size);
     }
     return (std::uint8_t *)::malloc(size);
 }
 
 
-int main() {
 
-{ /** Signing Test */
-TestCase test_case("Signing test");
+ /** Signing Test */
+TEST_CASE("Signing test") {
 
 MockRandom mock_random_a('A', 0x00);
 
@@ -59,13 +58,13 @@ void * message = check_malloc(message_size);
 
 std::size_t signature_size = ::olm_account_signature_length(account);
 void * signature = check_malloc(signature_size);
-assert_not_equals(std::size_t(-1), ::olm_account_sign(
+CHECK_NE(std::size_t(-1), ::olm_account_sign(
     account, message, message_size, signature, signature_size
 ));
 
 std::size_t id_keys_size = ::olm_account_identity_keys_length(account);
 std::uint8_t * id_keys = (std::uint8_t *) check_malloc(id_keys_size);
-assert_not_equals(std::size_t(-1), ::olm_account_identity_keys(
+CHECK_NE(std::size_t(-1), ::olm_account_identity_keys(
     account, id_keys, id_keys_size
 ));
 
@@ -75,7 +74,7 @@ free(account_buffer);
 void * utility_buffer = check_malloc(::olm_utility_size());
 ::OlmUtility * utility = ::olm_utility(utility_buffer);
 
-assert_not_equals(std::size_t(-1), ::olm_ed25519_verify(
+CHECK_NE(std::size_t(-1), ::olm_ed25519_verify(
     utility, id_keys + 71, 43, message, message_size, signature, signature_size
 ));
 
@@ -88,4 +87,3 @@ free(message);
 
 }
 
-}
