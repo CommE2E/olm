@@ -1,7 +1,9 @@
 import org.apache.tools.ant.taskdefs.condition.Os
+import com.vanniktech.maven.publish.AndroidLibrary
+import com.vanniktech.maven.publish.JavadocJar
 
 apply plugin: 'com.android.library'
-apply plugin: "com.vanniktech.maven.publish"
+apply plugin: "com.vanniktech.maven.publish.base"
 
 android {
     compileSdk 31
@@ -158,4 +160,8 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.4.0'
     androidTestImplementation 'androidx.test:rules:1.4.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+}
+
+mavenPublishing {
+    configure(new AndroidLibrary(new JavadocJar.Empty(), false))
 }
