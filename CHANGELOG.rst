@@ -1,3 +1,12 @@
+Changes in `3.2.9 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.9>`_
+=========================================================================
+
+This release includes the following changes since 3.2.8:
+
+* Switch C++ tests to use doctest.  Thanks to Nicolas Werner.
+* Switch JavaScript tests to use jasmine instead of deprecated jasmine-node.
+* Add session describe function to Python binding.  Thanks to Tulir Asokan.
+
 Changes in `3.2.8 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.8>`_
 =========================================================================
 
