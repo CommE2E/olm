@@ -174,7 +174,7 @@ To publish the Android library to MavenCentral (you will need some secrets), in 
  - Click on close
  - Wait (check Activity tab until step "Repository closed" is displayed)
  - Click on release. The staging repository will disappear
- - Check that the release is available in https://repo1.maven.org/maven2/org/matrix/android/olm/ (it can take a few minutes)
+ - Check that the release is available in https://repo1.maven.org/maven2/org/matrix/android/olm-sdk/ (it can take a few minutes)
 
 ## Design
 
