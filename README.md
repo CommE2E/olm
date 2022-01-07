@@ -168,7 +168,7 @@ documentation contains instructions on how to set up twine (Python) and npm
 (JavaScript) to upload to the registry.
 
 To publish the Android library to MavenCentral (you will need some secrets), in the /android folder:
- - Run the command `./gradlew clean publish --no-daemon --no-parallel --stacktrace`.
+ - Run the command `./gradlew clean build publish --no-daemon --no-parallel --stacktrace`. The generated AAR must be approx 500 kb.
  - Connect to https://s01.oss.sonatype.org
  - Click on Staging Repositories and check the the files have been uploaded
  - Click on close
