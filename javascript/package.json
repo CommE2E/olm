@@ -1,6 +1,6 @@
 {
   "name": "@matrix-org/olm",
-  "version": "3.2.9",
+  "version": "3.2.10",
   "description": "An implementation of the Double Ratchet cryptographic ratchet",
   "main": "olm.js",
   "files": [
