@@ -401,6 +401,9 @@ $(BUILD_DIR)/fuzzers/fuzz_%_msan: fuzzing/fuzzers/fuzz_%.cpp $(FUZZER_MSAN_OBJEC
 %.html: %.rst
 	rst2html $< $@
 
+%.html: %.md
+	pandoc --from markdown --to html5 --standalone --lua-filter gitlab-math.lua --katex -o $@ $<
+
 ### dependencies
 
 -include $(RELEASE_OBJECTS:.o=.d)
