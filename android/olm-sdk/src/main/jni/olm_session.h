@@ -47,6 +47,7 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(encryptMessageJni)(JNIEnv *env, jobjec
 JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(decryptMessageJni)(JNIEnv *env, jobject thiz, jobject aEncryptedMsg);
 
 JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, jobject thiz);
+JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(olmSessionDescribeJni)(JNIEnv *env, jobject thiz);
 
 // serialization
 JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(serializeJni)(JNIEnv *env, jobject thiz, jbyteArray aKey);

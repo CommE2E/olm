@@ -223,6 +223,23 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      */
     private native byte[] getSessionIdentifierJni();
 
+    public String sessionDescribe() throws OlmException {
+        try {
+            byte[] buffer = olmSessionDescribeJni();
+
+            if (null != buffer) {
+                return new String(buffer, "UTF-8");
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "## sessionDescribe(): " + e.getMessage());
+            throw new OlmException(OlmException.EXCEPTION_CODE_SESSION_SESSION_DESCRIBE, e.getMessage());
+        }
+
+        return null;
+    }
+
+    private native byte[] olmSessionDescribeJni();
+
     /**
      * Checks if the PRE_KEY({@link OlmMessage#MESSAGE_TYPE_PRE_KEY}) message is for this in-bound session.<br>
      * This API may be used to process a "m.room.encrypted" event when type = 1 (PRE_KEY).

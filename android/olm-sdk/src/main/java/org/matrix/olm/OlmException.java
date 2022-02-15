@@ -60,6 +60,7 @@ public class OlmException extends IOException {
     public static final int EXCEPTION_CODE_SESSION_ENCRYPT_MESSAGE = 404;
     public static final int EXCEPTION_CODE_SESSION_DECRYPT_MESSAGE = 405;
     public static final int EXCEPTION_CODE_SESSION_SESSION_IDENTIFIER = 406;
+    public static final int EXCEPTION_CODE_SESSION_SESSION_DESCRIBE = 407;
 
     public static final int EXCEPTION_CODE_UTILITY_CREATION = 500;
     public static final int EXCEPTION_CODE_UTILITY_VERIFY_SIGNATURE = 501;

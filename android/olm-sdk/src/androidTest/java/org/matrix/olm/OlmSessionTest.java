@@ -1011,4 +1011,75 @@ public class OlmSessionTest {
         assertTrue(bobSession.isReleased());
     }
 
+    @Test
+    public void test07AliceBobSessionDescribe() {
+        // creates alice & bob accounts
+        OlmAccount aliceAccount = null;
+        OlmAccount bobAccount = null;
+        try {
+            aliceAccount = new OlmAccount();
+            bobAccount = new OlmAccount();
+        } catch (OlmException e) {
+            fail(e.getMessage());
+        }
+
+        // test accounts creation
+        assertTrue(0 != bobAccount.getOlmAccountId());
+        assertTrue(0 != aliceAccount.getOlmAccountId());
+
+        // CREATE ALICE SESSION
+
+        OlmSession aliceSession = null;
+        try {
+            aliceSession = new OlmSession();
+        } catch (OlmException e) {
+            fail("Exception Msg=" + e.getMessage());
+        }
+        assertTrue(0 != aliceSession.getOlmSessionId());
+
+        // CREATE ALICE SESSION
+        OlmSession bobSession = null;
+        try {
+            bobSession = new OlmSession();
+        } catch (OlmException e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+        assertTrue(0 != bobSession.getOlmSessionId());
+
+        String aliceSessionDescribe = null;
+        try {
+            aliceSessionDescribe = aliceSession.sessionDescribe();
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+
+        assertNotNull(aliceSessionDescribe);
+
+        String bobSessionDescribe = null;
+        try {
+            bobSessionDescribe = bobSession.sessionDescribe();
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+        assertNotNull(bobSessionDescribe);
+
+        // must be the same for both ends of the conversation
+        assertEquals(aliceSessionDescribe, bobSessionDescribe);
+
+        assertEquals(
+            "sender chain index: 0 receiver chain indices: skipped message keys:",
+            aliceSessionDescribe
+        );
+
+        aliceAccount.releaseAccount();
+        bobAccount.releaseAccount();
+        assertTrue(aliceAccount.isReleased());
+        assertTrue(bobAccount.isReleased());
+
+        bobSession.releaseSession();
+        aliceSession.releaseSession();
+        assertTrue(bobSession.isReleased());
+        assertTrue(aliceSession.isReleased());
+    }
 }

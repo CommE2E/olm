@@ -798,6 +798,58 @@ JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(getSessionIdentifierJni)(JNIEnv *env, 
      return returnValue;
 }
 
+JNIEXPORT jbyteArray OLM_SESSION_FUNC_DEF(olmSessionDescribeJni(JNIEnv *env, jobject thiz))
+{
+    const char* errorMessage = NULL;
+    jbyteArray returnValue = 0;
+
+    LOGD("## olmSessionDescribeJni(): IN ");
+
+    OlmSession *sessionPtr = getSessionInstanceId(env, thiz);
+
+    if (!sessionPtr)
+    {
+        LOGE("## olmSessionDescribeJni(): failure - invalid Session ptr=NULL");
+        errorMessage = "invalid Session ptr=NULL";
+    }
+    else
+    {
+        int maxLength = 600;
+        char* describePtr = NULL;
+        describePtr = (char*) malloc(maxLength * sizeof *describePtr);
+        if (!describePtr)
+        {
+            LOGE("## olmSessionDescribeJni(): failure - describe allocation OOM");
+            errorMessage = "describe allocation OOM";
+        }
+        else
+        {
+            olm_session_describe(sessionPtr, describePtr, maxLength);
+            int length = strlen(describePtr);
+            if (length == 0)
+            {
+                LOGE("## olmSessionDescribeJni(): failure - get session describe");
+            }
+            else
+            {
+                LOGD("## olmSessionDescribeJni(): success - describe=%.*s", (char*)describePtr);
+
+                returnValue = env->NewByteArray(length);
+                env->SetByteArrayRegion(returnValue, 0, length, (jbyte*)describePtr);
+            }
+
+            free(describePtr);
+        }
+    }
+
+    if (errorMessage)
+    {
+        env->ThrowNew(env->FindClass("java/lang/Exception"), errorMessage);
+    }
+
+    return returnValue;
+}
+
 /**
  * Serialize and encrypt session instance.<br>
  * An exception is thrown if the operation fails.
