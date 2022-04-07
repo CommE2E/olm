@@ -465,5 +465,30 @@ public class OlmSession extends CommonSerializeUtils implements Serializable {
      * @return the deserialized session
      **/
     private native long deserializeJni(byte[] aSerializedData, byte[] aKey);
+
+    /**
+     * Return a pickled session as a bytes buffer.<br>
+     * The session is serialized and encrypted with aKey.
+     * In case of failure, an error human readable
+     * description is provide in aErrorMsg.
+     * @param aKey encryption key
+     * @param aErrorMsg error message description
+     * @return the pickled session as bytes buffer
+     */
+    public byte[] pickle(byte[] aKey, StringBuffer aErrorMsg) {
+        return serialize(aKey, aErrorMsg);
+    }
+
+    /**
+     * Loads a session from a pickled bytes buffer.<br>
+     * See {@link #serialize(byte[], StringBuffer)}
+     * @param aSerializedData bytes buffer
+     * @param aKey key used to encrypted
+     * @exception Exception the exception
+     */
+    public void unpickle(byte[] aSerializedData, byte[] aKey) throws Exception {
+        deserialize(aSerializedData, aKey);
+    }
+
 }
 

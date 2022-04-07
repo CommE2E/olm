@@ -293,4 +293,28 @@ public class OlmOutboundGroupSession extends CommonSerializeUtils implements Ser
      **/
     private native long deserializeJni(byte[] aSerializedData, byte[] aKey);
 
+    /**
+     * Return a pickled outbound group session as a bytes buffer.<br>
+     * The session is serialized and encrypted with aKey.
+     * In case of failure, an error human readable
+     * description is provide in aErrorMsg.
+     * @param aKey encryption key
+     * @param aErrorMsg error message description
+     * @return the pickled outbound group session as bytes buffer
+     */
+    public byte[] pickle(byte[] aKey, StringBuffer aErrorMsg) {
+        return serialize(aKey, aErrorMsg);
+    }
+
+    /**
+     * Loads an outbound group session from a pickled bytes buffer.<br>
+     * See {@link #serialize(byte[], StringBuffer)}
+     * @param aSerializedData bytes buffer
+     * @param aKey key used to encrypted
+     * @exception Exception the exception
+     */
+    public void unpickle(byte[] aSerializedData, byte[] aKey) throws Exception {
+        deserialize(aSerializedData, aKey);
+    }
+
 }
