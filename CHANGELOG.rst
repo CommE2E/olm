@@ -1,3 +1,14 @@
+Changes in `3.2.11 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.11>`_
+===========================================================================
+
+This release includes the following changes since 3.2.10:
+
+* Fix building documentation.  Thanks to Jonas Smedegaard.  The documents
+  written in Markdown are now converted to HTML using Pandoc.
+* Add methods for getting unpublished fallback key in Objective-C binding.
+* Add public pickle/unpickle methods to Java binding.
+* Add wrapper for olm_session_describe to Java binding.  Thanks to Alex Baker.
+
 Changes in `3.2.10 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.10>`_
 ===========================================================================
 
