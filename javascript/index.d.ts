@@ -121,6 +121,7 @@ declare class SAS {
     set_their_key(their_key: string): void;
     generate_bytes(info: string, length: number): Uint8Array;
     calculate_mac(input: string, info: string): string;
+    calculate_mac_fixed_base64(input: string, info: string): string;
     calculate_mac_long_kdf(input: string, info: string): string;
 }
 

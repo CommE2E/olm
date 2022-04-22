@@ -106,6 +106,16 @@ public class OlmSAS {
         return null;
     }
 
+    public String calculateMacFixedBase64(String message, String info) throws OlmException {
+        try {
+            byte[] bytes = calculateMacFixedBase64Jni(message.getBytes("UTF-8"), info.getBytes("UTF-8"));
+            if (bytes != null) return new String(bytes, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new OlmException(OlmException.EXCEPTION_CODE_SAS_ERROR, e.getMessage());
+        }
+        return null;
+    }
+
     public String calculateMacLongKdf(String message, String info) throws OlmException {
         try {
             byte[] bytes = calculateMacLongKdfJni(message.getBytes("UTF-8"), info.getBytes("UTF-8"));
@@ -139,6 +149,8 @@ public class OlmSAS {
     private native byte[] generateShortCodeJni(byte[] info, int byteNumber);
 
     private native byte[] calculateMacJni(byte[] message, byte[] info);
+
+    private native byte[] calculateMacFixedBase64Jni(byte[] message, byte[] info);
 
     private native byte[] calculateMacLongKdfJni(byte[] message, byte[] info);
 

@@ -32,6 +32,7 @@ JNIEXPORT jbyteArray OLM_SAS_FUNC_DEF(getPubKeyJni)(JNIEnv *env, jobject thiz);
 JNIEXPORT void OLM_SAS_FUNC_DEF(setTheirPubKey)(JNIEnv *env, jobject thiz,jbyteArray pubKey);
 JNIEXPORT jbyteArray OLM_SAS_FUNC_DEF(generateShortCodeJni)(JNIEnv *env, jobject thiz, jbyteArray infoStringBytes, jint byteNb);
 JNIEXPORT jbyteArray OLM_SAS_FUNC_DEF(calculateMacJni)(JNIEnv *env, jobject thiz, jbyteArray messageBuffer, jbyteArray infoBuffer);
+JNIEXPORT jbyteArray OLM_SAS_FUNC_DEF(calculateMacFixedBase64Jni)(JNIEnv *env, jobject thiz, jbyteArray messageBuffer, jbyteArray infoBuffer);
 JNIEXPORT jbyteArray OLM_SAS_FUNC_DEF(calculateMacLongKdfJni)(JNIEnv *env, jobject thiz, jbyteArray messageBuffer, jbyteArray infoBuffer);
 
 #ifdef __cplusplus
