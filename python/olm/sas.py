@@ -214,6 +214,9 @@ class Sas(object):
         # type: (str, str) -> str
         """Generate a message authentication code based on the shared secret.
 
+        This function uses a fixed base64 encoding that is compatible with
+        other base64 implementations.
+
         Args:
             message (str): The message to produce the authentication code for.
             extra_info (str): Extra information to mix in when generating the
