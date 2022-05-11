@@ -23,6 +23,10 @@
 
               src = ./.;
 
+              postPatch = ''
+                patchShebangs .
+              '';
+
               configurePhase = "";
 
               buildPhase = ''
