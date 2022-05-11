@@ -6,14 +6,24 @@
   # the current stable release because of
   # https://github.com/emscripten-core/emscripten/issues/14995
   inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.npmlock2nix = {
+    url = "github:nix-community/npmlock2nix";
+    flake = false;
+  };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, npmlock2nix }:
    (
       flake-utils.lib.eachDefaultSystem (system:
         let
           pkgs = import nixpkgs {
             inherit system;
+            overlays = [
+              (final: prev: {
+                npmlock2nix = final.callPackage npmlock2nix {};
+              })
+            ];
           };
+          node_modules = pkgs.npmlock2nix.node_modules { src = ./javascript; };
         in
           rec {
             packages.javascript = pkgs.buildEmscriptenPackage {
@@ -51,8 +61,8 @@
               checkPhase = ''
                 cd javascript
                 export HOME=$TMPDIR
-                yarn install
-                yarn test
+                ln -s ${node_modules}/node_modules ./node_modules
+                ${pkgs.nodejs}/bin/npm test
                 cd ..
               '';
             };
