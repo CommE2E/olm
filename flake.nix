@@ -29,7 +29,7 @@
               pname = "olm";
               inherit (builtins.fromJSON (builtins.readFile ./javascript/package.json)) version;
 
-              buildInputs = [ pkgs.gnumake pkgs.python3 pkgs.yarn ];
+              buildInputs = with pkgs; [ gnumake python3 nodejs ];
 
               src = ./.;
 
@@ -62,7 +62,7 @@
                 cd javascript
                 export HOME=$TMPDIR
                 ln -s ${node_modules}/node_modules ./node_modules
-                ${pkgs.nodejs}/bin/npm test
+                npm test
                 cd ..
               '';
             };
