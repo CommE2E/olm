@@ -26,7 +26,8 @@
         in
           rec {
             packages.javascript = pkgs.buildEmscriptenPackage {
-              name = "olm";
+              pname = "olm";
+              inherit (builtins.fromJSON (builtins.readFile ./javascript/package.json)) version;
 
               buildInputs = [ pkgs.gnumake pkgs.python3 pkgs.yarn ];
 
