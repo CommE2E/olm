@@ -15,6 +15,7 @@
 .ccls-cache/
 /python/.eggs
 /python/install-temp
+/result
 
 # Xcode
 build/
