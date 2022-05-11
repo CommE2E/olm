@@ -1,9 +1,8 @@
 {
   description = "An implementation of the Double Ratchet cryptographic ratchet";
 
-  inputs.nixpkgs.url = "nixpkgs/c777cdf5c564015d5f63b09cc93bef4178b19b01";
-  # c777cdf5c564015d5f63b09cc93bef4178b19b01 is current unstable.  We can't use
-  # the current stable release because of
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  # We can't use the current stable release because of
   # https://github.com/emscripten-core/emscripten/issues/14995
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.npmlock2nix = {
