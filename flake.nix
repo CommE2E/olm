@@ -28,10 +28,10 @@
           node_modules = pkgs.npmlock2nix.node_modules { src = ./javascript; };
         in
           rec {
-            checks.gcc-cmake = pkgs.stdenv.mkDerivation {
+            checks.gcc-cmake = pkgs.gccStdenv.mkDerivation {
               name = "olm";
 
-              buildInputs = with pkgs; [ gcc cmake ];
+              buildInputs = [ pkgs.cmake ];
 
               src = ./.;
 
@@ -47,10 +47,10 @@
               '';
             };
 
-            checks.clang-cmake = pkgs.stdenv.mkDerivation {
+            checks.clang-cmake = pkgs.clangStdenv.mkDerivation {
               name = "olm";
 
-              buildInputs = with pkgs; [ clang cmake ];
+              buildInputs = [ pkgs.cmake ];
 
               src = ./.;
 
@@ -66,10 +66,8 @@
               '';
             };
 
-            checks.gcc-make = pkgs.stdenv.mkDerivation {
+            checks.gcc-make = pkgs.gccStdenv.mkDerivation {
               name = "olm";
-
-              buildInputs = with pkgs; [ gcc gnumake ];
 
               src = ./.;
 
