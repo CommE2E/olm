@@ -40,6 +40,7 @@
                 cmake --build build
               '';
 
+              doCheck = true;
               checkPhase = ''
                 cd build/tests
                 ctest .
@@ -59,6 +60,7 @@
                 cmake --build build
               '';
 
+              doCheck = true;
               checkPhase = ''
                 cd build/tests
                 ctest .
@@ -75,6 +77,7 @@
                 make
               '';
 
+              doCheck = true;
               checkPhase = ''
                 make test
               '';
