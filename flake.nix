@@ -12,7 +12,10 @@
 
   outputs = { self, nixpkgs, flake-utils, npmlock2nix }:
    (
-      flake-utils.lib.eachDefaultSystem (system:
+      # some systems cause issues, e.g. i686-linux is unsupported by gradle,
+      # which causes "nix flake check" to fail. Investigate more later, but for
+      # now, we will just allow x86_64-linux
+      flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
         let
           pkgs = import nixpkgs {
             inherit system;
@@ -25,6 +28,64 @@
           node_modules = pkgs.npmlock2nix.node_modules { src = ./javascript; };
         in
           rec {
+            checks.gcc-cmake = pkgs.stdenv.mkDerivation {
+              name = "olm";
+
+              buildInputs = with pkgs; [ gcc cmake ];
+
+              src = ./.;
+
+              buildPhase = ''
+                cmake . -Bbuild
+                cmake --build build
+              '';
+
+              checkPhase = ''
+                cd build/tests
+                ctest .
+                cd ../..
+              '';
+            };
+
+            checks.clang-cmake = pkgs.stdenv.mkDerivation {
+              name = "olm";
+
+              buildInputs = with pkgs; [ clang cmake ];
+
+              src = ./.;
+
+              buildPhase = ''
+                cmake . -Bbuild
+                cmake --build build
+              '';
+
+              checkPhase = ''
+                cd build/tests
+                ctest .
+                cd ../..
+              '';
+            };
+
+            checks.gcc-make = pkgs.stdenv.mkDerivation {
+              name = "olm";
+
+              buildInputs = with pkgs; [ gcc gnumake ];
+
+              src = ./.;
+
+              buildPhase = ''
+                make
+              '';
+
+              checkPhase = ''
+                make test
+              '';
+
+              installPhase = ''
+                make install PREFIX=$out
+              '';
+            };
+
             packages.javascript = pkgs.buildEmscriptenPackage {
               pname = "olm";
               inherit (builtins.fromJSON (builtins.readFile ./javascript/package.json)) version;
