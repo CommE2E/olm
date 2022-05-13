@@ -20,6 +20,9 @@ include/olm/error.h: include/olm/olm.h ../include/olm/error.h
 
 headers: include/olm/olm.h include/olm/pk.h include/olm/sas.h include/olm/error.h
 
+olm-python3: headers
+	DEVELOP=$(DEVELOP) python3 setup.py build
+
 install: install-python3
 
 install-python3: olm-python3
