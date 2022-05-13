@@ -217,7 +217,7 @@ class PkDecryption(object):
             random_buffer, random_length
         )
         self._check_error(ret)
-        self.public_key = bytes_to_native_str(ffi.unpack(
+        self.public_key: str = bytes_to_native_str(ffi.unpack(
             key_buffer,
             key_length
         ))
@@ -267,7 +267,7 @@ class PkDecryption(object):
 
     @classmethod
     def from_pickle(cls, pickle, passphrase=""):
-        # types: (bytes, str) -> PkDecryption
+        # type: (bytes, str) -> PkDecryption
         """Restore a previously stored PkDecryption object.
 
         Creates a PkDecryption object from a pickled base64 string. Decrypts
@@ -314,7 +314,7 @@ class PkDecryption(object):
         return obj
 
     def decrypt(self, message, unicode_errors="replace"):
-        # type (PkMessage, str) -> str
+        # type: (PkMessage, str) -> str
         """Decrypt a previously encrypted Pk message.
 
         Returns the decrypted plaintext.

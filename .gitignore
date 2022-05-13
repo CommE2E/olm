@@ -38,3 +38,6 @@ xcuserdata/
 *.dSYM
 Pods/
 *.xcworkspace
+
+# JetBrains tools
+.idea/
