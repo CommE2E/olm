@@ -126,7 +126,7 @@
               '';
             };
 
-            defaultPackage = packages.javascript;
+            packages.default = packages.javascript;
           }
       )
    );
