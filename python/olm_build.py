@@ -33,6 +33,13 @@ link_args = ["-L../build"]
 if DEVELOP and DEVELOP.lower() in ["yes", "true", "1"]:
     link_args.append('-Wl,-rpath=../build')
 
+# If libolm is compiled statically, we may need to link to the C++ standard
+# library dynamically.  This flag allows passing the required linker flag to do
+# so.
+CXX_LIB = os.environ.get("CXX_LIB")
+if CXX_LIB:
+    link_args.append(CXX_LIB)
+
 headers_build = subprocess.Popen("make headers", shell=True)
 headers_build.wait()
 
