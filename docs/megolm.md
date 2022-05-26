@@ -109,7 +109,7 @@ discriminate between sessions.
 ### Sharing session data
 
 To allow other participants in the conversation to decrypt messages, the
-session data is formatted as described in [Session-sharing format](#Session-sharing-format). It is then
+session data is formatted as described in [Session-sharing format](#session-sharing-format). It is then
 shared with other participants in the conversation via a secure peer-to-peer
 channel (such as that provided by [Olm][]).
 
