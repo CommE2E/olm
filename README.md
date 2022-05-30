@@ -54,7 +54,7 @@ To build the android project for Android bindings, run:
 
 ```bash
 cd android
-./gradlew clean assembleRelease
+./gradlew clean build
 ```
 
 To build the Xcode workspace for Objective-C bindings, run:
@@ -65,16 +65,13 @@ pod install
 open OLMKit.xcworkspace
 ```
 
-To build the Python bindings, first build olm as a shared library as above, and
+To build the Python 3 bindings, first build olm as a shared library as above, and
 then run:
 
 ```bash
 cd python
 make
 ```
-
-to make both the Python 2 and Python 3 bindings.  To make only one version, use
-``make olm-python2`` or ``make olm-python3`` instead of just ``make``.
 
 ### Using make instead of cmake
 
