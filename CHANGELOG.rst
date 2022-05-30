@@ -1,3 +1,14 @@
+Changes in `3.2.12 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.12>`_
+===========================================================================
+
+This release includes the following changes since 3.2.11:
+
+* Expose olm_sas_calculate_mac_fixed_base64 in the bindings.
+* Allow memory to grow in wasm.  Thanks to benkuly for the suggestion.
+* Fix Python type hints.
+* Some Python build fixes.
+* Initial work on a Nix flake for building and testing.
+
 Changes in `3.2.11 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.11>`_
 ===========================================================================
 
