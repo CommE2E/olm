@@ -157,5 +157,5 @@ Pickling works the same way as for peer-to-peer Olm sessions.
 [3]: https://cffi.readthedocs.io/en/latest/
 [4]: https://git.matrix.org/git/olm/about/docs/olm.rst
 [5]: https://git.matrix.org/git/olm/about/docs/megolm.rst
-[6]: https://matrix.org/docs/guides/e2e_implementation.html
+[6]: https://matrix.org/docs/guides/end-to-end-encryption-implementation-guide
 [7]: https://poljar.github.io/python-olm/html/index.html
