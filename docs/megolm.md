@@ -227,7 +227,7 @@ The Megolm session export format is thus as follows:
 0   1    5        37       69      101      133    165   bytes
 ```
 
-The version byte, ``V``, is ``"\x02"``.
+The version byte, ``V``, is ``"\x01"``.
 
 This is followed by the ratchet index, $`i`$, which is encoded as a
 big-endian 32-bit integer; the ratchet values $`R_{i,j}`$; and the public
