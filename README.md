@@ -116,7 +116,7 @@ repository, some bindings are (in alphabetical order):
 - [nim-olm](https://codeberg.org/BarrOff/nim-olm) (MIT) Nim bindings
 - [olm-sys](https://gitlab.gnome.org/BrainBlasted/olm-sys) (Apache-2.0) Rust
   bindings
-- [Trixnity](https://gitlab.com/benkuly/trixnity) (AGPLv3) Kotlin SDK for
+- [Trixnity](https://gitlab.com/benkuly/trixnity) (Apache-2.0) Kotlin SDK for
   Matrix, including Olm bindings
 
 Note that bindings may have a different license from libolm, and are *not*
