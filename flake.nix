@@ -3,7 +3,7 @@
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   # We can't use the current stable release because of
-  # https://github.com/emscripten-core/emscripten/issues/14995
+  # https://github.com/emscripten-core/emscripten/issues/16913
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.npmlock2nix = {
     url = "github:nix-community/npmlock2nix";
