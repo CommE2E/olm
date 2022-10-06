@@ -27,5 +27,8 @@ setup(
         "future",
         "typing;python_version<'3.5'"
     ],
-    zip_safe=False
+    zip_safe=False,
+    package_data={
+        "olm": ["py.typed"]
+    }
 )
