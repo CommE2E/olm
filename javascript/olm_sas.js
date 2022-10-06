@@ -1,3 +1,4 @@
+/** @constructor */
 function SAS() {
     var size = Module['_olm_sas_size']();
     var random_length = Module['_olm_create_sas_random_length']();

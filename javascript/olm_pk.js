@@ -1,3 +1,4 @@
+/** @constructor */
 function PkEncryption() {
     var size = Module['_olm_pk_encryption_size']();
     this.buf = malloc(size);
@@ -98,6 +99,7 @@ PkEncryption.prototype['encrypt'] = restore_stack(function(
 });
 
 
+/** @constructor */
 function PkDecryption() {
     var size = Module['_olm_pk_decryption_size']();
     this.buf = malloc(size);
@@ -273,6 +275,7 @@ PkDecryption.prototype['decrypt'] = restore_stack(function (
 })
 
 
+/** @constructor */
 function PkSigning() {
     var size = Module['_olm_pk_signing_size']();
     this.buf = malloc(size);

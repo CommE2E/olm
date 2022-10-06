@@ -1,3 +1,4 @@
+/** @constructor */
 function OutboundGroupSession() {
     var size = Module['_olm_outbound_group_session_size']();
     this.buf = malloc(size);

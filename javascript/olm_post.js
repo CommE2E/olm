@@ -44,6 +44,7 @@ function bzero(ptr, n) {
     }
 }
 
+/** @constructor */
 function Account() {
     var size = Module['_olm_account_size']();
     this.buf = malloc(size);
@@ -244,6 +245,7 @@ Account.prototype['unpickle'] = restore_stack(function(key, pickle) {
     }
 });
 
+/** @constructor */
 function Session() {
     var size = Module['_olm_session_size']();
     this.buf = malloc(size);
@@ -530,6 +532,7 @@ Session.prototype['describe'] = restore_stack(function() {
     }
 });
 
+/** @constructor */
 function Utility() {
     var size = Module['_olm_utility_size']();
     this.buf = malloc(size);
