@@ -2,7 +2,7 @@
 
 import PackageDescription
 
-let major = 3, minor = 2, patch = 12
+let major = 3, minor = 2, patch = 13
 
 let package = Package(
     name: "Olm",

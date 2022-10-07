@@ -1,3 +1,15 @@
+Changes in `3.2.13 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.13>`_
+===========================================================================
+
+This release includes the following changes since 3.2.12:
+
+* Fix compilation with newer versions of emscripten.
+  * The npm package is compiled with emscripten 3.1.17 to fix compatibility with
+    node 18.
+* Add py.typed to Python wheels.
+* Some documentation fixes and updates.
+* Improve the pkgconfig file.
+
 Changes in `3.2.12 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.12>`_
 ===========================================================================
 
