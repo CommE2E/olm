@@ -9,6 +9,66 @@ The specification of the Olm ratchet can be found in [docs/olm.md](docs/olm.md).
 This library also includes an implementation of the Megolm cryptographic
 ratchet, as specified in [docs/megolm.md](docs/megolm.md).
 
+## Installing
+
+### Linux and other Unix-like systems
+
+Your distribution may have pre-compiled packages available.  If not, or if you
+need a newer version, you will need to compile from source.  See the "Building"
+section below for more details.
+
+### macOS
+
+The easiest way to install on macOS is via Homebrew.  If you do not have
+Homebrew installed, follow the instructions at https://brew.sh/ to install it.
+
+You can then install libolm by running
+
+```bash
+brew install libolm
+```
+
+If you also need the Python packages, you can run
+
+```bash
+pip3 install python-olm --global-option="build_ext" --global-option="--include-dirs="`brew --prefix libolm`"/include" --global-option="--library-dirs="`brew --prefix libolm`"/lib"
+```
+
+Note that this will install an older version of the Python bindings, which may
+be missing some functions.  If you need the latest version, you will need to
+build from source.
+
+### Windows
+
+You will need to build from source.  See the "Building" section below for more
+details.
+
+### Bindings
+
+#### JavaScript
+
+You can use pre-built npm packages, available at
+<https://gitlab.matrix.org/matrix-org/olm/-/packages?type=npm>.
+
+#### Python
+
+Pre-built packages for Python are available for certain architectures at
+<https://gitlab.matrix.org/matrix-org/olm/-/packages?type=PyPI>.  They can be
+installed by running
+
+```bash
+pip install python-olm --extra-index-url https://gitlab.matrix.org/api/v4/projects/27/packages/pypi/simple
+```
+
+Currently, we try to provide packages for all supported versions of Python on
+x86-64, i686, and aarch64, but we cannot guarantee that packages for all
+versions will be available on all architectures.
+
+#### Android
+
+Pre-built Android bindings are available at
+<https://gitlab.matrix.org/matrix-org/olm/-/packages?type=Maven>.
+
 ## Building
 
 To build olm as a shared library run:
@@ -41,14 +101,28 @@ target_link_libraries(my_exe Olm::Olm)
 
 ### Bindings
 
-To build the JavaScript bindings, install emscripten from https://emscripten.org/ and then run:
+#### JavaScript
+
+The recommended way to build the JavaScript bindings is using
+[Nix](https://nixos.org/).  With Nix, you can run
+
+```bash
+nix build .\#javascript
+```
+
+to build the bindings.
+
+If you do not have Nix you can, install emscripten from https://emscripten.org/
+and then run:
 
 ```bash
 make js
 ```
 
-Note that if you run emscripten in a docker container, you need to pass through
+Emscripten can also be run via Docker, in which case, you need to pass through
 the EMCC_CLOSURE_ARGS environment variable.
+
+#### Android
 
 To build the android project for Android bindings, run:
 
@@ -56,6 +130,8 @@ To build the android project for Android bindings, run:
 cd android
 ./gradlew clean build
 ```
+
+#### Objective-C
 
 To build the Xcode workspace for Objective-C bindings, run:
 
@@ -65,7 +141,9 @@ pod install
 open OLMKit.xcworkspace
 ```
 
-To build the Python 3 bindings, first build olm as a shared library as above, and
+#### Python
+
+To build the Python 3 bindings, first build olm as a library as above, and
 then run:
 
 ```bash
