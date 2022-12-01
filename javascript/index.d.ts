@@ -51,7 +51,10 @@ declare class Session {
     has_received_message(): boolean;
     matches_inbound(one_time_key_message: string): boolean;
     matches_inbound_from(identity_key: string, one_time_key_message: string): boolean;
-    encrypt(plaintext: string): object;
+    encrypt(plaintext: string): {
+        type: 0 | 1; // 0: PreKey, 1: Message
+        body: string;
+    };
     decrypt(message_type: number, message: string): string;
     describe(): string;
 }
@@ -70,7 +73,10 @@ declare class InboundGroupSession {
     unpickle(key: string | Uint8Array, pickle: string): void;
     create(session_key: string): string;
     import_session(session_key: string): string;
-    decrypt(message: string): object;
+    decrypt(message: string): {
+        message_index: string;
+        plaintext: string;
+    };
     session_id(): string;
     first_known_index(): number;
     export_session(message_index: number): string;
@@ -92,7 +98,11 @@ declare class PkEncryption {
     constructor();
     free(): void;
     set_recipient_key(key: string): void;
-    encrypt(plaintext: string): object;
+    encrypt(plaintext: string): {
+        ciphertext: string;
+        mac: string;
+        ephemeral: string;
+    };
 }
 
 declare class PkDecryption {
