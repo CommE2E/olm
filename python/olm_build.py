@@ -38,7 +38,7 @@ if DEVELOP and DEVELOP.lower() in ["yes", "true", "1"]:
 # so.
 CXX_LIB = os.environ.get("CXX_LIB")
 if CXX_LIB:
-    link_args.append(CXX_LIB)
+    link_args.extend(CXX_LIB.split())
 
 headers_build = subprocess.Popen("make headers", shell=True)
 headers_build.wait()
