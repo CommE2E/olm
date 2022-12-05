@@ -1,3 +1,12 @@
+Changes in `3.2.14 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.14>`_
+===========================================================================
+
+This release includes the following changes since 3.2.13:
+
+* TypeScript type improvements.
+* Improvements to Python packaging
+* Documentation improvements.
+
 Changes in `3.2.13 <https://gitlab.matrix.org/matrix-org/olm/tags/3.2.13>`_
 ===========================================================================
 
