@@ -458,6 +458,44 @@ size_t olm_account_generate_one_time_keys(
     return result;
 }
 
+size_t olm_account_generate_prekey_random_length(
+    OlmAccount const * account
+) {
+    return from_c(account)->generate_prekey_random_length();
+}
+
+size_t olm_account_generate_prekey(
+    OlmAccount * account,
+    void * random, size_t random_length
+) {
+    size_t result = from_c(account)->generate_prekey(
+        from_c(random), random_length
+    );
+    olm::unset(random, random_length);
+    return result;
+}
+
+size_t olm_account_prekey_length(
+    OlmAccount const * account
+) {
+    return from_c(account)->get_prekey_json_length();
+}
+
+size_t olm_account_prekey(
+    OlmAccount * account,
+    void * prekey_json, size_t prekey_json_length
+) {
+    return from_c(account)->get_prekey_json(
+        from_c(prekey_json), prekey_json_length
+    );
+}
+
+void olm_account_forget_old_prekey(
+    OlmAccount * account
+) {
+    return from_c(account)->forget_old_prekey();
+}
+
 
 size_t olm_account_generate_fallback_key_random_length(
     OlmAccount const * account
@@ -530,28 +568,34 @@ size_t olm_create_outbound_session(
     OlmSession * session,
     OlmAccount const * account,
     void const * their_identity_key, size_t their_identity_key_length,
+    void const * their_pre_key, size_t their_pre_key_length,
     void const * their_one_time_key, size_t their_one_time_key_length,
     void * random, size_t random_length
 ) {
     std::uint8_t const * id_key = from_c(their_identity_key);
     std::uint8_t const * ot_key = from_c(their_one_time_key);
+    std::uint8_t const * p_key = from_c(their_pre_key);
     std::size_t id_key_length = their_identity_key_length;
     std::size_t ot_key_length = their_one_time_key_length;
+    std::size_t p_key_length = their_pre_key_length;
 
     if (olm::decode_base64_length(id_key_length) != CURVE25519_KEY_LENGTH
             || olm::decode_base64_length(ot_key_length) != CURVE25519_KEY_LENGTH
+            || olm::decode_base64_length(p_key_length) != CURVE25519_KEY_LENGTH
     ) {
         from_c(session)->last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
     }
     _olm_curve25519_public_key identity_key;
+    _olm_curve25519_public_key pre_key;
     _olm_curve25519_public_key one_time_key;
 
     olm::decode_base64(id_key, id_key_length, identity_key.public_key);
     olm::decode_base64(ot_key, ot_key_length, one_time_key.public_key);
+    olm::decode_base64(p_key, p_key_length, pre_key.public_key);
 
     size_t result = from_c(session)->new_outbound_session(
-        *from_c(account), identity_key, one_time_key,
+        *from_c(account), identity_key, pre_key, one_time_key,
         from_c(random), random_length
     );
     olm::unset(random, random_length);

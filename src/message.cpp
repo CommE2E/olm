@@ -245,6 +245,7 @@ void olm::decode_message(
 namespace {
 
 static std::uint8_t const ONE_TIME_KEY_ID_TAG = 012;
+static std::uint8_t const PREKEY_ID_TAG = 052;
 static std::uint8_t const BASE_KEY_TAG = 022;
 static std::uint8_t const IDENTITY_KEY_TAG = 032;
 static std::uint8_t const MESSAGE_TAG = 042;
@@ -253,12 +254,14 @@ static std::uint8_t const MESSAGE_TAG = 042;
 
 
 std::size_t olm::encode_one_time_key_message_length(
-    std::size_t one_time_key_length,
+    std::size_t prekey_length,
     std::size_t identity_key_length,
     std::size_t base_key_length,
+    std::size_t one_time_key_length,
     std::size_t message_length
 ) {
     std::size_t length = VERSION_LENGTH;
+    length += 1 + varstring_length(prekey_length);
     length += 1 + varstring_length(one_time_key_length);
     length += 1 + varstring_length(identity_key_length);
     length += 1 + varstring_length(base_key_length);
@@ -272,12 +275,14 @@ void olm::encode_one_time_key_message(
     std::uint8_t version,
     std::size_t identity_key_length,
     std::size_t base_key_length,
+    std::size_t prekey_length,
     std::size_t one_time_key_length,
     std::size_t message_length,
     std::uint8_t * output
 ) {
     std::uint8_t * pos = output;
     *(pos++) = version;
+    pos = encode(pos, PREKEY_ID_TAG, writer.prekey, prekey_length);
     pos = encode(pos, ONE_TIME_KEY_ID_TAG, writer.one_time_key, one_time_key_length);
     pos = encode(pos, BASE_KEY_TAG, writer.base_key, base_key_length);
     pos = encode(pos, IDENTITY_KEY_TAG, writer.identity_key, identity_key_length);
@@ -294,6 +299,8 @@ void olm::decode_one_time_key_message(
     std::uint8_t const * unknown = nullptr;
 
     reader.version = 0;
+    reader.prekey = nullptr;
+    reader.prekey_length = 0;
     reader.one_time_key = nullptr;
     reader.one_time_key_length = 0;
     reader.identity_key = nullptr;
@@ -308,6 +315,11 @@ void olm::decode_one_time_key_message(
 
     while (pos != end) {
         unknown = pos;
+        pos = decode(
+            pos, end, PREKEY_ID_TAG,
+            reader.prekey, reader.prekey_length
+        );
+
         pos = decode(
             pos, end, ONE_TIME_KEY_ID_TAG,
             reader.one_time_key, reader.one_time_key_length

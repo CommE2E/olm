@@ -29,20 +29,29 @@ struct IdentityKeys {
     _olm_curve25519_key_pair curve25519_key;
 };
 
+struct PreKey {
+    std::uint32_t id;
+    bool published;
+    _olm_curve25519_key_pair key;
+    std::uint8_t signature[ED25519_SIGNATURE_LENGTH];
+};
+
 struct OneTimeKey {
     std::uint32_t id;
     bool published;
     _olm_curve25519_key_pair key;
 };
 
-
 static std::size_t const MAX_ONE_TIME_KEYS = 100;
-
+static std::size_t const KEEP_OLD_PREKEY_SEC = 86400;
 
 struct Account {
     Account();
     IdentityKeys identity_keys;
     List<OneTimeKey, MAX_ONE_TIME_KEYS> one_time_keys;
+    PreKey current_prekey;
+    PreKey prev_prekey;
+    std::uint32_t next_prekey_id;
     std::uint8_t num_fallback_keys;
     OneTimeKey current_fallback_key;
     OneTimeKey prev_fallback_key;
@@ -73,6 +82,39 @@ struct Account {
      * If the buffer is too small last_error will be OUTPUT_BUFFER_TOO_SMALL. */
     std::size_t get_identity_json(
         std::uint8_t * identity_json, std::size_t identity_json_length
+    );
+
+    /** Number of bytes needed to output the current prekey for this account */
+    std::size_t get_prekey_json_length() const;
+
+    /** Output the current prekey as JSON:
+     *
+     *  {"curve25519":
+     *  ["<6 byte key id>":"<43 base64 characters>"]
+     *  }
+     *
+     * Returns the size of the JSON written or std::size_t(-1) on error.
+     * If the buffer is too small last_error will be OUTPUT_BUFFER_TOO_SMALL.
+     */
+    std::size_t get_prekey_json(
+        std::uint8_t * prekey_json, std::size_t prekey_json_length
+    );
+
+    /** The number of random bytes needed to generate a prekey. */
+    std::size_t generate_prekey_random_length() const;
+
+    /** Generates a new prekey. Returns std::size_t(-1) on error. If the number
+     * of random bytes is too small then last_error will be NOT_ENOUGH_RANDOM */
+    std::size_t generate_prekey(
+        std::uint8_t const * random, std::size_t random_length
+    );
+
+    /** Forget about the old prekey */
+    void forget_old_prekey();
+
+    /** Lookup a prekey with the given public key */
+    PreKey const * lookup_prekey(
+        _olm_curve25519_public_key const & public_key
     );
 
     /**

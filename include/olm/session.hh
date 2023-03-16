@@ -42,6 +42,7 @@ struct OLM_EXPORT Session {
     _olm_curve25519_public_key alice_identity_key;
     _olm_curve25519_public_key alice_base_key;
     _olm_curve25519_public_key bob_one_time_key;
+    _olm_curve25519_public_key bob_prekey;
 
     /** The number of random bytes that are needed to create a new outbound
      * session. This will be 64 bytes since two ephemeral keys are needed. */
@@ -53,6 +54,7 @@ struct OLM_EXPORT Session {
     std::size_t new_outbound_session(
         Account const & local_account,
         _olm_curve25519_public_key const & identity_key,
+        _olm_curve25519_public_key const & pre_key,
         _olm_curve25519_public_key const & one_time_key,
         std::uint8_t const * random, std::size_t random_length
     );

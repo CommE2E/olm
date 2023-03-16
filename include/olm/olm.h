@@ -278,6 +278,28 @@ OLM_EXPORT size_t olm_account_generate_one_time_keys(
     void * random, size_t random_length
 );
 
+OLM_EXPORT size_t olm_account_generate_prekey_random_length(
+    OlmAccount const * account
+);
+
+OLM_EXPORT size_t olm_account_generate_prekey(
+    OlmAccount * account,
+    void * random, size_t random_length
+);
+
+OLM_EXPORT size_t olm_account_prekey_length(
+    OlmAccount const * account
+);
+
+OLM_EXPORT size_t olm_account_prekey(
+    OlmAccount * account,
+    void * prekey_json, size_t prekey_json_length
+);
+
+OLM_EXPORT void olm_account_forget_old_prekey(
+    OlmAccount * account
+);
+
 /** The number of random bytes needed to generate a fallback key. */
 OLM_EXPORT size_t olm_account_generate_fallback_key_random_length(
     OlmAccount const * account
@@ -340,6 +362,7 @@ OLM_EXPORT size_t olm_create_outbound_session(
     OlmSession * session,
     OlmAccount const * account,
     void const * their_identity_key, size_t their_identity_key_length,
+    void const * their_pre_key, size_t their_pre_key_length,
     void const * their_one_time_key, size_t their_one_time_key_length,
     void * random, size_t random_length
 );

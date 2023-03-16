@@ -43,6 +43,11 @@ std::vector<std::uint8_t> account_buffer(::olm_account_size());
 std::vector<std::uint8_t> random(::olm_create_account_random_length(account));
 mock_random(random.data(), random.size());
 ::olm_create_account(account, random.data(), random.size());
+
+std::vector<std::uint8_t> pre_random(::olm_account_generate_prekey_random_length(account));
+mock_random(pre_random.data(), pre_random.size());
+::olm_account_generate_prekey(account, pre_random.data(), pre_random.size());
+
 std::vector<std::uint8_t> ot_random(::olm_account_generate_one_time_keys_random_length(
     account, 42
                                         ));
@@ -86,7 +91,7 @@ CHECK_EQ(OLM_PICKLE_EXTRA_DATA, olm_account_last_error_code(account));
 }
 
 
-    TEST_CASE("Old account unpickle test") {
+TEST_CASE("Old account unpickle test") {
 
     // this uses the old pickle format, which did not use enough space
     // for the Ed25519 key. We should reject it.
@@ -126,14 +131,17 @@ std::vector<std::uint8_t> session_buffer(::olm_session_size());
 ::OlmSession *session = ::olm_session(session_buffer.data());
 std::uint8_t identity_key[32];
 std::uint8_t one_time_key[32];
+std::uint8_t pre_key[32];
 mock_random(identity_key, sizeof(identity_key));
 mock_random(one_time_key, sizeof(one_time_key));
+mock_random(pre_key, sizeof(one_time_key));
 std::vector<std::uint8_t> random2(::olm_create_outbound_session_random_length(session));
 mock_random(random2.data(), random2.size());
 
 ::olm_create_outbound_session(
     session, account,
     identity_key, sizeof(identity_key),
+    pre_key, sizeof(pre_key),
     one_time_key, sizeof(one_time_key),
     random2.data(), random2.size()
 );
@@ -198,12 +206,20 @@ std::vector<std::uint8_t> o_random(::olm_account_generate_one_time_keys_random_l
 mock_random_b(o_random.data(), o_random.size());
 ::olm_account_generate_one_time_keys(b_account, 42, o_random.data(), o_random.size());
 
+std::vector<std::uint8_t> p_random(::olm_account_generate_prekey_random_length(
+        b_account
+));
+mock_random_b(p_random.data(), p_random.size());
+::olm_account_generate_prekey(b_account, p_random.data(), p_random.size());
+
 std::vector<std::uint8_t> a_id_keys(::olm_account_identity_keys_length(a_account));
 ::olm_account_identity_keys(a_account, a_id_keys.data(), a_id_keys.size());
 
 std::vector<std::uint8_t> b_id_keys(::olm_account_identity_keys_length(b_account));
+std::vector<std::uint8_t> b_pre_key(::olm_account_prekey_length(b_account));
 std::vector<std::uint8_t> b_ot_keys(::olm_account_one_time_keys_length(b_account));
 ::olm_account_identity_keys(b_account, b_id_keys.data(), b_id_keys.size());
+::olm_account_prekey(b_account, b_pre_key.data(), b_pre_key.size());
 ::olm_account_one_time_keys(b_account, b_ot_keys.data(), b_ot_keys.size());
 
 std::vector<std::uint8_t> a_session_buffer(::olm_session_size());
@@ -213,6 +229,7 @@ mock_random_a(a_rand.data(), a_rand.size());
 CHECK_NE(std::size_t(-1), ::olm_create_outbound_session(
     a_session, a_account,
     b_id_keys.data() + 15, 43, // B's curve25519 identity key
+    b_pre_key.data() + 25, 43,  // B's curve25519 pre key
     b_ot_keys.data() + 25, 43, // B's curve25519 one time key
     a_rand.data(), a_rand.size()
 ));
@@ -344,9 +361,17 @@ std::vector<std::uint8_t> o_random(::olm_account_generate_one_time_keys_random_l
 mock_random_b(o_random.data(), o_random.size());
 ::olm_account_generate_one_time_keys(b_account, 42, o_random.data(), o_random.size());
 
+std::vector<std::uint8_t> p_random(::olm_account_generate_prekey_random_length(
+        b_account
+));
+mock_random_b(p_random.data(), p_random.size());
+::olm_account_generate_prekey(b_account, p_random.data(), p_random.size());
+
 std::vector<std::uint8_t> b_id_keys(::olm_account_identity_keys_length(b_account));
+std::vector<std::uint8_t> b_pre_key(::olm_account_prekey_length(b_account));
 std::vector<std::uint8_t> b_ot_keys(::olm_account_one_time_keys_length(b_account));
 ::olm_account_identity_keys(b_account, b_id_keys.data(), b_id_keys.size());
+::olm_account_prekey(b_account, b_pre_key.data(), b_pre_key.size());
 ::olm_account_one_time_keys(b_account, b_ot_keys.data(), b_ot_keys.size());
 
 std::vector<std::uint8_t> a_session_buffer(::olm_session_size());
@@ -356,6 +381,7 @@ mock_random_a(a_rand.data(), a_rand.size());
 CHECK_NE(std::size_t(-1), ::olm_create_outbound_session(
     a_session, a_account,
     b_id_keys.data() + 15, 43,
+    b_pre_key.data() + 25, 43,
     b_ot_keys.data() + 25, 43,
     a_rand.data(), a_rand.size()
 ));
@@ -452,6 +478,13 @@ std::vector<std::uint8_t> a_id_keys(::olm_account_identity_keys_length(a_account
 
 std::vector<std::uint8_t> b_id_keys(::olm_account_identity_keys_length(b_account));
 
+std::vector<std::uint8_t> p_random(::olm_account_generate_prekey_random_length(
+        b_account
+));
+mock_random_b(p_random.data(), p_random.size());
+::olm_account_generate_prekey(b_account, p_random.data(), p_random.size());
+
+
 // create and fetch a fallback key for b
 std::vector<std::uint8_t> f_random(::olm_account_generate_fallback_key_random_length(
         b_account
@@ -459,7 +492,10 @@ std::vector<std::uint8_t> f_random(::olm_account_generate_fallback_key_random_le
 mock_random_b(f_random.data(), f_random.size());
 ::olm_account_generate_fallback_key(b_account, f_random.data(), f_random.size());
 std::vector<std::uint8_t> b_fb_key(::olm_account_unpublished_fallback_key_length(b_account));
+std::vector<std::uint8_t> b_pre_key(::olm_account_prekey_length(b_account));
+
 ::olm_account_identity_keys(b_account, b_id_keys.data(), b_id_keys.size());
+::olm_account_prekey(b_account, b_pre_key.data(), b_pre_key.size());
 ::olm_account_unpublished_fallback_key(b_account, b_fb_key.data(), b_fb_key.size());
 
 // start a new olm session and encrypt a message
@@ -470,6 +506,7 @@ mock_random_a(a_rand.data(), a_rand.size());
 CHECK_NE(std::size_t(-1), ::olm_create_outbound_session(
     a_session1, a_account,
     b_id_keys.data() + 15, 43, // B's curve25519 identity key
+    b_pre_key.data() + 25, 43,  // B's curve25519 pre key
     b_fb_key.data() + 25, 43, // B's curve25519 one time key
     a_rand.data(), a_rand.size()
 ));
@@ -544,6 +581,7 @@ mock_random_a(a_rand.data(), a_rand.size());
 CHECK_NE(std::size_t(-1), ::olm_create_outbound_session(
     a_session2, a_account,
     b_id_keys.data() + 15, 43, // B's curve25519 identity key
+    b_pre_key.data() + 25, 43,  // B's curve25519 pre key
     b_fb_key.data() + 25, 43, // B's curve25519 one time key
     a_rand.data(), a_rand.size()
 ));
@@ -612,6 +650,7 @@ mock_random_a(a_rand.data(), a_rand.size());
 CHECK_NE(std::size_t(-1), ::olm_create_outbound_session(
     a_session3, a_account,
     b_id_keys.data() + 15, 43, // B's curve25519 identity key
+    b_pre_key.data() + 25, 43,  // B's curve25519 pre key
     b_fb_key.data() + 25, 43, // B's curve25519 one time key
     a_rand.data(), a_rand.size()
 ));

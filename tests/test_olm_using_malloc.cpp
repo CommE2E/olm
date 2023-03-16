@@ -71,10 +71,13 @@ free(o_random);
 
 
 std::size_t b_id_keys_size = ::olm_account_identity_keys_length(b_account);
+std::size_t b_pre_key_size = ::olm_account_prekey_length(b_account);
 std::size_t b_ot_keys_size = ::olm_account_one_time_keys_length(b_account);
 std::uint8_t * b_id_keys = (std::uint8_t *) check_malloc(b_id_keys_size);
+std::uint8_t * b_pre_key = (std::uint8_t *) check_malloc(b_pre_key_size);
 std::uint8_t * b_ot_keys = (std::uint8_t *) check_malloc(b_ot_keys_size);
 ::olm_account_identity_keys(b_account, b_id_keys, b_id_keys_size);
+::olm_account_prekey(b_account, b_pre_key, b_pre_key_size);
 ::olm_account_one_time_keys(b_account, b_ot_keys, b_ot_keys_size);
 
 void * a_session_buffer = check_malloc(::olm_session_size());
@@ -86,6 +89,7 @@ mock_random_a(a_rand, a_rand_size);
 CHECK_NE(std::size_t(-1), ::olm_create_outbound_session(
     a_session, a_account,
     b_id_keys + 15, 43,
+    b_pre_key + 25, 43,
     b_ot_keys + 25, 43,
     a_rand, a_rand_size
 ));

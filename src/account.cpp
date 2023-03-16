@@ -292,6 +292,79 @@ std::size_t olm::Account::generate_one_time_keys(
     return number_of_keys;
 }
 
+std::size_t olm::Account::generate_prekey_random_length() const {
+    return CURVE25519_RANDOM_LENGTH;
+}
+
+std::size_t olm::Account::generate_prekey(
+    std::uint8_t const * random, std::size_t random_length
+) {
+    if (random_length < generate_prekey_random_length()) {
+        last_error = OlmErrorCode::OLM_NOT_ENOUGH_RANDOM;
+        return std::size_t(-1);
+    }
+    prev_prekey = current_prekey;
+    current_prekey.id = ++next_prekey_id;
+    current_prekey.published = false;
+    _olm_crypto_curve25519_generate_key(random, &current_prekey.key);
+
+    uint8_t message[CURVE25519_KEY_LENGTH + sizeof(current_prekey.id)];
+    memcpy(message, current_prekey.key.public_key.public_key, CURVE25519_KEY_LENGTH);
+    memcpy(message+CURVE25519_KEY_LENGTH, &current_prekey.id, sizeof(current_prekey.id));
+    sign(current_prekey.key.public_key.public_key, CURVE25519_KEY_LENGTH,
+    current_prekey.signature, signature_length());
+    return 1;
+}
+
+std::size_t olm::Account::get_prekey_json_length(
+) const {
+    return get_fallback_key_json_length();
+}
+
+std::size_t olm::Account::get_prekey_json(
+    std::uint8_t * prekey_json, std::size_t prekey_json_length
+) {
+    std::uint8_t * pos = prekey_json;
+    if (prekey_json_length < get_prekey_json_length()) {
+        last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
+        return std::size_t(-1);
+    }
+    *(pos++) = '{';
+    pos = write_string(pos, KEY_JSON_CURVE25519);
+    *(pos++) = '{';
+    PreKey & key = current_prekey;
+    *(pos++) = '\"';
+    std::uint8_t key_id[_olm_pickle_uint32_length(key.id)];
+    _olm_pickle_uint32(key_id, key.id);
+    pos = olm::encode_base64(key_id, sizeof(key_id), pos);
+    *(pos++) = '\"'; *(pos++) = ':'; *(pos++) = '\"';
+    pos = olm::encode_base64(
+    key.key.public_key.public_key, sizeof(key.key.public_key.public_key), pos
+    );
+    *(pos++) = '\"';
+    *(pos++) = '}';
+    *(pos++) = '}';
+    return pos - prekey_json;
+}
+
+void olm::Account::forget_old_prekey(
+) {
+    olm::unset(&prev_prekey, sizeof(prev_prekey));
+}
+
+
+olm::PreKey const * olm::Account::lookup_prekey(
+    _olm_curve25519_public_key const & public_key
+) {
+    if (olm::array_equal(current_prekey.key.public_key.public_key, public_key.public_key)) {
+        return  &current_prekey;
+    } else if (olm::array_equal(prev_prekey.key.public_key.public_key, public_key.public_key))
+    {
+        return &prev_prekey;
+    }
+    return 0;
+}
+
 std::size_t olm::Account::generate_fallback_key_random_length() const {
     return CURVE25519_RANDOM_LENGTH;
 }
@@ -437,6 +510,39 @@ static std::uint8_t const * unpickle(
     return pos;
 }
 
+static std::size_t pickle_length(
+    olm::PreKey const & value
+) {
+    std::size_t length = 0;
+    length += olm::pickle_length(value.id);
+    length += olm::pickle_length(value.published);
+    length += olm::pickle_length(value.key);
+    length += ED25519_SIGNATURE_LENGTH;
+    return length;
+}
+
+static std::uint8_t * pickle(
+    std::uint8_t * pos,
+    olm::PreKey const & value
+) {
+    pos = olm::pickle(pos, value.id);
+    pos = olm::pickle(pos, value.published);
+    pos = olm::pickle(pos, value.key);
+    pos = olm::pickle_bytes(pos, value.signature, ED25519_SIGNATURE_LENGTH);
+    return pos;
+}
+
+static std::uint8_t const * unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    olm::PreKey & value
+) {
+    pos = olm::unpickle(pos, end, value.id); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.published); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.key); UNPICKLE_OK(pos);
+    pos = olm::unpickle_bytes(pos, end, value.signature, ED25519_SIGNATURE_LENGTH); UNPICKLE_OK(pos);
+    return pos;
+}
+
 
 static std::size_t pickle_length(
     olm::OneTimeKey const & value
@@ -477,7 +583,8 @@ namespace {
 // Any keys thus used should be considered compromised.
 // pickle version 2 does not have fallback keys.
 // pickle version 3 does not store whether the current fallback key is published.
-static const std::uint32_t ACCOUNT_PICKLE_VERSION = 4;
+// pickle version 4 does not use X3DH.
+static const std::uint32_t ACCOUNT_PICKLE_VERSION = 5;
 }
 
 
@@ -487,6 +594,8 @@ std::size_t olm::pickle_length(
     std::size_t length = 0;
     length += olm::pickle_length(ACCOUNT_PICKLE_VERSION);
     length += olm::pickle_length(value.identity_keys);
+    length += olm::pickle_length(value.current_prekey);
+    length += olm::pickle_length(value.prev_prekey);
     length += olm::pickle_length(value.one_time_keys);
     length += olm::pickle_length(value.num_fallback_keys);
     if (value.num_fallback_keys >= 1) {
@@ -496,6 +605,7 @@ std::size_t olm::pickle_length(
         }
     }
     length += olm::pickle_length(value.next_one_time_key_id);
+    length += olm::pickle_length(value.next_prekey_id);
     return length;
 }
 
@@ -506,6 +616,8 @@ std::uint8_t * olm::pickle(
 ) {
     pos = olm::pickle(pos, ACCOUNT_PICKLE_VERSION);
     pos = olm::pickle(pos, value.identity_keys);
+    pos = olm::pickle(pos, value.current_prekey);
+    pos = olm::pickle(pos, value.prev_prekey);
     pos = olm::pickle(pos, value.one_time_keys);
     pos = olm::pickle(pos, value.num_fallback_keys);
     if (value.num_fallback_keys >= 1) {
@@ -515,6 +627,7 @@ std::uint8_t * olm::pickle(
         }
     }
     pos = olm::pickle(pos, value.next_one_time_key_id);
+    pos = olm::pickle(pos, value.next_prekey_id);
     return pos;
 }
 
@@ -529,6 +642,7 @@ std::uint8_t const * olm::unpickle(
 
     switch (pickle_version) {
         case ACCOUNT_PICKLE_VERSION:
+        case 4:
         case 3:
         case 2:
             break;
@@ -541,6 +655,10 @@ std::uint8_t const * olm::unpickle(
     }
 
     pos = olm::unpickle(pos, end, value.identity_keys); UNPICKLE_OK(pos);
+    if (pickle_version >= 5) {
+        pos = olm::unpickle(pos, end, value.current_prekey); UNPICKLE_OK(pos);
+        pos = olm::unpickle(pos, end, value.prev_prekey); UNPICKLE_OK(pos);
+    }
     pos = olm::unpickle(pos, end, value.one_time_keys); UNPICKLE_OK(pos);
 
     if (pickle_version <= 2) {
@@ -575,6 +693,8 @@ std::uint8_t const * olm::unpickle(
     }
 
     pos = olm::unpickle(pos, end, value.next_one_time_key_id); UNPICKLE_OK(pos);
-
+    if (pickle_version >= 5) {
+        pos = olm::unpickle(pos, end, value.next_prekey_id); UNPICKLE_OK(pos);
+    }
     return pos;
 }
