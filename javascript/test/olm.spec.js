@@ -76,10 +76,13 @@ describe("olm", function() {
 
         var bobIdKey = JSON.parse(bobAccount.identity_keys()).curve25519;
 
+        bobAccount.generate_prekey();
+        var bobPrekey = Object.values(JSON.parse(bobAccount.prekey()).curve25519)[0];
+
         var otk_id = Object.keys(bobOneTimeKeys)[0];
 
         aliceSession.create_outbound(
-            aliceAccount, bobIdKey, bobOneTimeKeys[otk_id]
+            aliceAccount, bobIdKey, bobPrekey, bobOneTimeKeys[otk_id]
         );
 
         var TEST_TEXT='têst1';
