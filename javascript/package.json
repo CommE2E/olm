@@ -1,7 +1,7 @@
 {
-  "name": "@matrix-org/olm",
-  "version": "3.2.14",
-  "description": "An implementation of the Double Ratchet cryptographic ratchet",
+  "name": "@commapp/olm",
+  "version": "0.0.1",
+  "description": "Comm's fork of @matrix-org/olm, with X3DH support",
   "main": "olm.js",
   "files": [
     "olm.js",
@@ -20,19 +20,8 @@
     "type": "git",
     "url": "git+https://gitlab.matrix.org/matrix-org/olm.git"
   },
-  "keywords": [
-    "matrix-org"
-  ],
-  "author": "matrix.org",
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/matrix-org/olm/issues"
-  },
-  "homepage": "https://gitlab.matrix.org/matrix-org/olm",
   "devDependencies": {
     "jasmine": "^3.0.0"
-  },
-  "publishConfig": {
-    "@matrix-org:registry":"https://gitlab.matrix.org/api/v4/projects/27/packages/npm/"
   }
 }
