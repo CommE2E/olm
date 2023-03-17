@@ -318,7 +318,14 @@ std::size_t olm::Account::generate_prekey(
 
 std::size_t olm::Account::get_prekey_json_length(
 ) const {
-    return get_fallback_key_json_length();
+    std::size_t length = 4 + sizeof(KEY_JSON_CURVE25519) - 1; /* {"curve25519":{}} */
+    const PreKey & key = current_prekey;
+    length += 1; /* " */
+    length += olm::encode_base64_length(_olm_pickle_uint32_length(key.id));
+    length += 3; /* ":" */
+    length += olm::encode_base64_length(sizeof(key.key.public_key));
+    length += 1; /* " */
+    return length;
 }
 
 std::size_t olm::Account::get_prekey_json(
