@@ -91,7 +91,7 @@ CHECK_EQ(OLM_PICKLE_EXTRA_DATA, olm_account_last_error_code(account));
 }
 
 
-TEST_CASE("Old account unpickle test") {
+    TEST_CASE("Old account unpickle test") {
 
     // this uses the old pickle format, which did not use enough space
     // for the Ed25519 key. We should reject it.
@@ -484,7 +484,6 @@ std::vector<std::uint8_t> p_random(::olm_account_generate_prekey_random_length(
 mock_random_b(p_random.data(), p_random.size());
 ::olm_account_generate_prekey(b_account, p_random.data(), p_random.size());
 
-
 // create and fetch a fallback key for b
 std::vector<std::uint8_t> f_random(::olm_account_generate_fallback_key_random_length(
         b_account
@@ -506,7 +505,7 @@ mock_random_a(a_rand.data(), a_rand.size());
 CHECK_NE(std::size_t(-1), ::olm_create_outbound_session(
     a_session1, a_account,
     b_id_keys.data() + 15, 43, // B's curve25519 identity key
-    b_pre_key.data() + 25, 43,  // B's curve25519 pre key
+    b_pre_key.data() + 25, 43, // B's curve25519 pre key
     b_fb_key.data() + 25, 43, // B's curve25519 one time key
     a_rand.data(), a_rand.size()
 ));
@@ -581,7 +580,7 @@ mock_random_a(a_rand.data(), a_rand.size());
 CHECK_NE(std::size_t(-1), ::olm_create_outbound_session(
     a_session2, a_account,
     b_id_keys.data() + 15, 43, // B's curve25519 identity key
-    b_pre_key.data() + 25, 43,  // B's curve25519 pre key
+    b_pre_key.data() + 25, 43, // B's curve25519 pre key
     b_fb_key.data() + 25, 43, // B's curve25519 one time key
     a_rand.data(), a_rand.size()
 ));
@@ -650,7 +649,7 @@ mock_random_a(a_rand.data(), a_rand.size());
 CHECK_NE(std::size_t(-1), ::olm_create_outbound_session(
     a_session3, a_account,
     b_id_keys.data() + 15, 43, // B's curve25519 identity key
-    b_pre_key.data() + 25, 43,  // B's curve25519 pre key
+    b_pre_key.data() + 25, 43, // B's curve25519 pre key
     b_fb_key.data() + 25, 43, // B's curve25519 one time key
     a_rand.data(), a_rand.size()
 ));

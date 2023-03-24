@@ -359,12 +359,11 @@ void olm::Account::forget_old_prekey(
     olm::unset(&prev_prekey, sizeof(prev_prekey));
 }
 
-
 olm::PreKey const * olm::Account::lookup_prekey(
     _olm_curve25519_public_key const & public_key
 ) {
     if (olm::array_equal(current_prekey.key.public_key.public_key, public_key.public_key)) {
-        return  &current_prekey;
+        return &current_prekey;
     } else if (olm::array_equal(prev_prekey.key.public_key.public_key, public_key.public_key))
     {
         return &prev_prekey;
@@ -591,7 +590,7 @@ namespace {
 // pickle version 2 does not have fallback keys.
 // pickle version 3 does not store whether the current fallback key is published.
 // pickle version 4 does not use X3DH.
-static const std::uint32_t ACCOUNT_PICKLE_VERSION = 5;
+static const std::uint32_t ACCOUNT_PICKLE_VERSION = 10005;
 }
 
 
@@ -662,7 +661,7 @@ std::uint8_t const * olm::unpickle(
     }
 
     pos = olm::unpickle(pos, end, value.identity_keys); UNPICKLE_OK(pos);
-    if (pickle_version >= 5) {
+    if (pickle_version >= 10005) {
         pos = olm::unpickle(pos, end, value.current_prekey); UNPICKLE_OK(pos);
         pos = olm::unpickle(pos, end, value.prev_prekey); UNPICKLE_OK(pos);
     }
@@ -700,7 +699,7 @@ std::uint8_t const * olm::unpickle(
     }
 
     pos = olm::unpickle(pos, end, value.next_one_time_key_id); UNPICKLE_OK(pos);
-    if (pickle_version >= 5) {
+    if (pickle_version >= 10005) {
         pos = olm::unpickle(pos, end, value.next_prekey_id); UNPICKLE_OK(pos);
     }
     return pos;
