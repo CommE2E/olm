@@ -30,6 +30,22 @@
 namespace olm {
 
 inline std::size_t pickle_length(
+    const std::uint64_t & value
+) {
+    return 8;
+}
+
+std::uint8_t * pickle(
+    std::uint8_t * pos,
+    std::uint64_t value
+);
+
+std::uint8_t const * unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    std::uint64_t & value
+);
+
+inline std::size_t pickle_length(
     const std::uint32_t & value
 ) {
     return 4;

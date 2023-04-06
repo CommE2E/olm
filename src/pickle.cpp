@@ -17,6 +17,25 @@
 
 std::uint8_t * olm::pickle(
     std::uint8_t * pos,
+    std::uint64_t value
+) {
+    pos += 8;
+    for (unsigned i = 8; i--;) { *(--pos) = value; value >>= 8; }
+    return pos + 8;
+}
+
+std::uint8_t const * olm::unpickle(
+    std::uint8_t const * pos, std::uint8_t const * end,
+    std::uint64_t & value
+) {
+    value = 0;
+    if (!pos || end < pos + 8) return nullptr;
+    for (unsigned i = 8; i--;) { value <<= 8; value |= *(pos++); }
+    return pos;
+}
+
+std::uint8_t * olm::pickle(
+    std::uint8_t * pos,
     std::uint32_t value
 ) {
     pos += 4;

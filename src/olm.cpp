@@ -496,6 +496,18 @@ void olm_account_forget_old_prekey(
     return from_c(account)->forget_old_prekey();
 }
 
+void olm_account_mark_prekey_as_published(
+    OlmAccount * account
+) {
+    from_c(account)->mark_prekey_as_published();
+}
+
+uint64_t olm_account_get_last_prekey_publish_time(
+    OlmAccount * account
+) {
+    return from_c(account)->get_last_prekey_publish_time();
+}
+
 
 size_t olm_account_generate_fallback_key_random_length(
     OlmAccount const * account

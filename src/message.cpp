@@ -319,7 +319,6 @@ void olm::decode_one_time_key_message(
             pos, end, PREKEY_ID_TAG,
             reader.prekey, reader.prekey_length
         );
-
         pos = decode(
             pos, end, ONE_TIME_KEY_ID_TAG,
             reader.one_time_key, reader.one_time_key_length
