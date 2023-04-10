@@ -363,8 +363,10 @@ std::size_t olm::Account::get_prekey_json(
 
 void olm::Account::forget_old_prekey(
 ) {
-    olm::unset(&prev_prekey, sizeof(prev_prekey));
-    num_prekeys--;
+    if (num_prekeys == 2) {
+        olm::unset(&prev_prekey, sizeof(prev_prekey));
+        num_prekeys--;
+    }
 }
 
 olm::PreKey const * olm::Account::lookup_prekey(

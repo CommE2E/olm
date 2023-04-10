@@ -508,6 +508,14 @@ uint64_t olm_account_get_last_prekey_publish_time(
     return from_c(account)->get_last_prekey_publish_time();
 }
 
+size_t olm_account_unpublished_prekey(
+    OlmAccount * account,
+    void * prekey_json, size_t prekey_json_length
+) {
+    return from_c(account)->get_unpublished_prekey_json(
+        from_c(prekey_json), prekey_json_length
+    );
+}
 
 size_t olm_account_generate_fallback_key_random_length(
     OlmAccount const * account

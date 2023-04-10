@@ -308,6 +308,11 @@ OLM_EXPORT uint64_t olm_account_get_last_prekey_publish_time(
     OlmAccount * account
 );
 
+OLM_EXPORT size_t olm_account_unpublished_prekey(
+    OlmAccount * account,
+    void * prekey_json, size_t prekey_json_length
+);
+
 /** The number of random bytes needed to generate a fallback key. */
 OLM_EXPORT size_t olm_account_generate_fallback_key_random_length(
     OlmAccount const * account

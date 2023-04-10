@@ -43,7 +43,6 @@ struct OneTimeKey {
 };
 
 static std::size_t const MAX_ONE_TIME_KEYS = 100;
-// static std::size_t const KEEP_OLD_PREKEY_SEC = 86400;
 
 struct Account {
     Account();
