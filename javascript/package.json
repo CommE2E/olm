@@ -1,6 +1,6 @@
 {
   "name": "@commapp/olm",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Comm's fork of @matrix-org/olm, with X3DH support",
   "main": "olm.js",
   "files": [
