@@ -77,6 +77,11 @@ describe("olm", function() {
         var bobIdKey = JSON.parse(bobAccount.identity_keys()).curve25519;
 
         bobAccount.generate_prekey();
+        bobAccount.mark_prekey_as_published();
+        bobAccount.generate_prekey();
+        bobAccount.mark_prekey_as_published();
+        bobAccount.forget_old_prekey();
+
         var bobPrekey = Object.values(JSON.parse(bobAccount.prekey()).curve25519)[0];
 
         var otk_id = Object.keys(bobOneTimeKeys)[0];

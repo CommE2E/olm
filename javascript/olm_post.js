@@ -194,6 +194,28 @@ Account.prototype['forget_old_prekey'] = restore_stack(function() {
     );
 });
 
+Account.prototype['mark_prekey_as_published'] = restore_stack(function() {
+    account_method(Module['_olm_account_mark_prekey_as_published'])(
+        this.ptr
+    );
+});
+
+Account.prototype['last_prekey_publish_time'] = restore_stack(function() {
+    return account_method(Module['_olm_account_get_last_prekey_publish_time'])(
+        this.ptr
+    );
+});
+
+Account.prototype['unpublished_prekey'] = restore_stack(function() {
+    var keys_length = account_method(
+        Module['_olm_account_prekey_length']
+    )(this.ptr);
+    var keys = stack(keys_length + NULL_BYTE_PADDING_LENGTH);
+    account_method(Module['_olm_account_unpublished_prekey'])(
+        this.ptr, keys, keys_length
+    );
+    return UTF8ToString(keys, keys_length);
+});
 
 Account.prototype['generate_fallback_key'] = restore_stack(function() {
     var random_length = account_method(

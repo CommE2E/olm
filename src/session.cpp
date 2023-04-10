@@ -171,13 +171,16 @@ std::size_t olm::Session::new_inbound_session(
         bob_one_time_key
     );
 
-    // olm::PreKey const * our_prekey = local_account.lookup_prekey(
-    //     bob_prekey
-    // );
-
-    olm::PreKey const * our_prekey = &local_account.current_prekey;
-
     if (!our_one_time_key) {
+        last_error = OlmErrorCode::OLM_BAD_MESSAGE_KEY_ID;
+        return std::size_t(-1);
+    }
+
+    olm::PreKey const * our_prekey = local_account.lookup_prekey(
+        bob_prekey
+    );
+
+    if (!our_prekey) {
         last_error = OlmErrorCode::OLM_BAD_MESSAGE_KEY_ID;
         return std::size_t(-1);
     }
@@ -326,6 +329,7 @@ std::size_t olm::Session::encrypt(
             message
         );
         olm::store_array(writer.one_time_key, bob_one_time_key.public_key);
+        olm::store_array(writer.prekey, bob_prekey.public_key);
         olm::store_array(writer.identity_key, alice_identity_key.public_key);
         olm::store_array(writer.base_key, alice_base_key.public_key);
         message_body = writer.message;

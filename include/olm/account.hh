@@ -43,7 +43,6 @@ struct OneTimeKey {
 };
 
 static std::size_t const MAX_ONE_TIME_KEYS = 100;
-static std::size_t const KEEP_OLD_PREKEY_SEC = 86400;
 
 struct Account {
     Account();
@@ -52,6 +51,8 @@ struct Account {
     PreKey current_prekey;
     PreKey prev_prekey;
     std::uint32_t next_prekey_id;
+    std::uint64_t last_prekey_publish_time;
+    std::uint8_t num_prekeys;
     std::uint8_t num_fallback_keys;
     OneTimeKey current_fallback_key;
     OneTimeKey prev_fallback_key;
@@ -116,6 +117,32 @@ struct Account {
     PreKey const * lookup_prekey(
         _olm_curve25519_public_key const & public_key
     );
+
+    /** Output an unpublished prekey as JSON:
+     *
+     *  {"curve25519":
+     *  ["<6 byte key id>":"<43 base64 characters>"]
+     *  }
+     *
+     * if there is a prekey and it has not been published yet.
+     *
+     * Returns the size of the JSON written or std::size_t(-1) on error.
+     * If the buffer is too small last_error will be OUTPUT_BUFFER_TOO_SMALL.
+     */
+    std::size_t get_unpublished_prekey_json(
+        std::uint8_t * prekey_json, std::size_t prekey_json_length
+    );
+
+    /**
+     * Get the UNIX timestamp prekey (in seconds) was published TODO: check this
+     */
+    std::uint64_t get_last_prekey_publish_time();
+
+    /*
+     * Marks the current prekey as published. get_unpublished_prekey_json will no longer return this prekey.
+     * Returns 0 if current prekey is successfully marked as published, std::size_t(-1) otherwise.
+     */
+    std::size_t mark_prekey_as_published();
 
     /**
      * The length of an ed25519 signature in bytes.
