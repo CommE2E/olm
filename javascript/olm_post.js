@@ -206,6 +206,17 @@ Account.prototype['last_prekey_publish_time'] = restore_stack(function() {
     );
 });
 
+Account.prototype['unpublished_prekey'] = restore_stack(function() {
+    var keys_length = account_method(
+        Module['_olm_account_prekey_length']
+    )(this.ptr);
+    var keys = stack(keys_length + NULL_BYTE_PADDING_LENGTH);
+    account_method(Module['_olm_account_unpublished_prekey'])(
+        this.ptr, keys, keys_length
+    );
+    return UTF8ToString(keys, keys_length);
+});
+
 Account.prototype['generate_fallback_key'] = restore_stack(function() {
     var random_length = account_method(
         Module['_olm_account_generate_fallback_key_random_length']
