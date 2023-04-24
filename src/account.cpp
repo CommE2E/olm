@@ -387,8 +387,10 @@ std::size_t olm::Account::get_unpublished_prekey_json(
         last_error = OlmErrorCode::OLM_OUTPUT_BUFFER_TOO_SMALL;
         return std::size_t(-1);
     }
-    if (current_prekey.published) return std::size_t(-1);
-
+    if (current_prekey.published) {
+        last_error = OlmErrorCode::OLM_NO_UNPUBLISHED_PREKEY;
+        return std::size_t(-1);
+    }
     *(pos++) = '{';
     pos = write_string(pos, KEY_JSON_CURVE25519);
     *(pos++) = '{';

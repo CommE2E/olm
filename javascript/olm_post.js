@@ -211,9 +211,11 @@ Account.prototype['unpublished_prekey'] = restore_stack(function() {
         Module['_olm_account_prekey_length']
     )(this.ptr);
     var keys = stack(keys_length + NULL_BYTE_PADDING_LENGTH);
-    account_method(Module['_olm_account_unpublished_prekey'])(
+    var ret = account_method(Module['_olm_account_unpublished_prekey'])(
         this.ptr, keys, keys_length
     );
+    // If ret is std::size_t(-1)
+    if (ret > keys_length) return null;
     return UTF8ToString(keys, keys_length);
 });
 

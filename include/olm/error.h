@@ -66,6 +66,8 @@ enum OlmErrorCode {
      */
     OLM_PICKLE_EXTRA_DATA = 17,
 
+    OLM_NO_UNPUBLISHED_PREKEY = 255,
+
     /* remember to update the list of string constants in error.c when updating
      * this list. */
 };
