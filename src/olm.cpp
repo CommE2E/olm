@@ -517,11 +517,11 @@ size_t olm_account_unpublished_prekey(
     );
 }
 
-size_t olm_account_unpublished_prekey_signature(
+size_t olm_account_prekey_signature(
     OlmAccount * account,
     void * signature, size_t signature_length
 ) {
-    return from_c(account)->get_unpublished_prekey_signature(
+    return from_c(account)->get_prekey_signature(
         from_c(signature), signature_length
     );
 }

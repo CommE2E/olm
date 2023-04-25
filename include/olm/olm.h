@@ -313,7 +313,7 @@ OLM_EXPORT size_t olm_account_unpublished_prekey(
     void * prekey_json, size_t prekey_json_length
 );
 
-OLM_EXPORT size_t olm_account_unpublished_prekey_signature(
+OLM_EXPORT size_t olm_account_prekey_signature(
     OlmAccount * account,
     void * signature, size_t signature_length
 );

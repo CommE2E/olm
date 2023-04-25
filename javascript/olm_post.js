@@ -219,12 +219,12 @@ Account.prototype['unpublished_prekey'] = restore_stack(function() {
     return UTF8ToString(keys, keys_length);
 });
 
-Account.prototype['unpublished_prekey_signature'] = restore_stack(function(message) {
+Account.prototype['prekey_signature'] = restore_stack(function(message) {
     var signature_length = account_method(
         Module['_olm_account_signature_length']
     )(this.ptr);
     var signature_buffer = stack(signature_length + NULL_BYTE_PADDING_LENGTH);
-    var ret = account_method(Module['_olm_account_unpublished_prekey_signature'])(
+    var ret = account_method(Module['_olm_account_prekey_signature'])(
         this.ptr,
         signature_buffer, signature_length
     );

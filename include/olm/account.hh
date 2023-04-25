@@ -136,7 +136,7 @@ struct Account {
     /**
      * Returns an ed25519 signature on an unpublished prekey, using the identity key
     */
-    std::size_t get_unpublished_prekey_signature(
+    std::size_t get_prekey_signature(
         std::uint8_t * signature, std::size_t signature_length
     );
 
