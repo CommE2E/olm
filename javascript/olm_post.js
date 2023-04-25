@@ -219,6 +219,20 @@ Account.prototype['unpublished_prekey'] = restore_stack(function() {
     return UTF8ToString(keys, keys_length);
 });
 
+Account.prototype['unpublished_prekey_signature'] = restore_stack(function(message) {
+    var signature_length = account_method(
+        Module['_olm_account_signature_length']
+    )(this.ptr);
+    var signature_buffer = stack(signature_length + NULL_BYTE_PADDING_LENGTH);
+    var ret = account_method(Module['_olm_account_unpublished_prekey_signature'])(
+        this.ptr,
+        signature_buffer, signature_length
+    );
+    // If ret is std::size_t(-1)
+    if (ret > signature_length) return null;
+    return UTF8ToString(signature_buffer, signature_length);
+});
+
 Account.prototype['generate_fallback_key'] = restore_stack(function() {
     var random_length = account_method(
         Module['_olm_account_generate_fallback_key_random_length']
