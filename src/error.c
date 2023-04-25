@@ -40,7 +40,10 @@ const char * _olm_error_to_string(enum OlmErrorCode error)
 {
     if (error < (sizeof(ERRORS)/sizeof(ERRORS[0]))) {
         return ERRORS[error];
-    } else {
+    } else if (error == 255) {
+        return "NO_UNPUBLISHED_PREKEY";
+    }
+    else {
         return "UNKNOWN_ERROR";
     }
 }

@@ -409,6 +409,16 @@ std::size_t olm::Account::get_unpublished_prekey_json(
     return pos - prekey_json;
 }
 
+std::size_t olm::Account::get_unpublished_prekey_signature(
+    std::uint8_t * signature, std::size_t signature_length) {
+    std::size_t prekey_length = get_prekey_json_length();
+    std::uint8_t prekey_json[prekey_length];
+    std::size_t ret = get_unpublished_prekey_json(prekey_json, prekey_length);
+    if (ret == std::size_t(-1)) return ret;
+
+    return sign(prekey_json, prekey_length, signature, signature_length);
+}
+
 std::uint64_t olm::Account::get_last_prekey_publish_time() {
     return last_prekey_publish_time;
 }

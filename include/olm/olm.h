@@ -313,6 +313,11 @@ OLM_EXPORT size_t olm_account_unpublished_prekey(
     void * prekey_json, size_t prekey_json_length
 );
 
+OLM_EXPORT size_t olm_account_unpublished_prekey_signature(
+    OlmAccount * account,
+    void * signature, size_t signature_length
+);
+
 /** The number of random bytes needed to generate a fallback key. */
 OLM_EXPORT size_t olm_account_generate_fallback_key_random_length(
     OlmAccount const * account

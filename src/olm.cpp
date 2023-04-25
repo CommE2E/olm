@@ -517,6 +517,15 @@ size_t olm_account_unpublished_prekey(
     );
 }
 
+size_t olm_account_unpublished_prekey_signature(
+    OlmAccount * account,
+    void * signature, size_t signature_length
+) {
+    return from_c(account)->get_unpublished_prekey_signature(
+        from_c(signature), signature_length
+    );
+}
+
 size_t olm_account_generate_fallback_key_random_length(
     OlmAccount const * account
 ) {
