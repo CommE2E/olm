@@ -134,10 +134,10 @@ struct Account {
     );
 
     /**
-     * Returns an ed25519 signature on an unpublished prekey, using the identity key
+     * Returns a base64 encoded ed25519 signature on the current prekey (using the identity signing key)
     */
     std::size_t get_prekey_signature(
-        std::uint8_t * signature, std::size_t signature_length
+        std::uint8_t * signature
     );
 
     /**
