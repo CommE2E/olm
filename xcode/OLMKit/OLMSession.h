@@ -23,7 +23,7 @@
 
 @interface OLMSession : NSObject <OLMSerializable, NSSecureCoding>
 
-- (instancetype) initOutboundSessionWithAccount:(OLMAccount*)account theirIdentityKey:(NSString*)theirIdentityKey theirPrekey:(NSString*)theirPrekey theirOneTimeKey:(NSString*)theirOneTimeKey error:(NSError**)error;
+- (instancetype) initOutboundSessionWithAccount:(OLMAccount*)account theirIdentityKey:(NSString*)theirIdentityKey theirSigningKey:(NSString*)theirSigningKey theirPrekey:(NSString*)theirPrekey theirPrekeySignature:(NSString*)theirPrekeySignature theirOneTimeKey:(NSString*)theirOneTimeKey  error:(NSError**)error;
 
 - (instancetype) initInboundSessionWithAccount:(OLMAccount*)account oneTimeKeyMessage:(NSString*)oneTimeKeyMessage error:(NSError**)error;
 

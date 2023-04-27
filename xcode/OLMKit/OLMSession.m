@@ -70,16 +70,18 @@
     return self;
 }
 
-- (instancetype) initOutboundSessionWithAccount:(OLMAccount*)account theirIdentityKey:(NSString*)theirIdentityKey theirPrekey:(NSString*)theirPrekey theirOneTimeKey:(NSString*)theirOneTimeKey  error:(NSError**)error {
+- (instancetype) initOutboundSessionWithAccount:(OLMAccount*)account theirIdentityKey:(NSString*)theirIdentityKey theirSigningKey:(NSString*)theirSigningKey theirPrekey:(NSString*)theirPrekey theirPrekeySignature:(NSString*)theirPrekeySignature theirOneTimeKey:(NSString*)theirOneTimeKey  error:(NSError**)error {
     self = [self initWithAccount:account];
     if (!self) {
         return nil;
     }
     NSMutableData *random = [OLMUtility randomBytesOfLength:olm_create_outbound_session_random_length(_session)];
     NSData *idKey = [theirIdentityKey dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *signingKey = [theirSigningKey dataUsingEncoding:NSUTF8StringEncoding];
     NSData *otKey = [theirOneTimeKey dataUsingEncoding:NSUTF8StringEncoding];
     NSData *pKey = [theirPrekey dataUsingEncoding:NSUTF8StringEncoding];
-    size_t result = olm_create_outbound_session(_session, account.account, idKey.bytes, idKey.length, pKey.bytes, pKey.length, otKey.bytes, otKey.length, random.mutableBytes, random.length);
+    NSData *pKeySignature = [theirPrekeySignature dataUsingEncoding:NSUTF8StringEncoding];
+    size_t result = olm_create_outbound_session(_session, account.account, idKey.bytes, idKey.length, signingKey.bytes, signingKey.length, pKey.bytes, pKey.length, pKeySignature.bytes, pKeySignature.length, otKey.bytes, otKey.length, random.mutableBytes, random.length);
     [random resetBytesInRange:NSMakeRange(0, random.length)];
     if (result == olm_error()) {
         const char *olm_error = olm_session_last_error(_session);
