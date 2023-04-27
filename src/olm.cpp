@@ -618,6 +618,7 @@ size_t olm_create_outbound_session(
             || olm::decode_base64_length(s_key_length) != ED25519_PUBLIC_KEY_LENGTH
             || olm::decode_base64_length(ot_key_length) != CURVE25519_KEY_LENGTH
             || olm::decode_base64_length(p_key_length) != CURVE25519_KEY_LENGTH
+            || olm::decode_base64_length(p_sign_length) != ED25519_SIGNATURE_LENGTH
     ) {
         from_c(session)->last_error = OlmErrorCode::OLM_INVALID_BASE64;
         return std::size_t(-1);
