@@ -75,6 +75,7 @@ describe("olm", function() {
         bobAccount.mark_keys_as_published();
 
         var bobIdKey = JSON.parse(bobAccount.identity_keys()).curve25519;
+        var bobSigningKey = JSON.parse(bobAccount.identity_keys()).ed25519;
 
         bobAccount.generate_prekey();
         bobAccount.mark_prekey_as_published();
@@ -83,11 +84,12 @@ describe("olm", function() {
         bobAccount.forget_old_prekey();
 
         var bobPrekey = Object.values(JSON.parse(bobAccount.prekey()).curve25519)[0];
+        var bobPreKeySignature = bobAccount.prekey_signature();
 
         var otk_id = Object.keys(bobOneTimeKeys)[0];
 
         aliceSession.create_outbound(
-            aliceAccount, bobIdKey, bobPrekey, bobOneTimeKeys[otk_id]
+            aliceAccount, bobIdKey, bobSigningKey, bobPrekey, bobPreKeySignature, bobOneTimeKeys[otk_id]
         );
 
         var TEST_TEXT='têst1';

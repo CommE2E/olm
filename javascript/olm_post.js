@@ -219,6 +219,19 @@ Account.prototype['unpublished_prekey'] = restore_stack(function() {
     return UTF8ToString(keys, keys_length);
 });
 
+Account.prototype['prekey_signature'] = restore_stack(function(message) {
+    var signature_length = account_method(
+        Module['_olm_account_signature_length']
+    )(this.ptr);
+    var signature_buffer = stack(signature_length + NULL_BYTE_PADDING_LENGTH);
+    var ret = account_method(Module['_olm_account_prekey_signature'])(
+        this.ptr,
+        signature_buffer
+    );
+    if (ret == 0) return null;
+    return UTF8ToString(signature_buffer, signature_length);
+});
+
 Account.prototype['generate_fallback_key'] = restore_stack(function() {
     var random_length = account_method(
         Module['_olm_account_generate_fallback_key_random_length']
@@ -368,23 +381,29 @@ Session.prototype['unpickle'] = restore_stack(function(key, pickle) {
 });
 
 Session.prototype['create_outbound'] = restore_stack(function(
-    account, their_identity_key, their_pre_key, their_one_time_key
+    account, their_identity_key, their_signing_key, their_pre_key, their_pre_key_signature, their_one_time_key
 ) {
     var random_length = session_method(
         Module['_olm_create_outbound_session_random_length']
     )(this.ptr);
     var random = random_stack(random_length);
     var identity_key_array = array_from_string(their_identity_key);
+    var signing_key_array = array_from_string(their_signing_key);
     var pre_key_array = array_from_string(their_pre_key);
+    var pre_key_signature_array = array_from_string(their_pre_key_signature);
     var one_time_key_array = array_from_string(their_one_time_key);
     var identity_key_buffer = stack(identity_key_array);
+    var signing_key_buffer = stack(signing_key_array);
     var pre_key_buffer = stack(pre_key_array);
+    var pre_key_signature_buffer = stack(pre_key_signature_array);
     var one_time_key_buffer = stack(one_time_key_array);
     try {
         session_method(Module['_olm_create_outbound_session'])(
             this.ptr, account.ptr,
             identity_key_buffer, identity_key_array.length,
+            signing_key_buffer, signing_key_array.length,
             pre_key_buffer, pre_key_array.length,
+            pre_key_signature_buffer, pre_key_signature_array.length,
             one_time_key_buffer, one_time_key_array.length,
             random, random_length
         );

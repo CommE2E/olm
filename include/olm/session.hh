@@ -48,13 +48,16 @@ struct OLM_EXPORT Session {
      * session. This will be 64 bytes since two ephemeral keys are needed. */
     std::size_t new_outbound_session_random_length() const;
 
-    /** Start a new outbound session. Returns std::size_t(-1) on failure. On
+    /** Start a new outbound session. Returns std::size_t(-1) on failure. Assumes
+     * prekey_signature is a byte array of ED25519_SIGNATURE_LENGTH characters. On
      * failure last_error will be set with an error code. The last_error will be
      * NOT_ENOUGH_RANDOM if the number of random bytes was too small. */
     std::size_t new_outbound_session(
         Account const & local_account,
         _olm_curve25519_public_key const & identity_key,
+        _olm_ed25519_public_key const & signing_key,
         _olm_curve25519_public_key const & pre_key,
+        std::uint8_t const * prekey_signature,
         _olm_curve25519_public_key const & one_time_key,
         std::uint8_t const * random, std::size_t random_length
     );

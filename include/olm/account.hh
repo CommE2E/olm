@@ -134,6 +134,13 @@ struct Account {
     );
 
     /**
+     * Returns a base64 encoded ed25519 signature on the current prekey (using the identity signing key)
+    */
+    std::size_t get_prekey_signature(
+        std::uint8_t * signature
+    );
+
+    /**
      * Get the UNIX timestamp prekey (in seconds) was published TODO: check this
      */
     std::uint64_t get_last_prekey_publish_time();

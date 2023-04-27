@@ -57,7 +57,9 @@ std::size_t olm::Session::new_outbound_session_random_length() const {
 std::size_t olm::Session::new_outbound_session(
     olm::Account const & local_account,
     _olm_curve25519_public_key const & identity_key,
+    _olm_ed25519_public_key const & signing_key,
     _olm_curve25519_public_key const & pre_key,
+    std::uint8_t const * pre_key_signature,
     _olm_curve25519_public_key const & one_time_key,
     std::uint8_t const * random, std::size_t random_length
 ) {
@@ -81,6 +83,12 @@ std::size_t olm::Session::new_outbound_session(
     alice_base_key = base_key.public_key;
     bob_one_time_key = one_time_key;
     bob_prekey = pre_key;
+
+    // Verify prekey signature
+    if (_olm_crypto_ed25519_verify(&signing_key, bob_prekey.public_key, CURVE25519_KEY_LENGTH, pre_key_signature) == 0) {
+        last_error = OlmErrorCode::OLM_BAD_SIGNATURE;
+        return std::size_t(-1);
+    }
 
     // Calculate the shared secret S via triple DH
     std::uint8_t secret[4 * CURVE25519_SHARED_SECRET_LENGTH];
