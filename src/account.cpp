@@ -390,8 +390,7 @@ std::size_t olm::Account::get_unpublished_prekey_json(
         return std::size_t(-1);
     }
     if (current_prekey.published) {
-        last_error = OlmErrorCode::OLM_NO_UNPUBLISHED_PREKEY;
-        return std::size_t(-1);
+        return 0;
     }
     *(pos++) = '{';
     pos = write_string(pos, KEY_JSON_CURVE25519);

@@ -214,8 +214,8 @@ Account.prototype['unpublished_prekey'] = restore_stack(function() {
     var ret = account_method(Module['_olm_account_unpublished_prekey'])(
         this.ptr, keys, keys_length
     );
-    // If ret is std::size_t(-1)
-    if (ret > keys_length) return null;
+    // If the current prekey was marked as published
+    if (ret == 0) return null;
     return UTF8ToString(keys, keys_length);
 });
 
