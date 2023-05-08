@@ -85,7 +85,7 @@ std::size_t olm::Account::remove_key(
 }
 
 std::size_t olm::Account::new_account_random_length() const {
-    return ED25519_RANDOM_LENGTH + CURVE25519_RANDOM_LENGTH;
+    return ED25519_RANDOM_LENGTH + CURVE25519_RANDOM_LENGTH + generate_prekey_random_length();
 }
 
 std::size_t olm::Account::new_account(
@@ -99,6 +99,8 @@ std::size_t olm::Account::new_account(
     _olm_crypto_ed25519_generate_key(random, &identity_keys.ed25519_key);
     random += ED25519_RANDOM_LENGTH;
     _olm_crypto_curve25519_generate_key(random, &identity_keys.curve25519_key);
+    random += CURVE25519_RANDOM_LENGTH;
+    generate_prekey(random, generate_prekey_random_length());
 
     return 0;
 }
