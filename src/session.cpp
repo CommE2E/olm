@@ -508,6 +508,7 @@ std::size_t olm::pickle_length(
     length += olm::pickle_length(value.alice_identity_key);
     length += olm::pickle_length(value.alice_base_key);
     length += olm::pickle_length(value.bob_one_time_key);
+    length += olm::pickle_length(value.bob_prekey);
     length += olm::pickle_length(value.ratchet);
     return length;
 }
@@ -522,6 +523,7 @@ std::uint8_t * olm::pickle(
     pos = olm::pickle(pos, value.alice_identity_key);
     pos = olm::pickle(pos, value.alice_base_key);
     pos = olm::pickle(pos, value.bob_one_time_key);
+    pos = olm::pickle(pos, value.bob_prekey);
     pos = olm::pickle(pos, value.ratchet);
     return pos;
 }
@@ -553,6 +555,7 @@ std::uint8_t const * olm::unpickle(
     pos = olm::unpickle(pos, end, value.alice_identity_key); UNPICKLE_OK(pos);
     pos = olm::unpickle(pos, end, value.alice_base_key); UNPICKLE_OK(pos);
     pos = olm::unpickle(pos, end, value.bob_one_time_key); UNPICKLE_OK(pos);
+    pos = olm::unpickle(pos, end, value.bob_prekey); UNPICKLE_OK(pos);
     pos = olm::unpickle(pos, end, value.ratchet, includes_chain_index); UNPICKLE_OK(pos);
 
     return pos;

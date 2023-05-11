@@ -107,5 +107,24 @@ describe("olm", function() {
         decrypted = aliceSession.decrypt(encrypted.type, encrypted.body);
         console.log(TEST_TEXT, "->", decrypted);
         expect(decrypted).toEqual(TEST_TEXT);
+
+        // Pickle and restore sessions
+        var alicePickleKey = 'SomeSecretAlice';
+        var bobPickleKey = 'SomeSecretBob';
+        var aliceSessionPickled = aliceSession.pickle(alicePickleKey);
+        var bobSessionPickled = bobSession.pickle(bobPickleKey);
+
+        aliceSession = new Olm.Session();
+        bobSession = new Olm.Session();
+
+        aliceSession.unpickle(alicePickleKey, aliceSessionPickled);
+        bobSession.unpickle(bobPickleKey, bobSessionPickled);
+
+        TEST_TEXT='some emoji: ☕ 123 // after pickling';
+        encrypted = bobSession.encrypt(TEST_TEXT);
+        expect(encrypted.type).toEqual(1);
+        decrypted = aliceSession.decrypt(encrypted.type, encrypted.body);
+        console.log(TEST_TEXT, "->", decrypted);
+        expect(decrypted).toEqual(TEST_TEXT);
     });
 });
