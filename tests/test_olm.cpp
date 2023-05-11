@@ -141,7 +141,6 @@ std::vector<std::uint8_t> random2(::olm_create_outbound_session_random_length(se
 mock_random(random2.data(), random2.size());
 std::uint8_t pre_key_signature[86];
 olm_account_prekey_signature(account, pre_key_signature);
-// ::olm_account_sign(account, pre_key, sizeof(pre_key), pre_key_signature, olm_account_signature_length(account));
 
 ::olm_create_outbound_session(
     session, account,
