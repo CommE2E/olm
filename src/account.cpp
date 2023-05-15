@@ -390,8 +390,7 @@ std::size_t olm::Account::get_unpublished_prekey_json(
         return std::size_t(-1);
     }
     if (current_prekey.published) {
-        last_error = OlmErrorCode::OLM_NO_UNPUBLISHED_PREKEY;
-        return std::size_t(-1);
+        return 0;
     }
     *(pos++) = '{';
     pos = write_string(pos, KEY_JSON_CURVE25519);
@@ -413,18 +412,8 @@ std::size_t olm::Account::get_unpublished_prekey_json(
 
 std::size_t olm::Account::get_prekey_signature(
     std::uint8_t * signature) {
-    std::uint8_t raw_signature[signature_length()];
-    std::size_t ret = sign(
-        current_prekey.key.public_key.public_key,
-        CURVE25519_KEY_LENGTH,
-        raw_signature,
-        ED25519_SIGNATURE_LENGTH);
-    if (ret == signature_length()) {
-        olm::encode_base64(raw_signature, signature_length(), signature);
-        return ret;
-    } else {
-        return 0;
-    }
+    olm::encode_base64(current_prekey.signature, signature_length(), signature);
+    return signature_length();
 }
 
 std::uint64_t olm::Account::get_last_prekey_publish_time() {
