@@ -17,11 +17,10 @@ const test_case test_cases[] = {
 
 
 const char * session_data =
-    "E0p44KO2y2pzp9FIjv0rud2wIvWDi2dx367kP4Fz/9JCMrH+aG369HGymkFtk0+PINTLB9lQRt"
-    "ohea5d7G/UXQx3r5y4IWuyh1xaRnojEZQ9a5HRZSNtvmZ9NY1f1gutYa4UtcZcbvczN8b/5Bqg"
-    "e16cPUH1v62JKLlhoAJwRkH1wU6fbyOudERg5gdXA971btR+Q2V8GKbVbO5fGKL5phmEPVXyMs"
-    "rfjLdzQrgjOTxN8Pf6iuP+WFPvfnR9lDmNCFxJUVAdLIMnLuAdxf1TGcS+zzCzEE8btIZ99mHF"
-    "dGvPXeH8qLeNZA";
+    "BEHrQRLy+I+z1ovctspbZ16PLm4RYVriIfN0OV2k8TKYqAzk6QPkasAZe19sGn7SCVfU+x90S9G5WmlTF"
+    "SoOo6TWuzwD9YkK9OjEu33i24AjMmXKESi8kfE+84UguuBJSEqEeJqV3yQHFLEWj5PUqgGBnD/pWMSpk3"
+    "7dmLlc2HSIr+QIuzl7fpyA09yyF9/IkSFbxAyqg94Ce7wQSw4BbKeXvDDK9crLShakUR7VC3nZCSzZs8s"
+    "C8NeGOHV9nhl6oJWBMnKoCFw";
 
 void decode_hex(
     const char * input,
