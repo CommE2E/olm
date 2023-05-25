@@ -25,7 +25,7 @@ struct ospan {
     friend std::ostream& operator<<(std::ostream& os, const ospan& v) {
         os << "sz:" << std::dec << v.size << " [" << std::hex;
         for (size_t i = 0; i < v.size; i++)
-            os << (std::size_t)v.data[i];
+            os << std::setfill('0') << std::setw(2) << (std::size_t)v.data[i];
         os << "]";
         return os;
     }
