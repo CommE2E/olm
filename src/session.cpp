@@ -235,6 +235,7 @@ std::size_t olm::Session::session_id(
     pos = olm::store_array(pos, alice_identity_key.public_key);
     pos = olm::store_array(pos, alice_base_key.public_key);
     pos = olm::store_array(pos, bob_one_time_key.public_key);
+    pos = olm::store_array(pos, bob_prekey.public_key);
     _olm_crypto_sha256(tmp, sizeof(tmp), id);
     return session_id_length();
 }
