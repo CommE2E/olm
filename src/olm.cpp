@@ -869,7 +869,25 @@ size_t olm_decrypt(
     }
     return from_c(session)->decrypt(
         olm::MessageType(message_type), from_c(message), raw_length,
-        from_c(plaintext), max_plaintext_length
+        from_c(plaintext), max_plaintext_length, false
+    );
+}
+
+size_t olm_decrypt_sequential(
+    OlmSession * session,
+    size_t message_type,
+    void * message, size_t message_length,
+    void * plaintext, size_t max_plaintext_length
+) {
+    std::size_t raw_length = b64_input(
+        from_c(message), message_length, from_c(session)->last_error
+    );
+    if (raw_length == std::size_t(-1)) {
+        return std::size_t(-1);
+    }
+    return from_c(session)->decrypt(
+        olm::MessageType(message_type), from_c(message), raw_length,
+        from_c(plaintext), max_plaintext_length, true
     );
 }
 
