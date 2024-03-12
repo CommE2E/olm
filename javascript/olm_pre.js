@@ -1,9 +1,9 @@
 var get_random_values;
 
-if (typeof(window) !== 'undefined') {
+if (typeof(self) !== 'undefined') {
     // We're in a browser (directly, via browserify, or via webpack).
     get_random_values = function(buf) {
-        window.crypto.getRandomValues(buf);
+        self.crypto.getRandomValues(buf);
     };
 } else if (module["exports"]) {
     // We're running in node.
