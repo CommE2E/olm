@@ -71,6 +71,20 @@ enum OlmErrorCode {
      */
     OLM_MESSAGE_OUT_OF_ORDER = 18,
 
+    /**
+    * This message was already decrypted or the receiver chain advanced
+    * more than MAX_SKIPPED_MESSAGE_KEYS and the key to decrypt
+    * that message was discarded.
+    * If using decrypt() with is_sequential set to true we can assume this error
+    * means that the message was decrypted because in this case, the receiver chain
+    * can advance only by one key while decrypting.
+    */
+    OLM_ALREADY_DECRYPTED_OR_KEYS_SKIPPED = 19,
+
+    OLM_MAX_MESSAGE_GAP_EXCEEDED = 20,
+
+    OLM_SENDER_CHAIN_NOT_ACKNOWLEDGED = 21,
+
     /* remember to update the list of string constants in error.c when updating
      * this list. */
 };

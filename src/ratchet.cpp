@@ -111,14 +111,17 @@ static std::size_t verify_mac_and_decrypt_for_existing_chain(
     olm::Ratchet const & session,
     olm::ChainKey const & chain,
     olm::MessageReader const & reader,
-    std::uint8_t * plaintext, std::size_t max_plaintext_length
+    std::uint8_t * plaintext, std::size_t max_plaintext_length,
+    OlmErrorCode & last_error
 ) {
     if (reader.counter < chain.index) {
+        last_error = OlmErrorCode::OLM_ALREADY_DECRYPTED_OR_KEYS_SKIPPED;
         return std::size_t(-1);
     }
 
     /* Limit the number of hashes we're prepared to compute */
     if (reader.counter - chain.index > MAX_MESSAGE_GAP) {
+        last_error = OlmErrorCode::OLM_MAX_MESSAGE_GAP_EXCEEDED;
         return std::size_t(-1);
     }
 
@@ -144,7 +147,8 @@ static std::size_t verify_mac_and_decrypt_for_existing_chain(
 static std::size_t verify_mac_and_decrypt_for_new_chain(
     olm::Ratchet const & session,
     olm::MessageReader const & reader,
-    std::uint8_t * plaintext, std::size_t max_plaintext_length
+    std::uint8_t * plaintext, std::size_t max_plaintext_length,
+    OlmErrorCode & last_error
 ) {
     olm::SharedKey new_root_key;
     olm::ReceiverChain new_chain;
@@ -152,11 +156,13 @@ static std::size_t verify_mac_and_decrypt_for_new_chain(
     /* They shouldn't move to a new chain until we've sent them a message
      * acknowledging the last one */
     if (session.sender_chain.empty()) {
+        last_error = OlmErrorCode::OLM_SENDER_CHAIN_NOT_ACKNOWLEDGED;
         return std::size_t(-1);
     }
 
     /* Limit the number of hashes we're prepared to compute */
     if (reader.counter > MAX_MESSAGE_GAP) {
+        last_error = OlmErrorCode::OLM_MAX_MESSAGE_GAP_EXCEEDED;
         return std::size_t(-1);
     }
     olm::load_array(new_chain.ratchet_key.public_key, reader.ratchet_key);
@@ -168,7 +174,7 @@ static std::size_t verify_mac_and_decrypt_for_new_chain(
     );
     std::size_t result = verify_mac_and_decrypt_for_existing_chain(
         session, new_chain.chain_key, reader,
-        plaintext, max_plaintext_length
+        plaintext, max_plaintext_length, last_error
     );
     olm::unset(new_root_key);
     olm::unset(new_chain);
@@ -553,7 +559,7 @@ std::size_t olm::Ratchet::decrypt(
 
     if (!chain) {
         result = verify_mac_and_decrypt_for_new_chain(
-            *this, reader, plaintext, max_plaintext_length
+            *this, reader, plaintext, max_plaintext_length, last_error
         );
     } else if (is_sequential && reader.counter > chain->chain_key.index) {
         last_error = OlmErrorCode::OLM_MESSAGE_OUT_OF_ORDER;
@@ -584,15 +590,21 @@ std::size_t olm::Ratchet::decrypt(
                 }
             }
         }
+        /* No key found for this message. */
+        last_error = OlmErrorCode::OLM_ALREADY_DECRYPTED_OR_KEYS_SKIPPED;
     } else {
         result = verify_mac_and_decrypt_for_existing_chain(
             *this, chain->chain_key,
-            reader, plaintext, max_plaintext_length
+            reader, plaintext, max_plaintext_length,
+            last_error
         );
     }
 
     if (result == std::size_t(-1)) {
-        last_error = OlmErrorCode::OLM_BAD_MESSAGE_MAC;
+        /* There was an error but specific error code wasn't set.  */
+        if(last_error == OlmErrorCode::OLM_SUCCESS) {
+            last_error = OlmErrorCode::OLM_BAD_MESSAGE_MAC;
+        }
         return std::size_t(-1);
     }
 

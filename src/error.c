@@ -34,7 +34,10 @@ static const char * ERRORS[] = {
     "OLM_INPUT_BUFFER_TOO_SMALL",
     "OLM_SAS_THEIR_KEY_NOT_SET",
     "OLM_PICKLE_EXTRA_DATA",
-    "OLM_MESSAGE_OUT_OF_ORDER"
+    "OLM_MESSAGE_OUT_OF_ORDER",
+    "OLM_ALREADY_DECRYPTED_OR_KEYS_SKIPPED",
+    "OLM_MAX_MESSAGE_GAP_EXCEEDED",
+    "OLM_SENDER_CHAIN_NOT_ACKNOWLEDGED"
 };
 
 const char * _olm_error_to_string(enum OlmErrorCode error)
