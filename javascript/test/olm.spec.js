@@ -127,4 +127,68 @@ describe("olm", function() {
         console.log(TEST_TEXT, "->", decrypted);
         expect(decrypted).toEqual(TEST_TEXT);
     });
+
+    it('should encrypt and decrypt sequential', function() {
+        aliceAccount.create();
+        bobAccount.create();
+
+        bobAccount.generate_one_time_keys(1);
+        var bobOneTimeKeys = JSON.parse(bobAccount.one_time_keys()).curve25519;
+        bobAccount.mark_keys_as_published();
+
+        var bobIdKey = JSON.parse(bobAccount.identity_keys()).curve25519;
+        var bobSigningKey = JSON.parse(bobAccount.identity_keys()).ed25519;
+
+        bobAccount.generate_prekey();
+        bobAccount.mark_prekey_as_published();
+        bobAccount.generate_prekey();
+        bobAccount.mark_prekey_as_published();
+        bobAccount.forget_old_prekey();
+
+        var bobPrekey = Object.values(JSON.parse(bobAccount.prekey()).curve25519)[0];
+        var bobPreKeySignature = bobAccount.prekey_signature();
+
+        var otk_id = Object.keys(bobOneTimeKeys)[0];
+
+        aliceSession.create_outbound(
+            aliceAccount, bobIdKey, bobSigningKey, bobPrekey, bobPreKeySignature, bobOneTimeKeys[otk_id]
+        );
+
+        var TEST_TEXT='têst1';
+        var encrypted = aliceSession.encrypt(TEST_TEXT);
+        expect(encrypted.type).toEqual(0);
+        bobSession.create_inbound(bobAccount, encrypted.body);
+        bobAccount.remove_one_time_keys(bobSession);
+        var decrypted = bobSession.decrypt_sequential(encrypted.type, encrypted.body);
+        console.log(TEST_TEXT, "->", decrypted);
+        expect(decrypted).toEqual(TEST_TEXT);
+
+        TEST_TEXT='hot beverage: ☕';
+        encrypted = bobSession.encrypt(TEST_TEXT);
+        expect(encrypted.type).toEqual(1);
+        decrypted = aliceSession.decrypt_sequential(encrypted.type, encrypted.body);
+        console.log(TEST_TEXT, "->", decrypted);
+        expect(decrypted).toEqual(TEST_TEXT);
+
+
+        var TEST_TEXT_1 ='some emoji: ☕ 123';
+        var encrypted_1 = bobSession.encrypt(TEST_TEXT_1);
+        expect(encrypted_1.type).toEqual(1);
+
+        var TEST_TEXT_2 ='some emoji: ☕ 456 ';
+        var encrypted_2 = bobSession.encrypt(TEST_TEXT_2);
+        expect(encrypted_2.type).toEqual(1);
+
+        expect(
+            () => aliceSession.decrypt_sequential(encrypted_2.type, encrypted_2.body)
+        ).toThrow();
+
+        var decrypted1 = aliceSession.decrypt(encrypted_1.type, encrypted_1.body);
+        console.log(TEST_TEXT_1, "->", decrypted1);
+        expect(decrypted1).toEqual(TEST_TEXT_1);
+
+        var decrypted2 = aliceSession.decrypt(encrypted_2.type, encrypted_2.body);
+        console.log(TEST_TEXT_2, "->", decrypted2);
+        expect(decrypted2).toEqual(TEST_TEXT_2);
+    });
 });

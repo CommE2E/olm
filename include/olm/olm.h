@@ -539,6 +539,15 @@ OLM_EXPORT size_t olm_decrypt(
     void * plaintext, size_t max_plaintext_length
 );
 
+/** The same as decrypt() but allows decrypting only when messages order
+ * is maintained, otherwise the last_error will be "MESSAGE_OUT_OF_ORDER". */
+OLM_EXPORT size_t olm_decrypt_sequential(
+    OlmSession * session,
+    size_t message_type,
+    void * message, size_t message_length,
+    void * plaintext, size_t max_plaintext_length
+);
+
 /** The length of the buffer needed to hold the SHA-256 hash. */
 OLM_EXPORT size_t olm_sha256_length(
    OlmUtility const * utility

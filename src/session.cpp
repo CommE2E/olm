@@ -395,7 +395,8 @@ std::size_t olm::Session::decrypt_max_plaintext_length(
 std::size_t olm::Session::decrypt(
     olm::MessageType message_type,
     std::uint8_t const * message, std::size_t message_length,
-    std::uint8_t * plaintext, std::size_t max_plaintext_length
+    std::uint8_t * plaintext, std::size_t max_plaintext_length,
+    bool is_sequential
 ) {
     std::uint8_t const * message_body;
     std::size_t message_body_length;
@@ -414,7 +415,8 @@ std::size_t olm::Session::decrypt(
     }
 
     std::size_t result = ratchet.decrypt(
-        message_body, message_body_length, plaintext, max_plaintext_length
+        message_body, message_body_length, plaintext, max_plaintext_length,
+        is_sequential
     );
 
     if (result == std::size_t(-1)) {

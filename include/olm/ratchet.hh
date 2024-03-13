@@ -159,10 +159,13 @@ struct OLM_EXPORT Ratchet {
      * BAD_MESSAGE_VERSION if the message was encrypted with an unsupported
      * version of the protocol. The last_error will be BAD_MESSAGE_FORMAT if
      * the message headers could not be decoded. The last_error will be
-     * BAD_MESSAGE_MAC if the message could not be verified */
+     * BAD_MESSAGE_MAC if the message could not be verified. If the
+     * is_sequential parameter is set to true and the order of messages
+     * is not maintained the last_error will be MESSAGE_OUT_OF_ORDER. */
     std::size_t decrypt(
         std::uint8_t const * input, std::size_t input_length,
-        std::uint8_t * plaintext, std::size_t max_plaintext_length
+        std::uint8_t * plaintext, std::size_t max_plaintext_length,
+        bool is_sequential = false
     );
 };
 

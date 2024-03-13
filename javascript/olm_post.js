@@ -598,6 +598,51 @@ Session.prototype['decrypt'] = restore_stack(function(
 
 });
 
+Session.prototype['decrypt_sequential'] = restore_stack(function(
+    message_type, message
+) {
+    var message_buffer, plaintext_buffer, max_plaintext_length;
+
+    try {
+        message_buffer = malloc(message.length);
+        writeAsciiToMemory(message, message_buffer, true);
+
+        max_plaintext_length = session_method(
+            Module['_olm_decrypt_max_plaintext_length']
+        )(this.ptr, message_type, message_buffer, message.length);
+
+        // caculating the length destroys the input buffer, so we need to re-copy it.
+        writeAsciiToMemory(message, message_buffer, true);
+
+        plaintext_buffer = malloc(max_plaintext_length + NULL_BYTE_PADDING_LENGTH);
+
+        var plaintext_length = session_method(Module["_olm_decrypt_sequential"])(
+            this.ptr, message_type,
+            message_buffer, message.length,
+            plaintext_buffer, max_plaintext_length
+        );
+
+        // UTF8ToString requires a null-terminated argument, so add the
+        // null terminator.
+        setValue(
+            plaintext_buffer+plaintext_length,
+            0, "i8"
+        );
+
+        return UTF8ToString(plaintext_buffer, plaintext_length);
+    } finally {
+        if (message_buffer !== undefined) {
+            free(message_buffer);
+        }
+        if (plaintext_buffer !== undefined) {
+            // don't leave a copy of the plaintext in the heap.
+            bzero(plaintext_buffer, max_plaintext_length);
+            free(plaintext_buffer);
+        }
+    }
+
+});
+
 Session.prototype['describe'] = restore_stack(function() {
     var description_buf;
     try {
