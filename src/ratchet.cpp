@@ -555,7 +555,7 @@ std::size_t olm::Ratchet::decrypt(
         result = verify_mac_and_decrypt_for_new_chain(
             *this, reader, plaintext, max_plaintext_length
         );
-    } else if(is_sequential && reader.counter > chain->chain_key.index) {
+    } else if (is_sequential && reader.counter > chain->chain_key.index) {
         last_error = OlmErrorCode::OLM_MESSAGE_OUT_OF_ORDER;
         return std::size_t(-1);
     } else if (chain->chain_key.index > reader.counter) {
