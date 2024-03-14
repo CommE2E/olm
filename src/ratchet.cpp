@@ -602,7 +602,7 @@ std::size_t olm::Ratchet::decrypt(
 
     if (result == std::size_t(-1)) {
         /* There was an error but specific error code wasn't set.  */
-        if(last_error == OlmErrorCode::OLM_SUCCESS) {
+        if (last_error == OlmErrorCode::OLM_SUCCESS) {
             last_error = OlmErrorCode::OLM_BAD_MESSAGE_MAC;
         }
         return std::size_t(-1);
