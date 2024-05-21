@@ -387,6 +387,22 @@ OLM_EXPORT size_t olm_create_outbound_session(
     void * random, size_t random_length
 );
 
+/** Creates a new out-bound session for sending messages to a given identity_key.
+ * Returns olm_error() on failure. If the keys couldn't be
+ * decoded as base64 then olm_session_last_error() will be "INVALID_BASE64"
+ * If there weren't enough random bytes then olm_session_last_error() will
+ * be "NOT_ENOUGH_RANDOM".
+ * It uses the prekey as one time key to perform three steps of DH. */
+OLM_EXPORT size_t olm_create_outbound_session_without_otk(
+    OlmSession * session,
+    OlmAccount const * account,
+    void const * their_identity_key, size_t their_identity_key_length,
+    void const * their_signing_key, size_t their_signing_key_length,
+    void const * their_pre_key, size_t their_pre_key_length,
+    void const * their_pre_key_signature, size_t their_pre_key_signature_length,
+    void * random, size_t random_length
+);
+
 /** Create a new in-bound session for sending/receiving messages from an
  * incoming PRE_KEY message. Returns olm_error() on failure. If the base64
  * couldn't be decoded then olm_session_last_error will be "INVALID_BASE64".
@@ -394,7 +410,8 @@ OLM_EXPORT size_t olm_create_outbound_session(
  * olm_session_last_error() will be "BAD_MESSAGE_VERSION". If the message
  * couldn't be decoded then olm_session_last_error() will be
  * "BAD_MESSAGE_FORMAT". If the message refers to an unknown one time
- * key then olm_session_last_error() will be "BAD_MESSAGE_KEY_ID". */
+ * key or prekey wasn't used as one time key then
+ * olm_session_last_error() will be "BAD_MESSAGE_KEY_ID". */
 OLM_EXPORT size_t olm_create_inbound_session(
     OlmSession * session,
     OlmAccount * account,
@@ -468,7 +485,8 @@ OLM_EXPORT size_t olm_matches_inbound_session_from(
 
 /** Removes the one time keys that the session used from the account. Returns
  * olm_error() on failure. If the account doesn't have any matching one time
- * keys then olm_account_last_error() will be "BAD_MESSAGE_KEY_ID". */
+ * keys then olm_account_last_error() will be "BAD_MESSAGE_KEY_ID".
+ * If the prekey was used as one time key then this is no-op. */
 OLM_EXPORT size_t olm_remove_one_time_keys(
     OlmAccount * account,
     OlmSession * session

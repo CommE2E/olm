@@ -636,8 +636,52 @@ size_t olm_create_outbound_session(
     olm::decode_base64(p_sign, p_sign_length, raw_pre_key_signature);
 
     size_t result = from_c(session)->new_outbound_session(
-        *from_c(account), identity_key, signing_key, pre_key, raw_pre_key_signature, one_time_key,
-        from_c(random), random_length
+        *from_c(account), identity_key, signing_key, pre_key, raw_pre_key_signature,
+        from_c(random), random_length, &one_time_key
+    );
+    olm::unset(random, random_length);
+    return result;
+}
+
+size_t olm_create_outbound_session_without_otk(
+    OlmSession * session,
+    OlmAccount const * account,
+    void const * their_identity_key, size_t their_identity_key_length,
+    void const * their_signing_key, size_t their_signing_key_length,
+    void const * their_pre_key, size_t their_pre_key_length,
+    void const * their_pre_key_signature, size_t their_pre_key_signature_length,
+    void * random, size_t random_length
+) {
+    std::uint8_t const * id_key = from_c(their_identity_key);
+    std::uint8_t const * s_key = from_c(their_signing_key);
+    std::uint8_t const * p_key = from_c(their_pre_key);
+    std::uint8_t const * p_sign = from_c(their_pre_key_signature);
+    std::size_t id_key_length = their_identity_key_length;
+    std::size_t s_key_length = their_signing_key_length;
+    std::size_t p_key_length = their_pre_key_length;
+    std::size_t p_sign_length = their_pre_key_signature_length;
+
+    if (olm::decode_base64_length(id_key_length) != CURVE25519_KEY_LENGTH
+            || olm::decode_base64_length(s_key_length) != ED25519_PUBLIC_KEY_LENGTH
+            || olm::decode_base64_length(p_key_length) != CURVE25519_KEY_LENGTH
+            || olm::decode_base64_length(p_sign_length) != ED25519_SIGNATURE_LENGTH
+    ) {
+        from_c(session)->last_error = OlmErrorCode::OLM_INVALID_BASE64;
+        return std::size_t(-1);
+    }
+    _olm_curve25519_public_key identity_key;
+    _olm_ed25519_public_key signing_key;
+    _olm_curve25519_public_key pre_key;
+    uint8_t raw_pre_key_signature[ED25519_SIGNATURE_LENGTH];
+
+    olm::decode_base64(id_key, id_key_length, identity_key.public_key);
+    olm::decode_base64(s_key, s_key_length, signing_key.public_key);
+    olm::decode_base64(p_key, p_key_length, pre_key.public_key);
+    olm::decode_base64(p_sign, p_sign_length, raw_pre_key_signature);
+
+    size_t result = from_c(session)->new_outbound_session(
+        *from_c(account), identity_key, signing_key, pre_key, raw_pre_key_signature,
+        from_c(random), random_length, nullptr
     );
     olm::unset(random, random_length);
     return result;
@@ -777,6 +821,15 @@ size_t olm_remove_one_time_keys(
     OlmAccount * account,
     OlmSession * session
 ) {
+    bool using_prekey_as_otk = olm::array_equal(
+        from_c(session)->bob_one_time_key.public_key,
+        from_c(session)->bob_prekey.public_key
+    );
+
+    if (using_prekey_as_otk) {
+        return std::size_t(0);
+    }
+
     size_t result = from_c(account)->remove_key(
         from_c(session)->bob_one_time_key
     );
