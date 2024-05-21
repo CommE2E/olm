@@ -60,8 +60,8 @@ std::size_t olm::Session::new_outbound_session(
     _olm_ed25519_public_key const & signing_key,
     _olm_curve25519_public_key const & pre_key,
     std::uint8_t const * pre_key_signature,
-    _olm_curve25519_public_key const & one_time_key,
-    std::uint8_t const * random, std::size_t random_length
+    std::uint8_t const * random, std::size_t random_length,
+    _olm_curve25519_public_key const * one_time_key
 ) {
     if (random_length < new_outbound_session_random_length()) {
         last_error = OlmErrorCode::OLM_NOT_ENOUGH_RANDOM;
@@ -81,7 +81,13 @@ std::size_t olm::Session::new_outbound_session(
     received_message = false;
     alice_identity_key = alice_identity_key_pair.public_key;
     alice_base_key = base_key.public_key;
-    bob_one_time_key = one_time_key;
+
+    if (one_time_key) {
+        bob_one_time_key = *one_time_key;
+    } else {
+        bob_one_time_key = pre_key;
+    }
+
     bob_prekey = pre_key;
 
     // Verify prekey signature
@@ -94,15 +100,19 @@ std::size_t olm::Session::new_outbound_session(
     std::uint8_t secret[4 * CURVE25519_SHARED_SECRET_LENGTH];
     std::uint8_t * pos = secret;
 
-    _olm_crypto_curve25519_shared_secret(&alice_identity_key_pair, &one_time_key, pos);
+    _olm_crypto_curve25519_shared_secret(&alice_identity_key_pair, &bob_one_time_key, pos);
     pos += CURVE25519_SHARED_SECRET_LENGTH;
     _olm_crypto_curve25519_shared_secret(&base_key, &identity_key, pos);
     pos += CURVE25519_SHARED_SECRET_LENGTH;
-    _olm_crypto_curve25519_shared_secret(&base_key, &one_time_key, pos);
-    pos += CURVE25519_SHARED_SECRET_LENGTH;
-    _olm_crypto_curve25519_shared_secret(&base_key, &pre_key, pos);
+    _olm_crypto_curve25519_shared_secret(&base_key, &bob_one_time_key, pos);
+    if (one_time_key) {
+        pos += CURVE25519_SHARED_SECRET_LENGTH;
+        _olm_crypto_curve25519_shared_secret(&base_key, &pre_key, pos);
+    }
 
-    ratchet.initialise_as_alice(secret, sizeof(secret), ratchet_key);
+    std::size_t shared_secret_steps = one_time_key ? 4 : 3;
+    std::size_t shared_secret_length = sizeof(std::uint8_t) * shared_secret_steps;
+    ratchet.initialise_as_alice(secret, shared_secret_length, ratchet_key);
 
     olm::unset(base_key);
     olm::unset(ratchet_key);
@@ -179,7 +189,12 @@ std::size_t olm::Session::new_inbound_session(
         bob_one_time_key
     );
 
-    if (!our_one_time_key) {
+    bool using_prekey_as_otk = olm::array_equal(
+        bob_prekey.public_key,
+        bob_one_time_key.public_key
+    );
+
+    if (!our_one_time_key && !using_prekey_as_otk) {
         last_error = OlmErrorCode::OLM_BAD_MESSAGE_KEY_ID;
         return std::size_t(-1);
     }
@@ -196,7 +211,8 @@ std::size_t olm::Session::new_inbound_session(
     _olm_curve25519_key_pair const & bob_identity_key = (
         local_account.identity_keys.curve25519_key
     );
-    _olm_curve25519_key_pair const & bob_one_time_key = our_one_time_key->key;
+    _olm_curve25519_key_pair const & bob_one_time_key =
+        using_prekey_as_otk ? our_prekey->key : our_one_time_key->key;
     _olm_curve25519_key_pair const & bob_prekey = our_prekey->key;
 
     // Calculate the shared secret S via triple DH
@@ -207,10 +223,14 @@ std::size_t olm::Session::new_inbound_session(
     _olm_crypto_curve25519_shared_secret(&bob_identity_key, &alice_base_key, pos);
     pos += CURVE25519_SHARED_SECRET_LENGTH;
     _olm_crypto_curve25519_shared_secret(&bob_one_time_key, &alice_base_key, pos);
-    pos += CURVE25519_SHARED_SECRET_LENGTH;
-    _olm_crypto_curve25519_shared_secret(&bob_prekey, &alice_base_key, pos);
+    if (!using_prekey_as_otk) {
+        pos += CURVE25519_SHARED_SECRET_LENGTH;
+        _olm_crypto_curve25519_shared_secret(&bob_prekey, &alice_base_key, pos);
+    }
 
-    ratchet.initialise_as_bob(secret, sizeof(secret), ratchet_key);
+    std::size_t shared_secret_steps = using_prekey_as_otk ? 3 : 4;
+    std::size_t shared_secret_length = sizeof(std::uint8_t) * shared_secret_steps;
+    ratchet.initialise_as_bob(secret, shared_secret_length, ratchet_key);
 
     olm::unset(secret);
 

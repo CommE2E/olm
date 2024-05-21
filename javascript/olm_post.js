@@ -413,6 +413,36 @@ Session.prototype['create_outbound'] = restore_stack(function(
     }
 });
 
+Session.prototype['create_outbound_without_otk'] = restore_stack(function(
+    account, their_identity_key, their_signing_key, their_pre_key, their_pre_key_signature
+) {
+    var random_length = session_method(
+        Module['_olm_create_outbound_session_random_length']
+    )(this.ptr);
+    var random = random_stack(random_length);
+    var identity_key_array = array_from_string(their_identity_key);
+    var signing_key_array = array_from_string(their_signing_key);
+    var pre_key_array = array_from_string(their_pre_key);
+    var pre_key_signature_array = array_from_string(their_pre_key_signature);
+    var identity_key_buffer = stack(identity_key_array);
+    var signing_key_buffer = stack(signing_key_array);
+    var pre_key_buffer = stack(pre_key_array);
+    var pre_key_signature_buffer = stack(pre_key_signature_array);
+    try {
+        session_method(Module['_olm_create_outbound_session_without_otk'])(
+            this.ptr, account.ptr,
+            identity_key_buffer, identity_key_array.length,
+            signing_key_buffer, signing_key_array.length,
+            pre_key_buffer, pre_key_array.length,
+            pre_key_signature_buffer, pre_key_signature_array.length,
+            random, random_length
+        );
+    } finally {
+        // clear the random buffer, which is key data
+        bzero(random, random_length);
+    }
+});
+
 Session.prototype['create_inbound'] = restore_stack(function(
     account, one_time_key_message
 ) {

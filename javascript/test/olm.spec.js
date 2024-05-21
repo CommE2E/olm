@@ -40,6 +40,15 @@ describe("olm", function() {
             aliceSession = new Olm.Session();
             bobSession = new Olm.Session();
 
+            aliceAccount.create();
+            bobAccount.create();
+
+            bobAccount.generate_prekey();
+            bobAccount.mark_prekey_as_published();
+            bobAccount.generate_prekey();
+            bobAccount.mark_prekey_as_published();
+            bobAccount.forget_old_prekey();
+
             done();
         });
     });
@@ -66,32 +75,20 @@ describe("olm", function() {
         }
     });
 
-    it('should encrypt and decrypt', function() {
-        aliceAccount.create();
-        bobAccount.create();
+    function testPickleAndRestore(){
+        var alicePickleKey = 'SomeSecretAlice';
+        var bobPickleKey = 'SomeSecretBob';
+        var aliceSessionPickled = aliceSession.pickle(alicePickleKey);
+        var bobSessionPickled = bobSession.pickle(bobPickleKey);
 
-        bobAccount.generate_one_time_keys(1);
-        var bobOneTimeKeys = JSON.parse(bobAccount.one_time_keys()).curve25519;
-        bobAccount.mark_keys_as_published();
+        aliceSession = new Olm.Session();
+        bobSession = new Olm.Session();
 
-        var bobIdKey = JSON.parse(bobAccount.identity_keys()).curve25519;
-        var bobSigningKey = JSON.parse(bobAccount.identity_keys()).ed25519;
+        aliceSession.unpickle(alicePickleKey, aliceSessionPickled);
+        bobSession.unpickle(bobPickleKey, bobSessionPickled);
+    }
 
-        bobAccount.generate_prekey();
-        bobAccount.mark_prekey_as_published();
-        bobAccount.generate_prekey();
-        bobAccount.mark_prekey_as_published();
-        bobAccount.forget_old_prekey();
-
-        var bobPrekey = Object.values(JSON.parse(bobAccount.prekey()).curve25519)[0];
-        var bobPreKeySignature = bobAccount.prekey_signature();
-
-        var otk_id = Object.keys(bobOneTimeKeys)[0];
-
-        aliceSession.create_outbound(
-            aliceAccount, bobIdKey, bobSigningKey, bobPrekey, bobPreKeySignature, bobOneTimeKeys[otk_id]
-        );
-
+    function testEncryptDecrypt() {
         var TEST_TEXT='têst1';
         var encrypted = aliceSession.encrypt(TEST_TEXT);
         expect(encrypted.type).toEqual(0);
@@ -108,17 +105,7 @@ describe("olm", function() {
         console.log(TEST_TEXT, "->", decrypted);
         expect(decrypted).toEqual(TEST_TEXT);
 
-        // Pickle and restore sessions
-        var alicePickleKey = 'SomeSecretAlice';
-        var bobPickleKey = 'SomeSecretBob';
-        var aliceSessionPickled = aliceSession.pickle(alicePickleKey);
-        var bobSessionPickled = bobSession.pickle(bobPickleKey);
-
-        aliceSession = new Olm.Session();
-        bobSession = new Olm.Session();
-
-        aliceSession.unpickle(alicePickleKey, aliceSessionPickled);
-        bobSession.unpickle(bobPickleKey, bobSessionPickled);
+        testPickleAndRestore();
 
         TEST_TEXT='some emoji: ☕ 123 // after pickling';
         encrypted = bobSession.encrypt(TEST_TEXT);
@@ -126,34 +113,9 @@ describe("olm", function() {
         decrypted = aliceSession.decrypt(encrypted.type, encrypted.body);
         console.log(TEST_TEXT, "->", decrypted);
         expect(decrypted).toEqual(TEST_TEXT);
-    });
+    }
 
-    it('should encrypt and decrypt sequential', function() {
-        aliceAccount.create();
-        bobAccount.create();
-
-        bobAccount.generate_one_time_keys(1);
-        var bobOneTimeKeys = JSON.parse(bobAccount.one_time_keys()).curve25519;
-        bobAccount.mark_keys_as_published();
-
-        var bobIdKey = JSON.parse(bobAccount.identity_keys()).curve25519;
-        var bobSigningKey = JSON.parse(bobAccount.identity_keys()).ed25519;
-
-        bobAccount.generate_prekey();
-        bobAccount.mark_prekey_as_published();
-        bobAccount.generate_prekey();
-        bobAccount.mark_prekey_as_published();
-        bobAccount.forget_old_prekey();
-
-        var bobPrekey = Object.values(JSON.parse(bobAccount.prekey()).curve25519)[0];
-        var bobPreKeySignature = bobAccount.prekey_signature();
-
-        var otk_id = Object.keys(bobOneTimeKeys)[0];
-
-        aliceSession.create_outbound(
-            aliceAccount, bobIdKey, bobSigningKey, bobPrekey, bobPreKeySignature, bobOneTimeKeys[otk_id]
-        );
-
+    function testEncryptDecryptSequential() {
         var TEST_TEXT='têst1';
         var encrypted = aliceSession.encrypt(TEST_TEXT);
         expect(encrypted.type).toEqual(0);
@@ -170,6 +132,7 @@ describe("olm", function() {
         console.log(TEST_TEXT, "->", decrypted);
         expect(decrypted).toEqual(TEST_TEXT);
 
+        testPickleAndRestore();
 
         var TEST_TEXT_1 ='some emoji: ☕ 123';
         var encrypted_1 = bobSession.encrypt(TEST_TEXT_1);
@@ -190,5 +153,73 @@ describe("olm", function() {
         var decrypted2 = aliceSession.decrypt(encrypted_2.type, encrypted_2.body);
         console.log(TEST_TEXT_2, "->", decrypted2);
         expect(decrypted2).toEqual(TEST_TEXT_2);
+    }
+
+    it('should encrypt and decrypt with session created with OTK', function() {
+        bobAccount.generate_one_time_keys(1);
+        var bobOneTimeKeys = JSON.parse(bobAccount.one_time_keys()).curve25519;
+        bobAccount.mark_keys_as_published();
+
+        var bobIdKey = JSON.parse(bobAccount.identity_keys()).curve25519;
+        var bobSigningKey = JSON.parse(bobAccount.identity_keys()).ed25519;
+
+        var bobPrekey = Object.values(JSON.parse(bobAccount.prekey()).curve25519)[0];
+        var bobPreKeySignature = bobAccount.prekey_signature();
+
+        var otk_id = Object.keys(bobOneTimeKeys)[0];
+
+        aliceSession.create_outbound(
+            aliceAccount, bobIdKey, bobSigningKey, bobPrekey, bobPreKeySignature, bobOneTimeKeys[otk_id]
+        );
+
+        testEncryptDecrypt();
+    });
+
+    it('should encrypt and decrypt sequential with session created with OTK', function() {
+        bobAccount.generate_one_time_keys(1);
+        var bobOneTimeKeys = JSON.parse(bobAccount.one_time_keys()).curve25519;
+        bobAccount.mark_keys_as_published();
+
+        var bobIdKey = JSON.parse(bobAccount.identity_keys()).curve25519;
+        var bobSigningKey = JSON.parse(bobAccount.identity_keys()).ed25519;
+
+        var bobPrekey = Object.values(JSON.parse(bobAccount.prekey()).curve25519)[0];
+        var bobPreKeySignature = bobAccount.prekey_signature();
+
+        var otk_id = Object.keys(bobOneTimeKeys)[0];
+
+        aliceSession.create_outbound(
+            aliceAccount, bobIdKey, bobSigningKey, bobPrekey, bobPreKeySignature, bobOneTimeKeys[otk_id]
+        );
+
+        testEncryptDecryptSequential();
+    });
+
+    it('should encrypt and decrypt with session created without OTK', function() {
+        var bobIdKey = JSON.parse(bobAccount.identity_keys()).curve25519;
+        var bobSigningKey = JSON.parse(bobAccount.identity_keys()).ed25519;
+
+        var bobPrekey = Object.values(JSON.parse(bobAccount.prekey()).curve25519)[0];
+        var bobPreKeySignature = bobAccount.prekey_signature();
+
+        aliceSession.create_outbound_without_otk(
+            aliceAccount, bobIdKey, bobSigningKey, bobPrekey, bobPreKeySignature
+        );
+
+        testEncryptDecrypt();
+    });
+
+    it('should encrypt and decrypt sequential with session created without OTK', function() {
+        var bobIdKey = JSON.parse(bobAccount.identity_keys()).curve25519;
+        var bobSigningKey = JSON.parse(bobAccount.identity_keys()).ed25519;
+
+        var bobPrekey = Object.values(JSON.parse(bobAccount.prekey()).curve25519)[0];
+        var bobPreKeySignature = bobAccount.prekey_signature();
+
+        aliceSession.create_outbound_without_otk(
+            aliceAccount, bobIdKey, bobSigningKey, bobPrekey, bobPreKeySignature
+        );
+
+        testEncryptDecryptSequential();
     });
 });
