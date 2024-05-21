@@ -172,7 +172,7 @@ describe("olm", function() {
             aliceAccount, bobIdKey, bobSigningKey, bobPrekey, bobPreKeySignature, bobOneTimeKeys[otk_id]
         );
 
-        testEncryptDecrypt()
+        testEncryptDecrypt();
     });
 
     it('should encrypt and decrypt sequential with session created with OTK', function() {
@@ -206,7 +206,7 @@ describe("olm", function() {
             aliceAccount, bobIdKey, bobSigningKey, bobPrekey, bobPreKeySignature
         );
 
-        testEncryptDecrypt()
+        testEncryptDecrypt();
     });
 
     it('should encrypt and decrypt sequential with session created without OTK', function() {
@@ -220,7 +220,6 @@ describe("olm", function() {
             aliceAccount, bobIdKey, bobSigningKey, bobPrekey, bobPreKeySignature
         );
 
-        testEncryptDecryptSequential()
+        testEncryptDecryptSequential();
     });
-
 });

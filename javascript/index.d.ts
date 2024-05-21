@@ -43,7 +43,6 @@ declare class Session {
     create_outbound(
         account: Account, their_identity_key: string, their_one_time_key: string,
     ): void;
-    create_outbound_without_otk(account: Account, their_identity_key: string): void;
     create_inbound(account: Account, one_time_key_message: string): void;
     create_inbound_from(
         account: Account, identity_key: string, one_time_key_message: string,
@@ -57,7 +56,6 @@ declare class Session {
         body: string;
     };
     decrypt(message_type: number, message: string): string;
-    decrypt_sequential(message_type: number, message: string): string;
     describe(): string;
 }
 

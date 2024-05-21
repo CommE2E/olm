@@ -409,9 +409,9 @@ OLM_EXPORT size_t olm_create_outbound_session_without_otk(
  * If the message was for an unsupported protocol version then
  * olm_session_last_error() will be "BAD_MESSAGE_VERSION". If the message
  * couldn't be decoded then olm_session_last_error() will be
- * "BAD_MESSAGE_FORMAT". If the message refers to an unknown one time
- * key or prekey wasn't used as one time key then
- * olm_session_last_error() will be "BAD_MESSAGE_KEY_ID". */
+ * "BAD_MESSAGE_FORMAT". If the message refers to an unknown one time key,
+ * or if the message does not have a one time key and is using an unknown prekey,
+ * then olm_session_last_error() will be "BAD_MESSAGE_KEY_ID". */
 OLM_EXPORT size_t olm_create_inbound_session(
     OlmSession * session,
     OlmAccount * account,
@@ -486,7 +486,7 @@ OLM_EXPORT size_t olm_matches_inbound_session_from(
 /** Removes the one time keys that the session used from the account. Returns
  * olm_error() on failure. If the account doesn't have any matching one time
  * keys then olm_account_last_error() will be "BAD_MESSAGE_KEY_ID".
- * If the prekey was used as one time key then this is no-op. */
+ * If no one time key was used, then this is a no-op. */
 OLM_EXPORT size_t olm_remove_one_time_keys(
     OlmAccount * account,
     OlmSession * session
