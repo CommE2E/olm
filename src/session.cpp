@@ -97,15 +97,8 @@ std::size_t olm::Session::new_outbound_session(
     }
 
     // Calculate the shared secret S via triple DH
-    std::uint8_t* secret;
-    if (one_time_key) {
-        secret = new std::uint8_t[4 * CURVE25519_SHARED_SECRET_LENGTH];
-    } else {
-        secret = new std::uint8_t[3 * CURVE25519_SHARED_SECRET_LENGTH];
-    }
-
+    std::uint8_t secret[CURVE25519_SHARED_SECRET_LENGTH * 4];
     std::uint8_t * pos = secret;
-
     _olm_crypto_curve25519_shared_secret(&alice_identity_key_pair, &bob_one_time_key, pos);
     pos += CURVE25519_SHARED_SECRET_LENGTH;
     _olm_crypto_curve25519_shared_secret(&base_key, &identity_key, pos);
@@ -115,7 +108,10 @@ std::size_t olm::Session::new_outbound_session(
         pos += CURVE25519_SHARED_SECRET_LENGTH;
         _olm_crypto_curve25519_shared_secret(&base_key, &pre_key, pos);
     }
-    ratchet.initialise_as_alice(secret, sizeof(secret), ratchet_key);
+
+    std::size_t shared_secret_steps = one_time_key ? 4 : 3;
+    std::size_t shared_secret_length = sizeof(std::uint8_t) * shared_secret_steps;
+    ratchet.initialise_as_alice(secret, shared_secret_length, ratchet_key);
 
     olm::unset(base_key);
     olm::unset(ratchet_key);
@@ -219,13 +215,7 @@ std::size_t olm::Session::new_inbound_session(
     _olm_curve25519_key_pair const & bob_prekey = our_prekey->key;
 
     // Calculate the shared secret S via triple DH
-    std::uint8_t* secret;
-    if (!using_prekey_as_otk) {
-        secret = new std::uint8_t[4 * CURVE25519_SHARED_SECRET_LENGTH];
-    } else {
-        secret = new std::uint8_t[3 * CURVE25519_SHARED_SECRET_LENGTH];
-    }
-
+    std::uint8_t secret[4 * CURVE25519_SHARED_SECRET_LENGTH];
     std::uint8_t * pos = secret;
     _olm_crypto_curve25519_shared_secret(&bob_one_time_key, &alice_identity_key, pos);
     pos += CURVE25519_SHARED_SECRET_LENGTH;
@@ -237,7 +227,9 @@ std::size_t olm::Session::new_inbound_session(
         _olm_crypto_curve25519_shared_secret(&bob_prekey, &alice_base_key, pos);
     }
 
-    ratchet.initialise_as_bob(secret, sizeof(secret), ratchet_key);
+    std::size_t shared_secret_steps = using_prekey_as_otk ? 3 : 4;
+    std::size_t shared_secret_length = sizeof(std::uint8_t) * shared_secret_steps;
+    ratchet.initialise_as_bob(secret, shared_secret_length, ratchet_key);
 
     olm::unset(secret);
 
