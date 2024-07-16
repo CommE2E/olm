@@ -222,4 +222,45 @@ describe("olm", function() {
 
         testEncryptDecryptSequential();
     });
+
+    it('should handle sender chain initialization and received_message flag setting', function() {
+        bobAccount.generate_one_time_keys(1);
+        var bobOneTimeKeys = JSON.parse(bobAccount.one_time_keys()).curve25519;
+        bobAccount.mark_keys_as_published();
+
+        var bobIdKey = JSON.parse(bobAccount.identity_keys()).curve25519;
+        var bobSigningKey = JSON.parse(bobAccount.identity_keys()).ed25519;
+
+        var bobPrekey = Object.values(JSON.parse(bobAccount.prekey()).curve25519)[0];
+        var bobPreKeySignature = bobAccount.prekey_signature();
+
+        var otk_id = Object.keys(bobOneTimeKeys)[0];
+
+        expect(aliceSession.is_sender_chain_empty()).toEqual(true);
+        aliceSession.create_outbound(
+            aliceAccount, bobIdKey, bobSigningKey, bobPrekey, bobPreKeySignature, bobOneTimeKeys[otk_id]
+        );
+        expect(aliceSession.is_sender_chain_empty()).toEqual(false);
+        expect(aliceSession.has_received_message()).toEqual(false);
+
+        var TEST_TEXT='têst1';
+        var encrypted = aliceSession.encrypt(TEST_TEXT);
+        expect(encrypted.type).toEqual(0);
+        bobSession.create_inbound(bobAccount, encrypted.body);
+        bobAccount.remove_one_time_keys(bobSession);
+        var decrypted = bobSession.decrypt(encrypted.type, encrypted.body);
+        expect(decrypted).toEqual(TEST_TEXT);
+
+        expect(bobSession.is_sender_chain_empty()).toEqual(true);
+        expect(bobSession.has_received_message()).toEqual(true);
+
+        TEST_TEXT='hot beverage: ☕';
+        encrypted = bobSession.encrypt(TEST_TEXT);
+        expect(encrypted.type).toEqual(1);
+        decrypted = aliceSession.decrypt(encrypted.type, encrypted.body);
+        expect(decrypted).toEqual(TEST_TEXT);
+        
+        expect(bobSession.is_sender_chain_empty()).toEqual(false);
+        expect(aliceSession.has_received_message()).toEqual(true);
+    }); 
 });

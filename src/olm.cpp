@@ -766,6 +766,12 @@ int olm_session_has_received_message(
     return from_c(session)->received_message;
 }
 
+int olm_session_is_sender_chain_empty(
+    OlmSession const * session
+) {
+    return from_c(session)->ratchet.sender_chain.empty();
+}
+
 void olm_session_describe(
     OlmSession * session, char *buf, size_t buflen
 ) {

@@ -498,6 +498,11 @@ Session.prototype['has_received_message'] = function() {
     ) ? true : false;
 };
 
+Session.prototype['is_sender_chain_empty'] = function() {
+    return session_method(Module['_olm_session_is_sender_chain_empty'])(
+        this.ptr
+    ) ? true : false;
+};
 
 Session.prototype['matches_inbound'] = restore_stack(function(
     one_time_key_message

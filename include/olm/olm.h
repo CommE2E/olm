@@ -445,6 +445,10 @@ OLM_EXPORT int olm_session_has_received_message(
     OlmSession const *session
 );
 
+OLM_EXPORT int olm_session_is_sender_chain_empty(
+    OlmSession const *session
+);
+
 /**
  * Write a null-terminated string describing the internal state of an olm
  * session to the buffer provided for debugging and logging purposes. If the
