@@ -594,6 +594,12 @@ OLM_EXPORT size_t olm_ed25519_verify(
     void * signature, size_t signature_length
 );
 
+/** Function to get the total memory allocated to the Emscripten heap in bytes.  */
+OLM_EXPORT unsigned int olm_get_total_memory(void);
+
+/** Function to calculate and return the amount of free memory available in bytes. */
+OLM_EXPORT unsigned int olm_get_free_memory(void);
+
 #ifdef __cplusplus
 }
 #endif

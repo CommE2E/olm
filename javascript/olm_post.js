@@ -779,3 +779,11 @@ olm_exports["get_library_version"] = restore_stack(function() {
         getValue(buf+2, 'i8'),
     ];
 });
+
+olm_exports["get_total_memory"] = restore_stack(function() {
+    return Module['_olm_get_total_memory']();
+});
+
+olm_exports["get_free_memory"] = restore_stack(function() {
+    return Module['_olm_get_free_memory']();
+});

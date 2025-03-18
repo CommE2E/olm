@@ -21,8 +21,12 @@
 #include "olm/base64.hh"
 #include "olm/memory.hh"
 
+#include <emscripten/emscripten.h>
+
 #include <new>
 #include <cstring>
+#include <iostream>
+#include <unistd.h>
 
 namespace {
 
@@ -1003,6 +1007,39 @@ size_t olm_ed25519_verify(
         from_c(message), message_length,
         from_c(signature), raw_signature_length
     );
+}
+
+extern "C" {
+    struct s_mallinfo {
+        int arena;    /* non-mmapped space allocated from system */
+        int ordblks;  /* number of free chunks */
+        int smblks;   /* always 0 */
+        int hblks;    /* always 0 */
+        int hblkhd;   /* space in mmapped regions */
+        int usmblks;  /* maximum total allocated space */
+        int fsmblks;  /* always 0 */
+        int uordblks; /* total allocated space */
+        int fordblks; /* total free space */
+        int keepcost; /* releasable (via malloc_trim) space */
+    };
+
+    extern s_mallinfo mallinfo();
+    extern void* sbrk(intptr_t increment);
+}
+
+unsigned int olm_get_total_memory() {
+    unsigned int total_memory = EM_ASM_INT(return HEAP8.length);
+    std::cout << "Total memory: " << total_memory << " bytes" << std::endl;
+    return total_memory;
+}
+
+unsigned int olm_get_free_memory() {
+    s_mallinfo info = mallinfo();
+    int totalMemory = EM_ASM_INT(return HEAP8.length);
+    unsigned int dynamicTop = reinterpret_cast<unsigned int>(sbrk(0));
+    unsigned int free_memory = totalMemory - dynamicTop + info.fordblks;
+    std::cout << "Free memory: " << free_memory << " bytes" << std::endl;
+    return free_memory;
 }
 
 }
