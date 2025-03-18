@@ -1037,7 +1037,7 @@ int olm_get_used_memory() {
     s_mallinfo info = mallinfo();
     unsigned int dynamicTop = reinterpret_cast<unsigned int>(sbrk(0));
     int used_memory = dynamicTop - info.fordblks ;
-    std::cout << "Used memory: " << used_memory << " bytes\n";
+    std::cout << "Used memory: " << used_memory << " bytes" << std::endl;
     return used_memory;
 }
 
