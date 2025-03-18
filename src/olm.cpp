@@ -1033,13 +1033,12 @@ unsigned int olm_get_total_memory() {
     return total_memory;
 }
 
-unsigned int olm_get_free_memory() {
+int olm_get_used_memory() {
     s_mallinfo info = mallinfo();
-    int totalMemory = EM_ASM_INT(return HEAP8.length);
     unsigned int dynamicTop = reinterpret_cast<unsigned int>(sbrk(0));
-    unsigned int free_memory = totalMemory - dynamicTop + info.fordblks;
-    std::cout << "Free memory: " << free_memory << " bytes" << std::endl;
-    return free_memory;
+    int used_memory = dynamicTop - info.fordblks ;
+    std::cout << "Used memory: " << used_memory << " bytes\n";
+    return used_memory;
 }
 
 }
