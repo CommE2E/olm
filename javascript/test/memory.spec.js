@@ -3,10 +3,8 @@
 var Olm = require('../olm');
 
 describe("olm memory", function() {
-    beforeEach(function(done) {
-        Olm.init().then(function() {
-            done();
-        });
+    beforeEach(async function() {
+        await Olm.init();
     });
 
     it('should return memory size and allocate more memory if needed', function() {
