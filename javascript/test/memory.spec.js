@@ -20,7 +20,7 @@ describe("olm memory", function() {
         const memory_before_creation = Olm.get_used_memory();
 
         let accounts = [];
-        for(let it = 0; it < 40; it = it + 1) {
+        for (let it = 0; it < 40; it = it + 1) {
             const account = new Olm.Account();
             account.create();
             accounts.push(account);
@@ -31,7 +31,7 @@ describe("olm memory", function() {
 
         expect(Olm.get_total_memory()).toBeGreaterThan(configured_total_memory);
 
-        for(let it = 0; it < 40; it = it + 1) {
+        for (let it = 0; it < 40; it = it + 1) {
             accounts[it].free();
         }
 
