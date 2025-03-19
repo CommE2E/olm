@@ -31,10 +31,14 @@ describe("olm", function() {
     var aliceAccount, bobAccount;
     var aliceSession, bobSession;
 
+    var memoryBefore;
+
     beforeEach(function(done) {
         // This should really be in a beforeAll, but jasmine-node
         // doesn't support that
         Olm.init().then(function() {
+            memoryBefore = Olm.get_used_memory();
+
             aliceAccount = new Olm.Account();
             bobAccount = new Olm.Account();
             aliceSession = new Olm.Session();
@@ -73,6 +77,11 @@ describe("olm", function() {
             bobSession.free();
             bobSession = undefined;
         }
+
+        const memoryAfter = Olm.get_used_memory();
+
+        // Additional memory-leak check.
+        expect(memoryAfter).toEqual(memoryBefore);
     });
 
     function testPickleAndRestore(){
@@ -80,6 +89,12 @@ describe("olm", function() {
         var bobPickleKey = 'SomeSecretBob';
         var aliceSessionPickled = aliceSession.pickle(alicePickleKey);
         var bobSessionPickled = bobSession.pickle(bobPickleKey);
+
+        aliceSession.free();
+        aliceSession = undefined;
+
+        bobSession.free();
+        bobSession = undefined;
 
         aliceSession = new Olm.Session();
         bobSession = new Olm.Session();
@@ -259,8 +274,8 @@ describe("olm", function() {
         expect(encrypted.type).toEqual(1);
         decrypted = aliceSession.decrypt(encrypted.type, encrypted.body);
         expect(decrypted).toEqual(TEST_TEXT);
-        
+
         expect(bobSession.is_sender_chain_empty()).toEqual(false);
         expect(aliceSession.has_received_message()).toEqual(true);
-    }); 
+    });
 });
