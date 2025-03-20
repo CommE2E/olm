@@ -594,11 +594,14 @@ OLM_EXPORT size_t olm_ed25519_verify(
     void * signature, size_t signature_length
 );
 
+/** The block below contains only Emscripten-specific functions. */
+#ifdef EMSCRIPTEN
 /** Function to get the total memory allocated to the Emscripten heap in bytes.  */
 OLM_EXPORT unsigned int olm_get_total_memory(void);
 
 /** Function to calculate and return the amount of used memory in bytes. */
 OLM_EXPORT int olm_get_used_memory(void);
+#endif
 
 #ifdef __cplusplus
 }

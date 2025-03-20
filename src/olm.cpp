@@ -21,12 +21,14 @@
 #include "olm/base64.hh"
 #include "olm/memory.hh"
 
+#ifdef EMSCRIPTEN
 #include <emscripten/emscripten.h>
+#include <iostream>
+#include <unistd.h>
+#endif
 
 #include <new>
 #include <cstring>
-#include <iostream>
-#include <unistd.h>
 
 namespace {
 
@@ -1009,6 +1011,7 @@ size_t olm_ed25519_verify(
     );
 }
 
+#ifdef EMSCRIPTEN
 extern "C" {
     struct s_mallinfo {
         int arena;    /* non-mmapped space allocated from system */
@@ -1040,5 +1043,6 @@ int olm_get_used_memory() {
     std::cout << "Used memory: " << used_memory << " bytes" << std::endl;
     return used_memory;
 }
+#endif
 
 }
