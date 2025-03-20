@@ -21,12 +21,13 @@
 #include "olm/base64.hh"
 #include "olm/memory.hh"
 
+#ifdef EMSCRIPTEN
 #include <emscripten/emscripten.h>
+#include <unistd.h>
+#endif
 
 #include <new>
 #include <cstring>
-#include <iostream>
-#include <unistd.h>
 
 namespace {
 
@@ -1009,6 +1010,7 @@ size_t olm_ed25519_verify(
     );
 }
 
+#ifdef EMSCRIPTEN
 extern "C" {
     struct s_mallinfo {
         int arena;    /* non-mmapped space allocated from system */
@@ -1028,17 +1030,14 @@ extern "C" {
 }
 
 unsigned int olm_get_total_memory() {
-    unsigned int total_memory = EM_ASM_INT(return HEAP8.length);
-    std::cout << "Total memory: " << total_memory << " bytes" << std::endl;
-    return total_memory;
+    return EM_ASM_INT(return HEAP8.length);
 }
 
 int olm_get_used_memory() {
     s_mallinfo info = mallinfo();
     unsigned int dynamicTop = reinterpret_cast<unsigned int>(sbrk(0));
-    int used_memory = dynamicTop - info.fordblks ;
-    std::cout << "Used memory: " << used_memory << " bytes" << std::endl;
-    return used_memory;
+    return dynamicTop - info.fordblks ;
 }
+#endif
 
 }
