@@ -47,6 +47,7 @@ function bzero(ptr, n) {
 /** @constructor */
 function Account() {
     var size = Module['_olm_account_size']();
+    console.log("new olm.Account");
     this.buf = malloc(size);
     this.ptr = Module['_olm_account'](this.buf);
 }
@@ -66,10 +67,12 @@ function account_method(wrapped) {
 
 Account.prototype['free'] = function() {
     Module['_olm_clear_account'](this.ptr);
+    console.log("olm.Account.free");
     free(this.ptr);
 }
 
 Account.prototype['create'] = restore_stack(function() {
+    console.log("olm.Account.create");
     var random_length = account_method(
         Module['_olm_create_account_random_length']
     )(this.ptr);
@@ -85,6 +88,7 @@ Account.prototype['create'] = restore_stack(function() {
 });
 
 Account.prototype['identity_keys'] = restore_stack(function() {
+    console.log("olm.Account.identity_keys");
     var keys_length = account_method(
         Module['_olm_account_identity_keys_length']
     )(this.ptr);
@@ -96,6 +100,7 @@ Account.prototype['identity_keys'] = restore_stack(function() {
 });
 
 Account.prototype['sign'] = restore_stack(function(message) {
+    console.log("olm.Account.sign");
     var signature_length = account_method(
         Module['_olm_account_signature_length']
     )(this.ptr);
@@ -119,6 +124,7 @@ Account.prototype['sign'] = restore_stack(function(message) {
 });
 
 Account.prototype['one_time_keys'] = restore_stack(function() {
+    console.log("olm.Account.one_time_keys");
     var keys_length = account_method(
         Module['_olm_account_one_time_keys_length']
     )(this.ptr);
@@ -130,10 +136,12 @@ Account.prototype['one_time_keys'] = restore_stack(function() {
 });
 
 Account.prototype['mark_keys_as_published'] = restore_stack(function() {
+    console.log("olm.Account.mark_keys_as_published");
     account_method(Module['_olm_account_mark_keys_as_published'])(this.ptr);
 });
 
 Account.prototype['max_number_of_one_time_keys'] = restore_stack(function() {
+    console.log("olm.Account.max_number_of_one_time_keys");
     return account_method(Module['_olm_account_max_number_of_one_time_keys'])(
         this.ptr
     );
@@ -142,6 +150,7 @@ Account.prototype['max_number_of_one_time_keys'] = restore_stack(function() {
 Account.prototype['generate_one_time_keys'] = restore_stack(function(
     number_of_keys
 ) {
+    console.log("olm.Account.generateone_time_keys");
     var random_length = account_method(
         Module['_olm_account_generate_one_time_keys_random_length']
     )(this.ptr, number_of_keys);
@@ -157,12 +166,14 @@ Account.prototype['generate_one_time_keys'] = restore_stack(function(
 });
 
 Account.prototype['remove_one_time_keys'] = restore_stack(function(session) {
+    console.log("olm.Account.remove_one_time_keys");
     account_method(Module['_olm_remove_one_time_keys'])(
         this.ptr, session.ptr
     );
 });
 
 Account.prototype['generate_prekey'] = restore_stack(function() {
+    console.log("olm.Account.generate_prekey");
     var random_length = account_method(
         Module['_olm_account_generate_prekey_random_length']
     )(this.ptr);
@@ -178,6 +189,7 @@ Account.prototype['generate_prekey'] = restore_stack(function() {
 });
 
 Account.prototype['prekey'] = restore_stack(function() {
+    console.log("olm.Account.prekey");
     var keys_length = account_method(
         Module['_olm_account_prekey_length']
     )(this.ptr);
@@ -189,24 +201,28 @@ Account.prototype['prekey'] = restore_stack(function() {
 });
 
 Account.prototype['forget_old_prekey'] = restore_stack(function() {
+    console.log("olm.Account.forget_old_prekey");
     account_method(Module['_olm_account_forget_old_prekey'])(
         this.ptr
     );
 });
 
 Account.prototype['mark_prekey_as_published'] = restore_stack(function() {
+    console.log("olm.Account.mark_prekey_as_published");
     account_method(Module['_olm_account_mark_prekey_as_published'])(
         this.ptr
     );
 });
 
 Account.prototype['last_prekey_publish_time'] = restore_stack(function() {
+    console.log("olm.Account.last_prekey_publish_time");
     return account_method(Module['_olm_account_get_last_prekey_publish_time'])(
         this.ptr
     );
 });
 
 Account.prototype['unpublished_prekey'] = restore_stack(function() {
+    console.log("olm.Account.unpublished_prekey");
     var keys_length = account_method(
         Module['_olm_account_prekey_length']
     )(this.ptr);
@@ -220,6 +236,7 @@ Account.prototype['unpublished_prekey'] = restore_stack(function() {
 });
 
 Account.prototype['prekey_signature'] = restore_stack(function(message) {
+    console.log("olm.Account.prekey_signature");
     var signature_length = account_method(
         Module['_olm_account_signature_length']
     )(this.ptr);
@@ -233,6 +250,7 @@ Account.prototype['prekey_signature'] = restore_stack(function(message) {
 });
 
 Account.prototype['generate_fallback_key'] = restore_stack(function() {
+    console.log("olm.Account.generate_fallback_key");
     var random_length = account_method(
         Module['_olm_account_generate_fallback_key_random_length']
     )(this.ptr);
@@ -248,6 +266,7 @@ Account.prototype['generate_fallback_key'] = restore_stack(function() {
 });
 
 Account.prototype['fallback_key'] = restore_stack(function() {
+    console.log("olm.Account.fallback_key");
     var keys_length = account_method(
         Module['_olm_account_fallback_key_length']
     )(this.ptr);
@@ -259,6 +278,7 @@ Account.prototype['fallback_key'] = restore_stack(function() {
 });
 
 Account.prototype['unpublished_fallback_key'] = restore_stack(function() {
+    console.log("olm.Account.unpublished_fallback_key");
     var keys_length = account_method(
         Module['_olm_account_unpublished_fallback_key_length']
     )(this.ptr);
@@ -270,12 +290,14 @@ Account.prototype['unpublished_fallback_key'] = restore_stack(function() {
 });
 
 Account.prototype['forget_old_fallback_key'] = restore_stack(function() {
+    console.log("olm.Account.forget_old_fallback_key");
     account_method(Module['_olm_account_forget_old_fallback_key'])(
         this.ptr
     );
 });
 
 Account.prototype['pickle'] = restore_stack(function(key) {
+    console.log("olm.Account.pickle");
     var key_array = array_from_string(key);
     var pickle_length = account_method(
         Module['_olm_pickle_account_length']
@@ -297,6 +319,7 @@ Account.prototype['pickle'] = restore_stack(function(key) {
 });
 
 Account.prototype['unpickle'] = restore_stack(function(key, pickle) {
+    console.log("olm.Account.unpickle");
     var key_array = array_from_string(key);
     var key_buffer = stack(key_array);
     var pickle_array = array_from_string(pickle);
@@ -317,6 +340,7 @@ Account.prototype['unpickle'] = restore_stack(function(key, pickle) {
 
 /** @constructor */
 function Session() {
+    console.log('new olm.Session');
     var size = Module['_olm_session_size']();
     this.buf = malloc(size);
     this.ptr = Module['_olm_session'](this.buf);
@@ -336,11 +360,13 @@ function session_method(wrapped) {
 }
 
 Session.prototype['free'] = function() {
+    console.log('olm.Session.free');
     Module['_olm_clear_session'](this.ptr);
     free(this.ptr);
 }
 
 Session.prototype['pickle'] = restore_stack(function(key) {
+    console.log('olm.Session.pickle');
     var key_array = array_from_string(key);
     var pickle_length = session_method(
         Module['_olm_pickle_session_length']
@@ -362,6 +388,7 @@ Session.prototype['pickle'] = restore_stack(function(key) {
 });
 
 Session.prototype['unpickle'] = restore_stack(function(key, pickle) {
+    console.log('olm.Session.unpickle');
     var key_array = array_from_string(key);
     var key_buffer = stack(key_array);
     var pickle_array = array_from_string(pickle);
@@ -383,6 +410,7 @@ Session.prototype['unpickle'] = restore_stack(function(key, pickle) {
 Session.prototype['create_outbound'] = restore_stack(function(
     account, their_identity_key, their_signing_key, their_pre_key, their_pre_key_signature, their_one_time_key
 ) {
+    console.log('olm.Session.create_outbound');
     var random_length = session_method(
         Module['_olm_create_outbound_session_random_length']
     )(this.ptr);
@@ -416,6 +444,7 @@ Session.prototype['create_outbound'] = restore_stack(function(
 Session.prototype['create_outbound_without_otk'] = restore_stack(function(
     account, their_identity_key, their_signing_key, their_pre_key, their_pre_key_signature
 ) {
+    console.log('olm.Session.create_outbound_without_otk');
     var random_length = session_method(
         Module['_olm_create_outbound_session_random_length']
     )(this.ptr);
@@ -446,6 +475,7 @@ Session.prototype['create_outbound_without_otk'] = restore_stack(function(
 Session.prototype['create_inbound'] = restore_stack(function(
     account, one_time_key_message
 ) {
+    console.log('olm.Session.create_inbound');
     var message_array = array_from_string(one_time_key_message);
     var message_buffer = stack(message_array);
     try {
@@ -464,6 +494,7 @@ Session.prototype['create_inbound'] = restore_stack(function(
 Session.prototype['create_inbound_from'] = restore_stack(function(
     account, identity_key, one_time_key_message
 ) {
+    console.log('olm.Session.create_inbound_from');
     var identity_key_array = array_from_string(identity_key);
     var identity_key_buffer = stack(identity_key_array);
     var message_array = array_from_string(one_time_key_message);
@@ -484,6 +515,7 @@ Session.prototype['create_inbound_from'] = restore_stack(function(
 });
 
 Session.prototype['session_id'] = restore_stack(function() {
+    console.log('olm.Session.session_id');
     var id_length = session_method(Module['_olm_session_id_length'])(this.ptr);
     var id_buffer = stack(id_length + NULL_BYTE_PADDING_LENGTH);
     session_method(Module['_olm_session_id'])(
@@ -493,12 +525,14 @@ Session.prototype['session_id'] = restore_stack(function() {
 });
 
 Session.prototype['has_received_message'] = function() {
+    console.log('olm.Session.has_received_message');
     return session_method(Module['_olm_session_has_received_message'])(
         this.ptr
     ) ? true : false;
 };
 
 Session.prototype['is_sender_chain_empty'] = function() {
+    console.log('olm.Session.is_sender_chain_empty');
     return session_method(Module['_olm_session_is_sender_chain_empty'])(
         this.ptr
     ) ? true : false;
@@ -507,6 +541,7 @@ Session.prototype['is_sender_chain_empty'] = function() {
 Session.prototype['matches_inbound'] = restore_stack(function(
     one_time_key_message
 ) {
+    console.log('olm.Session.matches_inbound');
     var message_array = array_from_string(one_time_key_message);
     var message_buffer = stack(message_array);
     return session_method(Module['_olm_matches_inbound_session'])(
@@ -517,6 +552,7 @@ Session.prototype['matches_inbound'] = restore_stack(function(
 Session.prototype['matches_inbound_from'] = restore_stack(function(
     identity_key, one_time_key_message
 ) {
+    console.log('olm.Session.matches_inbound_from');
     var identity_key_array = array_from_string(identity_key);
     var identity_key_buffer = stack(identity_key_array);
     var message_array = array_from_string(one_time_key_message);
@@ -531,6 +567,7 @@ Session.prototype['matches_inbound_from'] = restore_stack(function(
 Session.prototype['encrypt'] = restore_stack(function(
     plaintext
 ) {
+    console.log('olm.Session.encrypt');
     var plaintext_buffer, message_buffer, plaintext_length, random, random_length;
     try {
         random_length = session_method(
@@ -591,6 +628,7 @@ Session.prototype['encrypt'] = restore_stack(function(
 Session.prototype['decrypt'] = restore_stack(function(
     message_type, message
 ) {
+    console.log('olm.Session.decrypt');
     var message_buffer, plaintext_buffer, max_plaintext_length;
 
     try {
@@ -636,6 +674,7 @@ Session.prototype['decrypt'] = restore_stack(function(
 Session.prototype['decrypt_sequential'] = restore_stack(function(
     message_type, message
 ) {
+    console.log('olm.Session.decrypt_sequential');
     var message_buffer, plaintext_buffer, max_plaintext_length;
 
     try {
@@ -679,6 +718,7 @@ Session.prototype['decrypt_sequential'] = restore_stack(function(
 });
 
 Session.prototype['describe'] = restore_stack(function() {
+    console.log('olm.Session.describe');
     var description_buf;
     try {
         description_buf = malloc(256);
@@ -693,6 +733,7 @@ Session.prototype['describe'] = restore_stack(function() {
 
 /** @constructor */
 function Utility() {
+    console.log('new olm.Utility');
     var size = Module['_olm_utility_size']();
     this.buf = malloc(size);
     this.ptr = Module['_olm_utility'](this.buf);
@@ -712,11 +753,13 @@ function utility_method(wrapped) {
 }
 
 Utility.prototype['free'] = function() {
+    console.log('olm.Utility.free');
     Module['_olm_clear_utility'](this.ptr);
     free(this.ptr);
 }
 
 Utility.prototype['sha256'] = restore_stack(function(input) {
+    console.log('olm.Utility.sha256');
     var output_length = utility_method(Module['_olm_sha256_length'])(this.ptr);
     var input_array = array_from_string(input);
     var input_buffer = stack(input_array);
@@ -740,6 +783,7 @@ Utility.prototype['sha256'] = restore_stack(function(input) {
 Utility.prototype['ed25519_verify'] = restore_stack(function(
     key, message, signature
 ) {
+    console.log('olm.Utility.ed25519_verify');
     var key_array = array_from_string(key);
     var key_buffer = stack(key_array);
     var message_array = array_from_string(message);
